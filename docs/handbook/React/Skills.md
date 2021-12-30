@@ -325,3 +325,42 @@ const useWindowWidth = () => {
 };
 export default useWindowWidth;
 ```
+
+## useLayoutEffect
+
+-   useLayoutEffect 与 useEffect 使用方式是完全一致的，useLayoutEffect 的区别在于它会在所有的 DOM 变更之后同步调用 effect。
+-   可以使用它来读取 DOM 布局并同步触发重渲染。在浏览器执行绘制之前， useLayoutEffect 内部的更新计划将被同步刷新。
+-   通常对于一些通过 JS 计算的布局，如果你想减少 useEffect 带来的「页面抖动」,你可以考虑使用 useLayoutEffect 来代替它。
+-   需要注意 useLayoutEffect 与 componentDidMount、componentDidUpdate 的调用阶段是一样的。
+-   useLayoutEffect 内部的更新计划将会在浏览器执行下一次绘制前被同步执行。
+-   本质上还是 useLayoutEffect 的实现是基于 micro ，而 Effect 是基于 macro ，所以 useLayoutEffect 会在页面更新前去执行。
+-   如果你使用服务端渲染，请记住，无论 useLayoutEffect 还是 useEffect 都无法在 Javascript 代码加载完成之前执行。这就是为什么在服务端渲染组件中引入 useLayoutEffect 代码时会触发 React 告警。要解决这个问题，需要将代码逻辑移至 useEffect 中（如果首次渲染不需要这段逻辑的情况下），或是将该组件延迟到客户端渲染完成后再显示（如果直到 useLayoutEffect 执行之前 HTML 都显示错乱的情况下）。
+-   与 useEffect 的区别之一：与 componentDidMount、componentDidUpdate 不同的是，传给 useEffect 的函数会在浏览器完成布局与绘制之后，在一个延迟事件中被调用。虽然 useEffect 会在浏览器绘制后延迟执行，但会保证在任何新的渲染前执行。在开始新的更新前，React 总会先清除上一轮渲染的 effect。
+
+## useDebugValue
+
+useDebugValue 可用于在 React 开发者工具中显示自定义 hook 的标签，它接受两个参数:
+
+-   value 为我们要重点关注的变量，该参数表示在 DevTools 中显示的 hook 标志。
+-   fn 表明如何格式化变量 value , 该函数只有在 Hook 被检查时才会被调用。它接受 debug 值作为参数，并且会返回一个格式化的显示值。
+
+-   useDebugValue 应该在自定义 hook 中使用，如果直接在组件内使用是无效的。
+
+当我们自定义一些 Hook 时，可以通过 useDebugValue 配合 React DevTools 快速定位我们自己定义的 Hook。
+
+例：直接写到自定义 hook 里即可，
+
+```tsx
+import { useDebugValue, useState } from "react";
+
+function useName() {
+	const [state] = useState("xxx");
+	useDebugValue("xxx");
+	return state;
+}
+
+function App() {
+	const name = useName();
+	return <div>{name}</div>;
+}
+```

@@ -9,6 +9,22 @@ module.exports = {
 			lang: "zh-CN",
 		},
 	},
+	// head: [
+	// 	[
+	// 		"link",
+	// 		{
+	// 			rel: "icon",
+	// 			href: "/public/favicon.ico",
+	// 		},
+	// 	],
+	// 	[
+	// 		"meta",
+	// 		{
+	// 			name: "viewport",
+	// 			content: "width=device-width,initial-scale=1,user-scalable=no",
+	// 		},
+	// 	],
+	// ],
 	theme: "reco",
 	themeConfig: {
 		subSidebar: "auto",
@@ -41,6 +57,14 @@ module.exports = {
 						path: "/handbook/React/RouterGuard",
 					},
 					{ title: "React开发体会", path: "/handbook/React/Skills" },
+					{
+						title: "Hooks - useReducer",
+						path: "/handbook/React/UseReducer",
+					},
+					{
+						title: "Hooks - useImperativeHandle",
+						path: "/handbook/React/UseImperativeHandle",
+					},
 				],
 			},
 			{
@@ -155,8 +179,37 @@ module.exports = {
 		],
 		author: "EricYangXD",
 		huawei: true,
-		// logo: "/assets/logo.png",
-		authorAvatar: "/assets/avatar.jpg",
+		// logo: "/public/logo.png",
+		// authorAvatar: "/public/logo.png",
 		type: "blog",
+		//友情链接
+		// friendLink: [
+		// 	{
+		// 		title: "午后南杂",
+		// 		desc: "Enjoy when you can, and endure when you must.",
+		// 		email: "1156743527@qq.com",
+		// 		link: "https://www.recoluan.com",
+		// 	},
+		// 	{
+		// 		title: "vuepress-theme-reco",
+		// 		desc: "A simple and beautiful vuepress Blog & Doc theme.",
+		// 		avatar: "https://vuepress-theme-reco.recoluan.com/icon_vuepress_reco.png",
+		// 		link: "https://vuepress-theme-reco.recoluan.com",
+		// 	},
+		// ],
+		// 搜索设置
+		search: true,
+		// searchMaxSuggestions: 10,
+		// 自动形成侧边导航
+		// sidebar: 'auto',
+		// 最后更新时间
+		lastUpdated: "Last Updated",
+		// 备案号
+		// record: "xxxx",
+		// 项目开始时间
+		// startYear: "2015",
 	},
+	// markdown: {
+	// 	lineNumbers: true,
+	// },
 };
