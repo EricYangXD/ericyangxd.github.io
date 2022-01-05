@@ -370,3 +370,13 @@ date: "2021-12-29"
     }
   }
 ```
+
+## Cascader 级联选择
+
+### Usage
+
+-   changeOnSelect:true; // 点击任一级菜单选项值都会发生变化
+-   options={options}; // {value,label,children}
+-   onChange={handleCascaderChange}; // 可以拿到 当前点击的 完整层级的 value, selectedOptions
+-   defaultValue={['all']}; // 默认值，设置对应的 value 即可
+-   expandTrigger="hover"; // 菜单展开方式 hover/click
