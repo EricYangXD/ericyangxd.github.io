@@ -2,7 +2,6 @@
 title: 记录一些Linux命令
 author: EricYangXD
 date: "2021-12-29"
-modified: "2022-01-05"
 ---
 
 ## 打包/解压 & 加密打包/解密解压

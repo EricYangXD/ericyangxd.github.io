@@ -8,7 +8,7 @@ date: "2021-12-29"
 
 -   依赖 valueOf,toString,ToPrimitive
 -   真值表如下:
--   ![JS类型转换真值表](../../assets/js-true-value.webp "JS类型转换真值表")
+-   ![JS类型转换真值表](../../assets/js-true-value.png "JS类型转换真值表")
 
 ## 判断上传的文件类型
 
