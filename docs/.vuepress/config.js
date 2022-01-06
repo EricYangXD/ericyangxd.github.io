@@ -10,20 +10,20 @@ module.exports = {
 		},
 	},
 	// head: [
-	// 	[
-	// 		"link",
-	// 		{
-	// 			rel: "icon",
-	// 			href: "/public/favicon.ico",
-	// 		},
-	// 	],
-	// 	[
-	// 		"meta",
-	// 		{
-	// 			name: "viewport",
-	// 			content: "width=device-width,initial-scale=1,user-scalable=no",
-	// 		},
-	// 	],
+	// [
+	// 	"link",
+	// 	{
+	// 		rel: "icon",
+	// 		href: "/public/favicon.ico",
+	// 	},
+	// ],
+	// [
+	// 	"meta",
+	// 	{
+	// 		name: "viewport",
+	// 		content: "width=device-width,initial-scale=1,user-scalable=no",
+	// 	},
+	// ],
 	// ],
 	theme: "reco",
 	themeConfig: {
@@ -133,7 +133,7 @@ module.exports = {
 				],
 			},
 			{
-				title: "Applet",
+				title: "小程序",
 				// path: "/handbook/Applet/Taro",
 				children: [
 					{
@@ -167,7 +167,7 @@ module.exports = {
 				],
 			},
 			{
-				title: "TamperMonkey",
+				title: "油猴",
 				// path: "/handbook/TamperMonkey/Plugin",
 				children: [
 					{
@@ -183,6 +183,24 @@ module.exports = {
 					{
 						title: "Http协议相关知识",
 						path: "/handbook/Http/Http",
+					},
+				],
+			},
+			{
+				title: "Vite",
+				children: [
+					{
+						title: "Vite相关知识点",
+						path: "/handbook/Vite/Vite",
+					},
+				],
+			},
+			{
+				title: "Web安全",
+				children: [
+					{
+						title: "Web安全相关知识点",
+						path: "/handbook/WebSecurity/WebSecurity",
 					},
 				],
 			},
