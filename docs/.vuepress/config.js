@@ -84,11 +84,19 @@ module.exports = {
 			},
 			{
 				title: "LeetCode",
-				// path: "/handbook/LeetCode/BinaryTree",
+				path: "/handbook/LeetCode/BinaryTree",
 				children: [
 					{
 						title: "二叉树",
 						path: "/handbook/LeetCode/BinaryTree",
+					},
+					{
+						title: "递归",
+						path: "/handbook/LeetCode/Recursive",
+					},
+					{
+						title: "动态规划",
+						path: "/handbook/LeetCode/DP",
 					},
 				],
 			},

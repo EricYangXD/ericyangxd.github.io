@@ -6,11 +6,11 @@ date: "2021-12-28"
 
 ## 好好搬砖，抓紧摸鱼
 
-### Hello there, I'm EricYangXD 👋👋👋
+### Hello there, I am EricYangXD 👋👋👋
 
 [![visitors](https://visitor-badge.glitch.me/badge?page_id=EricYangXD.EricYangXD)](https://github.com/EricYangXD)
 
-啥也不会的前端混子
+啥也不会的前端混子，努力搞钱，早日财务自由~~~
 
 **Languages:**
 

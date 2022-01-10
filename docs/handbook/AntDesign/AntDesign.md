@@ -380,3 +380,32 @@ date: "2021-12-29"
 -   onChange={handleCascaderChange}; // 可以拿到 当前点击的 完整层级的 value, selectedOptions
 -   defaultValue={['all']}; // 默认值，设置对应的 value 即可
 -   expandTrigger="hover"; // 菜单展开方式 hover/click
+
+## 国际化 tips
+
+-   修改 antd 国际化配置，自定义某些字段：
+
+```js
+import zh_CN from "antd/lib/locale-provider/zh_CN";
+console.log("zh_CN", zh_CN);
+const myZHCN = {
+	...zh_CN,
+	Modal: {
+		cancelText: "取消555",
+		justOkText: "知道了555",
+		okText: "确定555",
+	},
+};
+console.log("myZHCN", myZHCN);
+
+ReactDOM.render(
+	<React.StrictMode>
+		<BrowserRouter>
+			<ConfigProvider locale={myZHCN}>
+				<App />
+			</ConfigProvider>
+		</BrowserRouter>
+	</React.StrictMode>,
+	document.getElementById("root")
+);
+```

@@ -30,6 +30,8 @@ word-break: break-all;
 
 2. text-overflow: ellipsis
 
+-   配合块级元素
+
 ```css
 text-overflow: ellipsis;
 overflow: hidden;
