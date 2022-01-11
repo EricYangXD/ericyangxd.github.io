@@ -251,6 +251,9 @@ fetch("xxx.pdf")
 
 ### react-pdf
 
+-   基于 pdf.js
+-   参考一个[实例](https://mp.weixin.qq.com/s/EyFKeMujSmcEPQXjYNBL8w)
+
 ```
 const useWindowWidth = () => {
   const [width, setWidth] = useState(window.innerWidth);
@@ -306,9 +309,58 @@ const MyApp = () => {
 
 ### pdfh5
 
+-   基于 pdf.js
+
 ### PDFObject
 
+-   基于 pdf.js
+
 ### pdf.js
+
+-   参考 GitHub
+
+### react-pdf-viewer
+
+-   基于 pdf.js
+
+```jsx
+import React from 'react';
+import { Viewer, Worker, LocalizationMap, SpecialZoomLevel } from '@react-pdf-viewer/core';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import queryString from 'query-string';
+
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+// import zh_CN from '@react-pdf-viewer/locales/lib/zh_CN.json';
+import zh_CN from './zh_CN.json';// 自定义json 参考/demos/previewPDF/zh_CN.json
+
+const App = () => {
+  const defaultLayoutPluginInstance = defaultLayoutPlugin();
+  const { file } = queryString.parse(window.location.search);
+
+  return (
+    <Worker workerUrl={window._config.worker_api as string}>
+      <div
+        style={{
+          width: '100%',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+        }}
+      >
+        <Viewer
+          theme="dark"
+          defaultScale={SpecialZoomLevel.ActualSize}
+          fileUrl={file}
+          plugins={[defaultLayoutPluginInstance]}
+          localization={zh_CN as any as LocalizationMap}
+        />
+      </div>
+    </Worker>
+  );
+};
+
+export default App;
+```
 
 ## Taro 接入友盟
 
@@ -444,3 +496,132 @@ voiceAnnouncements(`
 -   把 < 和 > 运算符应用到字符串时，它们只用字符的 Unicode 编码比较字符串，而不考虑当地的排序规则。以这种方法生成的顺序不一定是正确的！！！
 -   例：'HangJinLu'>'HanZhongLu'; //返回 true
 -   str.sort (function(a,b){return a.localeCompare(b)}); // 用本地特定排序规则对字符串数组进行排序
+
+## 前端下载文件的方式
+
+-   目前前端直接下载 web 服务器或者 CDN 静态资源的方式有两种，一个是利用 a 标签，另一个是通过 window.open() 函数。
+
+### 利用 a 标签
+
+-   对本地图片，给 a 标签添加 download 属性后，用浏览器打开 html 文件后，点击超链接，弹出了路径选择窗口，点击保存，图片完成下载。
+
+-   对网络图片，点击下载的超链接，会发现并没有开始下载，而是在新标签页打开了图片。PS：如果你的网络图片渲染不出来，尝试在标签内添加 `<meta name="referrer" content="no-referrer">`
+
+    -   没有开始下载原因——很可能是浏览器的同源策略导致 download 属性失效造成的，失效之后做的仅仅是跳转功能。
+    -   由上可知，download 属性只适用于同源 URL。
+    -   可以使用 blob:URL 和 data:URL，以方便用户下载使用 js 生成的内容。
+    -   若 HTTP 头中的 Content-Disposition 属性赋予了一个不同于 download 属性的文件名，则 HTTP 头属性优先级更高。
+    -   若 HTTP 头中的 Content-Disposition 被设置为 inline，那么 Chrome, and Firefox 82 and later 会优先考虑 download 并把 Content-Disposition 视为 download，Firefox versions before 82 会优先考虑 Content-Disposition 且会展示 content inline。
+
+-   换个推流的方式，也就是用 js 将资源按照二进制流的方式读取，对二进制流生成一个 url，这个 url 是我们自己站点可访问的 url ，没有禁止跨域的限制。把 url 绑定到 `<a>` 标签的 href 属性中，因为浏览器无法打开二进制流文件，所以对于这样的资源，浏览器将开始下载而不是在新标签页打开资源。参考下面的 axios 文件下载。
+
+### 通过 window.open()
+
+-   `window.open(url,'_self') || window.open(url,'_blank')`
+
+### axios 文件下载
+
+```ts
+import { message } from "antd";
+import _ from "lodash";
+import axios, { AxiosRequestConfig } from "axios";
+
+interface axiosDownloadParams {
+	url: string;
+	params: any;
+	method: "GET" | "POST" | "get" | "post";
+	pFileName?: string;
+	baseURL: string;
+	failCallback?: (error: { code: number; message: string }) => void;
+	successCallback?: () => void;
+}
+
+/**
+ * get请求，判断正则表达式
+ */
+const getRegex = /^get$/i;
+
+/**
+ * 非get请求，下载资源
+ * @param url 请求url
+ * @param params 请求参数
+ * @param method 请求方法
+ */
+const axiosDownload =
+	({
+		url,
+		params,
+		method,
+		baseURL,
+		pFileName,
+		failCallback,
+		successCallback,
+	}: axiosDownloadParams) =>
+	() => {
+		// ajax 参数类型
+		const axiosConfig: AxiosRequestConfig = {
+			method,
+			url,
+			baseURL,
+			responseType: "blob",
+		};
+		if (getRegex.test(method)) {
+			axiosConfig.params = params || {};
+		} else {
+			axiosConfig.data = params || {};
+		}
+		// 发起ajax请求
+		axios(axiosConfig).then((res) => {
+			// 获取响应数据
+			const { data, headers } = res || {};
+			if (data.type === "application/json") {
+				const reader = new FileReader();
+				reader.readAsText(data, "utf-8");
+				reader.onload = () => {
+					const error = JSON.parse(reader.result as string);
+					if (failCallback) {
+						failCallback(error);
+					} else {
+						message.error(error.message);
+					}
+				};
+			} else {
+				// 获取【文件信息头】
+				const disposition = _.get(headers, "content-disposition");
+				// 获取【文件名称】
+				const fileName =
+					decodeURIComponent(
+						_.last(_.split(disposition, "=")) || ""
+					) ||
+					pFileName ||
+					"file.xlsx";
+				// 获取【文件内容】
+				const content = data as BlobPart;
+				// 构建文件【二进制内容】
+				const blob = new Blob([content], {
+					type: "application/octet-stream",
+				});
+				// 如果是非IE下载
+				if ("download" in document.createElement("a")) {
+					// 非IE下载
+					const elink = document.createElement("a");
+					elink.download = fileName;
+					elink.style.display = "none";
+					elink.href = URL.createObjectURL(blob);
+					document.body.appendChild(elink);
+					elink.click();
+					URL.revokeObjectURL(elink.href); // 释放URL 对象
+					document.body.removeChild(elink);
+					// elink.remove();
+				} else {
+					// IE10+下载
+					navigator.msSaveBlob &&
+						navigator.msSaveBlob(blob, fileName);
+				}
+				successCallback?.();
+			}
+		});
+	};
+
+export default axiosDownload;
+```

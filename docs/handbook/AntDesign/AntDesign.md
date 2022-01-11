@@ -248,6 +248,8 @@ date: "2021-12-29"
 
 ## Select 组件
 
+### 常规用法
+
 -   自定义 option
 -   支持本地过滤、排序
 
@@ -283,6 +285,12 @@ date: "2021-12-29"
 	</Option>
 </Select>
 ```
+
+### 自定义下拉菜单
+
+-   通过 dropdownRender 实现
+
+-   [示例](https://codesandbox.io/s/kuo-zhan-cai-dan-antd-4-18-2-forked-gnnfb?file=/index.js)
 
 ## Pagination 组件
 
