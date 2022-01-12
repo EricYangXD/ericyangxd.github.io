@@ -625,3 +625,62 @@ const axiosDownload =
 
 export default axiosDownload;
 ```
+
+## `#!/usr/bin node` 和 `#!/usr/bin/env node` 两者的区别
+
+-   是 Unix 和 Linux 脚本语言的第一行，目的就是指出，你想要你的这个文件中的代码用什么可执行程序去运行它
+
+-   `#!/usr/bin node` 是告诉操作系统执行这个脚本的时候，调用/usr/bin 下的 node 解释器；
+-   `#!/usr/bin/env node` 这种用法是为了防止操作系统用户没有将 node 装在默认的/usr/bin 路径里。当系统看到这一行的时候，首先会到 env 设置里查找 node 的安装路径，再调用对应路径下的解释器程序完成操作。
+-   `#!/usr/bin node` 相当于写死了 node 路径;
+-   `#!/usr/bin/env node` 会去环境设置寻找 node 目录，推荐这种写法。
+
+## 更新命令 `npx browserslist@latest --update-db`
+
+## npm/yarn 代理设置
+
+1. NPM 设置代理：
+
+```bash
+npm config set proxy="<http_proxy>"
+npm confit set https-proxy="<https_proxy>"
+```
+
+2. NPM 删除代理：
+
+```bash
+npm config delete proxy
+npm config delete https-proxy
+```
+
+3. YARN 设置代理:
+
+```bash
+yarn config set proxy <http_proxy>
+yarn config set https-proxy <https_proxy>
+```
+
+4. YARN 删除代理:
+
+```bash
+yarn config delete proxy
+yarn config delete https-proxy
+```
+
+5. 另外，设置 registry 如下
+
+```bash
+npm config set registry https://registry.npm.taobao.org/
+npm config set registry https://registry.npmjs.org/
+
+yarn config set registry https://registry.npm.taobao.org/
+yarn config set registry https://registry.npmjs.org/
+```
+
+## 为什么标签语义化
+
+1. 代码结构: 使页面没有 css 的情况下，也能够呈现出很好的内容结构。
+2. 有利于 SEO: 爬虫依赖标签来确定关键字的权重，因此可以和搜索引擎建立良好的沟通，帮助爬虫抓取更多的有效信息。
+3. 提升用户体验： 例如 title、alt 可以用于解释名称或者解释图片信息，以及 label 标签的灵活运用。
+4. 便于团队开发和维护: 语义化使得代码更具有可读性，让其他开发人员更加理解你的 html 结构，减少差异化。
+5. 方便其他设备解析: 如屏幕阅读器、盲人阅读器、移动设备等，以有意义的方式来渲染网页。

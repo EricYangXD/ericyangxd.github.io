@@ -129,41 +129,41 @@ html * {
 3. auto: 对于用户可见区域的元素，浏览器会正常渲染其内容；对于不可见区域的元素，浏览器会暂时跳过其内容的呈现，等到其处于用户可见区域时，浏览器在渲染其内容。
 
 ```css
-      .card {
-        position: relative;
-        overflow: hidden;
-        transition-duration: 0.3s;
-        margin-bottom: 10px;
-        width: 200px;
-        height: 100px;
-        background-color: #ffaa00;
-        **content-visibility: auto;**
-        // 添加此行:目的是在一定程度上解决滚动条上下跳动的问题，取一个item的大致高度作为初始高度
-        **contain-intrinsic-size: 312px;**
-      }
-      .card:before {
-        content: '';
-        position: absolute;
-        left: -665px;
-        top: -460px;
-        width: 300px;
-        height: 15px;
-        background-color: rgba(255, 255, 255, 0.5);
-        transform: rotate(-45deg);
-        animation: searchLights 2s ease-in 0s infinite;
-      }
-      @keyframes searchLights {
-        0% {
-        }
-        75% {
-          left: -100px;
-          top: 0;
-        }
-        100% {
-          left: 120px;
-          top: 100px;
-        }
-      }
+.card {
+  position: relative;
+  overflow: hidden;
+  transition-duration: 0.3s;
+  margin-bottom: 10px;
+  width: 200px;
+  height: 100px;
+  background-color: #ffaa00;
+  **content-visibility: auto;**
+  // 添加此行:目的是在一定程度上解决滚动条上下跳动的问题，取一个item的大致高度作为初始高度
+  **contain-intrinsic-size: 312px;**
+}
+.card:before {
+  content: '';
+  position: absolute;
+  left: -665px;
+  top: -460px;
+  width: 300px;
+  height: 15px;
+  background-color: rgba(255, 255, 255, 0.5);
+  transform: rotate(-45deg);
+  animation: searchLights 2s ease-in 0s infinite;
+}
+@keyframes searchLights {
+  0% {
+  }
+  75% {
+    left: -100px;
+    top: 0;
+  }
+  100% {
+    left: 120px;
+    top: 100px;
+  }
+}
 ```
 
 ## 隐藏打印弹窗
@@ -173,5 +173,33 @@ html * {
 	body {
 		display: none !important;
 	}
+}
+```
+
+## transform-origin
+
+1.  设置元素转换的原点/起点。初始值 50% 50% 0，即默认的转换原点是 center。
+2.  transform-origin 属性可以使用一个，两个或三个值来指定，其中每个值都表示一个偏移量。 没有明确定义的偏移将重置为其对应的初始值。
+3.  如果定义了两个或更多值并且没有值的关键字，或者唯一使用的关键字是 center，则第一个值表示水平偏移量，第二个值表示垂直偏移量。
+
+-   一个值：
+    -   必须是`<length>`，`<percentage>`，或 left, center, right, top, bottom 关键字中的一个。
+-   两个值：
+    -   其中一个必须是`<length>`，`<percentage>`，或 left, center, right 关键字中的一个。
+    -   另一个必须是`<length>`，`<percentage>`，或 top, center, bottom 关键字中的一个。
+-   三个值：
+    -   前两个值和只有两个值时的用法相同。
+    -   第三个值必须是`<length>`。它始终代表 Z 轴偏移量。
+
+## 修改图片「颜色」
+
+-   背景色变化时突出图片.
+
+```css
+img {
+	width: 16px;
+	height: 16px;
+	margin: 0 0 4px 8px;
+	filter: drop-shadow(0px 0px red);
 }
 ```

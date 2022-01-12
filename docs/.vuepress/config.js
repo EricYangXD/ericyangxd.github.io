@@ -65,6 +65,10 @@ module.exports = {
 						title: "Hooks - useImperativeHandle",
 						path: "/handbook/React/UseImperativeHandle",
 					},
+					{
+						title: "React+TypeScript Cheatsheets",
+						path: "/handbook/React/React-TS-CheatSheet-README",
+					},
 				],
 			},
 			{

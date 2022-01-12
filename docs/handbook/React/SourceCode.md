@@ -24,6 +24,14 @@ date: "2021-12-28"
 
 ### 2. useEffect
 
+-   可以把 useEffect Hook 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
+-   useEffect 的设计理念本身就比较推荐我们把依赖函数直接放在 useEffect 内部。
+
+-   对于无法移动到 useEffect 内部的函数：
+    -   尝试把函数移到组件外、
+    -   对于纯计算，可以在 effect 之外调用它，让 effect 依赖他的返回值、
+    -   万不得已时，将函数加入 effect 的依赖，并使用 useCallback 包裹该函数，确保他不随渲染而改变，除非函数的依赖发生变化。
+
 ### 3. useContext
 
 -   如果你只是想避免层层传递一些属性，组件组合（component composition）有时候是一个比 context 更好的解决方案。
@@ -44,7 +52,21 @@ date: "2021-12-28"
 
 ### 4. useCallback
 
+-   useCallback 正确用法：在 dom 上绑定事件使用普通函数，在组件上绑定、传递事件则用 useCallback，防止“父”组件渲染后导致要传递的函数也会重新生成而导致“子”组件的渲染，可能会导致 React.memo 失效。
+-   对于 useCallback 的替代方案：
+    -   「把函数移动到组件外部」
+    -   「把函数移动到 useEffect 内部」
+    -   「使用 userReducer 减少依赖」
+
 ### 5. useMemo
+
+-   类似 useEffect，把“创建”函数和依赖项数组作为参数传入  useMemo，它仅会在某个依赖项改变时才重新计算 memoized 值。这种优化有助于避免在每次渲染时都进行高开销的计算。
+-   记住，传入  useMemo  的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于  useEffect  的适用范畴，而不是  useMemo。
+-   如果没有提供依赖项数组，useMemo  在每次渲染时都会计算新的值。
+
+-   总结一下，useMemo 帮我们缓存了某个值，比如组件中某个数组/对象需要通过大量计算得到,而这个值依赖于某一个 state,我们希望只在依赖的 state 改变之后计算而不是任意 state 改变之后都会计算,这无疑会造成性能上的问题。
+
+-   useMemo 可以缓存某个高开销的计算函数，React.memo 可以缓存一个不需要频繁渲染更新的组件
 
 ### 6. useReducer
 
