@@ -69,6 +69,10 @@ module.exports = {
 						title: "React+TypeScript Cheatsheets",
 						path: "/handbook/React/React-TS-CheatSheet-README",
 					},
+					{
+						title: "JSX原理",
+						path: "/handbook/React/JSX",
+					},
 				],
 			},
 			{
@@ -101,6 +105,14 @@ module.exports = {
 					{
 						title: "动态规划",
 						path: "/handbook/LeetCode/DP",
+					},
+					{
+						title: "排序",
+						path: "/handbook/LeetCode/Sort",
+					},
+					{
+						title: "算法数据结构基础",
+						path: "/handbook/LeetCode/Basic",
 					},
 				],
 			},
@@ -176,6 +188,10 @@ module.exports = {
 						title: "Linux常用命令",
 						path: "/handbook/Skill/Linux",
 					},
+					{
+						title: "Emoji表情",
+						path: "/handbook/Skill/Emoji",
+					},
 				],
 			},
 			{
@@ -231,6 +247,24 @@ module.exports = {
 					{
 						title: "Git有用的命令 & VSCode插件",
 						path: "/handbook/Git/Git",
+					},
+				],
+			},
+			{
+				title: "Mac使用记录",
+				children: [
+					{
+						title: "Mac配置&使用记录",
+						path: "/handbook/Mac/Mac",
+					},
+				],
+			},
+			{
+				title: "文章诗句",
+				children: [
+					{
+						title: "记录一些文章诗句",
+						path: "/handbook/Poem/Poem",
 					},
 				],
 			},

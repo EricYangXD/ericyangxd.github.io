@@ -892,3 +892,14 @@ function sieOfLS() {
 ## blob、dataUrl、ArrayBuffer
 
 -   [图片](../../assets/image.jpg)
+
+## referrer
+
+1. HTML `<meta>` 标签 `name="referrer"` 属性主要用于控制网页发送给服务器的 referrer 信息，可以告诉服务器端用户是从哪个页面来到当前网页的。也就是说 HTTP 请求报头中的 referrer 包含了跳转至当前页面的上一个页面的 url 地址；
+2. 可以用来统计用户的来源，还可以用于分析用户的兴趣爱好、收集日志、优化缓存等等。
+3. 如果禁止 referrer，可以防止盗链，或也可以绕过防盗链，也能防范一些攻击。
+4. 在后台中使用了 referer 属性，会导致 js 和 php 的一些跳转出现问题，同时，也很有可能会导致一些第三方的统计代码失效，比如 cnzz，百度统计，解决方法是不用该属性，或者使用 iframe 包裹一层，用一个独立的 html 页面加载统计代码！
+5. `<meta name="referrer" content="no-referrer">` 由于需要跳转访问的页面带有网站访问限制，需要控制网页发送给服务器的 referrer 信息 设置为空，绕过 referer 鉴权检查。
+6. 开启后需要配置白名单，以免影响正常的 SEO。
+
+## 图片压缩网站 tinify
