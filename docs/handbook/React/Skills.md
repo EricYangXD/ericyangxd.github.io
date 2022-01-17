@@ -4,6 +4,11 @@ author: EricYangXD
 date: "2021-12-29"
 ---
 
+## 快速启动项目
+
+-   参考[这里 webpack](https://github.com/EricYangXD/LearnReact)
+-   参考[这里 vite](https://github.com/EricYangXD/vite-pro)
+
 ## key
 
 -   Q:为什么要有 key？
@@ -108,7 +113,7 @@ class Clock extends React.Component {
 
 -   简单易懂版
 
-![img](https://upload-images.jianshu.io/upload_images/16775500-8d325f8093591c76.jpg?imageMogr2/auto-orient/strip|imageView2/2/w/740/format/webp)
+![img](../../assets/react-lifecycle.png "React生命周期")
 
 -   当首次挂载组件时，按顺序执行 getDefaultProps、getInitialState、componentWillMount、render 和 componentDidMount。
 -   当卸载组件时，执行 componentWillUnmount。
@@ -364,3 +369,7 @@ function App() {
 	return <div>{name}</div>;
 }
 ```
+
+## React 常用方法及周边
+
+-   [React 总结](../../assets/react-zj.jpg)

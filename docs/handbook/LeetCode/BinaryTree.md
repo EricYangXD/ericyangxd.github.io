@@ -166,3 +166,9 @@ var levelOrder = function (root) {
 	return res;
 };
 ```
+
+## 困难
+
+### 297.二叉树的序列化与反序列化
+
+-   **字节**

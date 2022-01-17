@@ -14,3 +14,7 @@ date: "2022-01-06"
 -   Vite 以 原生 ESM 方式提供源码。这实际上是让浏览器接管了打包程序的部分工作：Vite 只需要在浏览器请求源码时进行转换并按需提供源码。根据情景动态导入代码，即只在当前屏幕上实际使用时才会被处理。
 
 -   ![Vite原理图](https://cn.vitejs.dev/assets/esm.3070012d.png "Vite原理图")
+
+## defineConfig 配置
+
+-   optimizeDeps.exclude: 在预构建中强制排除的依赖项。(mark as external)

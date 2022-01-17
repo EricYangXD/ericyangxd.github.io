@@ -203,6 +203,10 @@ module.exports = {
 
 ### terser-webpack-plugin
 
+### autodll-webpack-plugin
+
+###
+
 ## webpack5
 
 ### 提高打包速度

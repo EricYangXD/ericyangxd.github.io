@@ -4,6 +4,10 @@ author: EricYangXD
 date: "2021-12-29"
 ---
 
+## 原型、继承、原型链
+
+[参考](https://juejin.cn/post/6844903837623386126)
+
 ## 类型转换
 
 -   依赖 valueOf,toString,ToPrimitive
@@ -112,4 +116,153 @@ open https://ericyangxd.top/
 start https://ericyangxd.top/
 # linux
 xdg-open https://ericyangxd.top/
+```
+
+## 前端生成水印 watermark
+
+### 使用 Canvas
+
+-   原理：使用 Canvas 绘制好图片，利用 canvas.toDataURL()转换为 base64 格式，然后给顶层的#root 设置 background-image 即可，注意调整样式。
+    示例代码：
+
+```ts
+var canvas = document.getElementById("canvas");
+const angle = -40;
+const txt = `Good Luck Infinity Co. ericyangxd.top ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
+const canvasWidth = 500;
+const canvasHeight = 500;
+if (canvas.getContext) {
+	// drawing code here
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+	const ctx = canvas.getContext("2d");
+	// 通过把像素设置为透明以达到擦除一个矩形区域的目的。
+	// 请确保在调用 clearRect()之后绘制新内容前调用beginPath() 。
+	// 清除整个画布
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	// 文字填充颜色
+	ctx.fillStyle = "#000";
+	// 文字透明度
+	ctx.globalAlpha = 0.8;
+	// 同CSS font，至少包含font-size和font-family
+	ctx.font = "bold 20px 微软雅黑";
+	// 旋转弧度
+	ctx.rotate((Math.PI / 180) * angle);
+	// -280： 文字向左偏移； 380：文字向下偏移； strokeText：中空字体； fillText：实线字体
+	ctx.fillText(txt, -280, 380);
+}
+```
+
+### 透明图片覆盖
+
+-   太 low 了，不用
+
+## 一个 function
+
+```js
+function f() {
+	conssole.log(arguments);
+}
+
+var a = `world`;
+f`Hello ${a}!`;
+// 会打印如下：
+// [["Hello ","!"],"world"]
+```
+
+## JS 类型
+
+### 对应类型
+
+-   JS 7(8) 种基本类型对应的是：undefined, null, object, boolean, string, number, symbol(, bigint)。
+-   那么 7 种语言类型应该对应的什么？作者回复:
+    -   List 和 Record
+    -   Set
+    -   Completion Record
+    -   Reference
+    -   Property Descriptor
+    -   Lexical Environment 和 Environment Record
+    -   Data Block
+
+### 类型检测
+
+| 不同类型/优缺点 | typeof                      | instanceof                        | constructor                                  | Object.prototype.toString.call        |
+| --------------- | --------------------------- | --------------------------------- | -------------------------------------------- | ------------------------------------- |
+| 优点            | 简单易用                    | 检测引用类型                      | 基本能检测所有的类型（除 null 和 undefined） | 可以检测出所有类型                    |
+| 缺点            | 只能检测基本类型（除 null） | 只能检测引用类型，且不能跨 iframe | constructor 易被修改，也不能跨 iframe        | IE6 下，undefined 和 null 均为 Object |
+
+### XHR 请求文件
+
+```js
+// 可以跨域请求 html
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "http://xyz.example.com/secret/file.txt");
+xhr.onreadystatechange = function (e) {
+	if (xhr.readyState === 4) {
+		console.log("got result: ", xhr.responseText);
+	}
+};
+xhr.send();
+```
+
+-   然后可以对这个文件进行解析啥的`formatHtml(xhr.responseText)`，适用于抓到别人的网页之后，解析一下 body 放到自己的页面里。
+
+### 移除 a 标签的默认跳转行为
+
+```js
+$(ele).attr("href", "javascript:void(0);");
+$(ele).onclick = function () {
+	return false;
+};
+$(ele).attr("target", "");
+```
+
+### 通过 Canvas 做 web 身份识别
+
+-   原理：通过 Canvas 生成指纹，做识别。
+
+```js
+// PHP 中，bin2hex() 函数把 ASCII 字符的字符串转换为十六进制值。字符串可通过使用 pack() 函数再转换回去
+// 下面是PHP 的 bin2hex 的 JavaScript 实现
+function bin2hex(s) {
+	let n,
+		o = "";
+	s += "";
+	for (let i = 0, l = s.length; i < l; i++) {
+		n = s.charCodeAt(i).toString(16);
+		o += n.length < 2 ? "0" + n : n;
+	}
+
+	return o;
+}
+
+// 获取指纹UUID
+function getUUID(domain) {
+	// 创建 <canvas> 元素
+	let canvas = document.createElement("canvas");
+	// getContext() 方法可返回一个对象，该对象提供了用于在画布上绘图的方法和属性
+	let ctx = canvas.getContext("2d");
+	// 设置在绘制文本时使用的当前文本基线
+	ctx.textBaseline = "top";
+	// 设置文本内容的当前字体属性
+	ctx.font = "14px 'Arial'";
+	// 设置用于填充绘画的颜色、渐变或模式
+	ctx.fillStyle = "#f60";
+	// 绘制"被填充"的矩形
+	ctx.fillRect(125, 1, 62, 20);
+	ctx.fillStyle = "#069";
+	// 在画布上绘制"被填充的"文本
+	ctx.fillText(domain, 2, 15);
+	ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+	ctx.fillText(domain, 4, 17);
+
+	// toDataURL返回一个包含图片展示的 data URI
+	let b64 = canvas.toDataURL().replace("data:image/png;base64,", "");
+	// atob() 方法用于解码使用 base-64 编码的字符串；base-64 编码使用方法是 btoa()，这俩都是window全局方法
+	let crc = bin2hex(atob(b64).slice(-16, -12));
+	return crc;
+}
+
+// 调用时，你可以传入任何你想传的字符串，并不局限于传递domain，这里只是为了便于区分站点
+console.log(getUUID("https://www.baidu.com/"));
 ```

@@ -193,7 +193,7 @@ html * {
 
 ## 修改图片「颜色」
 
--   背景色变化时突出图片.
+-   背景色变化时突出图片，或者修改某个 icon 的背景色以实现变色（UI 垃圾！）。
 
 ```css
 img {
@@ -203,3 +203,377 @@ img {
 	filter: drop-shadow(0px 0px red);
 }
 ```
+
+## font
+
+-   至少包含 font-size 和 font-family;
+-   可以按顺序设置如下属性：font-style、font-variant、font-weight、font-size/line-height、font-family、font-stretch;
+-   特殊值：caption、icon、menu、message-box、small-caption、status-bar;
+
+## 绘制三角形
+
+-   普通三角形
+
+```css
+div {
+	width: 0;
+	height: 0;
+	border: 40px solid;
+	border-color: orange blue red green;
+}
+```
+
+-   绘制带边框的三角形：通过::after 伪元素绘制一个稍大的三角形，然后左移即可。
+
+-   绘制其它角度的三角形：其实它们都是基于之前绘制的三角形而来的。
+    -   如果想绘制右直角三角，则将左 border 设置为 0；
+    -   如果想绘制左直角三角，将右 border 设置为 0 即可（其它情况同理）。
+
+```css
+div {
+	width: 0;
+	height: 0;
+	border: 40px solid;
+	border-color: transparent transparent red;
+	border-right-width: 0;
+}
+```
+
+-   给 border 边框 再加边框 有一个属性可以用：
+    -   轮廓: outline: 1px solid black;
+
+## 水平垂直居中
+
+-   ![水平垂直居中](../../assets/spczjz.jpg "水平垂直居中")
+
+## CSS 伪类与伪元素
+
+1. 伪类的效果可以通过添加一个实际的类来达到，而伪元素的效果则需要通过添加一个实际的元素才能达到，这也是为什么他们一个称为伪类，一个称为伪元素的原因。
+2. 伪元素的权重比伪类高，比如一个容器的伪元素和伪类都定义了同一属性，但值不一样，那么将采用伪元素的。从规范的角度伪元素一个页面只使用一次，而伪类可以多次使用。
+3. 伪元素产生新对象，在 DOM 中看不到，但是可以操作；伪类是 DOM 中一个元素的不同状态.
+
+### 伪元素
+
+css 的伪元素，之所以被称为伪元素，是因为他们不是真正的页面元素，html 没有对应的元素，但是其所有用法和表现行为与真正的页面元素一样，可以对其使用诸如页面元素一样的 css 样式，表面上看上去貌似是页面的某些元素来展现，实际上是 css 样式展现的行为，因此被称为伪元素。伪元素是通过样式来达到元素效果的，也就是说伪元素不占用 dom 元素节点。
+
+css 有一系列的伪元素，如:before，:after，:first-line，:first-letter 等。
+
+伪元素:before 和:after 添加的内容默认是 inline 元素；这个两个伪元素的 content 属性，表示伪元素的内容,设置:before 和:after 时必须设置其 content 属性，否则伪元素就不起作用。那么问题来了，content 属性的值可以有哪些内容呢，具体有以下几种情况：
+
+1. 字符串，字符串作为伪元素的内容添加到主元素中
+
+-   注意：字符串中若有 html 字符串，添加到主元素后不会进行 html 转义，也不会转化为真正的 html 内容显示，而是会原样输出
+
+2. attr(attr_name), 伪元素的内容跟主元素的某个属性值进行关联，及其内容为主元素的某指定属性的值
+
+-   好处：可以通过 js 动态改变主元素的指定属性值，这时伪元素的内容也会跟着改变，可以实现某些特殊效果，如图片加载失败用一段文字替换。
+
+3. url()/uri(), 引用外部资源，例如图片；
+
+4. counter(), 调用计数器，可以不使用列表元素实现序号问题。
+
+-   伪元素不属于文档，所以 js 无法操作它
+
+-   伪元素属于主元素的一部分，因此点击伪元素触发的是主元素的 click 事件
+
+-   对于「块级元素才能有:before, :after」--其实是不妥的，大部分行级元素也可以设置伪元素，但是像 img 可替换元素，因为其外观和尺寸有外部资源决定，那么如果外部资源正确加载，就会替换掉其内部内容，这时伪元素也会被替换掉，但是当外部资源加载失败时，设置的伪元素是可以起作用的。
+
+-   基于伪元素的特点可以知道其优缺点，也引用别人文章的话：
+
+1. 优点
+
+-   减少 dom 节点数
+-   让 css 帮助解决部分 js 问题，让问题变得简单
+
+2. 缺点
+
+-   不利于 SEO
+-   无法审查元素，不利于调试
+
+#### :before 和:after 常见使用场景
+
+1. 清除浮动
+
+```css
+// 1.
+.block::after {
+	clear: both;
+	content: "\0020";
+	display: block;
+	height: 0;
+	overflow: hidden;
+}
+
+// 2.
+.clear-fix {
+	*overflow: hidden;
+	*zoom: 1;
+}
+.clear-fix::after {
+	display: table;
+	content: "";
+	width: 0;
+	clear: both;
+}
+```
+
+2. 利用 attr()来实现某些动态功能
+
+-   `<img>`是一个替换元素，其外观和尺寸是由外部资源来决定的，当外部图片资源加载失败时其会显示破裂图片和 alt 文字，尺寸仅由其自身内容决定。这时`<img>`元素可以使用伪元素:before 和:after，因为其元素内容没有被替换；
+-   利用 attr()来获取图片 alt 属性值作为伪元素:after 的 content 内容来替换 img 的内容，并运用适当的样式从而完成：图片加载成功时显示正常的图片，加载失败时显示图片破裂效果的样式.
+
+```css
+   img{
+   min-height: 50px;
+   position: relative;
+   }
+   img::before {
+   content: " ";
+   display: block;
+   position: absolute;
+   top: -10px;
+   left: 0;
+   height: calc(100% + 10px);
+   width: 100%;
+   backgound-color: rgb(230, 230,230);
+   border: 2px dotted rgb(200,200,200);
+   border-radius: 5px;
+   }
+   img::after {
+   content: '\f127" " Broken Image of " attr(alt);
+   display: block;
+   font-size: 16px;
+   font-style: normal;
+   font-family: FontAwesome;
+   color: rgb(100,100,100)
+   position: absolute;
+   top: 5px;
+   left: 0;
+   width: 100%;
+   text-align: center;
+   }
+```
+
+3. 与 counter()结合实现序号问题，而不用使用列表元素。
+
+-   具体还要结合 css 的 counter-increment 和 counter-reset 属性的用法 。
+
+```css
+body {
+	counter-reset: section;
+}
+h2::before {
+	counter-increment: section;
+	content: "Chapter" counter(section) ".";
+}
+```
+
+4. 特效使用
+
+-   利用这两个伪元素，可以实现各种效果，如放大镜、叉叉、箭头、三角符等
+-   eg. blockquote 引用段添加巨大的引号作为背景:
+
+```css
+blockquote::before {
+	content: open-quote;
+	position: absolute;
+	z-index: -1;
+	color: #ddd;
+	font-size: 120px;
+	font-family: serif;
+	font-weight: bolder;
+}
+```
+
+#### 标准 & 伪元素索引
+
+伪元素是一个附加至选择器末的关键词，允许你对被选择元素的特定部分修改样式。
+
+一个选择器中只能使用一个伪元素。伪元素必须紧跟在语句中的简单选择器/基础选择器之后。
+
+注意：按照规范，应该使用双冒号（::）而不是单个冒号（:），以便区分伪类和伪元素。但是，由于旧版本的 W3C 规范并未对此进行特别区分，因此目前绝大多数的浏览器都同时支持使用这两种方式来表示伪元素。
+
+-   标准伪元素索引:
+
+```css
+::after (:after)
+::backdrop
+::before (:before)
+::cue (:cue)
+::first-letter (:first-letter)
+::first-line (:first-line)
+::grammar-error
+::marker
+::placeholder
+::selection
+::slotted()
+::spelling-error
+```
+
+CSS 伪类 是添加到选择器的关键字，指定要选择的元素的特殊状态。
+
+-   标准伪类索引：
+
+```css
+:active
+:any-link
+:blank
+:checked
+:current (en-US)
+:default
+:defined
+:dir()
+:disabled
+:drop
+:empty
+:enabled
+:first
+:first-child
+:first-of-type
+:fullscreen
+:future (en-US)
+:focus
+:focus-visible
+:focus-within
+:has()
+:host
+:host()
+:host-context()
+:hover
+:indeterminate
+:in-range
+:invalid
+:is()
+:lang()
+:last-child
+:last-of-type
+:left
+:link
+:local-link (en-US)
+:not()
+:nth-child()
+:nth-col() (en-US)
+:nth-last-child()
+:nth-last-col() (en-US)
+:nth-last-of-type()
+:nth-of-type()
+:only-child
+:only-of-type
+:optional
+:out-of-range
+:past (en-US)
+:placeholder-shown
+:read-only
+:read-write
+:required
+:right
+:root
+:scope
+:target
+:target-within (en-US)
+:user-invalid (en-US)
+:valid
+:visited
+:where()
+```
+
+## 实现 CSS 与 JS 变量共享
+
+### :export 关键字
+
+````css
+/* config.css */
+$primary-color: #F40;
+
+:export{
+  primaryColor: $primary-color;
+}
+
+```js
+/* app.js */
+import style from 'config.scss';
+
+console.log(style.primaryColor); // #F40
+````
+
+## styled-components
+
+-   用于生成并返回一个带样式的组件，既可以生成原生的 HTMLelement，也可以接受自定义组件，如：antd 的 Form、Modal 等组件 -- styled(Modal)\`...\`
+-   通过 `${(props) => props.theme.colorXXX};` 来共享全局定义的 createGlobalStyle\`...\`全局样式
+-   `<ThemeProvider theme={theme}>` 通过 styled-components 提供的 **ThemeProvider** 共享 theme 变量
+
+## 加载动画
+
+```js
+const rotate = keyframes`
+from{
+  transform: rotate(0deg);
+}
+to{
+  transform: rotate(360deg);
+}
+`;
+
+const LoaderWrap = styled.div`
+	display: inline-block;
+	vertical-align: middle;
+	animation: ${rotate} 1s linear infinite;
+	img {
+		width: 16px;
+		height: 16px;
+	}
+`;
+```
+
+## 说说 CSS 选择器以及这些选择器的优先级
+
+从高到低：
+
+1. !important
+2. 内联样式（1000）
+3. ID 选择器（0100）
+4. 类选择器/属性选择器/伪类选择器（0010）
+5. 元素选择器/伪元素选择器（0001）
+6. 关系选择器/通配符选择器（0000）
+
+## BFC
+
+-   BFC 全称为块级格式化上下文 (Block Formatting Context) 。
+
+触发 BFC 的条件：
+
+1. 根元素或其它包含它的元素
+2. 浮动元素 (元素的 float 不是 none)
+3. 绝对定位元素 (元素具有 position 为 absolute 或 fixed)
+4. 内联块 (元素具有 display: inline-block)
+5. 表格单元格 (元素具有 display: table-cell，HTML 表格单元格默认属性)
+6. 表格标题 (元素具有 display: table-caption, HTML 表格标题默认属性)
+7. 具有 overflow 且值不是 visible 的块元素
+8. 弹性盒（flex 或 inline-flex）
+9. display: flow-root
+10. column-span: all
+
+BFC 可以解决的问题:
+
+1. 垂直外边距重叠问题
+2. 去除浮动
+3. 自适应两列布局（float + overflow）
+
+## href 与 src
+
+href 表示超文本引用，用在 link 和 a 等元素上，href 是引用和页面关联，是在当前元素和引用资源之间建立联系，src 表示引用资源，表示替换当前元素，用在 img，script，iframe 上，src 是页面内容不可缺少的一部分。
+
+> src 是 source 的缩写，是指向外部资源的位置，指向的内部会迁入到文档中当前标签所在的位置；在请求 src 资源时会将其指向的资源下载并应用到当前文档中，例如 js 脚本，img 图片和 frame 等元素。
+
+`<script src="js.js"></script>`当浏览器解析到这一句的时候会暂停其他资源的下载和处理，直至将该资源加载，编译，执行完毕，图片和框架等元素也是如此，类似于该元素所指向的资源嵌套如当前标签内，这也是为什么要把 js 放在底部而不是头部。
+
+`<link href="common.css" rel="stylesheet"/>`当浏览器解析到这一句的时候会识别该文档为 css 文件，会下载并且不会停止对当前文档的处理，这也是为什么建议使用 link 方式来加载 css 而不是使用@import。
+
+补充：link 和@import 的区别：
+
+> 两者都是外部引用 CSS 的方式，但是存在一定的区别：
+
+-   区别 1：link 是 XHTML 标签，除了加载 CSS 外，还可以定义 RSS 等其他事务；@import 属于 CSS 范畴，只能加载 CSS。
+-   区别 2：link 引用 CSS 时，在页面载入时同时加载；@import 需要页面网页完全载入以后加载。
+-   区别 3：link 是 XHTML 标签，无兼容问题；@import 是在 CSS2.1 提出的，低版本的浏览器不支持。
+-   区别 4：link 支持使用 Javascript 控制 DOM 去改变样式；而@import 不支持。

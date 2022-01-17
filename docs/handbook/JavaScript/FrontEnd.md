@@ -684,3 +684,211 @@ yarn config set registry https://registry.npmjs.org/
 3. 提升用户体验： 例如 title、alt 可以用于解释名称或者解释图片信息，以及 label 标签的灵活运用。
 4. 便于团队开发和维护: 语义化使得代码更具有可读性，让其他开发人员更加理解你的 html 结构，减少差异化。
 5. 方便其他设备解析: 如屏幕阅读器、盲人阅读器、移动设备等，以有意义的方式来渲染网页。
+
+## node.process
+
+1. process 对象提供一系列属性，用于返回系统信息。
+
+-   process.argv：返回一个数组，成员是当前进程的所有命令行参数。
+-   process.env：返回一个对象，成员为当前 Shell 的环境变量，比如 process.env.HOME。
+-   process.installPrefix：返回一个字符串，表示 Node 安装路径的前缀，比如/usr/local。相应地，Node 的执行文件目录为/usr/local/bin/node。
+-   process.pid：返回一个数字，表示当前进程的进程号。
+-   process.platform：返回一个字符串，表示当前的操作系统，比如 Linux。
+-   process.title：返回一个字符串，默认值为 node，可以自定义该值。
+-   process.version：返回一个字符串，表示当前使用的 Node 版本，比如 v7.10.0。
+
+2. process 对象还有一些属性，用来指向 Shell 提供的接口。
+
+-   process.stdout 属性返回一个对象，表示「标准输出」。该对象的 write 方法等同于 console.log，可用在标准输出向用户显示内容。
+-   process.stdin 返回一个对象，表示「标准输入」。
+    -   由于 process.stdout 和 process.stdin 与其他进程的通信，都是流（stream）形式，所以必须通过 pipe 管道命令中介。
+    -   由于 stdin 和 stdout 都部署了 stream 接口，所以可以使用 stream 接口的方法。
+-   process.stderr 属性指向标准错误。
+-   process.argv 属性返回一个数组，由命令行执行脚本时的各个参数组成。它的第一个成员总是 node，第二个成员是脚本文件名，其余成员是脚本文件的参数。
+-   process.execPath 属性返回执行当前脚本的 Node 二进制文件的绝对路径。
+-   process.execArgv 属性返回一个数组，成员是命令行下执行脚本时，在 Node 可执行文件与脚本文件之间的命令行参数。
+-   process.env 属性返回一个对象，包含了当前 Shell 的所有环境变量。比如，process.env.HOME 返回用户的主目录。
+    -   通常的做法是，新建一个环境变量 NODE_ENV，用它确定当前所处的开发阶段，生产阶段设为 production，开发阶段设为 develop 或 staging，然后在脚本中读取 process.env.NODE_ENV 即可。
+
+3. process 对象提供以下方法：
+
+-   process.chdir()：切换工作目录到指定目录。
+-   process.cwd()：返回运行当前脚本的工作目录的路径。
+-   process.exit()：退出当前进程。
+-   process.getgid()：返回当前进程的组 ID（数值）。
+-   process.getuid()：返回当前进程的用户 ID（数值）。
+-   process.nextTick()：指定回调函数在当前执行栈的尾部、下一次 Event Loop 之前执行。
+-   process.on()：监听事件。
+-   process.setgid()：指定当前进程的组，可以使用数字 ID，也可以使用字符串 ID。
+-   process.setuid()：指定当前进程的用户，可以使用数字 ID，也可以使用字符串 ID。
+
+4. 注意，process.cwd()与\_\_dirname 的区别
+
+-   前者是进程发起时的位置，后者是脚本的位置，两者可能是不一致的。
+    -   比如，node ./code/program.js，对于 process.cwd()来说，返回的是当前目录（.）；
+    -   对于\_\_dirname 来说，返回是脚本所在目录，即./code/program.js。
+
+5. process.nextTick()
+
+-   setTimeout(f,0)是将任务放到下一轮事件循环的头部，因此 nextTick 会比它先执行。另外，nextTick 的效率更高，因为不用检查是否到了指定时间。
+
+6. 根据 Node 的事件循环的实现，基本上，进入下一轮事件循环后的执行顺序如下：
+
+-   setTimeout(f,0)
+-   各种到期的回调函数
+-   process.nextTick push(), sort(), reverse(), and splice()
+
+7. process.exit 方法用来退出当前进程。
+
+-   它可以接受一个数值参数，如果参数大于 0，表示执行失败；如果等于 0 表示执行成功。如果不带有参数，exit 方法的参数默认为 0。
+-   注意，process.exit()很多时候是不需要的。因为如果没有错误，一旦事件循环之中没有待完成的任务，Node 本来就会退出进程，不需要调用 process.exit(0)。这时如果调用了，进程会立刻退出，不管有没有异步任务还在执行，所以不如等 Node 自然退出。另一方面，如果发生错误，Node 往往也会退出进程，也不一定要调用 process.exit(1)。
+-   更安全的方法是使用 exitcode 属性，指定退出状态，然后再抛出一个错误。
+-   process.exit()执行时，会触发 exit 事件。
+
+8. process 对象部署了 EventEmitter 接口，可以使用 on 方法监听各种事件，并指定回调函数。process 支持的事件还有下面这些：
+
+-   data 事件：数据输出输入时触发
+-   SIGINT 事件：接收到系统信号 SIGINT 时触发，主要是用户按 Ctrl + c 时触发。
+-   SIGTERM 事件：系统发出进程终止信号 SIGTERM 时触发
+-   exit 事件：进程退出前触发
+
+9. process.kill 方法用来对指定 ID 的线程发送信号，默认为 SIGINT 信号。
+
+eg. `process.kill(process.pid, 'SIGTERM'); # 杀死当前进程`
+
+10. process 事件
+
+-   exit 事件：当前进程退出时，会触发 exit 事件，可以对该事件指定回调函数。
+-   beforeExit 事件：beforeExit 事件在 Node 清空了 Event Loop 以后，再没有任何待处理的任务时触发。正常情况下，如果没有任何待处理的任务，Node 进程会自动退出，设置 beforeExit 事件的监听函数以后，就可以提供一个机会，再部署一些任务，使得 Node 进程不退出。
+-   beforeExit 事件与 exit 事件的主要区别是，beforeExit 的监听函数可以部署异步任务，而 exit 不行。
+-   此外，如果是显式终止程序（比如调用 process.exit()），或者因为发生未捕获的错误，而导致进程退出，这些场合不会触发 beforeExit 事件。因此，不能使用该事件替代 exit 事件。
+-   uncaughtException 事件：当前进程抛出一个没有被捕捉的错误时，会触发 uncaughtException 事件。
+-   部署 uncaughtException 事件的监听函数，是免于 Node 进程终止的最后措施，否则 Node 就要执行 process.exit()。出于除错的目的，并不建议发生错误后，还保持进程运行。
+-   抛出错误之前部署的异步操作，还是会继续执行。只有完成以后，Node 进程才会退出。
+-   信号事件：操作系统内核向 Node 进程发出信号，会触发信号事件。实际开发中，主要对 SIGTERM 和 SIGINT 信号部署监听函数，这两个信号在非 Windows 平台会导致进程退出，但是只要部署了监听函数，Node 进程收到信号后就不会退出。
+
+11. 进程的退出码
+
+进程退出时，会返回一个整数值，表示退出时的状态。这个整数值就叫做退出码。
+
+-   0，正常退出
+-   1，发生未捕获错误
+-   5，V8 执行错误
+-   8，不正确的参数
+-   128 + 信号值，如果 Node 接受到退出信号（比如 SIGKILL 或 SIGHUP），它的退出码就是 128 加上信号值。由于 128 的二进制形式是 10000000, 所以退出码的后七位就是信号值。
+-   Bash 可以使用环境变量$?，获取上一步操作的退出码。
+
+## 小程序调试
+
+1. debugx5.qq.com
+2. vconsole
+
+## 八个笔试&面试仓库
+
+1. Front-end Developer Interview Questions 网址：https://h5bp.org/Front-end-Developer-Interview-Questions/
+2. CS-Interview-knowledge-Map
+   网址：https://github.com/InterviewMap/CS-Interview-Knowledge-Map
+3. Daily-Question
+   网址：https://github.com/shfshanyue/Daily-Question
+4. Daily-Interview-Question
+   网址：https://github.com/Advanced-Frontend/Daily-Interview-Question
+5. fe-interview 大前端面试宝典
+   网址：https://lucifer.ren/fe-interview
+6. 前端硬核面试专题
+   网址：https://github.com/biaochenxuying/blog/blob/master/interview/fe-interview.md
+7. LeetCode 算法试题学习
+   网址：https://leetcode-cn.com/problemset/all
+8. LeetCode 算法试题学习
+   网址：https://www.nowcoder.com/
+
+## 需求：网站 A 中需要通过 iframe 加载网站 B 的页面
+
+### 解决方法 1：代码中设置 Access-Control-Allow-Origin
+
+PHP:
+
+```
+header('Access-Control-Allow-Origin: *');                   //允许所有
+header('Access-Control-Allow-Origin: https://test.com');    //允许指定域名
+```
+
+### 解决方法 2：web 服务器中配置
+
+#### 2.1：如果 web 服务器是 Apache
+
+```
+<Directory "/var/www/html">
+	AllowOverride None
+	Require all granted
+	Header set Access-Control-Allow-Origin *
+</Directory>
+```
+
+#### 2.2：如果 web 服务器是 Nginx
+
+```
+add_header Access-Control-Allow-Origin *;
+add_header Access-Control-Allow-Methods GET,POST,OPTIONS;
+add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,access-control-allow-origin,Authorization';
+```
+
+### 解决方法 3：如果是 django 网站
+
+1. 安装 django-cors-headers
+2. 然后参考https://www.cnblogs.com/randomlee/p/9752705.html中的配置
+
+### X-Frame-Options
+
+X-Frame-Options 有三个可能的值：
+
+-   X-Frame-Options: deny
+-   X-Frame-Options: sameorigin
+-   X-Frame-Options: allow-from https://example.com/
+    换一句话说，如果设置为 deny，不光在别人的网站 frame 嵌入时会无法加载，在同域名页面中同样会无法加载。另一方面，如果设置为 sameorigin，那么页面就可以在同域名页面的 frame 中嵌套。
+-   deny
+    -   表示该页面不允许在 frame 中展示，即便是在相同域名的页面中嵌套也不允许。
+-   sameorigin
+    -   表示该页面可以在相同域名页面的 frame 中展示。
+-   allow-from uri
+    -   表示该页面可以在指定来源的 frame 中展示。
+
+### 使用 iframe 结合 postMessage 给 localStorage 扩容。
+
+-   思路如下：
+
+1. 在【A 域】下引入【B 域】，【A 域】空间足够时，读写由【A 域】来完成，数据存在【A 域】下；
+2. 【A 域】空间不够需要在【B 域】读写时，通过 postMessage 向【B 域】发送跨域消息，【B 域】监听跨域消息，在接到指定的消息时进行读写操作；
+3. 【B 域】接到跨域消息时，如果是写入删除可以不做什么，如果是读取，就要先读取本域本地数据通过 postMessage 向父页面发送消息；
+4. 【A 域】在读取【B 域】数据时就需要监听来自【B 域】的跨域消息；
+
+-   注意事项：
+
+1. window.postMessage()方法，向【B 域】发消息，应用 window.frames[0].postMessage() 这样 iframe 内的【B 域】才可以接到;
+2. 同理，【B 域】向 【A 域】发消息时应用，window.parent.postMessage()
+3. 【A 域】的逻辑一定要在 iframe 加载完成后进行;
+
+## localStorage
+
+1. localStorage 存储的键值采用什么字符编码？—— UTF-16 DOMString，每个字符使用两个字节，是有前提条件的，就是码点小于 0xFFFF(65535)， 大于这个码点的是四个字节。
+2. localStorage 存储 5M 的单位是什么？—— 5M 字符的长度值或 5M utf-16 编码单元，或者根据 UTF-16 编码规则，要么 2 个字节，要么 4 个字节，所以不如说是 10M 的「字节数/字节空间」，更为合理。字符的个数，并不等于字符的长度："𠮷".length // 2
+3. localStorage 键占不占存储空间?占！
+
+-   键的数量对读取性能有影响，但是不大。值的大小对性能影响更大，不建议保存大的数据。
+-   写个方法统计一个 localStorage 已使用空间:
+
+```js
+// 现代浏览器的精写版本：
+function sieOfLS() {
+	return Object.entries(localStorage)
+		.map((v) => v.join(""))
+		.join("").length;
+}
+```
+
+-   WHATWG 超文本应用程序技术工作组 的 localstorage 协议定了 localStorage 的方法，属性等等，并没有明确规定其存储空间。也就导致各个浏览器的最大限制不一样。
+    其并不是 ES 的标准。
+-   html 页面的 utf-8 编码<meta charset="UTF-8">和 localStorage 的存储没有半毛钱的关系。
+
+## blob、dataUrl、ArrayBuffer
+
+-   [图片](../../assets/image.jpg)

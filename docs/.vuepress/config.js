@@ -216,6 +216,24 @@ module.exports = {
 					},
 				],
 			},
+			{
+				title: "Google Chrome V8",
+				children: [
+					{
+						title: "GeekTime 图解 Google V8",
+						path: "/handbook/Chrome/V8",
+					},
+				],
+			},
+			{
+				title: "Git",
+				children: [
+					{
+						title: "Git有用的命令 & VSCode插件",
+						path: "/handbook/Git/Git",
+					},
+				],
+			},
 		],
 		author: "EricYangXD",
 		huawei: true,

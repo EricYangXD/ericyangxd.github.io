@@ -52,3 +52,21 @@ date: "2022-01-04"
 3. GET 参数是带在 URL 后面，传统 IE 中 URL 的最大可用长度为 2048 字符，其他浏览器对 URL 长度限制实现上有所不同。POST 请求无长度限制（目前理论上是这样的）。
 4. GET 提交的数据大小，不同浏览器的限制不同，一般在 2k-8K 之间，POST 提交数据比较大，大小靠服务器的设定值限制，而且某些数据只能用 POST 方法「携带」，比如 file。
 5. 安全性、幂等性、可缓存性。
+
+### HTTP2 和 HTTP1 有什么区别
+
+-   相对于 HTTP1.0，HTTP1.1 的优化：
+
+1. 缓存处理：多了 Entity tag，If-Unmodified-Since, If-Match, If-None-Match 等缓存信息（HTTTP1.0 If-Modified-Since,Expires）
+2. 带宽优化及网络连接的使用
+3. 错误通知的管理
+4. Host 头处理
+
+-   长连接： HTTP1.1 中默认开启 Connection： keep-alive，一定程度上弥补了 HTTP1.0 每次请求都要创建连接的缺点。
+
+-   相对于 HTTP1.1，HTTP2 的优化：
+
+1. HTTP2 支持二进制传送（实现方便且健壮），HTTP1.x 是字符串传送
+2. HTTP2 支持多路复用
+3. HTTP2 采用 HPACK 压缩算法压缩头部，减小了传输的体积
+4. HTTP2 支持服务端推送
