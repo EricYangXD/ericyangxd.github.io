@@ -139,3 +139,23 @@ function test<T extends number | string, Y extends number | string>(
 }
 test<number, number>(12, 23);
 ```
+
+## 几个好用的类型定义
+
+```ts
+export type HookSetState<T> = React.Dispatch<React.SetStateAction<T>>;
+
+export type ValueOf<T> = T[keyof T];
+
+export type Nullable<T> = T | undefined | null;
+
+export type AllNullable<T> = { [K in keyof T]: Nullable<T[K]> };
+
+export type AllNonNullable<T> = { [K in keyof T]: NonNullable<T[K]> };
+
+export type SomePartial<T, R extends keyof T> = Omit<T, R> &
+	Pick<Partial<T>, R>;
+
+export type SomeRequired<T, R extends keyof T> = Omit<T, R> &
+	Pick<Required<T>, R>;
+```

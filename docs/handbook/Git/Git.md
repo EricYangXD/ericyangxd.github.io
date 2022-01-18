@@ -44,6 +44,20 @@ date: "2022-01-13"
 5. 提示的 commitid 就是导致问题的那次提交
 6. 具体示例参考[这里](https://mp.weixin.qq.com/s/d0LvAd8cDQD_3KSX1fOpkQ)
 
+## 修改 Git commit msg
+
+1. 修改最近一次的 commit 信息 git commit --amend
+2. git reset --soft HEAD^ 重新提交
+3. git log --oneline -5 查看最近 5 次 commit 的简要信息
+4. 比如要修改的 commit 是倒数第三条，使用下述命令：
+
+```
+git rebase -i HEAD~3
+退出保存 :wq
+执行 git rebase --continue
+执行 git push -f 推送到服务端。
+```
+
 ## VSCode 插件/扩展
 
 ### Git Graph

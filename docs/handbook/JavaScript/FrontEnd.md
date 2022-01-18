@@ -254,56 +254,60 @@ fetch("xxx.pdf")
 -   基于 pdf.js
 -   参考一个[实例](https://mp.weixin.qq.com/s/EyFKeMujSmcEPQXjYNBL8w)
 
-```
+```tsx
 const useWindowWidth = () => {
-  const [width, setWidth] = useState(window.innerWidth);
+	const [width, setWidth] = useState(window.innerWidth);
 
-  useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
+	useEffect(() => {
+		const handleResize = () => setWidth(window.innerWidth);
 
-    window.addEventListener('resize', handleResize);
+		window.addEventListener("resize", handleResize);
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+		return () => {
+			window.removeEventListener("resize", handleResize);
+		};
+	}, []);
 
-  return width;
+	return width;
 };
 
 const MyApp = () => {
-  const width = useWindowWidth();
-  const [numPages, setNumPages] = useState(null);
+	const width = useWindowWidth();
+	const [numPages, setNumPages] = useState(null);
 
-  const onDocumentLoadSuccess = ({ numPages: page }) => {
-    Toast.hide();
-    setNumPages(page);
-  };
-  const onDocumentLoadError = (error) => {
-    Toast.fail('加载失败，请重试', 3);
-  };
-  const onLoading = () => {
-    Toast.loading('努力加载中...');
-  };
+	const onDocumentLoadSuccess = ({ numPages: page }) => {
+		Toast.hide();
+		setNumPages(page);
+	};
+	const onDocumentLoadError = (error) => {
+		Toast.fail("加载失败，请重试", 3);
+	};
+	const onLoading = () => {
+		Toast.loading("努力加载中...");
+	};
 
-  return (
-    <PageWrapper>
-      <Header title="详情" />
-      <PDFWrapper>
-        <Document
-          style={{ width: '100%' }}
-          file={history.location?.state?.pdfurl}
-          onLoadSuccess={onDocumentLoadSuccess}
-          onLoadError={onDocumentLoadError}
-          loading={onLoading}
-        >
-          {Array.from(new Array(numPages), (el, index) => (
-            <Page key={`page_${index + 1}`} pageNumber={index + 1} width={width} />
-          ))}
-        </Document>
-      </PDFWrapper>
-    </PageWrapper>
-  );
+	return (
+		<PageWrapper>
+			<Header title="详情" />
+			<PDFWrapper>
+				<Document
+					style={{ width: "100%" }}
+					file={history.location?.state?.pdfurl}
+					onLoadSuccess={onDocumentLoadSuccess}
+					onLoadError={onDocumentLoadError}
+					loading={onLoading}
+				>
+					{Array.from(new Array(numPages), (el, index) => (
+						<Page
+							key={`page_${index + 1}`}
+							pageNumber={index + 1}
+							width={width}
+						/>
+					))}
+				</Document>
+			</PDFWrapper>
+		</PageWrapper>
+	);
 };
 ```
 
@@ -807,16 +811,16 @@ eg. `process.kill(process.pid, 'SIGTERM'); # 杀死当前进程`
 
 PHP:
 
-```
-header('Access-Control-Allow-Origin: *');                   //允许所有
-header('Access-Control-Allow-Origin: https://test.com');    //允许指定域名
+```js
+header("Access-Control-Allow-Origin: *"); //允许所有
+header("Access-Control-Allow-Origin: https://test.com"); //允许指定域名
 ```
 
 ### 解决方法 2：web 服务器中配置
 
 #### 2.1：如果 web 服务器是 Apache
 
-```
+```xml
 <Directory "/var/www/html">
 	AllowOverride None
 	Require all granted
@@ -870,8 +874,38 @@ X-Frame-Options 有三个可能的值：
 ## localStorage
 
 1. localStorage 存储的键值采用什么字符编码？—— UTF-16 DOMString，每个字符使用两个字节，是有前提条件的，就是码点小于 0xFFFF(65535)， 大于这个码点的是四个字节。
-2. localStorage 存储 5M 的单位是什么？—— 5M 字符的长度值或 5M utf-16 编码单元，或者根据 UTF-16 编码规则，要么 2 个字节，要么 4 个字节，所以不如说是 10M 的「字节数/字节空间」，更为合理。字符的个数，并不等于字符的长度："𠮷".length // 2
+2. localStorage 存储 5M 的单位是什么？—— 5M 字符的长度值或 5M utf-16 编码单元，或者根据 UTF-16 编码规则，要么 2 个字节，要么 4 个字节，所以不如说是 10M 的「字节数/字节空间」，更为合理。字符的个数，并不等于字符的长度："𠮷".length; // 2
 3. localStorage 键占不占存储空间?占！
+4. 使用以下方法「正确」获取长度：Array.from("𠮷").length; // 1
+5. 获取一些组合字符的长度：例如： 'q̣̇' =unicode= 'q\u{0307}\u{0323}'
+
+```js
+const getStringLength = function (string) {
+	const regex = /(\P{Mark})(\p{Mark}+)/gu;
+	const str = string.replace(regex, ($0, $1, $2) => $1);
+	return Array.from(str).length;
+};
+export default getStringLength;
+```
+
+6. 字符串反转
+
+```js
+const getReverseString = function (string) {
+	return Array.from(string).reverse().join("");
+};
+export default getReverseString;
+```
+
+7. 根据码位获取字符串: String.fromCodePoint(0x20bb7) // '𠮷'
+8. 根据字符串获取码位: '𠮷'.codePointAt().toString(16) // 20bb7
+9. 遍历字符串
+
+```js
+for (let item of "𠮷") {
+	console.log(item); // '𠮷'
+}
+```
 
 -   键的数量对读取性能有影响，但是不大。值的大小对性能影响更大，不建议保存大的数据。
 -   写个方法统计一个 localStorage 已使用空间:
@@ -887,13 +921,15 @@ function sieOfLS() {
 
 -   WHATWG 超文本应用程序技术工作组 的 localstorage 协议定了 localStorage 的方法，属性等等，并没有明确规定其存储空间。也就导致各个浏览器的最大限制不一样。
     其并不是 ES 的标准。
--   html 页面的 utf-8 编码<meta charset="UTF-8">和 localStorage 的存储没有半毛钱的关系。
+-   html 页面的 utf-8 编码`<meta charset="UTF-8">`和 localStorage 的存储没有半毛钱的关系。
 
 ## blob、dataUrl、ArrayBuffer
 
 -   [图片](../../assets/image.jpg)
 
 ## referrer
+
+### 简介
 
 1. HTML `<meta>` 标签 `name="referrer"` 属性主要用于控制网页发送给服务器的 referrer 信息，可以告诉服务器端用户是从哪个页面来到当前网页的。也就是说 HTTP 请求报头中的 referrer 包含了跳转至当前页面的上一个页面的 url 地址；
 2. 可以用来统计用户的来源，还可以用于分析用户的兴趣爱好、收集日志、优化缓存等等。
@@ -902,4 +938,291 @@ function sieOfLS() {
 5. `<meta name="referrer" content="no-referrer">` 由于需要跳转访问的页面带有网站访问限制，需要控制网页发送给服务器的 referrer 信息 设置为空，绕过 referer 鉴权检查。
 6. 开启后需要配置白名单，以免影响正常的 SEO。
 
+### referrer 属性写法
+
+在 html 页面中的<head>头部区域用 meta 标签添加 referrer 属性，referrer 有五种属性：
+
+-   No Referrer （永远不做记录）
+-   No Referrer When Downgrade（浏览器默认，当降级时候不记录，从 https 跳转到 http）
+-   Origin Only（只记录 协议+ host）
+-   Origin When Cross-origin（仅在发生跨域访问时记录 协议+host）
+-   Unsafe URL（永远记录）
+
 ## 图片压缩网站 tinify
+
+https://tinypng.com/
+
+## Number 双精度浮点数 64bit
+
+js 采用 IEEE754 标准中的 双精度浮点数来表示一个数字，标准规定双精度浮点数采用 64 位存储，即 8 个字节表示一个浮点数。
+
+[图](../../assets/number.png)
+
+在双精度浮点数中，第一位的 1bit 符号位 决定了这个数的正负，指数部分的 11bit 决定数值大小，小数部分的 52bit 决定数值精度。
+
+### 数值范围
+
+指数部分为 11bit 也就是 2^11 - 1 = 2047，取中间值进行偏移得到 [-1023, 1024]，因此这种存储结构能够表示的数值范围为 2^-1023 至 2^1024，超出这个范围无法表示。转换为科学计数法为：
+
+```js
+2^-1023 = 5 × 10^-324;
+2^1024 = 1.7976931348623157 × 10^308;
+
+Number.MAX_VALUE; // 1.7976931348623157e+308
+Number.MIN_VALUE; // 5e-324
+```
+
+### 安全整数
+
+IEEE754 规定，有效数字第一位默认总是 1，但它不保存在 64 位浮点数之中。所以有效数字为 52bit + 1 = 53bit。
+
+这意味着 js 能表示并进行精确算术运算的安全整数范围为 [-2^53 -1, 2^53 - 1] 即 -9007199254740991 到最大值 9007199254740991 之间的范围。
+
+```js
+Math.pow(2, 53) - 1; // 9007199254740991
+-Math.pow(2, 53) - 1; // -9007199254740991
+
+console.log(Number.MAX_SAFE_INTEGER); // 9007199254740991
+console.log(Number.MIN_SAFE_INTEGER); // -9007199254740991
+```
+
+对于超过这个安全整数的运算，需要使用 BigInt 来计算。
+
+```js
+console.log(9007199254740991 + 2); // 9007199254740992
+console.log(BigInt(9007199254740991) + BigInt(2)); // 9007199254740993n
+```
+
+### 精度丢失问题 0.1+0.2 !== 0.3 ?
+
+0.1 和 0.2 在转换为二进制时由于做了 0 舍 1 入 ，发生了一次精度丢失，而对于计算后的二进制又 做了一次 0 舍 1 入 发生一次精度丢失，因此得到的结果是不准确的。解决方法是使用 Number.EPSILON，只要两个值的差小于 Number.EPSILON，就认为二者相等。
+
+### 四舍五入
+
+-   Math.round(number) 方法无法对小数进行计算
+-   Number.toFixed() 方法实际上采用四舍六入五成双的规则实现，存在一些缺陷
+
+```js
+// 四舍五入
+export const toFixed = function (number, decimalLength = 0) {
+	var times = Math.pow(10, decimalLength);
+	var fixed = number * times + 0.5;
+	return parseInt(fixed) / times;
+};
+```
+
+## Boolean
+
+在 js 中所有类型的值都能转换成 Boolean 值。通过 Boolean 转换时：
+
+1. 除了空字符串意外，其他字符串都为 true
+2. 除了 0 与 NaN，其他数字都为 true
+3. undefined => false
+4. Symbol() => true
+5. null => false
+6. 所有引用类型都为 true，不管是[]还是{}
+
+## 为什么 typeof null 会被判断为 object
+
+在 JS 中。数据在底层都是以二进制储存，引用类型的二进制前三位为 0，typeof 是根据这个特性来进行判断类型的工作，可这里有一个问题就是，null 类型所有位数都为 0，所以它的前三位也为 0 ，所以 null 会被判断为 object。
+
+## Object
+
+-   栈内存 用来储存基本类型，以及引用类型的指针，堆内存 用来储存引用类型数据。
+-   深拷贝: JSON.parse(JSON.stringify());
+-   浅拷贝: Object.assign()
+
+### 继承
+
+例子：
+
+```js
+function Animal(type) {
+	this.type = type;
+}
+Animal.prototype.getType = function () {
+	return this.type;
+};
+
+function People(name) {
+	Animal.call(this, "people"); // 继承属性type
+	this.name = name; // 自己的属性name
+}
+People.prototype = Object.create(Animal.prototype); // 继承方法getType及原型
+People.prototype.getName = function () {
+	// 定义自己的方法
+	return this.name;
+};
+
+const human = new People("Eric"); // 生成实例
+human.getName(); // 'Eric'
+human.getType(); // 'people'
+```
+
+## IndexDB
+
+```js
+// IDBOpenDBRequest  表示打开数据库的请求
+const request  = indexedDB.open( 'people', version );
+// 版本更新，创建新的store的时候
+request.onupgradeneeded = ( event ) => {
+ // // IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
+ const db = event.target.result;
+ if ( db.objectStoreNames.contains( stroeName ) === false ) {
+   db.createObjectStore( stroeName, {keyPath: 'key'} );
+ }
+ openSuccess(db);
+};
+request.onsuccess = ( event ) => {
+ // IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
+ const db = event.target.result;
+ openSuccess(db);
+};
+request.onerror = ( event ) => {
+ console.error( 'IndexedDB', event );
+};
+// IDBOpenDBRequest  表示打开数据库的请求
+Const Request=indexedDB.open(“People”，Version)；
+// 版本更新，创建新的store的时候
+Request.onUpgradeneded=(事件)=>{
+// // IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
+Const db=event.Target.结果；
+如果(db.objectStoreNames.include(StroeName)=false){
+Db.createObjectStore(stroeName，{keyPath：‘key’})；
+}
+OpenSuccess(DB)；
+}；
+Request.onSuccess=(事件)=>{
+// IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
+Const db=event.Target.结果；
+OpenSuccess(DB)；
+}；
+Request.onError=(事件)=>{
+合并错误(“IndexedDB”，事件)；
+}；
+```
+
+## JavaScript
+
+### 闭包
+
+在 JavaScript 中，根据词法作用域的规则，内部函数总是可以访问其外部函数中声明的变量，当通过调用一个外部函数返回一个内部函数后，即使该外部函数已经执行结束了，但是内部函数引用外部函数的变量依然保存在内存中，我们就把这些变量的集合称为闭包。比如外部函数是 foo，那么这些变量的集合就称为 foo 函数的闭包。
+
+使用闭包的时候，你要尽量注意一个原则：如果该闭包会一直使用，那么它可以作为全局变量而存在；但如果使用频率不高，而且占用内存又比较大的话，那就尽量让它成为一个局部变量。
+
+通常，如果引用闭包的函数是一个全局变量，那么闭包会一直存在直到页面关闭；但如果这个闭包以后不再使用的话，就会造成内存泄漏。
+
+如果引用闭包的函数是个局部变量，等函数销毁后，在下次 JavaScript 引擎执行垃圾回收时，判断闭包这块内容如果已经不再被使用了，那么 JavaScript 引擎的垃圾回收器就会回收这块内存。
+
+### 词法作用域
+
+词法作用域就是指作用域是由代码中函数声明的位置来决定的，所以词法作用域是静态的作用域，通过它就能够预测代码在执行过程中如何查找标识符。注意这里是和“声明”而不是“调用”的位置有关，所以才是静态的。
+
+JavaScript 语言的作用域链是由词法作用域决定的，而词法作用域是由代码结构来确定的。
+
+### 变量提升
+
+块级作用域就是通过词法环境的栈结构来实现的，而变量提升是通过变量环境来实现，通过这两者的结合，JavaScript 引擎也就同时支持了变量提升和块级作用域了。
+
+函数内部通过 var 声明的变量，在编译阶段全都被存放到变量环境里面了。
+
+通过 let 声明的变量，在编译阶段会被存放到词法环境（Lexical Environment）中。
+
+在函数的作用域块内部，通过 let 声明的变量并没有被存放到词法环境中，而是等到作用域执行时，被以一个单独的块的形式放入词法环境的栈结构顶部。
+
+在词法环境内部，维护了一个小型栈结构，栈底是函数最外层的变量，进入一个作用域块后，就会把该作用域块内部的变量压到栈顶；当作用域执行完成之后，该作用域的信息就会从栈顶弹出，这就是词法环境的结构。需要注意下，我这里所讲的变量是指通过 let 或者 const 声明的变量。
+
+当访问某个变量时，会先从当前对应的执行上下文的词法环境的栈顶向栈底依次查找，如果没有则去变量环境中查找，（如果还没有则去全局执行上下文找），否则返回 undefined。
+
+### 性能优化
+
+对于优化 JavaScript 执行效率，你应该将优化的中心聚焦在单次脚本的执行时间和脚本的网络下载上，主要关注以下三点内容：提升单次脚本的执行速度，避免 JavaScript 的长任务霸占主线程，这样可以使得页面快速响应交互；避免大的内联脚本，因为在解析 HTML 的过程中，解析和编译也会占用主线程；减少 JavaScript 文件的容量，因为更小的文件会提升下载速度，并且占用更低的内存。
+
+## 计算机网络模型
+
+[计算机网络模型](../../assets/network.jpg "计算机网络模型")
+
+## 输入 URL 到页面展示的过程
+
+### 过程
+
+1. 用户输入 URL，浏览器会根据用户输入的信息判断是搜索还是网址，如果是搜索内容，就将搜索内容+默认搜索引擎合成新的 URL；如果用户输入的内容符合 URL 规则，浏览器就会根据 URL 协议，在这段内容上加上协议合成合法的 URL
+2. 用户输入完内容，按下回车键，浏览器导航栏显示 loading 状态，但是页面还是呈现前一个页面，这是因为新页面的响应数据还没有获得
+3. 浏览器进程浏览器构建请求行信息，会通过进程间通信（IPC）将 URL 请求发送给网络进程
+   GET /index.html HTTP1.1
+4. 网络进程获取到 URL，先去本地缓存中查找是否有缓存文件，如果有，拦截请求，直接 200 返回；否则，进入网络请求过程
+5. 网络进程请求 DNS 返回域名对应的 IP 和端口号，如果之前 DNS 数据缓存服务缓存过当前域名信息，就会直接返回缓存信息；否则，发起请求获取根据域名解析出来的 IP 和端口号，如果没有端口号，http 默认 80，https 默认 443。如果是 https 请求，还需要建立 TLS 连接。
+6. Chrome 有个机制，同一个域名同时最多只能建立 6 个 TCP 连接，如果在同一个域名下同时有 10 个请求发生，那么其中 4 个请求会进入排队等待状态，直至进行中的请求完成。如果当前请求数量少于 6 个，会直接建立 TCP 连接。
+7. TCP 三次握手建立连接，http 请求加上 TCP 头部——包括源端口号、目的程序端口号和用于校验数据完整性的序号，向下传输
+8. 网络层在数据包上加上 IP 头部——包括源 IP 地址和目的 IP 地址，继续向下传输到底层
+9. 底层通过物理网络传输给目的服务器主机
+10. 目的服务器主机网络层接收到数据包，解析出 IP 头部，识别出数据部分，将解开的数据包向上传输到传输层
+11. 目的服务器主机传输层获取到数据包，解析出 TCP 头部，识别端口，将解开的数据包向上传输到应用层
+12. 应用层 HTTP 解析请求头和请求体，如果需要重定向，HTTP 直接返回 HTTP 响应数据的状态 code301 或者 302，同时在请求头的 Location 字段中附上重定向地址，浏览器会根据 code 和 Location 进行重定向操作；如果不是重定向，首先服务器会根据 请求头中的 If-None-Match 的值来判断请求的资源是否被更新，如果没有更新，就返回 304 状态码，相当于告诉浏览器之前的缓存还可以使用，就不返回新数据了；否则，返回新数据，200 的状态码，并且如果想要浏览器缓存数据的话，就在相应头中加入字段：
+    Cache-Control:Max-age=2000
+    响应数据又顺着应用层——传输层——网络层——网络层——传输层——应用层的顺序返回到网络进程
+13. 数据传输完成，TCP 四次挥手断开连接。如果，浏览器或者服务器在 HTTP 头部加上如下信息，TCP 就一直保持连接。保持 TCP 连接可以省下下次需要建立连接的时间，提示资源加载速度
+    Connection:Keep-Alive
+14. 网络进程将获取到的数据包进行解析，根据响应头中的 Content-type 来判断响应数据的类型，如果是字节流类型，就将该请求交给下载管理器，该导航流程结束，不再进行；如果是 text/html 类型，就通知浏览器进程获取到文档准备渲染
+15. 浏览器进程获取到通知，根据当前页面 B 是否是从页面 A 打开的并且和页面 A 是否是同一个站点（根域名和协议一样就被认为是同一个站点），如果满足上述条件，就复用之前网页的进程，否则，新创建一个单独的渲染进程
+16. 浏览器会发出“提交文档”的消息给渲染进程，渲染进程收到消息后，会和网络进程建立传输数据的“管道”，文档数据传输完成后，渲染进程会返回“确认提交”的消息给浏览器进程
+17. 浏览器收到“确认提交”的消息后，会更新浏览器的页面状态，包括了安全状态、地址栏的 URL、前进后退的历史状态，并更新 web 页面，此时的 web 页面是空白页
+18. 渲染进程对文档进行页面解析和子资源加载，HTML 通过 HTM 解析器转成 DOM Tree（二叉树类似结构的东西），CSS 按照 CSS 规则和 CSS 解释器转成 CSSOM TREE，两个 tree 结合，形成 render tree（不包含 HTML 的具体元素和元素要画的具体位置），通过 Layout 可以计算出每个元素具体的宽高颜色位置，结合起来，开始绘制，最后显示在屏幕中新页面显示出来
+
+### 渲染过程
+
+渲染过程：[渲染流水线](../../assets/render.jpg "渲染流水线")
+
+总结：[](../../assets/layout.jpg)
+
+### 减少重排重绘, 方法很多
+
+1. 使用 class 操作样式，而不是频繁操作 style
+2. 避免使用 table 布局
+3. 批量 dom 操作，例如 createDocumentFragment，或者使用框架，例如 React
+4. Debounce window resize 事件
+5. 对 dom 属性的读写要分离
+6. will-change: transform 做优化
+
+减少重排重绘，相当于少了渲染进程的主线程和非主线程的很多计算和操作，能够加快 web 的展示。
+
+1. 触发 repaint、reflow 的操作尽量放在一起，比如改变 dom 高度和设置 margin 分开写，可能会触发两次重排；
+2. 通过虚拟 dom 层计算出操作总的差异，一起提交给浏览器。之前还用过 document.createDocumentFragment 来汇总 append 的 dom，来减少触发重排重绘次数。
+
+## a 标签 rel 属性
+
+`<a target="_blank" rel="noopener noreferrer" class="hover" href="https://linkmarket.aliyun.com/hardware_store?spm=a2c3t.11219538.iot-navBar.62.4b5a51e7u2sXtw" data-spm-anchor-id="a2c3t.11219538.iot-navBar.62">硬件商城</a>`
+
+使用 noopener noreferrer 就是告诉浏览器，新打开的子窗口不需要访问父窗口的任何内容，这是为了防止一些钓鱼网站窃取父窗口的信息。
+
+浏览器在打开新页面时，解析到含有 noopener noreferrer 时，就知道他们不需要共享页面内容，所以这时候浏览器就会让新链接在一个新页面中打开了。
+
+## 防抖函数的使用
+
+直接使用 lodash 的 debounce 函数即可。
+
+```ts
+const fetchRef = useRef(0);
+
+const debounceFetcher = React.useMemo(() => {
+	const loadOptions = (value: string) => {
+		fetchRef.current += 1;
+		const fetchId = fetchRef.current;
+
+		setLoading(true);
+		getDataList(value).then((res) => {
+			if (fetchId !== fetchRef.current) {
+				return;
+			}
+			if (res.code === 1) {
+				setDataList(res.data);
+			} else {
+				setDataList([]);
+			}
+			setLoading(false);
+		});
+	};
+
+	return debounce(loadOptions, debounceTimeout);
+}, [xxx, yyy]);
+```

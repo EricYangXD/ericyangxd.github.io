@@ -577,3 +577,10 @@ href 表示超文本引用，用在 link 和 a 等元素上，href 是引用和�
 -   区别 2：link 引用 CSS 时，在页面载入时同时加载；@import 需要页面网页完全载入以后加载。
 -   区别 3：link 是 XHTML 标签，无兼容问题；@import 是在 CSS2.1 提出的，低版本的浏览器不支持。
 -   区别 4：link 支持使用 Javascript 控制 DOM 去改变样式；而@import 不支持。
+
+## 加一个边框
+
+```css
+border: 10px solid hsla(0, 0%, 100%, 0.5);
+background-clip: padding-box; // 使用paddingbox
+```

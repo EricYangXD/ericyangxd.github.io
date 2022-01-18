@@ -79,3 +79,13 @@ cd /Library/Google/GoogleSoftwareUpdate
     - 表示我们禁用 chrome 的自动更新成功了。
 5. 如果你点击了“设置自动更新”，则刚才的“GoogleSoftwareUpdate.bundle”文件就会再次出现了。
     - 点击“不再询问”大功告成。通过“帮助->关于 Google Chrome”可以查看信息。
+
+## Postman
+
+Postman 安装 Interceptor Bridge 时报 ERROR_CODE:CHROME_NOT_INSTSLLED
+解决方法如下：
+
+```zsh
+mkdir ~/Library/Application\ Support/Google/Chrome/NativeMessagingHosts
+chmod +wx ~/Library/Application\ Support/Google/Chrome/NativeMessagingHost
+```

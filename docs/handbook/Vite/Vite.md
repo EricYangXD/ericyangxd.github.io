@@ -4,6 +4,11 @@ author: EricYangXD
 date: "2022-01-06"
 ---
 
+## 主要由两部分组成：
+
+1. 一个开发服务器，它基于 原生 ES 模块 提供了 丰富的内建功能，如速度快到惊人的 模块热更新（HMR）。
+2. 一套构建指令，它使用 Rollup 打包你的代码，并且它是预配置的，可输出用于生产环境的高度优化过的静态资源。
+
 ## 原理
 
 > 以下引用自[Vite 官方中文文档](https://cn.vitejs.dev/guide/why.html#slow-server-start)

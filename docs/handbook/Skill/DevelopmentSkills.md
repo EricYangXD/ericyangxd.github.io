@@ -299,17 +299,3 @@ router.get('/news/list', (req, res) => {
 ...
 module.exports = router;
 ```
-
-## 修改 Git commit msg
-
-1. 修改最近一次的 commit 信息 git commit --amend
-2. git reset --soft HEAD^ 重新提交
-3. git log --oneline -5 查看最近 5 次 commit 的简要信息
-4. 比如要修改的 commit 是倒数第三条，使用下述命令：
-
-```
-git rebase -i HEAD~3
-退出保存 :wq
-执行 git rebase --continue
-执行 git push -f 推送到服务端。
-```

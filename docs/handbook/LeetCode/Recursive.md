@@ -26,3 +26,108 @@ date: "2022-01-10"
 2. 进行当前层的操作
 3. 下探进入下一层操作
 4. 清理当前层的状态
+
+## 岛屿问题
+
+### 普通岛屿问题
+
+使用深度遍历，遍历到一个岛屿之后+1，然后把这个岛屿「淹没」，然后继续向上下左右四个方向遍历，在这过程中注意判断好边界条件即可。
+
+```js
+// 主函数，计算岛屿数量
+function numIslands(grid) {
+	var res = 0;
+	var m = grid.length,
+		n = grid[0].length;
+	// 遍历 grid
+	for (var i = 0; i < m; i++) {
+		for (var j = 0; j < n; j++) {
+			if (grid[i][j] == "1") {
+				// 每发现一个岛屿，岛屿数量加一
+				res++;
+				// 然后使用 DFS 将岛屿淹了
+				dfs(grid, i, j);
+			}
+		}
+	}
+	return res;
+}
+
+// 从 (i, j) 开始，将与之相邻的陆地都变成海水
+function dfs(grid, i, j) {
+	var m = grid.length,
+		n = grid[0].length;
+	if (i < 0 || j < 0 || i >= m || j >= n) {
+		// 超出索引边界
+		return;
+	}
+	if (grid[i][j] == "0") {
+		// 已经是海水了
+		return;
+	}
+	// 将 (i, j) 变成海水
+	grid[i][j] = "0";
+	// 淹没上下左右的陆地
+	dfs(grid, i + 1, j);
+	dfs(grid, i, j + 1);
+	dfs(grid, i - 1, j);
+	dfs(grid, i, j - 1);
+}
+```
+
+### 694.不同岛屿的数量
+
+不考虑旋转对称等，只看形状是否一致。其实就是找到所有岛屿并对岛屿的序列化，然后去重，剩下的岛屿数量就是要返回的结果。
+
+对于形状相同的岛屿，如果从同一起点出发，DFS 函数遍历的顺序肯定是一样的。因为遍历顺序是写死在 dfs 函数里的，不会动态改变。
+
+```js
+// TODO 代码有问题
+function dfs(grid, i, j, str, dir) {
+	var m = grid.length,
+		n = grid[0].length;
+	if (i < 0 || j < 0 || i >= m || j >= n) {
+		// 超出索引边界
+		return;
+	}
+	// 前序遍历位置：进入(i,j)
+	grid[i][j] = 0;
+	str.push(dir);
+
+	dfs(grid, i - 1, j, str, 1); // up
+	dfs(grid, i + 1, j, str, 2); // down
+	dfs(grid, i, j - 1, str, 3); // left
+	dfs(grid, i, j + 1, str, 4); // right
+	// 后序遍历位置：离开(i,j)
+	str.push(-dir);
+}
+
+// 主函数，计算岛屿数量
+function numIslands(grid) {
+	var res = [];
+	var m = grid.length,
+		n = grid[0].length;
+	// 遍历 grid
+	for (var i = 0; i < m; i++) {
+		for (var j = 0; j < n; j++) {
+			if (grid[i][j] == "1") {
+				// 淹掉这个岛屿的同时存储到与序列化结果
+				var arr = [];
+				// 然后使用 DFS 将岛屿淹了
+				dfs(grid, i, j, arr, 0);
+				// 每发现一个岛屿，岛屿数量加一
+				res.push(arr.toString());
+			}
+		}
+	}
+	return [...new Set(res)].length;
+}
+```
+
+### 字符串 010101 需要变换多少次
+
+### 约数游戏 先手后手谁赢
+
+### rand7 => rand10
+
+### 排序奇升偶降链表
