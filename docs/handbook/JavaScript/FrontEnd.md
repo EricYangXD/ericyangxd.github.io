@@ -876,8 +876,8 @@ X-Frame-Options 有三个可能的值：
 1. localStorage 存储的键值采用什么字符编码？—— UTF-16 DOMString，每个字符使用两个字节，是有前提条件的，就是码点小于 0xFFFF(65535)， 大于这个码点的是四个字节。
 2. localStorage 存储 5M 的单位是什么？—— 5M 字符的长度值或 5M utf-16 编码单元，或者根据 UTF-16 编码规则，要么 2 个字节，要么 4 个字节，所以不如说是 10M 的「字节数/字节空间」，更为合理。字符的个数，并不等于字符的长度："𠮷".length; // 2
 3. localStorage 键占不占存储空间?占！
-4. 使用以下方法「正确」获取长度：Array.from("𠮷").length; // 1
-5. 获取一些组合字符的长度：例如： 'q̣̇' =unicode= 'q\u{0307}\u{0323}'
+4. 使用以下方法「正确」获取长度：`Array.from("𠮷").length; // 1`
+5. 获取一些组合字符的长度：例如： `'q̣̇' =unicode= 'q\u{0307}\u{0323}'`
 
 ```js
 const getStringLength = function (string) {
@@ -940,7 +940,7 @@ function sieOfLS() {
 
 ### referrer 属性写法
 
-在 html 页面中的<head>头部区域用 meta 标签添加 referrer 属性，referrer 有五种属性：
+在 html 页面中的`<head>`头部区域用 meta 标签添加 referrer 属性，referrer 有五种属性：
 
 -   No Referrer （永远不做记录）
 -   No Referrer When Downgrade（浏览器默认，当降级时候不记录，从 https 跳转到 http）
@@ -1063,43 +1063,43 @@ human.getType(); // 'people'
 
 ```js
 // IDBOpenDBRequest  表示打开数据库的请求
-const request  = indexedDB.open( 'people', version );
+const request = indexedDB.open( 'people', version );
 // 版本更新，创建新的store的时候
 request.onupgradeneeded = ( event ) => {
- // // IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
- const db = event.target.result;
- if ( db.objectStoreNames.contains( stroeName ) === false ) {
-   db.createObjectStore( stroeName, {keyPath: 'key'} );
- }
- openSuccess(db);
+  // IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
+	const db = event.target.result;
+	if(!db.objectStoreNames.contains(stroeName)) {
+		db.createObjectStore(stroeName, {keyPath: 'key'} );
+	}
+	openSuccess(db);
 };
 request.onsuccess = ( event ) => {
- // IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
- const db = event.target.result;
- openSuccess(db);
+  // IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
+	const db = event.target.result;
+	openSuccess(db);
 };
 request.onerror = ( event ) => {
- console.error( 'IndexedDB', event );
+	console.error( 'IndexedDB', event );
 };
 // IDBOpenDBRequest  表示打开数据库的请求
-Const Request=indexedDB.open(“People”，Version)；
+Const Request=indexedDB.open("People", Version);
 // 版本更新，创建新的store的时候
-Request.onUpgradeneded=(事件)=>{
-// // IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
-Const db=event.Target.结果；
-如果(db.objectStoreNames.include(StroeName)=false){
-Db.createObjectStore(stroeName，{keyPath：‘key’})；
-}
-OpenSuccess(DB)；
-}；
-Request.onSuccess=(事件)=>{
-// IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
-Const db=event.Target.结果；
-OpenSuccess(DB)；
-}；
-Request.onError=(事件)=>{
-合并错误(“IndexedDB”，事件)；
-}；
+Request.onUpgradeneded=(e)=>{
+	// IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
+	Const db=event.Target.result;
+	if(db.objectStoreNames.include(StroeName) === false){
+		Db.createObjectStore(stroeName, {keyPath: 'key'});
+	}
+	OpenSuccess(DB);
+};
+Request.onSuccess=(e)=>{
+	// IDBDatabase 表示与数据库的连接。这是获取数据库事务的唯一方法。
+	const db=event.Target.result;
+	OpenSuccess(DB);
+};
+Request.onError=(e)=>{
+	合并错误("IndexedDB",e);
+};
 ```
 
 ## JavaScript
@@ -1226,3 +1226,7 @@ const debounceFetcher = React.useMemo(() => {
 	return debounce(loadOptions, debounceTimeout);
 }, [xxx, yyy]);
 ```
+
+## Nignx 使用 njs
+
+[知乎链接](https://zhuanlan.zhihu.com/p/393788937)

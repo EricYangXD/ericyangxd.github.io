@@ -584,3 +584,49 @@ href 表示超文本引用，用在 link 和 a 等元素上，href 是引用和�
 border: 10px solid hsla(0, 0%, 100%, 0.5);
 background-clip: padding-box; // 使用paddingbox
 ```
+
+## 太极
+
+```css
+.yin-yang {
+	height: 200px;
+	width: 200px;
+	position: relative;
+	background: rgb(255, 255, 255);
+	background: linear-gradient(
+		90deg,
+		rgba(255, 255, 255, 1) 0%,
+		rgba(255, 255, 255, 1) 50%,
+		rgba(0, 0, 0, 1) 50%,
+		rgba(0, 0, 0, 1) 100%
+	);
+	border-radius: 50%;
+	box-sizing: border-box;
+	border: 4px solid black;
+}
+.yin-yang::before {
+	content: "";
+	position: absolute;
+	height: 96px;
+	width: 96px;
+	border-radius: 50%;
+	box-sizing: border-box;
+	background: black;
+	border: 38px solid white;
+	left: 50%;
+	transform: translatex(-50%);
+}
+.yin-yang::after {
+	content: "";
+	position: absolute;
+	height: 96px;
+	width: 96px;
+	border-radius: 50%;
+	box-sizing: border-box;
+	background: white;
+	border: 38px solid black;
+	left: 50%;
+	bottom: 0;
+	transform: translatex(-50%);
+}
+```
