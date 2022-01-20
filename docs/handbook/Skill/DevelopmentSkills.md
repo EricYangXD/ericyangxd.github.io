@@ -299,3 +299,24 @@ router.get('/news/list', (req, res) => {
 ...
 module.exports = router;
 ```
+
+## 启动一个本地文件上传 mock server
+
+[参考](https://github.com/EricYangXD/upload-file-server)
+
+下载启动之后，自己配置上传的 URL 即可
+
+## 断点调试
+
+Debugger 打断点的方式除了直接在对应代码行单击的普通断点以外，还有很多根据不同的情况来添加断点的方式。
+
+一共有六种：
+
+1. 普通断点：运行到该处就断住
+2. 条件断点：运行到该处且表达式为真就断住，比普通断点更灵活
+3. DOM 断点：DOM 的子树变动、属性变动、节点删除时断住，可以用来调试引起 DOM 变化的代码
+4. URL 断点：URL 匹配某个模式的时候断住，可以用来调试请求相关代码
+5. Event Listener 断点：触发某个事件监听器的时候断住，可以用来调试事件相关代码
+6. 异常断点：抛出异常被捕获或者未被捕获的时候断住，可以用来调试发生异常的代码
+
+这些打断点方式大部分都是 Chrome Devtools 支持的（普通、条件、DOM、URL、Event Listener），也有的是 VSCode Debugger 支持的（普通、条件、异常）。

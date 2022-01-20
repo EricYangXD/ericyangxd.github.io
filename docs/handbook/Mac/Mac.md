@@ -89,3 +89,39 @@ Postman 安装 Interceptor Bridge 时报 ERROR_CODE:CHROME_NOT_INSTSLLED
 mkdir ~/Library/Application\ Support/Google/Chrome/NativeMessagingHosts
 chmod +wx ~/Library/Application\ Support/Google/Chrome/NativeMessagingHost
 ```
+
+## 修改 host
+
+### 一.系统偏好设置修改
+
+1. 打开系统偏好设置，底部有一个 Hosts 的快捷入口
+2. 输入 ip 和 hostname 后，回车确定，勾选改 host 即可
+
+### 二.终端命令行修改
+
+-   A
+
+```zsh
+sudo vi /etc/hosts
+```
+
+1. 输入本机密码后，打开 hosts 文件，键盘输入 i （插入），修改 hosts 文件后，按 esc 键退出,再按 shift+：键，再输入 w 和 q，保存退出；
+2. 不保存退出，则按 q 和！键。
+
+-   B
+
+```zsh
+open /etc/hosts -e
+```
+
+### 三.直接修改系统 Hosts 文件
+
+-   A
+
+1. 打开 Finder，按快捷键组合 Shift+Command+G 查找文件，输入/etc/hosts,确认前往；
+2. 进入文件夹后，复制该文件到桌面，修改成功后保存，将原先的 host 文件替换掉即可。
+
+-   B
+
+1. 打开 Finder，按快捷键组合 Shift+Command+G 查找文件，输入/private,确认前往后可看到 etc 文件夹，邮件选择'显示简介'，在底部打开‘共享和权限’；
+2. 将 everyone 的权限改为‘读与写’，保存后直接修改 hosts 文件，最后完成后将权限改回来。

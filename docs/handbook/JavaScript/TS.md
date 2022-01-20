@@ -159,3 +159,46 @@ export type SomePartial<T, R extends keyof T> = Omit<T, R> &
 export type SomeRequired<T, R extends keyof T> = Omit<T, R> &
 	Pick<Required<T>, R>;
 ```
+
+### ts 怎么用类型表示一个 Serializable 对象
+
+```ts
+// 深层对象不行
+type SerializableKey = string | number;
+
+type SerializableValue = string | number | boolean | null | undefined;
+
+type SerializableObject = Record<SerializableKey, SerializableValue>;
+
+type SerializableDeepObject =
+	| SerializableObject
+	| Record<SerializableKey, SerializableValue | SerializableObject>;
+
+type SerializableArray = SerializableValue[] | SerializableDeepObject[];
+
+type Serializable =
+	| SerializableValue
+	| SerializableDeepObject
+	| SerializableArray;
+
+let obj: Serializable = [{ c: { a: 1 } }];
+
+console.log(obj);
+// 改进深层对象可以
+interface SerializableObject {
+	[key: SerializableKey]: SerializableValue | SerializableObject;
+}
+
+type Serializable = SerializableObject | SerializableObject[];
+
+obj: Serializable = [
+	{
+		a: {
+			b: {
+				c: 1,
+			},
+		},
+	},
+];
+console.log(obj);
+```
