@@ -8,6 +8,11 @@ date: "2022-01-17"
 
 -   文章[链接](https://mp.weixin.qq.com/s/ULRQltO0s2ZOMYYwZn9r9Q)
 
+## 安装 Homebrew
+
+1. Mac 下镜像飞速安装 Homebrew 教程: https://zhuanlan.zhihu.com/p/90508170
+2. M1 芯片 Mac 上 Homebrew 安装教程: https://zhuanlan.zhihu.com/p/341831809
+
 ## 设置三指拖移
 
 -   先在「系统偏好设置」-「触控板」设置
