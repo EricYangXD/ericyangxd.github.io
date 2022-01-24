@@ -1230,3 +1230,38 @@ const debounceFetcher = React.useMemo(() => {
 ## Nignx 使用 njs
 
 [知乎链接](https://zhuanlan.zhihu.com/p/393788937)
+
+## 前端跨域
+
+### 同源
+
+同源：same-origin: 何为同源：url 是由协议、域名、端口和路径组成 如果两个路径的协议、域名、端口都相同则表示在同一个域上，即同源;在浏览器上 `<script>、<img>、<link>、<iframe>`等标签都可以加载跨域资源 且不受同源策略限制。
+
+### 跨域
+
+1. JSONP: 通过 javascript callback 的形式实现跨域访问，服务器收到请求后，将数据放在一个指定名字的回调函数里传回来;
+2. postMessage / Channel Messaging API;
+3. window.name: window.name+iframe 需要目标服务器响应 window.name，window 对象有一个 name 属性，该属性有个特征：即在一个窗口（window）的生命周期内，窗口载入的所有的页面都是共享一个 window.name 的，每个页面对 window. name 都有读写的权利，window.name 是持久存在一个窗口载入过的所有页面中的;
+4. document.domain: 当两个页面的 document.domain 都设置为 ericyangxd.top 也就是同一个二级域名的时候，浏览器就将两个来源视为同源。这时候主页面就可以和 iframe/子页面 进行通信了。**Chrome 决定在 101 版本禁用掉它**。解决办法：给你的网页增加下面这个 Header 就可以了:`Origin-Agent-Cluster: ?0`.
+5. CORS: Nginx 设置 header: Access-Control-Allow-Origin:\*;
+6. websocket: 单独的持久连接上提供全双工、双向通信;
+
+### Vue 跨域配置
+
+利用 http-proxy-middleware 代理解决；
+
+```js
+// vue.config.js
+devServer:{
+	proxy:{
+		"/api":{
+			target:"https://****.com" //数据接口的地址
+			changeOrigin:true,  // 允许跨域
+			secure:false, // 允许运行在https上
+			pathRewrite: { //如果你不想总是传递 /api,可以重写路径
+				'^/api': ''
+			}
+		}
+	}
+}
+```
