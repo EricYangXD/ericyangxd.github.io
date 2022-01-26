@@ -15,10 +15,28 @@ date: "2022-01-13"
 
 ### git reset
 
+强制回退，可能会把别人的代码也干掉
+
 1. git reset --hard HEAD^SHA256
     - 硬回退，不保留 stash
 2. git reset --soft HEAD^/SHA256
     - 软回退，保留 stash
+
+reset 之后再提交代码时需要强制提交-f
+
+### git revert
+
+原理是在当前提交后面，新增一条提交，抵消掉上一次提交导致的所有变化。它不会改变过去的提交历史，也不会影响后续的提交，所以是安全的，首选的，没有任何丢失代码风险的。
+
+1. git revert commitId1 [commitid2 commitId3 ...]
+
+### git tag
+
+常用于上线之前对当前的 commit 记录打一个 tag，方便上线的代码有问题时可以及时回滚
+
+1. git tag 列出所有的 tag 列表
+2. git tag [tagname] 创建一个新 tag
+3. git show [tagname] 查看对应 tag 的 commit 信息
 
 ### git stash
 
