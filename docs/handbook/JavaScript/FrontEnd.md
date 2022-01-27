@@ -1269,3 +1269,36 @@ devServer:{
 	}
 }
 ```
+
+### Nginx 跨域配置
+
+1. 跨域主要涉及四个响应头：
+
+-   Access-Control-Allow-Origin: 设置允许跨域请求源地址（预检和正式请求在跨域时都会验证）
+-   Access-Control-Allow-Headers: 跨域允许携带的特殊头信息字段（只在预检请求验证）
+-   Access-Control-Allow-Methods: 跨域允许的请求方法（只在预检请求验证）
+-   Access-Control-Allow-Credentials: 是否允许跨域使用 cookies
+
+2. CORS 机制跨域会首先进行 preflight 预检（一个 OPTIONS 请求），该请求成功后才会发送真正的请求
+3. 示例：
+
+```http
+server {
+	listen 22222;
+	server_name localhost;
+	location / {
+		if ($request_method = 'OPTIONS') {
+			add_header Access-Control-Allow-Origin 'http://localhost:8080';
+			add_header Access-Control-Allow-Headers '*';
+			add_header Access-Control-Allow-Methods '*';
+			add_header Access-Control-Allow-Credentials 'true';
+			return 204;
+		}
+		if ($request_method != 'OPTIONS') {
+			add_header Access-Control-Allow-Origin 'http://localhost:8080' always;
+			add_header Access-Control-Allow-Credentials 'true';
+		}
+		proxy_pass http://localhost:8090;
+	}
+}
+```

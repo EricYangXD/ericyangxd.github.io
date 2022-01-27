@@ -630,3 +630,12 @@ background-clip: padding-box; // 使用paddingbox
 	transform: translatex(-50%);
 }
 ```
+
+## @font-face
+
+```css
+@font-face {
+	font-family: myFirstFont; /* 必需的 */
+	src: url("xxx.ttf") [, url(xxx.xyz), ...]; /* 必需的 */
+}
+```
