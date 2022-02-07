@@ -12,7 +12,8 @@
 		"start": "vuepress dev docs",
 		"docs:build": "vuepress build docs",
 		"build": "vuepress build docs",
-		"deploy": "sh deploy.sh"
+		"deploy": "sh deploy.sh",
+		"update": "sh update.sh"
 	},
 	"dependencies": {
 		"vuepress-theme-reco": "^1.6.10"
