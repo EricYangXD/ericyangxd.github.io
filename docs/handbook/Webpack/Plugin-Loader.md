@@ -351,3 +351,34 @@ module.exports = CustomHtmlPlugin;
 | webpack-deadcode-plugin       | 移除项目中的无效引用文件和导出                             |
 
 -   更多插件参考[https://webpack.js.org/awesome-webpack/](https://webpack.js.org/awesome-webpack/)
+
+## Babel
+
+### @babel/preset-env
+
+转换 ES6 语法成 ES5 的语法。
+
+```js
+module.exports = {
+	presets: [
+		[
+			"@babel/env",
+			{
+				useBuiltIns: "entry", // "usage" | "entry" | false, defaults to false.
+				targets: {
+					chrome: "58",
+					ie: "11",
+				},
+				bugfixes: false,
+				spec: false,
+				loose: false,
+				debug: false,
+				include: [],
+				exclude: [],
+				modules: "auto", // "amd" | "umd" | "systemjs" | "commonjs" | "cjs" | "auto" | false,defaults to "auto".
+			},
+		],
+	],
+	plugins: [],
+};
+```
