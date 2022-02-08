@@ -24,6 +24,10 @@ date: "2022-01-13"
 
 reset 之后再提交代码时需要强制提交-f
 
+### git commit --amend
+
+直接修改当前的提交信息，如果代码有更改，则需要先执行 git add
+
 ### git revert
 
 原理是在当前提交后面，新增一条提交，抵消掉上一次提交导致的所有变化。它不会改变过去的提交历史，也不会影响后续的提交，所以是安全的，首选的，没有任何丢失代码风险的。
@@ -37,6 +41,16 @@ reset 之后再提交代码时需要强制提交-f
 1. git tag 列出所有的 tag 列表
 2. git tag [tagname] 创建一个新 tag
 3. git show [tagname] 查看对应 tag 的 commit 信息
+
+示例：
+
+-   新增 tag `git tag -a v1.0.0 -m "my version v1.0.0"`
+
+-   查看 tag `git show v1.0.0`
+
+-   推送远端 `git push origin v1.0.0`
+
+PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名。因此 commit 的能力 tag 均可以使用，比如`git reset`，`git revert [pre-tag]`
 
 ### git stash
 

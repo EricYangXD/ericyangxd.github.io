@@ -373,3 +373,216 @@ function App() {
 ## React 常用方法及周边
 
 -   [React 总结](../../assets/react-zj.jpg)
+
+## React.createRef
+
+`React.createRef` 创建一个能够通过 ref 属性附加到 React 元素的 ref。
+
+```jsx
+class MyComponent extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.inputRef = React.createRef();
+	}
+
+	render() {
+		return <input type="text" ref={this.inputRef} />;
+	}
+
+	componentDidMount() {
+		this.inputRef.current.focus();
+	}
+}
+```
+
+## React.forwardRef
+
+`React.forwardRef` 会创建一个 React 组件，这个组件能够将其接收到的 ref 属性转发到其组件树下的另一个组件中。这种技术并不常见，但在以下两种场景中特别有用：
+
+-   转发 refs 到 DOM 组件
+-   在高阶组件中转发 refs
+
+`React.forwardRef` 接受渲染函数作为参数。React 将使用 props 和 ref 作为参数来调用此函数。此函数应返回 React 节点。
+
+### 转发 refs 到 DOM 组件
+
+```jsx
+// 1. 使用React.forwardRef相当于高阶函数，包裹FancyButton组件后，FancyButton组件可以接受到第二个参数ref，第一个参数默认是props；
+const FancyButton = React.forwardRef((props, ref) => (
+	// 2. 在FancyButton的button组件中可以使用传入的ref，即实现了转发 refs 到 DOM 组件中；
+	<button ref={ref} className="FancyButton">
+		{props.children}
+	</button>
+));
+
+// 3. You can now get a ref directly to the DOM button:
+const ref = React.createRef();
+// 4. 此时当 React 附加了 ref 属性之后，ref.current 将直接指向 <button> DOM 元素实例。
+<FancyButton ref={ref}>Click me!</FancyButton>;
+```
+
+### 在高阶组件中转发 refs
+
+在高阶组件中转发 refs，有一点需要注意：refs 将不会透传下去。这是因为 ref 不是 prop 属性。就像 key 一样，其被 React 进行了特殊处理。如果你对 HOC 添加 ref，该 ref 将引用最外层的容器组件，而不是被包裹的组件。
+
+幸运的是，我们可以使用 React.forwardRef API 明确地将 refs 转发到内部的 FancyButton 组件。React.forwardRef 接受一个渲染函数，其接收 props 和 ref 参数并返回一个 React 节点。例如：
+
+```jsx
+function logProps(Component) {
+	class LogProps extends React.Component {
+		componentDidUpdate(prevProps) {
+			console.log("old props:", prevProps);
+			console.log("new props:", this.props);
+		}
+		render() {
+			const { forwardedRef, ...rest } = this.props;
+			// 将自定义的 prop 属性 “forwardedRef” 定义为 ref
+			return <Component ref={forwardedRef} {...rest} />;
+		}
+	}
+	// 注意 React.forwardRef 回调的第二个参数 “ref”。
+	// 我们可以将其作为常规 prop 属性传递给 LogProps，例如 “forwardedRef”
+	// 然后它就可以被挂载到被 LogProps 包裹的子组件上。
+	return React.forwardRef((props, ref) => {
+		return <LogProps {...props} forwardedRef={ref} />;
+	});
+}
+```
+
+## React.lazy
+
+`React.lazy()` 允许你定义一个动态加载的组件。这有助于缩减 bundle 的体积，并延迟加载在初次渲染时未用到的组件。
+
+```jsx
+// 这个组件是动态加载的
+const SomeComponent = React.lazy(() => import("./SomeComponent"));
+```
+
+请注意，渲染 lazy 组件依赖该组件渲染树上层的 `<React.Suspense>` 组件。这是指定加载指示器（loading indicator）的方式。使用 `React.lazy` 的动态引入特性需要 JS 环境支持 Promise。
+
+## React.Suspense
+
+`React.Suspense` 可以指定加载指示器（loading indicator），以防其组件树中的某些子组件尚未具备渲染条件。目前，懒加载组件是 `<React.Suspense>` 支持的唯一用例：
+
+```jsx
+// app.tsx
+import React, { lazy, Suspense } from "react";
+import { Route, Switch, Redirect, withRouter, NavLink } from "react-router-dom";
+import Loader from "components/loader";
+
+// 该组件是动态加载的
+const SomeComponent = React.lazy(() => import("./SomeComponent"));
+const OtherComponent = React.lazy(() => import("./OtherComponent"));
+const MyComponent = React.lazy(() => import("./MyComponent"));
+
+const routes = [
+	{
+		path: getPath("/"),
+		component: SomeComponent,
+		exact: true,
+	},
+	{
+		path: "/some",
+		component: SomeComponent,
+	},
+	{
+		path: "/other",
+		component: OtherComponent,
+	},
+	{
+		path: "/mine",
+		component: MyComponent,
+	},
+];
+
+function AppRouter(props) {
+	// withRouter 把不是通过路由切换过来的组件中，将react-router 的 history、location、match 三个对象传入props对象上
+	console.log("App(props): ", props); // App(props): {history: {…}, location: {…}, match: {…}, staticContext: undefined}
+	return (
+		// 显示 <Spinner> 组件直至某个 Component 加载完成
+		<React.Suspense fallback={<Spinner />}>
+			<NavLink exact activeClassName="line-active" to="/">
+				Some
+			</NavLink>
+			<NavLink activeClassName="line-active" to="/other">
+				Other
+			</NavLink>
+			<Switch>
+				<Route exact path="/">
+					<Redirect to={`/some`} />
+				</Route>
+				{routes.map(({ path: routePath, component, exact = false }) => (
+					<Route
+						key={routePath}
+						path={routePath}
+						component={component}
+						exact={exact}
+					/>
+				))}
+				{/* Switch 会优先显示匹配到的第一个路由，多加一个路由做安全垫 */}
+				<Route component={SomeComponent} />
+			</Switch>
+		</React.Suspense>
+	);
+}
+
+export default withRouter(AppRouter);
+
+// index.tsx
+import React from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "styled-components";
+import moment from "moment";
+import zhCN from "antd/lib/locale/zh_CN";
+import { ConfigProvider, message } from "antd";
+import "moment/locale/zh-cn";
+import App from "./app";
+// 定义全局样式
+import { theme } from "./GlobalStyle";
+
+moment.locale("zh-cn");
+message.config({
+	top: 100,
+	duration: 2,
+	maxCount: 1,
+});
+
+ReactDOM.render(
+	<React.StrictMode>
+		// 必须需要使用 BrowserRouter 或者 HashRouter 包括
+		<BrowserRouter>
+			<ConfigProvider locale={zhCN}>
+				<ThemeProvider theme={theme}>
+					<UserInfoContextProvider>
+						<App />
+					</UserInfoContextProvider>
+				</ThemeProvider>
+			</ConfigProvider>
+		</BrowserRouter>
+	</React.StrictMode>,
+	document.getElementById("root")
+);
+```
+
+## withRouter
+
+非路由组件可以通过 withRouter 高阶组件访问 History 对象的属性和进行匹配。withRouter 将在渲染时向包装组件传递更新的 match、location 和 history 属性。
+
+作用：把不是通过路由切换过来的组件中，将 react-router 的 history、location、match 三个对象传入 props 对象上。
+
+默认情况下必须是经过路由匹配渲染的组件才存在 this.props，才拥有路由参数，才能使用编程式导航的写法，执行 this.props.history.push('/detail')跳转到对应路由的页面。
+
+然而不是所有组件都直接与路由相连（通过路由跳转到此组件）的，当这些组件需要路由参数时，使用 withRouter 就可以给此组件传入路由参数，此时就可以使用 this.props。
+
+## ReactDOMServer
+
+`ReactDOMServer` 对象允许你将组件渲染成静态标记。通常，它被使用在 Node 服务端上：
+
+```js
+// ES modules
+import ReactDOMServer from "react-dom/server";
+// CommonJS
+var ReactDOMServer = require("react-dom/server");
+```
