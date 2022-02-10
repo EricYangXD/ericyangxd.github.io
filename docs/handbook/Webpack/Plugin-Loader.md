@@ -34,6 +34,7 @@ module.exports = {
   },
   optimization: {
     minimize: false,
+    moduleIds: 'deterministic', // 确定的
   },
   module: { // loaders
     rules: [

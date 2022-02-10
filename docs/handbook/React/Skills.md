@@ -586,3 +586,103 @@ import ReactDOMServer from "react-dom/server";
 // CommonJS
 var ReactDOMServer = require("react-dom/server");
 ```
+
+## React.Suspense
+
+React 的发展历程是：从「同步」到「异步」，再到「并发」。
+
+当实现「并发」后，接下来的发展方向将是：不断扩展可以使用「并发」的场景。
+
+Suspense 的作用是「划分页面中需要并发渲染的部分」。
+
+这套发展路径从 React 诞生伊始就决定了，因为从架构上来说，React 重度依赖运行时，为了优化性能，「并发」是这套架构下的最优发展方向。
+
+## contenthash
+
+```js
+// webpack.config.js
+const CDN_HOST = process.env.CDN_HOST; // CDN 域名
+const CDN_PATH = process.env.CDN_PATH; // CDN 路径
+const ENV = process.env.ENV; // 当前的环境等等
+const VERSION = process.env.VERSION; // 当前发布的版本
+
+const getPublicPath = () => {
+	// Some code here
+	return `${CDN_HOST}/${CDN_PATH}/${ENV}/`; // 依据 ENV 等动态构造 publicPath
+};
+
+const publicPath =
+	process.env.NODE_ENV === "production" ? getPublicPath() : ".";
+
+module.exports = {
+	output: {
+		filename: "bundle.[name][contenthash:8].js",
+		publicPath,
+	},
+	plugins: [new HtmlWebpackPlugin()],
+};
+```
+
+使用 contenthash 时，往往会增加一个小模块后，整体文件的 hash 都发生变化，原因为 Webpack 的 module.id 默认基于解析顺序自增，从而引发缓存失效。具体可通过设置 optimization.moduleIds 设置为 'deterministic' 。
+
+## 反向代理
+
+反向代理（reverse proxy）：是指以代理服务器来接受网络请求，并将请求转发给内部的服务器，并且将内部服务器的返回，就像是二房东一样。
+
+一句话解释反向代理 & 正向代理：反向代理隐藏了真正的服务器，正向代理隐藏了真正的客户端。
+
+## 静态资源组织总结
+
+1. 为了最大程度利用缓存，将页面入口(HTML)设置为协商缓存，将 JavaScript、CSS 等静态资源设置为永久强缓存。
+2. 为了解决强缓存更新问题，将文件摘要（hash）作为资源路径(URL)构成的一部分。
+3. 为了解决覆盖式发布引发的问题，采用 name-hash 而非 query-hash 的组织方式，具体需要配置 Wbpack 的 output.filename 为 contenthash 。
+4. 为了解决 Nginx 目录存储过大 + 结合 CDN 提升访问速度，采用了 Nginx 反向代理+ 将静态资源上传到 CDN。
+5. 为了上传 CDN，我们需要按环境动态构造 publicPath + 按环境构造 CDN 上传目录并上传。
+6. 为了动态构造 publicPath 并且随构建过程插入到 HTML 中，采用 Webpack-HTML-Plugin 等插件，将编译好的带 hash + publicPath 的静态资源插入到 HTML 中。
+7. 为了保证上传 CDN 的安全，我们需要一种机制管控上传 CDN 秘钥，而非简单的将秘钥写到代码 / Dockerfile 等明文文件中。
+
+## Q&A
+
+Q: 前端代码从 tsx/jsx 到部署上线被用户访问，中间大致会经历哪些过程？
+
+A: 经历本地开发、远程构建打包部署、安全检查、上传 CDN、Nginx 做流量转发、对静态资源做若干加工处理等过程。
+
+Q：可能大部分同学都知道强缓存/协商缓存，那前端各种产物（HTML、JS、CSS、IMAGES 等）应该用什么缓存策略？以及为什么？
+若使用协商缓存，但静态资源却不频繁更新，如何避免协商过程的请求浪费？
+若使用强缓存，那静态资源如何更新？
+
+A：HTML 使用协商缓存，静态资源使用强缓存，使用 name-hash（非覆盖式发布）解决静态资源更新问题。
+
+Q：配套的，前端静态资源应该如何组织？
+
+A：搭配 Webpack 的 Webpack_HTML-Plugin & 配置 output publicPath 等。
+
+Q：配套的，自动化构建 & 部署过程如何与 CDN 结合？
+
+A：自动化构建打包后，将产物传输到对应环境 URL 的 CDN 上。
+
+Q：如何避免前端上线，影响未刷新页面的用户？
+
+A：使用 name-hash 方式组织静态资源，先上线静态资源，再上线 HTML。
+
+Q：刚上线的版本发现有阻塞性 bug，如何做到秒级回滚，而非再次部署等 20 分钟甚至更久？
+
+A：HTML 文件使用非覆盖方式存储在 CDN 上，搭建前端发布服务，对 HTML 按版本等做缓存加工处理。当需要回滚时，更改发布服务 HTMl 指向即可。
+
+Q: CDN 域名突然挂了，如何实现秒级 CDN 降级修补而非再次全部业务重新部署一次？
+
+A1: 将静态资源传输到多个 CDN 上，并开发一个加载 Script 的 SDK 集成到 HTML 中。当发现 CDN 资源加载失败时，逐步降级 CDN 域名。
+
+A2：在前端发布服务中，增加 HTML 文本处理环节，如增加 CDN 域名替换，发生异常时，在发布服务中一键设置即可。
+
+Q：如何实现一个预发环境，除了前端资源外都是线上环境，将变量控制前端环境内？
+
+A：对静态资源做加工，对 HTML 入口做小流量。
+
+Q：部署环节如何方便配套做 AB 测试等？
+
+A：参见前端发布服务
+
+Q：如何实现一套前端代码，发布成多套环境产物？
+
+A：使用环境变量，将当前环境、CDN、CDN_HOST、Version 等注入环境变量中，构建时消费 & 将产物上传不同的 CDN 即可。

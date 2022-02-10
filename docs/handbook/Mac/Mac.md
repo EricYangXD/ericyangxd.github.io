@@ -130,3 +130,27 @@ open /etc/hosts -e
 
 1. 打开 Finder，按快捷键组合 Shift+Command+G 查找文件，输入/private,确认前往后可看到 etc 文件夹，邮件选择'显示简介'，在底部打开‘共享和权限’；
 2. 将 everyone 的权限改为‘读与写’，保存后直接修改 hosts 文件，最后完成后将权限改回来。
+
+### 如何在 Macbook 中更新使用他人账号安装的软件
+
+有时候工作时接手了别人留下的电脑，由于大部分需要的软件都已经安装好了，为了方便自己也懒得再去重装系统，这就导致当现有软件出现新版本时，你无法更新，因为你没有别人账户的密码。
+
+这样的安装模式会出现一个问题，更新应用时 AppStroe 会提示让你输入下载该应用的账号及密码，该账号不能直接修改。下面的方法可以删除原有账号信息，而后可以使用新的账号信息更新。
+
+方法如下:
+
+1. 打开访达，进入应用程序目录
+2. 找到要更新的应用，右键点击“显示包内容”
+3. 找到\_MASReceipt 文件夹
+4. 删除它，然后退出重启 AppStroe，即可更新该应用。
+
+To make the AppStore forget the old credentials with which the app was downloaded, you must remove the \_MASReceipt directory in the app itself.
+
+To do this:
+
+1. Open Finder and navigate to Applications,
+2. Ctrl+Click XCode and choose "Show Package Contents",
+3. Expand the Contents directory and click \_MASReceipt to select it,
+4. Type Command+Delete to delete the directory permanently---you will be prompted for your credentials since this is a protected file.
+
+Quit and restart AppStore, then find XCode. The button should now say "Free" or "Install" instead of "Update". Clicking it will update your XCode to the latest version as the currently logged-in Apple user.

@@ -139,6 +139,10 @@ module.exports = {
 					{ title: "TypeScript", path: "/handbook/JavaScript/TS" },
 					{ title: "JavaScript", path: "/handbook/JavaScript/JS" },
 					{ title: "co.js", path: "/handbook/JavaScript/Cojs" },
+					{
+						title: "手写函数",
+						path: "/handbook/JavaScript/Function",
+					},
 				],
 			},
 			{
@@ -196,6 +200,10 @@ module.exports = {
 						title: "Emoji表情",
 						path: "/handbook/Skill/Emoji",
 					},
+					{
+						title: "Android",
+						path: "/handbook/Skill/Android",
+					},
 				],
 			},
 			{
@@ -219,6 +227,10 @@ module.exports = {
 					{
 						title: "TCP协议相关知识",
 						path: "/handbook/Network/TCP",
+					},
+					{
+						title: "DMZ区域",
+						path: "/handbook/Network/DMZ",
 					},
 				],
 			},

@@ -115,3 +115,45 @@ git rebase -i HEAD~3
 ### Git History Diff
 
 提交记录对比
+
+### 如何把一份本地代码同时上传 gitlab 和 gitee
+
+git 本身是分布式版本控制系统，可以同步到另外一个远程库，当然也可以同步到另外两个远程库，所以一个本地库可以既关联 GitHub，又关联码云！
+
+使用多个远程库时，要注意 git 给远程库起的默认名称是 origin，如果有多个远程库，我们需要用不同的名称来标识不同的远程库。仍然以 learngit 本地库为例，先删除已关联的名为 origin 的远程库：
+
+```git
+git remote rm origin
+```
+
+然后，先关联 GitHub 的远程库：
+
+```git
+git remote add github git@github.com:xxx/LearnGit.git
+```
+
+注意，远程库的名称叫 github，不叫 origin 了。
+接着，再关联码云的远程库：
+
+```git
+git remote add gitee git@gitee.com:xxx/LearnGit.git
+```
+
+同样注意，远程库的名称叫 gitee，不叫 origin。
+现在，我们用 git remote -v 查看远程库信息，可以看到两个远程库：
+
+```git
+gitee git@gitee.com:xxx/LearnGit.git (fetch)
+gitee git@gitee.com:xxx/LearnGit.git (push)
+github git@github.com:xxx/LearnGit.git (fetch)
+github git@github.com:xxx/LearnGit.git (push)如果要推送到GitHub，使用命令：
+git push github master
+```
+
+如果要推送到码云，使用命令：
+
+```git
+git push gitee master
+```
+
+这样一来，本地库就可以同时与多个远程库互相同步
