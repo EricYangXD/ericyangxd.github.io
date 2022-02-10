@@ -14,9 +14,9 @@ date: "2022-02-09"
 
 软件的顺序错了的话，基本上是怎么折腾也不会有结果的。
 
-1. 安装 Google service framework (谷歌服务框架)。
+1. 安装 Google Service Framework (谷歌服务框架)。
 2. 安装 Google Account Manager (谷歌账户管理程序)。
-3. 安装 Google Play ervice (GooglePlay 服务)。
+3. 安装 Google Play Service (Google Play 服务)。
 4. 安装 商店 Google Play Store。
 
-可以从[此处](www.apkmirror.com)下载所需的 APP 及对应版本。
+可以从此处[www.apkmirror.com](https://www.apkmirror.com)下载所需的 APP 及对应版本。
