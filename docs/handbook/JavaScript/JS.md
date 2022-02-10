@@ -266,3 +266,14 @@ function getUUID(domain) {
 // 调用时，你可以传入任何你想传的字符串，并不局限于传递domain，这里只是为了便于区分站点
 console.log(getUUID("https://www.baidu.com/"));
 ```
+
+### JS APIs
+
+1. Array
+
+```js
+Array("1" + 1);
+// ['11']
+Array(1 + 1);
+// [empty × 2]
+```

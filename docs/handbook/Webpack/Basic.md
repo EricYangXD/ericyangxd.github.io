@@ -29,3 +29,44 @@ chunkhash 和 hash 不一样，它根据不同的入口文件(Entry)进行依赖
 这个时候，我们可以使用 extra-text-webpack-plugin 里的 contenthash 值，保证即使 css 文件所处的模块里就算其他文件内容改变，只要 css 文件内容不变，那么不会重复构建。
 
 一般用于 CDN。
+
+```js
+// 示例
+const MiniCssExtractPlugin = require("mini-css-extract-plugin"); // 新增
+
+module.exports = {
+	mode: "production",
+	entry: {
+		index: "./src/index.js",
+		chunk1: "./src/chunk1.js",
+	},
+	output: {
+		filename: "[name].[chunkhash].js",
+	},
+	module: {
+		// 新增
+		rules: [
+			{
+				test: /\.css$/,
+				use: [MiniCssExtractPlugin.loader, "css-loader"],
+			},
+		],
+	},
+	plugins: [
+		// 新增
+		// 提取css插件
+		new MiniCssExtractPlugin({
+			// Options similar to the same options in webpackOptions.output
+			// both options are optional
+			filename: "[name].[contenthash].css",
+		}),
+	],
+};
+```
+
+### 总结
+
+hash 所有文件哈希值相同； chunkhash 根据不同的入口文件(Entry)进行依赖文件解析、构建对应的 chunk，生成对应的哈希值； contenthash 计算与文件内容本身相关，主要用在 css 抽取 css 文件时。
+
+1. **不管是在 chunkhash 还是 contenthash，修改 css 都会引发 js 和 css 的改变；**
+2. **在 chunkhash 时，由于 js 和 css 的 chunkhash 是一样的，所以修改了 js，会导致整个 chunk 的 chunkhash 改变，它们俩是同一个 chunkhash，肯定就都变了；而在 contenthash 时，js 修改不会影响 css 的改变。**

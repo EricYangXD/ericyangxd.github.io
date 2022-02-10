@@ -202,3 +202,80 @@ obj: Serializable = [
 ];
 console.log(obj);
 ```
+
+## 类型声明报错
+
+在 tsconfig.json -> compilerOptions 的添加"skipLibCheck": true, 曲线救国。
+
+## typescript 工具函数原理
+
+### 类型索引
+
+为了实现上面的工具函数, 我们需要先了解以下几个语法:
+
+-   keyof : 获取类型上的 key 值；
+-   extends : 泛型里面的约束；
+-   T[K] : 获取对象 T 相应 K 的元素类型；
+
+```ts
+type Partial<T> = {
+	[P in keyof T]?: T[P];
+};
+
+type Record<K extends string, T> = {
+	[P in K]: T;
+};
+```
+
+### never, 构造条件类型
+
+never: 从未出现的值的类型
+
+```ts
+type Exclude<T, U> = T extends U ? never : T;
+
+// 相当于: type A = 'a'
+type A = Exclude<"x" | "a", "x" | "y" | "z">;
+```
+
+### 更简洁的修饰符: - 与 +
+
+可以直接去除 ?或者 readonly 等修饰符.
+
+```ts
+// 移除 ?
+type Required<T> = { [P in keyof T]-?: T[P] };
+
+// Remove readonly
+type MutableRequired<T> = {
+	-readonly [P in keyof T]: T[P];
+};
+```
+
+### infer
+
+infer: 在 extends 条件语句中待推断的类型变量。
+
+```ts
+// 需要获取到 Promise 类型里蕴含的值
+type PromiseVal<P> =
+P extendsPromise<infer INNER> ? INNER : P;
+
+type PStr = Promise<string>;
+
+// Test === string
+type Test = PromiseVal<PStr>;
+```
+
+### type 和 interface 的区别
+
+An interface can be named in an extends or implements clause, but a type alias for an object type literal cannot.
+
+An interface can have multiple merged declarations, but a type alias for an object type literal cannot.
+
+**能用 interface 实现，就用 interface， 如果不能才用 type。**
+
+| type                                               | interface                             |
+| -------------------------------------------------- | ------------------------------------- |
+| 只能通过 & 进行合并                                | 同名自动合并，通过 extends 扩展       |
+| 更强大，除了以上的类型，还可以支持 string，数组... | 自身只能表达 object/class/function 等 |
