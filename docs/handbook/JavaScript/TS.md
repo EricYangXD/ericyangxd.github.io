@@ -277,5 +277,16 @@ An interface can have multiple merged declarations, but a type alias for an obje
 
 | type                                               | interface                             |
 | -------------------------------------------------- | ------------------------------------- |
-| 只能通过 & 进行合并                                | 同名自动合并，通过 extends 扩展       |
+| 只能通过 & 进行合并/扩展，也可以叫做 交叉类型      | 同名自动合并，通过 extends 扩展/继承  |
 | 更强大，除了以上的类型，还可以支持 string，数组... | 自身只能表达 object/class/function 等 |
+
+1. type 可以做到，但 interface 不能做到的事情
+
+-   type 可以定义 基本类型的别名，如 type myString = string
+-   type 可以通过 typeof 操作符来定义，如 type myType = typeof someObj
+-   type 可以声明 联合类型，如 type unionType = myType1 | myType2
+-   type 可以声明 元组类型，如 type yuanzu = [myType1, myType2]
+
+2. interface 可以做到，但是 type 不可以做到的事情
+
+-   interface 可以 声明合并，即两个同名的 interface 会自动合并成二者的并集，而对于 type 的话，就会是 覆盖 的效果，始终只有最后一个 type 生效
