@@ -188,7 +188,9 @@ date: "2021-12-29"
 }
 ```
 
-```
+-   自定义空表格、自定义加载动画
+
+```tsx
   locale：{{emptyText: <Empty />}}：自定义空内容；
   loading={{spinning: loading, tip: "加载中...",}}：加载 loading；
   columns：表格列配置：

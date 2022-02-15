@@ -114,3 +114,7 @@ ReactDOM.render(<App />, document.getElementById("root"));
 1. createDom 如果传入的是一个普通节点，那么就直接根据对应 type 创建标签。
 2. createDom 如果传入的是一个函数组件，那么就调用这个函数组件得到它返回的 vDom 节点，然后在通过 createDom 将 vDom 渲染成为真实节点。
 3. createDom 如果传入的是一个 class 组件，那么就 new Class(props).render()得到返回的 vDom 对象，然后在将返回的 vDom 渲染成为真实 Dom。
+
+### 自定义组件必须大写的原因:
+
+babel 在编译的过程中会判断 JSX 组件的首字母, 如果是小写, 则为原生 DOM 标签, 就编译成字符串. 如果是大写, 则认为是自定义组件. 编译成对象.

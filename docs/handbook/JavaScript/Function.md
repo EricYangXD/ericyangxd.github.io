@@ -92,3 +92,14 @@ function bd_encrypt(gg_lng, gg_lat) {
 	};
 }
 ```
+
+## 随机颜色
+
+```js
+function randomHexColor() {
+	return (
+		"#" +
+		("0000" + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6)
+	);
+}
+```

@@ -258,8 +258,7 @@ infer: 在 extends 条件语句中待推断的类型变量。
 
 ```ts
 // 需要获取到 Promise 类型里蕴含的值
-type PromiseVal<P> =
-P extendsPromise<infer INNER> ? INNER : P;
+type PromiseVal<P> = P extends Promise<infer INNER> ? INNER : P;
 
 type PStr = Promise<string>;
 
@@ -290,3 +289,47 @@ An interface can have multiple merged declarations, but a type alias for an obje
 2. interface 可以做到，但是 type 不可以做到的事情
 
 -   interface 可以 声明合并，即两个同名的 interface 会自动合并成二者的并集，而对于 type 的话，就会是 覆盖 的效果，始终只有最后一个 type 生效
+
+## TypeScript 编译器是如何工作的？
+
+1. TypeScript 文本首先会被 scanner 解析为 token 流。这个过程比较简单，就是单纯地按照分隔符去分割文本即可。
+2. 接着 token 流会被 parser 转换为 AST，也就是抽象语法树。
+3. binder 则根据 AST 信息生成 Symbol（TypeScript 中的一个数据结构）。
+4. 当我们需要类型检查的时候， checker 会根据前面生成的 AST 和 symbols 生成类型检查结果。
+5. 当我们需要生成 JS 文件的时候，emitter 同样会根据前面生成的 AST 和 symbols 生成 JS 文件。
+
+-   declare: 值空间声明
+-   type/interface/函数类型等: 类型空间声明
+-   值空间虽然不能直接和类型空间接触，但是类型空间可以作用在值空间，从而给其添加类型
+
+### 类型推导 & 类型收敛
+
+```ts
+// 类型推导
+const a = 1;
+type A = typeof a; // A的类型是 1
+// 类型收敛
+let a = 1;
+type A = typeof a; // A的类型是 number
+```
+
+### 泛型
+
+泛型的写法就是在标志符后面添加尖括号`<>`，然后在尖括号里写形参，并在 body（函数体， 接口体或类体） 里用这些形参做一些逻辑处理。
+
+这个时候 T 就不再是任意类型，而是被实现接口的 shape，当然你也可以继承多个接口。「类型约束是非常常见的操作，大家一定要掌握。」
+
+-   泛型要用尖括号 `<>`，而不是别的。
+-   函数泛型，接口泛型和类泛型。
+
+### 泛型的参数类型 - “泛型约束”
+
+```ts
+interface Sizeable {
+	size: number;
+}
+function trace<T extends Sizeable>(arg: T): T {
+	console.log(arg.size);
+	return arg;
+}
+```

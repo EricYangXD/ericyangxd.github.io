@@ -19,6 +19,22 @@ date: "2021-12-29"
 
 -   问题来了：右侧 table 单独抽成一个组件（因为别的地方也要用），然后抛出 contentChanged，content 等字段给左侧/全局，用于切换角色时判断 table 内容有无变化，而 table 的初始值是不一定相同的，那么我需要这个 table 组件自己去维护自己的状态，比如初始化的时候 contentChanged=false，content=接口返回的数据/[]，而这个 table 组件又需要接收 menuItem 来获取对应的数据，这时，如果不给 table 组件加一个 key={menuItem}的话，那么我切换左侧 menuItem 之后，组件抛出来的 content 就不会被重新初始化，那么我此时去保存这个 tableContent 就会出现 bug——明明 table 里是空的，而保存之后 table 里反而有了数据，这数据还是上一个 menuItem 对应的数据。而解决这个 bug 只需要给 table 组件加个 key，让它跟 menuItem 绑定，menuItem 改变时 table 组件会销毁重新创建，那么 content 自然也会跟着初始化。
 
+## React diff 原理, 如何从 O(n^3) 变成 O(n)
+
+### 为什么是 O(n^3) ?
+
+从一棵树转化为另外一棵树,直观的方式是用动态规划，通过这种记忆化搜索减少时间复杂度。由于树是一种递归的数据结构，因此最简单的树的比较算法是递归处理。确切地说，树的最小距离编辑算法的时间复杂度是 O(n^2m(1+logmn)), 我们假设 m 与 n 同阶， 就会变成 O(n^3)。
+
+### React diff 原理
+
+简单的来讲, React 它只比较同一层, 一旦不一样, 就删除. 这样子每一个节点只会比较一次, 所以算法就变成了 O(n).
+
+对于同一层的一组子节点. 他们有可能顺序发生变化, 但是内容没有变化. React 根据 key 值来进行区分, 一旦 key 值相同, 就直接返回之前的组件, 不重新创建.
+
+这也是为什么渲染数组的时候, 没有加 key 值或者出现重复 key 值会出现一些奇奇怪怪的 bug.
+
+除了 key , 还提供了选择性子树渲染。开发人员可以重写 shouldComponentUpdate 提高 diff 的性能.
+
 ## How to get the previous props or state?
 
 -   example:
@@ -285,12 +301,14 @@ const onChange = useCallback((id, value) => {
 
 ## setState()是异步还是同步？
 
--   1. setState 只在合成事件和钩子函数中是“异步”的，在原生事件和 setTimeout 中都是同步的。
+-   1. **setState 只在合成事件和钩子函数中是“异步”的，在原生事件和 setTimeout 中都是同步的。**
 -   2. setState 的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形成了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的 callback 拿到更新后的结果。
 -   3. setState 的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和 setTimeout 中不会批量更新，在“异步”中如果对同一个值进行多次 setState，setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。
 -   4. useEffect hooks 中，useState 都是异步的。
 
 -   所以严格说是同步的代码, 毕竟都在一个 eventloop 里, 只不过 setstate 里的参数/回调被延迟执行到下面代码执行完才执行。
+
+-   在 setState 中, 会根据一个 isBatchingUpdates 判断是直接更新还是稍后更新, 它的默认值是 false. 但是 React 在调用事件处理函数之前会先调用 batchedUpdates 这个函数, batchedUpdates 函数 会将 isBatchingUpdates 设置为 true. 因此, 由 react 控制的事件处理过程, 就变成了异步(批量更新).
 
 ## 3 ways to cause an infinite loop in React
 
@@ -686,3 +704,52 @@ A：参见前端发布服务
 Q：如何实现一套前端代码，发布成多套环境产物？
 
 A：使用环境变量，将当前环境、CDN、CDN_HOST、Version 等注入环境变量中，构建时消费 & 将产物上传不同的 CDN 即可。
+
+## React 里面的事件机制
+
+-   在组件挂载的阶段, 根据组件生命的 react 事件, 给 document 添加事件 addEventListener, 并添加统一的事件处理函数 dispatchEvent.
+-   将所有的事件和事件类型以及 react 组件进行关联, 将这个关系保存在一个 map 里. 当事件触发的时候, 首先生成合成事件, 根据组件 id 和事件类型找到对应的事件函数, 模拟捕获流程, 然后依次触发对应的函数.
+-   如果原生事件使用 stopPropagation 阻止了冒泡, 那么合成事件也就被阻止了.
+
+### React 事件机制跟原生事件有什么区别
+
+1. React 的事件使用驼峰命名, 跟原生的全部小写做区分.
+2. 不能通过 return false 来阻止默认行为, 必须明确调用 preventDefault 去阻止浏览器的默认响应.
+
+## 什么是 React Fiber
+
+React Fiber 使用了 2 个核心解决思想:
+
+-   让渲染有优先级
+-   可中断
+
+React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和阶段(可中断)与 Commit 阶段(不可中断). 一次更新过程会分为很多个分片完成, 所以可能一个任务还没有执行完, 就被另一个优先级更高的更新过程打断, 这时候低优先级的工作就完全作废, 然后等待机会重头到来.
+
+调度的过程: 首先 React 会根据任务的优先级去分配各自的过期时间 expriationTime. requestIdleCallback 在每一帧的多余时间(黄色的区域)调用. 调用 channel.port1.onmessage, 先去判断当前时间是否小于下一帧时间, 如果小于则代表我们有空余时间去执行任务, 如果大于就去执行过期任务, 如果任务没过期. 这个任务就被丢到下一帧执行了. 由于 requestIdleCallback 的兼容性问题, react 自己实现了一个 requestIdleCallback.
+
+### 如何决定每次更新的数量
+
+-   在 React15 中，每次更新时，都是从根组件或 setState 后的组件开始，更新整个子树，我们唯一能做的是，在某个节点中使用 SCU 断开某一部分的更新，或者是优化 SCU 的比较效率。
+
+-   React16 则是需要将虚拟 DOM 转换为 Fiber 节点，首先它规定一个时间段内，然后在这个时间段能转换多少个 FiberNode，就更新多少个。
+
+我们需要将我们的更新逻辑分成两个阶段，第一个阶段是将虚拟 DOM 转换成 Fiber, Fiber 转换成组件实例或真实 DOM（不插入 DOM 树，插入 DOM 树会 reflow）。Fiber 转换成后两者明显会耗时，需要计算还剩下多少时间。并且转换实例需要调用一些钩子，如 componentWillMount, 如果是重复利用已有的实例，这时就是调用 componentWillReceiveProps, shouldComponentUpdate, componentWillUpdate,这时也会耗时。
+
+如何调度时间才能保证流畅：requestIdleCallback（闲时调用）
+
+## React 事件中为什么要绑定 this 或者要用箭头函数?
+
+事实上, 这并不算是 React 的问题, 而是 this 的问题. 但是也是 react 中经常出现的问题.
+
+```jsx
+// 这样会出错！
+<button type="button" onClick={this.handleClick}>
+	Click Me
+</button>
+```
+
+这里的 this. 当事件被触发且调用时, 因为 this 是在运行中进行绑定的. this 的值会回退到默认绑定，即值为 undefined，这是因为类声明和原型方法是以严格模式运行.
+
+我们可以使用 bind 绑定到组件实例上. 而不用担心它的上下文.
+
+因为箭头函数中的 this 指向的是定义时的 this，而不是执行时的 this. 所以箭头函数同样也可以解决.
