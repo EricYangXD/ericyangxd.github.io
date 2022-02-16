@@ -103,3 +103,16 @@ function randomHexColor() {
 	);
 }
 ```
+
+## 检测是否能跨域
+
+```js
+function corsEnabled(url) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("HEAD", url, false);
+	try {
+		xhr.send();
+	} catch (e) {}
+	return xhr.status >= 200 && xhr.status <= 299;
+}
+```

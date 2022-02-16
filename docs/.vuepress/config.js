@@ -328,4 +328,34 @@ module.exports = {
 	// markdown: {
 	// 	lineNumbers: true,
 	// },
+	plugins: [
+		[
+			"vuepress-plugin-nuggets-style-copy",
+			{
+				copyText: "复制代码",
+				tip: {
+					content: "复制成功",
+				},
+			},
+		],
+		[
+			"copyright",
+			{
+				authorName: "EricYangXD", // 选中的文字将无法被复制
+				minLength: 50, // 如果长度超过 50 个字符
+			},
+		],
+		[
+			"dynamic-title",
+			{
+				// showIcon:
+				// 	"https://www.typescriptlang.org/favicon-32x32.png?v=8944a05a8b601855de116c8a56d3b3ae",
+				showText: "客官欢迎回来~",
+				// hideIcon:
+				// 	"https://www.typescriptlang.org/favicon-32x32.png?v=8944a05a8b601855de116c8a56d3b3ae",
+				hideText: "客官不要走嘛~",
+				recoverTime: 2000,
+			},
+		],
+	],
 };
