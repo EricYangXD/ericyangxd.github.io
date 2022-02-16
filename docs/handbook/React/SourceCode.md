@@ -32,6 +32,10 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 
 ### 1. useState
 
+类似 this.setState，用于函数组件中。每当 state/props 发生修改时，该函数组件都会重新渲染/执行。
+
+每次改变 state/props 造成函数组件重新渲染/执行，从而每次渲染函数中的 state/props 都是独立的，固定的，确定的 -- 只在这一次渲染过程中存在。
+
 ### 2. useEffect
 
 -   可以把 useEffect Hook 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
@@ -83,6 +87,20 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 ### 7. useLayoutEffect
 
 ### 8. useRef
+
+```ts
+interface MutableRefObject<T> {
+	current: T;
+}
+```
+
+1. 作用一：多次渲染之间的纽带
+
+useRef 会在所有的 render 中保持对返回值的**唯一引用**。因为所有对 ref 的赋值和取值拿到的都是最终的状态，并不会因为不同的 render 中存在不同的隔离。
+
+**修改 useRef 返回的值并不会引起 react 进行重新渲染执行函数**，可以配合 useEffect 查询页面是首次渲染还是更新。而且 useRef 类似于 react 中的全局变量并不存在不同次 render 中的 state/props 的作用域隔离机制。这就是 useRef 和 useState 这两个 hook 主要的区别。 2. 作用二：获取 DOM 元素
+
+配合 React.forwardRef，可以做 refs 转发。
 
 ### HOC、Render props、Hooks 三种模式的优缺点
 

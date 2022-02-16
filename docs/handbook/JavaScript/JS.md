@@ -18,7 +18,7 @@ date: "2021-12-29"
 
 1. 通过 input 元素的 accept 属性来限制文件的类型
 
-```js
+```html
 <input id="file" type="file" accept="image/*" />
 ```
 
@@ -125,7 +125,7 @@ xdg-open https://ericyangxd.top/
 -   原理：使用 Canvas 绘制好图片，利用 canvas.toDataURL()转换为 base64 格式，然后给顶层的#root 设置 background-image 即可，注意调整样式。
     示例代码：
 
-```ts
+```js
 var canvas = document.getElementById("canvas");
 const angle = -40;
 const txt = `Good Luck Infinity Co. ericyangxd.top ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
@@ -277,3 +277,19 @@ Array("1" + 1);
 Array(1 + 1);
 // [empty × 2]
 ```
+
+## 回车与换行
+
+电传打字机：
+
+1. 在每行后面加两个表示结束的字符：一个叫做"回车"，告诉打字机把打印头定位在左边界；另一个叫做"换行"，告诉打字机把纸向下移一行。
+
+计算机发明后：
+
+1. Unix 系统里，每行结尾只有"<换行>"，即"\n"；
+2. Windows 系统里面，每行结尾是"<回车><换行>"，即"\r\n"；
+3. Mac 系统里，每行结尾是"<回车>"。
+
+一个直接后果是，Unix/Mac 系统下的文件在 Windows 里打开的话，所有文字会变成一行；而 Windows 里的文件在 Unix/Mac 下打开的话，在每行的结尾可能会多出一个^M 符号。
+
+`\n`是匹配一个换行符，`\r`是匹配一个回车符。`\0`表示匹配 NULL（U+0000）字符，空字符（Null character）又称结束符，缩写 NUL，是一个数值为 0 的控制字符。

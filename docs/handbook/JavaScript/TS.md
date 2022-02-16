@@ -4,7 +4,9 @@ author: EricYangXD
 date: "2021-12-29"
 ---
 
-## Omit
+## 官方提供的工具类型
+
+### Omit
 
 -   Omit<T,K>类型让我们可以从另一个对象类型中剔除某些属性，并创建一个新的对象类型：T：是对象类型名称，K：是剔除 T 类型中的属性名称。
 
@@ -16,7 +18,7 @@ type SomeRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 -   A.先从 T 中剔除 K，得到新的对象类型；从 T 中选出 K 并标记为 Required 得到新的对象类型；合并这两个类型得到想要的类型。
 
-## Required
+### Required
 
 -   把所有属性变成必需的 required
 
@@ -27,7 +29,7 @@ type Required<T> = {
 };
 ```
 
-## Pick
+### Pick
 
 -   从一个复合类型中，取出几个想要的类型的组合，得到一个新类型
 
@@ -43,15 +45,7 @@ interface TSingleState extends Pick<TState, "name" | "age"> {};
 
 -   解析：在泛型中使用 extends 并不是用来继承的，而是用来约束类型的。所以这个 K extends keyof T，应该是说 key 被约束在 T 的 key 中，不能超出这个范围，否则会报错的。
 
-## & 交叉类型 extends
-
--   与
-
-## | 联合类型
-
--   或
-
-## Partial
+### Partial
 
 -   Make all properties in T optional，把某个类型中的所有属性都变为可选
 
@@ -62,7 +56,7 @@ type Partial<T> = {
 };
 ```
 
-## Readonly
+### Readonly
 
 -   变为只读
 
@@ -73,7 +67,7 @@ type Readonly<T> = {
 };
 ```
 
-## Record
+### Record
 
 -   Construct a type with a set of properties K of type T，即将 K 中的每个属性([P in K]),都转为 T 类型。
 
@@ -86,6 +80,46 @@ type Record<K extends keyof any, T> = {
 type Person6 = Record<'name' | 'age', string>;
 // Person6 === {name: string; age: string}
 ```
+
+### Exclude<T,U>
+
+### Extract<T,U>
+
+### NonNullable<T>
+
+### Parameters<T>
+
+### ReturnType<T>
+
+```ts
+type ReturnType<T extends (...args: any[]) => any> = T extends (
+	...args: any[]
+) => infer R
+	? R
+	: any;
+```
+
+### InstanceType<T>
+
+### ThisType<T>
+
+### Mutable
+
+功能是将类型的属性「变成可修改」，这里的 -指的是去除。 -readonly 意思就是去除只读，也就是可修改啦。
+
+```ts
+type Mutable<T> = {
+	-readonly [P in keyof T]: T[P];
+};
+```
+
+## & 交叉类型 extends
+
+-   与
+
+## | 联合类型
+
+-   或
 
 ## declare namespace
 
@@ -240,7 +274,7 @@ type A = Exclude<"x" | "a", "x" | "y" | "z">;
 
 ### 更简洁的修饰符: - 与 +
 
-可以直接去除 ?或者 readonly 等修饰符.
+可以直接去除/增加 `?`或者 `readonly` 等修饰符.
 
 ```ts
 // 移除 ?
@@ -333,3 +367,62 @@ function trace<T extends Sizeable>(arg: T): T {
 	return arg;
 }
 ```
+
+### 默认参数
+
+```ts
+// 默认 string
+type A<T = string> = Array<T>;
+const aa: A = [1]; // type 'number' is not assignable to type 'string'.
+const bb: A = ["1"]; // ok
+const cc: A<number> = [1]; // ok
+
+interface Array<T = string> {
+	// ...
+}
+```
+
+### 泛型支持递归
+
+```ts
+type ListNode<T> = {
+	data: T;
+	next: ListNode<T> | null;
+};
+
+declare var HTMLElement: {
+	prototype: HTMLElement;
+	new (): HTMLElement;
+};
+```
+
+### React.FC
+
+```ts
+type FC<P = {}> = FunctionComponent<P>;
+
+interface FunctionComponent<P = {}> {
+	(props: PropsWithChildren<P>, context?: any): ReactElement<any, any> | null;
+	propTypes?: WeakValidationMap<P>;
+	contextTypes?: ValidationMap<any>;
+	defaultProps?: Partial<P>;
+	displayName?: string;
+}
+```
+
+### 接口智能提示
+
+````ts
+interface Seal {
+  name: string;
+  url: string;
+}
+interface API {
+  "/user": { name: string; age: number; phone: string };
+  "/seals": { seal: Seal[] };
+}
+const api = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
+  return fetch(url).then((res) => res.json());
+};
+```
+````

@@ -643,7 +643,9 @@ export default axiosDownload;
 -   `#!/usr/bin node` 相当于写死了 node 路径;
 -   `#!/usr/bin/env node` 会去环境设置寻找 node 目录，推荐这种写法。
 
-## 更新命令 `npx browserslist@latest --update-db`
+## 更新命令
+
+`npx browserslist@latest --update-db`
 
 ## npm/yarn 代理设置
 
@@ -1310,3 +1312,13 @@ BFF（Backend for Frontend）层，主要就是就是为了前端服务的后端
 1. 前端和后端都使用 JavasScript，技术栈是统一的。从写代码，到编译、打包、脚手架、组件化、包管理，再到 CICD，采用同一套都不是问题。
 2. Client Side JavaScript 和 Server Side JavaScript 本身就有很多可服用的代码，例如现在行业里有很多同构代码的 CSR 和 SSR 解决方案。
 3. 优化研发组织结构。大前端的开发模式，让接口定义、接口联调、环境模拟等，原来需要两种不同技术能力栈的工程师互相协作的模式，变为同一种技术技术能力栈的工程师独立完成的模式，让沟通和推动的成本降到最低。
+
+## moment
+
+时间：var time = new Date(); // Tue Aug 28 2018 09:16:06 GMT+0800 (中国标准时间)
+
+时间戳：var timestamp = Date.parse(time); // 1535419062000 （Date.parse() 默认不取毫秒，即后三位毫秒为 0）
+
+moment 转时间戳：moment(time).valueOf(); // 1535419062126
+
+moment 转时间：moment(timestamp).format(); // 2018-08-28T09:17:42+08:00

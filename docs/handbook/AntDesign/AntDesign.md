@@ -10,7 +10,7 @@ date: "2021-12-29"
 
 #### Form
 
-```
+```js
   labelCol: { span: 6, offset: 2 }, 大小;
   wrapperCol: { span: 16 };
   preserve: boolean 当字段被删除时保留字段值;
@@ -48,7 +48,7 @@ date: "2021-12-29"
   </Form.Item>
 ```
 
-```
+```js
   initialValue: 设置子元素默认值，如果与 Form 的 initialValues 冲突则以 Form 为准;
   normalize: 组件获取值后进行转换，再放入 Form 中。不支持异步,(value, prevValue, prevValues) => any;
   tooltip: 配置提示信息;
@@ -83,7 +83,7 @@ date: "2021-12-29"
 
 ### 校验
 
-```
+```js
   const [form] = Form.useForm();此时会报错：Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?官方没给出合理的处理方式；
   <Form> 有 form 属性，设为上面的{form}， 可以通过 form.validateFields().then()去校验整个 Form 表单的字段；
   scrollToFirstError：长表单校验自动滚动；
@@ -117,15 +117,14 @@ date: "2021-12-29"
 
 ### 使用
 
-```
-
+```js
   getContainer={Boolean | HTMLElement}：默认挂载到 document.body；
   forceRender：强制刷新；
   destroyOnClose：关闭的时候销毁组件；
   maskClosable={false}：点击蒙层是否关闭；
-  afterClose={() => form.resetFields()：配合<Form 在一定程度上解决 Modal 关闭后清空 Form 内容
-  Antd 4.x <Modal /> 和 Form 一起配合使用时，设置 destroyOnClose 为 true，并且还需要设置 <Form preserve={false} />,还需要手动设置 form.resetFields() 来重置 Form 表单的值。
-  Antd 3.x 函数组件需要配合 forwardRef
+  afterClose={() => form.resetFields()：配合<Form 在一定程度上解决 Modal 关闭后清空 Form 内容。
+  Antd 4.x <Modal /> 和 Form 一起配合使用时，设置 destroyOnClose 为 true，并且还需要设置 <Form preserve={false} />，还需要手动设置 form.resetFields() 来重置 Form 表单的值。
+  Antd 3.x 函数组件需要配合 forwardRef。
   使用 Modal.warn()等方法直接弹窗提示时，可以通过 className 属性添加自定义 css 样式，配合 styled-components 的 createGlobalStyle 创建全局样式文件，可以覆盖 html 的全局样式，然后在 index.tsx 中引入，作为 component 使用即可，和 AppRouter 放在一层。
 ```
 
@@ -133,7 +132,7 @@ date: "2021-12-29"
 
 ### 使用
 
-```
+```js
   getPopupContainer={(triggerNode) => triggerNode.parentNode}：挂载到 DOM，防止 options 列表滑动；
   dropdownRender：渲染自定义 ReactNode；
   onSelect={this.onSelect}
@@ -167,7 +166,7 @@ date: "2021-12-29"
 
 ### 使用
 
-```
+```js
   scroll={{x: 1200,y: 500, scrollToFirstRowOnChange: true}}：设置表格滚动；
   pagination：分页：
   expandable={{ defaultExpandedRowKeys: ['row1', 'row3'] }}：某行是否默认展开；
@@ -190,7 +189,7 @@ date: "2021-12-29"
 
 -   自定义空表格、自定义加载动画
 
-```tsx
+```js
   locale：{{emptyText: <Empty />}}：自定义空内容；
   loading={{spinning: loading, tip: "加载中...",}}：加载 loading；
   columns：表格列配置：
