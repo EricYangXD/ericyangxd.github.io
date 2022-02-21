@@ -116,3 +116,17 @@ function corsEnabled(url) {
 	return xhr.status >= 200 && xhr.status <= 299;
 }
 ```
+
+## 数组乱序 Fisher–Yates
+
+缺陷：理论上会有可能 shuffle 结果和原数组相同的情况。
+
+```js
+function shuffle(a) {
+	for (let i = a.length; i; i--) {
+		let j = Math.floor(Math.random() * i);
+		[a[i - 1], a[j]] = [a[j], a[i - 1]];
+	}
+	return a;
+}
+```

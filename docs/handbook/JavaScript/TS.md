@@ -22,7 +22,7 @@ type SomeRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 -   把所有属性变成必需的 required
 
-```bash
+```ts
 # eg.源码
 type Required<T> = {
     [P in keyof T]-?: T[P];
@@ -33,7 +33,7 @@ type Required<T> = {
 
 -   从一个复合类型中，取出几个想要的类型的组合，得到一个新类型
 
-```bash
+```ts
 # eg.源码
 type Pick<T, K extends keyof T> = {
   [key in k]: T[key]
@@ -49,7 +49,7 @@ interface TSingleState extends Pick<TState, "name" | "age"> {};
 
 -   Make all properties in T optional，把某个类型中的所有属性都变为可选
 
-```bash
+```ts
 # eg.源码
 type Partial<T> = {
     [P in keyof T]?: T[P];
@@ -60,7 +60,7 @@ type Partial<T> = {
 
 -   变为只读
 
-```bash
+```ts
 # eg.源码
 type Readonly<T> = {
     readonly [P in keyof T]: T[P];
@@ -71,7 +71,7 @@ type Readonly<T> = {
 
 -   Construct a type with a set of properties K of type T，即将 K 中的每个属性([P in K]),都转为 T 类型。
 
-```bash
+```ts
 # eg.源码
 type Record<K extends keyof any, T> = {
     [P in K]: T;
