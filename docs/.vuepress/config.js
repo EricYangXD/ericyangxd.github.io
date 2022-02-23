@@ -247,7 +247,7 @@ module.exports = {
 				children: [
 					{
 						title: "Nodejs相关知识点",
-						path: "/handbook/NodeJS/NodeJS",
+						path: "/handbook/NodeJS/Nodejs",
 					},
 				],
 			},
