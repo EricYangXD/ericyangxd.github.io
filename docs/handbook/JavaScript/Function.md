@@ -130,3 +130,23 @@ function shuffle(a) {
 	return a;
 }
 ```
+
+## 面试题
+
+### ['1', '2', '3'].map(parseInt)
+
+输出：`[1, NaN, NaN]`
+
+原理：
+
+1. Array.prototype.map(callback, thisArg)，接收一个回调函数和 this，一般使用时只会用第一个参数。
+2. parseInt(string, radix)，接收一个字符串并返回指定基数的十进制整数，radix 是 2-36 之间的整数，表示被解析字符串的基数。当
+
+-   radix 小于 2 或大于 36 ，或
+-   第一个非空格字符不能转换为数字。
+
+时，会返回 NaN。
+
+### 隐式类型转换
+
+![隐式类型转换](../../assets/type-trans.png)

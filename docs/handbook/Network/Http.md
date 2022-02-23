@@ -94,3 +94,40 @@ date: "2022-01-04"
 | 500  | 服务器错误                      |
 | 502  | Bad Gateway                     |
 | 503  | Service Temporarily Unavailable |
+
+## HTTP 缓存
+
+### 1. 强缓存
+
+对于强制缓存来说，响应 header 中会有两个字段来标明失效规则（ Expires 、 Cache-Control ）。
+
+1. Expires 的值为服务端返回的到期时间，即下一次请求时，请求时间小于服务端返回的到期时间，直接使用缓存数据；Expires 是 HTTP 1.0 的东西，现在浏览器均默认使用 HTTP 1.1，所以它的作用基本忽略。此外到期时间是由服务端生成的，但是客户端时间可能跟服务端时间有误差，这就会导致缓存命中的误差。所以 HTTP 1.1 的版本，使用 Cache-Control 替代。
+
+2. Cache-Control 常见的取值有 private、public、no-cache、max-age，no-store，默认为 private。
+
+-   private: 客户端可以缓存，防止信息泄漏；
+-   public: 客户端和代理服务器都可缓存；
+-   max-age=xxx: 缓存的内容将在 xxx 秒后失效；
+-   no-cache: 需要使用对比缓存来验证缓存数据；
+-   no-store: 所有内容都不会缓存，强制缓存、对比缓存都不会触发；
+
+3. Pragma，HTTP/1.0 中规定的通用首部；用来向后兼容只支持 HTTP/1.0 协议的缓存服务器，那时候 HTTP/1.1 协议中的 Cache-Control 还没有出来。 只有一个值“no-cache”，与 Cache-Control: no-cache 效果一致。
+
+### 2. 协商缓存
+
+浏览器第一次请求数据时，服务器会将缓存标识与数据一起返回给客户端。再次请求数据时，客户端将备份的缓存标识发送给服务器，服务器根据缓存标识进行判断，判断成功后，返回 304 状态码，通知客户端可以使用缓存数据。缓存标识在请求 header 和响应 header 间进行传递，一共分为两种。
+
+-   1. Last-Modified(response header) / If-Modified-Since(request header)；
+-   2. ETag(response header) / If-None-Match(request header);
+
+ETag 在服务器响应请求时，告诉浏览器当前资源在服务器的唯一标识，生成规则由服务器决定。其优先级高于 Last-Modified，这里优先级指服务端优先级，客户端两者并存的情况下，都会在 request header 中带上，但是 nginx 会优先匹配 Etag。
+
+### 3. 例外：Last-Modified 命中强缓存
+
+出现这种情况，一般是 Nginx 配置有问题，可以通过增加`add_header Cache-Control no-cache;`来解决。
+
+在我们的认知里，通常 Last-Modified 是和协商缓存相关，但一些情况下也会触发启发式(heuristic)缓存。
+
+如果服务器总是提供强缓存所需字段（ Expires 、 Cache-Control ），浏览器可以通过判断是否使用本地缓存文件，来实现更好的加载性能。但由于服务器不是总返回强缓存的 response 字段，此时浏览器会根据其他的 response header 字段来计算 Cache-Control 的 max-age 值（通常是 Last-Modified 字段）。HTTP/1.1 规范没有给出特定的实现算法，使得不同浏览器内核的浏览器对此表现不尽相同。
+
+通常推荐的计算方法是 过期时间 < 时间间隔 _ 系数。时间间隔指的是 response 的返回时间与最后更新时间的间隔，而这个系数的典型值是 10%，计算公式为：`max-age = ( date - last-modified ) _ 0.1`，绝大多数的客户端，包括浏览器和各类 app 都是采用的这一推荐算法。

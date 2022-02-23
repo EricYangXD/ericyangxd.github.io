@@ -481,30 +481,78 @@ CSS 伪类 是添加到选择器的关键字，指定要选择的元素的特殊
 
 ### :export 关键字
 
-````css
+```css
 /* config.css */
-$primary-color: #F40;
+$primary-color: #f40;
 
-:export{
-  primaryColor: $primary-color;
+:export {
+	primaryColor: $primary-color;
 }
+```
 
 ```js
 /* app.js */
-import style from 'config.scss';
+import style from "config.scss";
 
 console.log(style.primaryColor); // #F40
-````
+```
 
 ## styled-components
 
 -   用于生成并返回一个带样式的组件，既可以生成原生的 HTMLelement，也可以接受自定义组件，如：antd 的 Form、Modal 等组件 -- styled(Modal)\`...\`
--   通过 `${(props) => props.theme.colorXXX};` 来共享全局定义的 createGlobalStyle\`...\`全局样式
+-   通过 `${(props) => props.theme.colorXXX};` 来共享全局定义的 createGlobalStyle\`...\`全局样式，props 可以接收 styled 组件中的参数，例如：
+
+```tsx
+const Button = styled.button`
+	/* Adapt the colors based on primary prop */
+	background: ${(props) => (props.primary ? "palevioletred" : "white")};
+	color: ${(props) => (props.primary ? "white" : "palevioletred")};
+
+	font-size: 1em;
+	margin: 1em;
+	padding: 0.25em 1em;
+	border: 2px solid palevioletred;
+	border-radius: 3px;
+`;
+
+render(
+	<div>
+		<Button>Normal</Button>
+		<Button primary>Primary</Button>
+	</div>
+);
+```
+
+-   也可以直接传参数，通过尖括号`<{xxx}>`的形式，本质还是通过 props 传参，例如：
+
+```tsx
+const StyledLoader = styled.div<{ fullScreen?: boolean }>`
+	display: block;
+	background-color: #fff;
+	width: 100%;
+	position: ${({ fullScreen }) => (fullScreen ? "fixed" : "absolute")};
+	top: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 100000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	opacity: 1;
+	text-align: center;
+`;
+```
+
 -   `<ThemeProvider theme={theme}>` 通过 styled-components 提供的 **ThemeProvider** 共享 theme 变量
+-   通过类似` const Input = styled.input.attrs({ type: "checkbox" })``; `可以为生成的带样式的组件添加属性，如：id, className, type 等等
+-   还可以传函数` const Thing = styled.div.attrs((/* props */) => ({ tabIndex: 0 }))``; `
+-   **不要在函数组件内部创建 styled 组件！性能会很差！！可以放在外面创建！！！**
 
 ## 加载动画
 
 ```js
+import styled, { keyframes } from "styled-components";
+
 const rotate = keyframes`
 from{
   transform: rotate(0deg);

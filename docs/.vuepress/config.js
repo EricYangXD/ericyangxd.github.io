@@ -147,6 +147,10 @@ module.exports = {
 						title: "手写函数",
 						path: "/handbook/JavaScript/Function",
 					},
+					{
+						title: "包管理工具",
+						path: "/handbook/JavaScript/PackageManageTools",
+					},
 				],
 			},
 			{
@@ -235,6 +239,15 @@ module.exports = {
 					{
 						title: "DMZ区域",
 						path: "/handbook/Network/DMZ",
+					},
+				],
+			},
+			{
+				title: "Nodejs",
+				children: [
+					{
+						title: "Nodejs相关知识点",
+						path: "/handbook/NodeJS/NodeJS",
 					},
 				],
 			},
