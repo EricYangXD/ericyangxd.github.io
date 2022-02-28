@@ -172,3 +172,47 @@ var levelOrder = function (root) {
 ### 297.二叉树的序列化与反序列化
 
 -   **字节**
+
+1. 思路：DFS，序列化时深度遍历每个节点，如果是空就加 null，如果不是空就加 node.toString()，反序列化时先 split，然后 DFS，从左到右依次处理成 TreeNode，处理完了的节点需要 shift 移除。
+
+```js
+// Definition for a binary tree node.
+function TreeNode(val) {
+	this.val = val;
+	this.left = this.right = null;
+}
+
+// 序列化：Tree => String
+const serialize = function (root) {
+	return rserialize(root, "");
+};
+
+const rserialize = (root, str) => {
+	if (root === null) {
+		str += "null,";
+	} else {
+		str += root.val + "" + ",";
+		str = rserialize(root.left, str);
+		str = rserialize(root.right, str);
+	}
+	return str;
+};
+
+// 反序列化：String => Tree
+const deserialize = function (data) {
+	const dataArray = data.split(",");
+	return rdeserialize(dataArray);
+};
+
+const rdeserialize = (dataList) => {
+	if (dataList[0] === "null") {
+		dataList.shift();
+		return null;
+	}
+	const root = new TreeNode(parseInt(dataList[0]));
+	dataList.shift();
+	root.left = rdeserialize(dataList);
+	root.right = rdeserialize(dataList);
+	return root;
+};
+```
