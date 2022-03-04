@@ -634,6 +634,17 @@ const axiosDownload =
 export default axiosDownload;
 ```
 
+### axios 提交表单
+
+```js
+const uploadService = (file: FormData) =>
+	axios("/web/xxx", {
+		method: "POST",
+		data: file,
+		headers: { "Content-Type": "multipart/form-data" },
+	}).then((res) => res.data);
+```
+
 ## `#!/usr/bin node` 和 `#!/usr/bin/env node` 两者的区别
 
 -   是 Unix 和 Linux 脚本语言的第一行，目的就是指出，你想要你的这个文件中的代码用什么可执行程序去运行它

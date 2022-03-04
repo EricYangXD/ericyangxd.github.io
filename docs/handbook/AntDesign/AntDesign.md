@@ -175,6 +175,7 @@ date: "2021-12-29"
 ```
 
 ```js
+// pagination
 {
   size: 'small',
   total: data.total,
@@ -207,7 +208,22 @@ date: "2021-12-29"
 }
 ```
 
-### 采坑注意
+-   表头过滤
+
+```js
+// 自定义筛选组件 columns 设置
+filterDropdown: () => <SearchInput setParams={setParams} />,
+// 本地筛选，默认组件
+onFilter:()=>{},
+filters:[{text:'',value:''}],
+```
+
+-   服务端排序
+
+1. columns 里设置 sorter:true;
+2. Table 里通过 onChange(pagination, filters, sorter, extra)监听筛选变化;
+
+### 踩坑注意
 
 -   在 90.x 版本 Chrome 上，固定列滚动时会有 bug，导致某列显示不完全。原因是固定列下方的那几个对应的列（占位列）宽度没有设置成功。
 -   解决方法：根据固定列的实现原理，给占位列设置最小宽度可以解决。

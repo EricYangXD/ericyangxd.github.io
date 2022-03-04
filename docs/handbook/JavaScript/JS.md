@@ -222,10 +222,13 @@ xhr.send();
 ### 移除 a 标签的默认跳转行为
 
 ```js
+// 1
 $(ele).attr("href", "javascript:void(0);");
+// 2
 $(ele).onclick = function () {
 	return false;
 };
+// 3
 $(ele).attr("target", "");
 ```
 
@@ -298,9 +301,9 @@ Array(1 + 1);
 
 计算机发明后：
 
-1. Unix 系统里，每行结尾只有"<换行>"，即"\n"；
-2. Windows 系统里面，每行结尾是"<回车><换行>"，即"\r\n"；
-3. Mac 系统里，每行结尾是"<回车>"。
+1. Unix 系统里，每行结尾只有`<换行>`，即`\n`；
+2. Windows 系统里面，每行结尾是`<回车><换行>`，即`\r\n`；
+3. Mac 系统里，每行结尾是`<回车>`。
 
 一个直接后果是，Unix/Mac 系统下的文件在 Windows 里打开的话，所有文字会变成一行；而 Windows 里的文件在 Unix/Mac 下打开的话，在每行的结尾可能会多出一个^M 符号。
 

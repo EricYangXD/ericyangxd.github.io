@@ -18,6 +18,14 @@ type SomeRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 -   A.先从 T 中剔除 K，得到新的对象类型；从 T 中选出 K 并标记为 Required 得到新的对象类型；合并这两个类型得到想要的类型。
 
+```ts
+type Pick<T, K extends keyof T> = {
+	[P in K]: T[P];
+};
+type Exclude<T, U> = T extends U ? never : T;
+type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+```
+
 ### Required
 
 -   把所有属性变成必需的 required
@@ -288,7 +296,7 @@ type MutableRequired<T> = {
 
 ### infer
 
-infer: 在 extends 条件语句中待推断的类型变量。
+infer: 在 extends 条件语句中待推断的类型变量。在类型前加一个关键字前缀 infer，TS 会将推导出的类型自动填充进去。
 
 ```ts
 // 需要获取到 Promise 类型里蕴含的值
@@ -299,6 +307,10 @@ type PStr = Promise<string>;
 // Test === string
 type Test = PromiseVal<PStr>;
 ```
+
+在这个条件语句 `T extends (param: infer P) => any ? P : T` 中，infer P 表示待推断的函数参数。
+
+整句表示为：如果 T 能赋值给 `(param: infer P) => any`，则结果是 `(param: infer P) => any` 类型中的参数 P，否则返回为 T。
 
 ### type 和 interface 的区别
 
@@ -412,17 +424,41 @@ interface FunctionComponent<P = {}> {
 
 ### 接口智能提示
 
-````ts
+```ts
 interface Seal {
-  name: string;
-  url: string;
+	name: string;
+	url: string;
 }
 interface API {
-  "/user": { name: string; age: number; phone: string };
-  "/seals": { seal: Seal[] };
+	"/user": { name: string; age: number; phone: string };
+	"/seals": { seal: Seal[] };
 }
 const api = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
-  return fetch(url).then((res) => res.json());
+	return fetch(url).then((res) => res.json());
 };
 ```
-````
+
+### types 和 @types 是什么
+
+#### 找到某个包的定义/声明
+
+TypeScript 没有找到某个包的定义/声明时，你可以通过 npm install @types/xxx 安装相关声明;或者自己定义一份.d.ts 文件，并将 xxx 声明为 declare module。（安装 @types 和 自己 declare module）就是 TypeScript 官方提出的， 你可以选择适合你的方案。我的推荐是尽量使用 @types 下的声明，实在没有，再使用第二种方法。
+
+#### 包类型定义的查找
+
+就好像 node 的包查找是先在当前文件夹找 node_modules，在它下找递归找，如果找不到则往上层目录继续找，直到顶部一样， TypeScript 类型查找也是类似的方式。例如：jquery，TypeScript 编译器先在当前编译上下文找 jquery 的定义。如果找不到，则会去 node_modules 中的@types （默认情况，目录可以修改，后面会提到）目录下去寻找对应包名的模块声明文件。如果你想查一个包是否在 @type 下，可以访问 `https://microsoft.github.io/TypeSearch/`。@types 下的定义都是全局的。
+
+#### typeRoots 与 types
+
+前面说了 TypeScript 会默认引入 node_modules 下的所有@types 声明，但是开发者也可以通过修改 tsconfig.json 的配置来修改默认的行为.
+
+tsconfig.json 中有两个配置和类型引入有关。
+
+1. typeRoots: 用来指定默认的类型声明文件查找路径，默认为 node_modules/@types, 指定 typeRoots 后，TypeScript 编译器会从指定的路径去引入声明文件，而不是 node_modules/@types, 比如以下配置会从 typings 路径下去搜索声明.
+2. types: TypeScript 编译器会默认引入 typeRoot 下所有的声明文件，但是有时候我们并**不希望全局引入所有定义**，而是仅引入部分模块。这种情景下可以通过 types 指定模块名只引入我们想要的模块，比如以下只会引入 jquery 的声明文件
+
+#### 总结
+
+1. typeRoots 是 tsconfig 中 compilerOptions 的一个配置项，typeRoots 下面的包会被 ts 编译器自动包含进来，typeRoots 默认指向 node_modules/@types。
+2. @types 是 npm 的 scope 命名空间，和@babel 类似，@types 下的所有包会默认被引入，你可以通过修改 compilerOptions 来修改默认策略。
+3. types 和 typeRoots 一样也是 compilerOptions 的配置，指定 types 后，typeRoots 下只有被指定的包才会被引入。
