@@ -562,6 +562,16 @@ const StyledLoader = styled.div<{ fullScreen?: boolean }>`
 -   还可以传函数` const Thing = styled.div.attrs((/* props */) => ({ tabIndex: 0 }))``; `
 -   **不要在函数组件内部创建 styled 组件！性能会很差！！可以放在外面创建！！！**
 
+-   添加背景图片
+
+```tsx
+import HeaderImg from 'assets/images/header.png';
+// 1.
+background-image: url(${require('assets/images/header.png')}) no-repeat; // fixed bottom
+// 2.
+background-image: url(${HeaderImg}) no-repeat; // fixed bottom
+```
+
 ## 加载动画
 
 ```js
