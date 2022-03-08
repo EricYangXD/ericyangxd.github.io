@@ -262,6 +262,7 @@ filters:[{text:'',value:''}],
 ### 使用
 
 -   autoComplete: "off", 可以禁止掉原生 input 的默认提示行为;
+-   `<Input.Search value={val} onPressEnter={onPressEnter} onSearch={onSearch} allowClear />`: 在使用 Input 的 Search 功能时，如果组件是受控组件，那么执行 onPressEnter 之后，输入框里的内容时无法通过 backspace 删除的，只能通过 allowClear 功能清除，此时需要注意：onSearch 函数，他是点击搜索图标、清除图标或按下回车键时的回调！如果在 onSearch 中做了诸如`if(!value.trim()) return;`此类的判断，那么 allowClear 将会失效！
 
 ## Select 组件
 
