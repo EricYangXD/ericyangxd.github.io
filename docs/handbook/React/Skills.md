@@ -4,6 +4,12 @@ author: EricYangXD
 date: "2021-12-29"
 ---
 
+## 快速创建项目
+
+1. npx create-react-app my-app
+2. npm init react-app my-app
+3. yarn create react-app my-app
+
 ## 快速启动项目
 
 -   参考[这里 webpack](https://github.com/EricYangXD/LearnReact)
