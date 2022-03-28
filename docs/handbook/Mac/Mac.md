@@ -154,3 +154,18 @@ To do this:
 4. Type Command+Delete to delete the directory permanently---you will be prompted for your credentials since this is a protected file.
 
 Quit and restart AppStore, then find XCode. The button should now say "Free" or "Install" instead of "Update". Clicking it will update your XCode to the latest version as the currently logged-in Apple user.
+
+### 局域网大文件资源共享传输
+
+0. ifconfig 获取 IP 先
+
+1. host
+
+-   python2 语法：`python -m SimpleHTTPServer [port]`
+-   python3 语法：`python -m http.server [port]`
+-   如果不指定端口号默认的是 8000 端口。在局域网中使用 web 去访问 http://IP:8000 即可
+
+2. client
+
+-   Mac: finder 右键 -> 连接服务器：IP:port
+-   Windows: Chrome 访问

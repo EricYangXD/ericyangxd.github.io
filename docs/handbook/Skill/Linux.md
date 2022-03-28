@@ -6,7 +6,7 @@ date: "2021-12-29"
 
 ## 打包/解压 & 加密打包/解密解压
 
--   注意修改 file/folder 为实际的文件或文件夹名称
+-   注意修改 file/folder 为实际的文件或文件夹名称，注意文件夹层级。
 
 -   1.打包
 
@@ -228,3 +228,7 @@ Linux chown（英文全拼：change owner）命令用于设置文件所有者和
 ```bash
 chown -R runoob:runoobgroup \*
 ```
+
+### PS
+
+-   查看 Nginx 端口进程：`PS -ef|grep nginx`
