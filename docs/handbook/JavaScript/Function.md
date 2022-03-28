@@ -150,3 +150,13 @@ function shuffle(a) {
 ### 隐式类型转换
 
 ![隐式类型转换](../../assets/type-trans.png)
+
+### 判断是否运行在移动端
+
+```js
+function isRunMobile() {
+	return /Android|webOS|iPhone|iPad|BlackBerry/i.test(
+		window.navigator.userAgent
+	);
+}
+```

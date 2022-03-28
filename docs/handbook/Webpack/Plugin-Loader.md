@@ -355,6 +355,12 @@ module.exports = CustomHtmlPlugin;
 
 ## Babel
 
+### babel.config.js 与 babelrc.js 的区别
+
+1. babelrc 只会影响本项目中的代码
+2. babel.config.js 会影响整个项目中的代码，包含 node_modules 中的代码
+3. 推荐使用 babel.config.js
+
 ### @babel/preset-env
 
 转换 ES6 语法成 ES5 的语法。

@@ -11,6 +11,7 @@ date: "2021-12-29"
 #### Form
 
 ```js
+  autocomplete: "off", 可以禁止掉所有input的默认提示行为;
   labelCol: { span: 6, offset: 2 }, 大小;
   wrapperCol: { span: 16 };
   preserve: boolean 当字段被删除时保留字段值;
@@ -261,6 +262,7 @@ filters:[{text:'',value:''}],
 
 ### 使用
 
+-   autocomplete="off"，这是 H5 原生 input 的一个属性。注意全部小写。
 -   autoComplete: "off", 可以禁止掉原生 input 的默认提示行为;
 -   `<Input.Search value={val} onPressEnter={onPressEnter} onSearch={onSearch} allowClear />`: 在使用 Input 的 Search 功能时，如果组件是受控组件，那么执行 onPressEnter 之后，输入框里的内容时无法通过 backspace 删除的，只能通过 allowClear 功能清除，此时需要注意：onSearch 函数，他是点击搜索图标、清除图标或按下回车键时的回调！如果在 onSearch 中做了诸如`if(!value.trim()) return;`此类的判断，那么 allowClear 将会失效！
 
@@ -270,15 +272,23 @@ filters:[{text:'',value:''}],
 
 -   自定义 option
 -   支持本地过滤、排序
+-   可以做模糊查询，搜索输入的内容
 
-```js
+```tsx
 <Select
+	getPopupContainer={() => document.getElementById("root") as HTMLElement}
+	getPopupContainer={(el) => el.parentElement as HTMLElement}
 	defaultValue={xxx}
 	style={xxx}
 	onChange={handleChange}
-	value={xxx}
+	value={selectedVal}
+	defaultActiveFirstOption
 	getPopupContainer={(e) => e.parentElement}
 	showSearch
+	className="xxx"
+	allowClear
+	labelInValue // TODO 每个option里key和value为何总是一样的？？？
+	notFoundContent={notFoundContent}
 	optionFilterProp="children"
 	filterOption={(input, option) =>
 		option?.props?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -302,6 +312,52 @@ filters:[{text:'',value:''}],
 		啦啦啦
 	</Option>
 </Select>
+```
+
+-   多级选择菜单
+
+```tsx
+const renderOption = (item: IndustryOption) => (
+	<Option
+		id={item.index}
+		name={item.label}
+		level={item.level}
+		key={item.index}
+		value={item.value}
+	>
+		{item.label}
+	</Option>
+);
+
+const renderGroupTitle = (level: number | string) => {
+	const industryTitles = ["一级", "二级", "三级"];
+	const title = industryTitles[Number(level) - 1];
+	return <strong>{title}</strong>;
+};
+
+const renderOptions = (dataSource: IndustryOption[]) => {
+	const groups = _.groupBy(dataSource, (v) => v.level);
+	return _.map(groups, (group, level) => (
+		<OptGroup key={level} label={renderGroupTitle(level)}>
+			{group.map(renderOption)}
+		</OptGroup>
+	));
+};
+
+<Select
+	labelInValue
+	getPopupContainer={() => document.getElementById("root") as HTMLElement}
+	showSearch
+	className="select"
+	placeholder={placeholder}
+	onSearch={debounceFetcher}
+	notFoundContent={notFoundContent}
+	onSelect={onSelect}
+	value={[]}
+	filterOption={false}
+>
+	{renderOptions(options)}
+</Select>;
 ```
 
 ### 自定义下拉菜单
