@@ -8,6 +8,9 @@ date: "2021-12-29"
 
 ### 使用
 
+-   antd 禁止在 Form.Item 下的组件使用默认属性，解决：统一在 form 组件的 initialValues 属性里设置。
+-   如果 Form.Item 中包裹了两个组件，那么建议用 div 或别的把这俩组件包起来，否则会 warning：Item 的 children 是 array 时不能设置 name。
+
 #### Form
 
 ```js
@@ -224,6 +227,14 @@ filters:[{text:'',value:''}],
 1. columns 里设置 sorter:true;
 2. Table 里通过 onChange(pagination, filters, sorter, extra)监听筛选变化;
 
+-   排序 icon 恢复
+
+1. sortOrder: 排序的受控属性，外界可用此控制列的排序，可设置为 ascend | descend | false;
+
+-   支持的排序方式
+
+1. sortDirections: 覆盖 Table 中 sortDirections， 取值为 ascend | descend，通过设置为[ascend, descend, ascend]，实现只有升降而没有 undefined/default。
+
 ### 踩坑注意
 
 -   在 90.x 版本 Chrome 上，固定列滚动时会有 bug，导致某列显示不完全。原因是固定列下方的那几个对应的列（占位列）宽度没有设置成功。
@@ -258,6 +269,8 @@ filters:[{text:'',value:''}],
 </Menu>
 ```
 
+-   如果使用了`<Sider>`组件包裹了`<Menu>`（使用某些布局的时候可能会用到），那么要在`<Sider>`中设置`collapsed={false}`才能使菜单默认展开。在`<Menu>`中设置`inlineCollapsed={false}`无效！
+
 ## Input 组件
 
 ### 使用
@@ -287,7 +300,7 @@ filters:[{text:'',value:''}],
 	showSearch
 	className="xxx"
 	allowClear
-	labelInValue // TODO 每个option里key和value为何总是一样的？？？
+	labelInValue // TODO 每个option里key和value为何总是一样的？？？不建议使用
 	notFoundContent={notFoundContent}
 	optionFilterProp="children"
 	filterOption={(input, option) =>
