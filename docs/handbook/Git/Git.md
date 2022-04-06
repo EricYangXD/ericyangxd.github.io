@@ -76,6 +76,23 @@ PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名�
 5. 提示的 commitid 就是导致问题的那次提交
 6. 具体示例参考[这里](https://mp.weixin.qq.com/s/d0LvAd8cDQD_3KSX1fOpkQ)
 
+### git cherry-pick
+
+1. 选一次提交：`git cherry-pick <commitHash>`
+2. 选多次提交：`git cherry-pick <HashA> <HashB>`
+3. 选多次提交：`git cherry-pick A..B`，提交 A 必须早于提交 B，提交 A 将不会包含在 Cherry pick 中
+4. 选多次提交：`git cherry-pick A^..B`，包含提交 A
+5. 解决冲突后：1. `git add .`
+6. 解决冲突后：2. `git cherry-pick --continue`
+7. 发生代码冲突后，放弃合并，回到操作前的样子：`git cherry-pick --abort`
+8. 发生代码冲突后，退出 Cherry pick，但是不回到操作前的样子：`git cherry-pick --quit`
+
+-   Cherry pick 也支持转移另一个代码库的提交，方法是先将该库加为远程仓库。
+    1. 添加了一个远程仓库 target：`git remote add target git://gitUrl`
+    2. 远程代码抓取到本地：`git fetch target`
+    3. 检查一下要从远程仓库转移的提交，获取它的哈希值：`git log target/master`
+    4. 使用 git cherry-pick 命令转移提交：`git cherry-pick <commitHash>`
+
 ## 修改 Git commit msg
 
 1. 修改最近一次的 commit 信息 git commit --amend

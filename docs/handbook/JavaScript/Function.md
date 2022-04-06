@@ -204,10 +204,19 @@ params.get("name"); // eric
 params.get("test"); // 1
 ```
 
+```js
+// URLSearchParams传入字符串
+const search = new URLSearchParams("a=1&b=2&c=3");
+console.log(search.toString()); // a=1&b=2&c=3
+// 等价于
+const search = new URLSearchParams(window.location.search);
+console.log(search.toString()); // a=1&b=2&c=3
+```
+
 -   当我们使用 fetch 原生 api 请求时，new URLSearchParams 可以作为 body 参数。
--   URLSearchParams 传入数组，将一个对象转换成 url 参数，通常在 ajaxget 请求拼接参数时，可能很有用。
+-   URLSearchParams 传入**数组**，将一个对象转换成 url 参数，通常在 ajax get 请求拼接参数时，可能很有用。
 -   URLSearchParams 具有可迭代器属性的特征，因此它像 Map、Set 一样具有增删查改的特性：get/append/delete/set/has/keys/values.
--   对于 URLSearchParams 可以传字符串，可以是对象或是数组，当我们获取 URLSearchParams 的 key，直接调用 xxx.keys()或者是 xxx.values()，不过这样取出的值是一个迭代器，还需要用 Array.from 中转一下。
+-   对于 URLSearchParams 可以传**字符串**，可以是**对象或是数组**，当我们获取 URLSearchParams 的 key，直接调用 xxx.keys()或者是 xxx.values()，不过这样取出的值是一个迭代器，还需要用 Array.from 中转一下。
 
 -   对 URL 动态的添加路径
 

@@ -270,6 +270,7 @@ filters:[{text:'',value:''}],
 ```
 
 -   如果使用了`<Sider>`组件包裹了`<Menu>`（使用某些布局的时候可能会用到），那么要在`<Sider>`中设置`collapsed={false}`才能使菜单默认展开。在`<Menu>`中设置`inlineCollapsed={false}`无效！
+-   使用`selectedKeys={[path]} onClick={onMenuClick}`结合`history.push(path)`，可以实现菜单的选中与路由的变化相匹配。
 
 ## Input 组件
 

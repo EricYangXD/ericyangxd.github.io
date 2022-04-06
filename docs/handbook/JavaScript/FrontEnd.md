@@ -1333,3 +1333,85 @@ BFF（Backend for Frontend）层，主要就是就是为了前端服务的后端
 moment 转时间戳：moment(time).valueOf(); // 1535419062126
 
 moment 转时间：moment(timestamp).format(); // 2018-08-28T09:17:42+08:00
+
+## new URL() 和 window.location
+
+### location 对象
+
+```js
+// window.location
+/*
+https://www.baidu.com/s?wd=Reflect.%20defineProperty&rsv_spt=1#123
+*/
+const { href, origin, host, port, protocol, pathname, hash, search } =
+	window.location;
+console.log(href); // 获取整个URL xxx
+console.log(origin); // 协议+域名+端口  https://www.baidu.com
+console.log(host); // 主机名+端口号（http或者https会省略端口号）  www.baidu.com
+console.log(port); // '' http默认端口80 https默认端口443
+console.log(protocol); // 协议 https:
+console.log(pathname); // 除了域名的路由地址路径
+console.log(hash); // 路径带#的参数
+console.log(search); // 地址?后面所有参数
+```
+
+在 location.search、location.hash、location.origin、location.href 是通常项目中几个比较高频的获取当前地址的一些参数方法，不过注意只有 location.origin 这个是只读的，其他 API 都是可读可写.
+
+### URL
+
+```js
+const url = new URL(
+	"https://www.baidu.com/s?wd=Reflect.%20defineProperty&rsv_spt=1#123"
+);
+console.log(url.search); // ?wd=Reflect.%20defineProperty&rsv_spt=1
+console.log(url.hash); // #123
+console.log(url.origin); // https://www.baidu.com
+console.log(url.href); // 'https://www.baidu.com/s?wd=Reflect.%20defineProperty&rsv_spt=1#123'
+```
+
+URL 这个原生构造的地址中属性与 location 获取地址上的通用属性都基本一样。
+
+唯一的区别是，location 多了 replace 与 reload 方法,URL 除了拥有 location 的通用属性，没有 replace 与 reload 方法，但是他具备一个获取参数的一个 searchParamsAPI.
+
+#### searchParams
+
+```js
+// 返回 URLSearchParams 的对象
+console.log(url.searchParams);
+// { 'wd' => 'Reflect. defineProperty', 'rsv_spt' => '1' }
+
+// 可以替代qs.stringify()
+console.log(url.searchParams.toString());
+// wd=Reflect.+defineProperty&rsv_spt=1
+
+// 相当于 URLSearchParams(search) ，不用考虑'?'
+const { search } = this.props.location;
+const { id, name } = qs.parse(search.replace(/^\?/, ""));
+```
+
+-   url query params 解析转换
+-   原生 Object 提供了一个 `fromEntries` API，它可以将 entries 数据还原成以前的 obj。
+
+```js
+function formateQueryUrl() {
+	const { search } = window.location;
+	// 以？分割，获取url上的真正的参数
+	const [, searchStr] = search.split("?");
+	// 以&分割前后参数
+	const arr = searchStr.split("&");
+	const ret = {};
+	arr.forEach((v) => {
+		const [key, val] = v.split("=");
+		ret[key] = val;
+	});
+	return ret;
+}
+
+// 与上面formateQueryUrl方法等价
+function eazyFormateQueryUrl() {
+	const url = new URL(window.location);
+	return Object.fromEntries(url.searchParams.entries());
+}
+// 如果当前浏览器地址 https://www.badu.com?a=1&b=2
+// {a:1,b:2}
+```

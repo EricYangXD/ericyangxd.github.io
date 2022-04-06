@@ -769,34 +769,3 @@ React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和�
 />
 ```
 
-## 路由跳转
-
-### 1.WithRouter
-
-0. `import { withRouter } from 'react-router-dom';`
-1. 将组件用 `WithRouter` 包裹
-2. 在组件内部使用 `props.history.push(path)`
-
-### 2.history
-
-0. `import { createBrowserHistory } from 'history';`
-1. `const history = createBrowserHistory();`
-2. `history.push(path);`
-
-### history 简介
-
-1. history 是 react-router 的基础库
-2. history 整体是对浏览器 api 的二次封装，但是并没有太过深入的封装，仅仅是对每次页面跳转时做了抽象处理，并且加入了额外的监听与特殊的阻止跳转功能。
-
--   createBrowserHistory 基于浏览器 history 对象最新 api。
--   createHashHistory：基于浏览器 url 的 hash 参数。
--   createMemoryHistory：基于内存栈，不依赖任何平台。
-
-上面三种方法创建的 history 对象在 react-router 中作为三种主要路由的导航器使用：
-
--   BrowserRouter 对应 createBrowserHistory，由 react-router-dom 提供。
--   HashRouter 对应 createHashHistory，由 react-router-dom 提供。
--   MemoryRouter 对应 createMemoryHistory，由 react-router 提供，主要用于 react-native 等基于内存的路由系统。
--   实际上与 react-native 相对应的包 react-router-native 使用的是 NativeRouter，但其实 NativeRouter 就是 MemoryRouter 的简单封装（改了下名字）。
--   在 react-router-dom 中其实还有一种路由 StaticRouter，不过是用在 ssr 中的，没有依赖 history 库，仅仅是对传入的 props 做了校验而已。`import { StaticRouter } from 'react-router-dom/server';`。
--   在 react-router-dom v6.1.1 时还新增了 HistoryRouter，不过该 Router 主要是帮助我们手动传入 history 实例。
