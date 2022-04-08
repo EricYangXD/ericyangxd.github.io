@@ -1415,3 +1415,149 @@ function eazyFormateQueryUrl() {
 // 如果当前浏览器地址 https://www.badu.com?a=1&b=2
 // {a:1,b:2}
 ```
+
+## Cookie
+
+### 作用
+
+因为 HTTP 是无状态的，所以为了协助 Web 保持状态，Cookie 诞生了。主要用于以下三个方面：
+
+-   会话状态管理（如用户登录状态、购物车、游戏分数或其它需要记录的信息）
+-   个性化设置（如用户自定义设置、主题等）
+-   浏览器行为跟踪（如跟踪分析用户行为等）
+
+### 设置
+
+| 平台                    | 操作示例                                   | 说明                                              |
+| ----------------------- | ------------------------------------------ | ------------------------------------------------- |
+| 服务端                  | `set-cookie: <cookie-name>=<cookie-value>` | 服务端通过设置 set-cookie 控制 Cookie             |
+| 浏览器 document.cookie  | `document.cookie = "name=scar";`           | 获取并设置与当前文档相关联的 cookie，操作不灵活。 |
+| 浏览器 Cookie Store API | `cookieStore.set("name", "scar");`         | 新特性，仅支持在 HTTPS 使用，目前还在实验阶段。   |
+
+### 伪代码/使用
+
+1. 服务端，例 nodejs：
+
+```js
+const http = require("http");
+http.createServer((req, res) => {
+	if (req.url === "/read") {
+		// 读取 Cookie
+		res.end(`Read Cookie: ${req.headers.cookie || ""}`);
+	} else if (req.url === "/write") {
+		// 设置 Cookie
+		res.setHeader("Set-Cookie", [
+			`name=scar;`,
+			//set-cookie 属性大小写不敏感，你可以写成 path=/ 或者 Path=/
+			`language=javascript;Path=/; HttpOnly;Expires=${new Date(
+				Date.now() + 1000
+			).toUTCString()};`,
+		]);
+		res.end("Write Success");
+	} else if (req.url === "/delete") {
+		// 删除 cookie
+		res.setHeader("Set-Cookie", [
+			// 设置过期时间为过去的时间
+			`name=;expires=${new Date(1).toUTCString()}`,
+			// 有效期 max-age 设置成 0 或 -1 这种无效秒，让 cookie 当场去世
+			// 有些浏览器不支持 max-age 属性，所以用此方法需要考虑兼容性
+			"language=javascript; max-age=0",
+		]);
+		res.end("Delete Success");
+	} else {
+		res.end("Not Found");
+	}
+}).listen(3000);
+```
+
+2. 客户端，通过浏览器方法 document.cookie 读写当前界面的 Cookie。
+
+```js
+// 编辑 Cookie，必须一个一个设置！！！不能多个一起设置！！！
+document.cookie = "name=scar";
+document.cookie = "language=javascript";
+// 读取 Cookie
+console.log(document.cookie);
+//name=scar; language=javascript
+
+// 删除 Cookie
+document.cookie = "name=scar;expires=Thu, 01 Jan 1970 00:00:01 GMT";
+```
+
+1. 客户端：Cookie Store API，目前正在试验阶段，Firefox、Safari 浏览器 还不支持，所以不建议在生产环境使用，相信在将来我们会用上它更方便地操作 Cookie。
+
+```js
+// 读取 Cookie，返回的是Promise，所以要用await！！！
+await cookieStore.get("enName");
+await cookieStore.getAll();
+
+// 设置 Cookie
+const day = 24 * 60 * 60 * 1000;
+cookieStore
+	.set({
+		name: "enName",
+		value: "scar",
+		expires: Date.now() + day, // 过期时间，默认为会话关闭时间
+		domain: "scar.siteÏ", // 生效域名，是接受请求的域名
+		path: "/report_mgmt", // 生效路径，子路径也会被匹配
+		sameSite: "none", // 允许服务器设定 Cookie 不随着跨站请求一起发送，Lax|Strict|None，服务器要求某个 Cookie 在跨站请求时不会被发送，从而可以阻止跨站请求伪造攻击。限制了发送 Cookie 的域名
+		secure: false, // 仅 HTTPS 可用，标记为 Secure 的 Cookie 只应通过被 HTTPS 协议加密过的请求发送给服务端，因此可以预防 man-in-the-middle 攻击。
+		maxAge: 10000, // 有效期，单位秒，秒数为 0 或 -1 将会使 cookie 直接过期，如果 Expires 和Max-Age 同时存在时，Max-Age优先级更高。
+		sameParty: false, // 允许特定条件跨域共享 Cookie
+		priority: "Medium", // 优先级，仅 Chrome 支持， Low|Medium|High，如果设置了 Priority，Chrome 会先将优先级低的清除，并且每种优先级 Cookie 至少保留一个。
+		httpOnly: false, // 设置了 HttpOnly 属性的 cookie 不能使用 JavaScript 经由  Document.cookie 属性、XMLHttpRequest 和  Request APIs、Cookie Store APIs 进行访问。
+	})
+	.then(
+		function () {
+			console.log("It worked!");
+		},
+		function (reason) {
+			console.error("It failed: ", reason);
+		}
+	);
+
+// 删除 Cookie
+await cookieStore.delete("session_id");
+
+// 监听 Cookie 变化
+cookieStore.addEventListener("change", (event) => {
+	for (const cookie of event.changed) {
+		if (cookie.name === "name") sessionCookieChanged(cookie.value);
+	}
+	for (const cookie of event.deleted) {
+		if (cookie.name === "enName") sessionCookieChanged(null);
+	}
+});
+```
+
+### Q&A
+
+#### Cookie 的限制
+
+1. 大小限制
+
+大多数浏览器支持最大为 4KB 的 Cookie，4KB 是针对 Cookie 单条记录的 Value 值。
+
+2. 数量限制
+
+Cookie 有数量限制，而且只允许每个站点存储一定数量的 Cookie，当超过时，最早过期的 Cookie 便被删除，或者优先级低的会被干掉。在 150-180 左右。
+
+实际上影响 Cookie 被删除的要素不止是 Expires 和 Max-Age，还有 Priority、Secure。
+
+#### 和 Cookie 相关的不安全事件有哪些？
+
+1. CSRF 跨站请求攻击：攻击者通过一些技术手段欺骗用户的浏览器去访问一个自己曾经认证过的网站并运行一些操作（如发邮件，发消息，甚至财产操作如转账和购买商品）。
+
+通过设置 sameSite 可以防止跨域发送 Cookie，抵御 CSRF。
+
+2. XSS 跨站脚本攻击：是一种网站应用程序的安全漏洞攻击。通常指的是通过利用网页开发时留下的漏洞，通过巧妙的方法注入恶意指令代码到网页，使用户加载并执行攻击者恶意制造的网页程序。攻击成功后，攻击者可能得到 Cookie 从而实现攻击。
+
+3. 同名 Cookie 发送时，优先级如何判断？
+
+Cookie 发送顺序：Path 属性较长的应该在前面；如果 Path 路径一样，创建时间早的在前面。
+
+除了考虑发送顺序，还要考虑不同的服务器框架可能有不同的接收逻辑，所以笔者推荐尽量避免出现同名 Cookie，减少端表现不统一带来的不确定性。
+
+4. 如何快速调试 Cookie
+
+浏览器控制台->Applications 下，通过分析 Cookie 属性来定位问题。
