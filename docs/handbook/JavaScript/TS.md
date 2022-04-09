@@ -462,3 +462,12 @@ tsconfig.json 中有两个配置和类型引入有关。
 1. typeRoots 是 tsconfig 中 compilerOptions 的一个配置项，typeRoots 下面的包会被 ts 编译器自动包含进来，typeRoots 默认指向 node_modules/@types。
 2. @types 是 npm 的 scope 命名空间，和@babel 类似，@types 下的所有包会默认被引入，你可以通过修改 compilerOptions 来修改默认策略。
 3. types 和 typeRoots 一样也是 compilerOptions 的配置，指定 types 后，typeRoots 下只有被指定的包才会被引入。
+
+```ts
+{
+  "compilerOptions": {
+    "typeRoots": ["./typings"],
+		"types": ["jquery"],
+  }
+}
+```
