@@ -90,7 +90,7 @@ cd /Library/Google/GoogleSoftwareUpdate
 Postman 安装 Interceptor Bridge 时报 ERROR_CODE:CHROME_NOT_INSTSLLED
 解决方法如下：
 
-```zsh
+```bash
 mkdir ~/Library/Application\ Support/Google/Chrome/NativeMessagingHosts
 chmod +wx ~/Library/Application\ Support/Google/Chrome/NativeMessagingHost
 ```
@@ -106,7 +106,7 @@ chmod +wx ~/Library/Application\ Support/Google/Chrome/NativeMessagingHost
 
 -   A
 
-```zsh
+```bash
 sudo vi /etc/hosts
 ```
 
@@ -115,7 +115,7 @@ sudo vi /etc/hosts
 
 -   B
 
-```zsh
+```bash
 open /etc/hosts -e
 ```
 

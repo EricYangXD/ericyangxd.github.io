@@ -62,6 +62,8 @@ computedMatch 是使用 Switch 包裹的子组件才有的值，Switch 的作用
 
 需要注意的重要一点是 `<Route path>` 匹配 URL 的开头，而不是整个内容。因此 `<Route path="/">` 将始终与 URL 匹配。因此，我们通常将此 `<Route>` 放在 `<Switch>` 的最后。另一种可能的解决方案是使用匹配整个 URL 的 `<Route exact path="/">`。
 
+`useRouteMatch`钩子的匹配规则和`<Route path>`是一样的，返回匹配到的`<Route path>`的 props 或者 null。
+
 不使用`<Switch>`包裹的`<Route>`匹配 URL 的开头，默认是会一直匹配，把匹配到的 Route 都渲染出来！比如有两个`/about`，分别对应不同的组件，那么就会把这俩组件都渲染出来!
 
 ```js
@@ -421,15 +423,61 @@ web 端一般用 `react-router-dom` 库，这个包提供了三个核心的组�
 
 例如：`import { HashRouter, BrowserRouter, Route, Link } from 'react-router-dom';`。
 
-### HashRouter、BrowserRouter
+### HashRouter、BrowserRouter、MemoryRouter
 
-使用 HashRouter/BrowserRouter 包裹整个应用，一个项目中只会有一个 Router.
+1. 使用 HashRouter/BrowserRouter 包裹整个应用，一个项目中只会有一个 Router.
+2. `<BrowserRouter>` 使用 HTML5 history API（pushState、replaceState 和 popstate 事件）来保持 UI 与 URL 同步。
+3. `<BrowserRouter>`:
+    - basename：为全部 location 设置 base url。
+    - getUserConfirmation：用于确认导航的功能。默认使用 window.confirm。
+    - forceRefresh：页面切换时强制刷新。
+    - keyLength：The length of location.key. Defaults to 6.
+    - children：The child elements to render.
+4. `<HashRouter>` 使用 URL 的 hash 部分（即 window.location.hash）来保持 UI 与 URL 同步。**不支持 location.key 或 location.state**!
+    - basename：为全部 location 设置 base url。
+    - getUserConfirmation：用于确认导航的功能。默认使用 window.confirm。
+    - hashType: "slash" - "#/sunshine" | "noslash" - "#sunshine" | "hashbang" - "#!/sunshine"，默认"slash"。
+    - children：A single child element to render.
+5. `<MemoryRouter>`将你的“URL”历史保存在内存中（不读取或写入地址栏）。在测试和非浏览器环境（如 React Native）中很有用。
+
+### Router
+
+所有路由组件的通用低级接口。通常，应用程序将使用高级路由器之一：
+
+1. `<BrowserRouter>`
+2. `<HashRouter>`
+3. `<MemoryRouter>`
+4. `<NativeRouter>`
+5. `<StaticRouter>`：一个永远不会改变位置的 `<Router>`。用于 SSR。
+
+-   history: object，A history object to use for navigation.
+-   children: node，A child element to render.
+
+使用低级 `<Router>` 的最常见用例是将自定义 history 与 Redux 或 Mobx 等状态管理库同步。
 
 ### Link
 
 使用 Link 指定导航链接，Link 和 NavLink 都能用来做跳转，最终都会被渲染成`<a>`内容`</a>`标签。Link 组件无法展示哪个 link 处于选中的效果，NavLink 组件，一个更特殊的 Link 组件，可以用于指定当前导航高亮。
 
 例如：`<NavLink to="/xxx" activeClassName="active">链接</NavLink>`。
+
+1. to：string | object:{pathname,search,hash,state} | function。
+2. replace: boolean，如果为 true，单击链接将替换历史堆栈中的当前条目，而不是添加新条目。
+3. innerRef: function，允许访问组件的底层 ref。
+4. innerRef: RefObject，使用 React.createRef 获取组件的底层 ref。
+5. component: React.Component。
+6. others：You can also pass props you’d like to be on the `<a>` such as a title, id, className, etc.
+
+### NavLink
+
+1. className: string | func，在 React Router v6 中，activeClassName 将被删除，您应该使用函数 className 将类名应用于活动或非活动 NavLink 组件。
+2. activeClassName: string，The default given class is active.V6 已移除。
+3. style: object | func，如果使用函数样式，则将链接的活动状态 isActive 作为参数传递。
+4. activeStyle: object，V6 已移除。
+5. exact: bool
+6. strict: bool，如果为 true，则在确定位置是否与当前 URL 匹配时，将考虑位置路径名上的尾部斜杠。
+7. isActive: func，添加额外逻辑以确定链接是否处于活动状态的函数。如果您想要做的不仅仅是验证链接的路径名是否与当前 URL 的路径名匹配，则应该使用此选项。
+8. location: object，isActive 比较当前历史 location（通常是当前浏览器 URL）。为了与不同的 location 进行比较，可以传递一个 location。
 
 ### Route
 
@@ -446,14 +494,177 @@ web 端一般用 `react-router-dom` 库，这个包提供了三个核心的组�
 -   默认是模糊匹配的!!!
 -   补充 exact 可以设置成精确匹配
 
+3. Route render methods：
+
+-   `<Route component>`
+-   `<Route render>`
+-   `<Route children>` function
+
+4. Route props：
+
+-   match
+-   location
+-   history
+
+5. exact: bool
+
+| path | location.pathname | exact | matches? |
+| :--- | :---------------- | :---- | :------- |
+| /one | /one/two          | true  | no       |
+| /one | /one/two          | false | yes      |
+
+6. strict: bool
+
+| path  | location.pathname | strict | matches? |
+| :---- | :---------------- | :----- | :------- |
+| /one/ | /one              | true   | no       |
+| /one/ | /one/             | true   | yes      |
+| /one/ | /one/two          | true   | yes      |
+
+7. location: object，为了与不同的 location 进行比较，可以传递一个 location。
+8. sensitive: bool，大小写敏感。
+
 ### Switch
 
 1. 用 Switch 组件包裹多个 Route 组件。在 Switch 组件下，不管有多少个 Route 的路由规则匹配成功，都只会渲染第一个匹配的组件！
 2. 通过 Switch 组件非常容易的就能实现 404 错误页面的提示，不设置 path 属性，将 404 页对应的路由放在 switch 内部的最后位置。（保底页面）
+3. location: object，用于匹配子元素而不是当前历史 location（通常是当前浏览器 URL）的 location 对象。
 
 ### Redirect
 
 页面重定向，比如：
+`
 
-1. `<Redirect from="/" exact to="/comment" />`，从 from 重定向到 to。
-2. `<Route exact path="/"><Redirect to={'/home'} /></Route>`，第二种写法。
+1. 从 from 重定向到 to。to 中使用的所有 URL 参数必须由 from 覆盖。
+
+```js
+<Redirect from="/users/:id" to="/users/profile/:id" />
+```
+
+2. 第二种写法。通过重定向到组件中的 this.props.location.state 访问状态对象。
+
+```js
+<Redirect
+	to={{
+		pathname: "/home",
+		search: "?utm=your+face",
+		state: { referrer: currentLocation },
+	}}
+/>
+```
+
+3. push: bool，当为 true 时，重定向会将新条目推送到历史记录中，而不是替换当前条目。
+4. from: string，所有匹配的 URL 参数都提供给 to 中的模式。必须包含在 to 中使用的所有参数。to 未使用的附加参数将被忽略。
+5. 这只能用于在 `<Switch>` 内渲染 `<Redirect>` 时匹配 location。
+6. exact: bool，相当于 Route.exact。
+7. strict: bool，相当于 Route.strict。
+8. sensitive: bool，相当于 Route.sensitive。
+
+### generatePath
+
+generatePath 函数可用于生成路由的 URL。在内部使用了 path-to-regexp 库。将路径编译为正则表达式的结果被缓存，因此生成具有相同模式的多个路径没有开销。
+
+1. pattern: string
+2. params: object
+
+```js
+import { generatePath } from "react-router";
+
+generatePath("/user/:id/:entity(posts|comments)", {
+	id: 1,
+	entity: "posts",
+});
+// Will return /user/1/posts
+```
+
+### history
+
+The history object is mutable. Therefore it is recommended to access the location from the render props of `<Route>`, not from history.location.
+
+history 对象是可变的。因此建议从 `<Route>` 的 render props 访问 location，而不是从 history.location。
+
+history 对象有如下属性：
+
+1. length: The number of entries in the history stack
+2. action: PUSH, REPLACE, or POP
+3. location: The current location. {pathname, search, hash, state}
+4. `push(path, [state])`
+5. `replace(path, [state])`
+6. `go(n)`
+7. `goBack()`
+8. `goForward() `
+9. `block(prompt)`
+
+### location
+
+location 代表应用程序现在的位置、您希望它去的地方，甚至是它曾经的位置。location 对象永远不会发生变化。可以通过如下方式获取 location：
+
+1. Route component as this.props.location
+2. Route render as ({ location }) => ()
+3. Route children as ({ location }) => ()
+4. withRouter as this.props.location
+5. useLocation
+
+下面这几个地方不止可以传 string，还可以传 location 对象：
+
+1. Web Link to
+2. Native Link to
+3. Redirect to
+4. history.push
+5. history.replace
+
+也可以传给组件：
+
+1. Route
+2. Switch
+
+### match
+
+match 对象包含有关 `<Route path>` 如何匹配 URL 的信息: {params, isExact, path, url}.
+
+如果 Route 没有路径，因此总是匹配，您将获得最接近的父匹配。 withRouter 也是如此。
+
+可以访问不同位置的 match 对象：
+
+-   Route component as this.props.match
+-   Route render as ({ match }) => ()
+-   Route children as ({ match }) => ()
+-   withRouter as this.props.match
+-   matchPath as the return value
+-   useRouteMatch as the return value
+
+“解析” URL 的默认方法是将 match.url 字符串连接到“相对”路径。无路径 `<Route>`从其父级继承其匹配对象。如果他们的父匹配为空，那么他们的匹配也将为空。
+
+即使路由的路径与当前位置不匹配，使用 children 属性的 `<Route>` 也会调用其子函数。
+
+### matchPath
+
+这使您可以使用与 `<Route>` 相同的匹配代码，除了正常的渲染周期之外。例如在服务器上渲染之前收集数据依赖项。返回一个匹配到的对象或者 null。
+
+```js
+import { matchPath } from "react-router";
+
+const match = matchPath("/users/123", {
+	path: "/users/:id", // like /users/:id; either a single string or an array of strings
+	exact: true, // optional, defaults to false
+	strict: false, // optional, defaults to false
+});
+
+//  {
+//    isExact: true
+//    params: {
+//        id: "2"
+//    }
+//    path: "/users/:id"
+//    url: "/users/2"
+//  }
+```
+
+### withRouter
+
+您可以通过 withRouter **高阶组件**访问 history 对象的属性和最近的 `<Route>` 匹配项 match。withRouter 将在渲染时将更新的 match、location 和 history 属性传递给被包裹的组件。
+
+withRouter 不像 React Redux 的 connect 那样订阅 location 更改来进行状态更改。相反，在 location 更改从 `<Router>` 组件传播出去后重新渲染。这意味着 withRouter 不会在路由转换时重新渲染，除非其父组件重新渲染。
+
+-   Component.WrappedComponent: 除其他外，被包装的组件作为返回组件上的静态属性 WrappedComponent 暴露出来，可用于单独测试组件。
+-   wrappedComponentRef: func：将作为 ref 属性传递给包装组件的函数。
