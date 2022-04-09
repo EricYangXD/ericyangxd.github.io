@@ -28,7 +28,7 @@ date: "2022-02-11"
 
 react-router 使用了 `history` 这个核心库。
 
-### 如何监听 url 的变化 ？
+### 如何监听 url 的变化
 
 1. 选择方式: history 或 hash
 
@@ -49,7 +49,7 @@ const FC = () => {
 
 2. 监听 URL 的变化，拿到对应的 history，location，match 等通过 Provider 注入到子组件中。
 
-### 如何匹配 path，按什么规则 ？
+### 如何匹配 path，按什么规则
 
 可以分两部分理解:
 
@@ -62,9 +62,9 @@ computedMatch 是使用 Switch 包裹的子组件才有的值，Switch 的作用
 
 需要注意的重要一点是 `<Route path>` 匹配 URL 的开头，而不是整个内容。因此 `<Route path="/">` 将始终与 URL 匹配。因此，我们通常将此 `<Route>` 放在 `<Switch>` 的最后。另一种可能的解决方案是使用匹配整个 URL 的 `<Route exact path="/">`。
 
-而 Route 默认是会一直匹配 path，把匹配到的 Route 都渲染出来！比如有两个'/home'，分别对应不同的组件，那么就会把这俩组件都渲染出来!
+不使用`<Switch>`包裹的`<Route>`匹配 URL 的开头，默认是会一直匹配，把匹配到的 Route 都渲染出来！比如有两个`/about`，分别对应不同的组件，那么就会把这俩组件都渲染出来!
 
-```ts
+```js
 <Router>
 	<Route path="/">
 		<Home />
@@ -80,7 +80,7 @@ computedMatch 是使用 Switch 包裹的子组件才有的值，Switch 的作用
 
 如上代码中：如果 url 是`/`，此时只渲染`<Home />`，如果是`/about`，则渲染`<Home />`和`<About />`两个组件的内容。
 
-匹配解析 path ，这里使用了第三方库 `path-to-regexp`。·
+匹配解析 path ，这里使用了第三方库 `path-to-regexp`。
 
 ### 组件渲染方式
 
@@ -114,7 +114,7 @@ computedMatch 是使用 Switch 包裹的子组件才有的值，Switch 的作用
 3. component 是使用 createComponent 来创建的， 这会导致不再更新现有组件，而是直接卸载再去挂载一个新的组件。如果是使用匿名函数来传入 component ，每次 render 的时候，这个 props 都不同，会导致重新渲染挂载组件，导致性能特别差。因此，**当使用匿名函数的渲染时，请使用 render 或 children** 。
 
 ```js
-// 不要这么使用
+// 不要这么使用!!!
 <Route path="/user/:username" component={() => <User />} />
 ```
 
@@ -153,7 +153,7 @@ message.success("登录成功", 2, () => {
 const value = location.search;
 ```
 
-2. 直接写到 URL 里
+2. history.replace 单个参数
 
 ```js
 message.success("登录成功", 2, () => {
@@ -164,7 +164,7 @@ message.success("登录成功", 2, () => {
 const value = location.state;
 ```
 
-3. 直接写到 URL 里
+3. history.replace 多个参数以对象形式
 
 ```js
 message.success("登录成功", 2, () => {
@@ -179,7 +179,7 @@ const { name, id } = location.state;
 
 #### 添加单个参数
 
-`path: '/test/:type',`
+例如：`path: '/test/:type'`。
 
 -   useParams
 
@@ -201,7 +201,7 @@ const { id } = this.props.match.params; // id = 1
 
 #### 添加多个参数
 
-`path: '/myurl/:id/:name',`
+例如：`path: '/myurl/:id/:name'`。
 
 -   挨个添加解析：`const { id, name } = this.props.match.params;`
 -   以对象的形式，一起添加解析：
@@ -217,7 +217,7 @@ const { id, name } = JSON.parse(manyParams);
 
 ### 获取 url 中定义的参数
 
-如：`https://baidu.com/myurl?id=1`
+例如：`https://baidu.com/myurl?id=1`。
 
 #### props.location
 
@@ -296,7 +296,7 @@ console.log("useLocation location", location);
 
 ### Redirect 重定向
 
-```tsx
+```js
 <Route exact path={getPath("/stock")}>
 	<Redirect to={getPath("/stock/backup")} />
 </Route>
@@ -371,27 +371,27 @@ const route = {
 
 ### history 简介
 
-1. history 是 react-router 的基础库
+1. history 是 `react-router` 的基础库
 2. history 整体是对浏览器 api 的二次封装，但是并没有太过深入的封装，仅仅是对每次页面跳转时做了抽象处理，并且加入了额外的监听与特殊的阻止跳转功能。
 
 -   createBrowserHistory 基于浏览器 history 对象最新 api。
 -   createHashHistory：基于浏览器 url 的 hash 参数。
 -   createMemoryHistory：基于内存栈，不依赖任何平台。
 
-上面三种方法创建的 history 对象在 react-router 中作为三种主要路由的导航器使用：
+上面三种方法创建的 history 对象在 `react-router` 中作为三种主要路由的导航器使用：
 
--   `BrowserRouter` 对应 createBrowserHistory，由 react-router-dom 提供。
--   `HashRouter` 对应 createHashHistory，由 react-router-dom 提供。
--   `MemoryRouter` 对应 createMemoryHistory，由 react-router 提供，主要用于 react-native 等基于内存的路由系统。
--   实际上与 react-native 相对应的包 react-router-native 使用的是 `NativeRouter`，但其实 NativeRouter 就是 MemoryRouter 的简单封装（改了下名字）。
--   在 react-router-dom 中其实还有一种路由 `StaticRouter`，不过是用在 `ssr` 中的，没有依赖 history 库，仅仅是对传入的 props 做了校验而已。`import { StaticRouter } from 'react-router-dom/server';`。
--   在 react-router-dom v6.1.1 时还新增了 `HistoryRouter`，不过该 Router 主要是帮助我们手动传入 history 实例。
+-   `BrowserRouter` 对应 createBrowserHistory，由 `react-router-dom` 提供。
+-   `HashRouter` 对应 createHashHistory，由 `react-router-dom` 提供。
+-   `MemoryRouter` 对应 createMemoryHistory，由 `react-router` 提供，主要用于 `react-native` 等基于内存的路由系统。
+-   实际上与 `react-native` 相对应的包 `react-router-native` 使用的是 `NativeRouter`，但其实 NativeRouter 就是 MemoryRouter 的简单封装（改了下名字）。
+-   在 `react-router-dom` 中其实还有一种路由 `StaticRouter`，不过是用在 `ssr` 中的，没有依赖 history 库，仅仅是对传入的 props 做了校验而已。`import { StaticRouter } from 'react-router-dom/server';`。
+-   在 `react-router-dom` v6.1.1 时还新增了 `HistoryRouter`，不过该 Router 主要是帮助我们手动传入 history 实例。
 
 3. 总结：
     - web 开发常用：`BrowserRouter`history 模式、`HashRouter`hash 模式
     - 服务端渲染：`StaticRouter`
-    - react-native：`MemoryRouter`、`NativeRouter`
-    - react-router-dom v6.1.1 新增 `HistoryRouter`
+    - `react-native`：`MemoryRouter`、`NativeRouter`
+    - `react-router-dom` v6.1.1 新增 `HistoryRouter`
 
 ### Router 内部原理
 
@@ -403,15 +403,15 @@ const route = {
 
     -   原理：监听 window 的 hashchange 事件来实现的
 
--   （推荐）BrowserRouter：使用 H5 的 history.pushState() API 实现
+-   （推荐）BrowserRouter：使用 H5 的 `history.pushState()` API 实现
 
     -   原理：监听 window 的 popstate 事件来实现的
 
 ## 常用组件简介
 
-web 端一般用 `react-router-dom` 库，这个包提供了三个核心的组件: HashRouter(BrowserRouter), Route, Link。
+web 端一般用 `react-router-dom` 库，这个包提供了三个核心的组件: `HashRouter(BrowserRouter)`, `Route`, `Link`。
 
-`import { HashRouter, BrowserRouter, Route, Link } from 'react-router-dom';`
+例如：`import { HashRouter, BrowserRouter, Route, Link } from 'react-router-dom';`。
 
 ### HashRouter、BrowserRouter
 
@@ -420,7 +420,8 @@ web 端一般用 `react-router-dom` 库，这个包提供了三个核心的组�
 ### Link
 
 使用 Link 指定导航链接，Link 和 NavLink 都能用来做跳转，最终都会被渲染成`<a>`内容`</a>`标签。Link 组件无法展示哪个 link 处于选中的效果，NavLink 组件，一个更特殊的 Link 组件，可以用于指定当前导航高亮。
-`<NavLink to="/xxx" activeClassName="active">链接</NavLink>`
+
+例如：`<NavLink to="/xxx" activeClassName="active">链接</NavLink>`。
 
 ### Route
 
