@@ -14,12 +14,12 @@ date: "2022-02-11"
 
 ### 整体流程
 
-1. 选择 browserhistory 或 hashhistory 中 listen 监听 URL 的变化
-2. `<Router />`通过 Provider 注入对应的 location
-3. `<Route />`根据优先级拿到匹配后的值
-4. 根据不同方式渲染组件
-5. 用户点击`<Link />`，触发 history.push 或 history.replace
-6. 触发 history.listen()，回到 1
+1. 选择 browserhistory 或 hashhistory 中 listen 监听 URL 的变化；
+2. `<Router />`通过 Provider 注入对应的 location；
+3. `<Route />`根据优先级拿到匹配后的值；
+4. 根据不同方式渲染组件；
+5. 用户点击`<Link />`，触发 history.push 或 history.replace；
+6. 触发 history.listen()，回到 1；
 
 正常情况下，当 URL 发生变化时，浏览器会像服务端发送请求，但使用以下 2 种办法不会向服务端发送请求：
 
@@ -58,9 +58,29 @@ const FC = () => {
 
 1. 是否匹配
 
-computedMatch 是使用 Switch 包裹的子组件才有的值，Switch 的作用是从上到下开始渲染，只要匹配到一个，其他的就不匹配。所以这里会先判断 computedMatch 。
+computedMatch 是使用 Switch 包裹的子组件才有的值，Switch 的作用是从上到下开始渲染，只要匹配到一个，其他的就不再继续匹配。所以这里会先判断 computedMatch。
 
-匹配解析 path ，这里使用了第三方库 path-to-regexp
+需要注意的重要一点是 `<Route path>` 匹配 URL 的开头，而不是整个内容。因此 `<Route path="/">` 将始终与 URL 匹配。因此，我们通常将此 `<Route>` 放在 `<Switch>` 的最后。另一种可能的解决方案是使用匹配整个 URL 的 `<Route exact path="/">`。
+
+而 Route 默认是会一直匹配 path，把匹配到的 Route 都渲染出来！比如有两个'/home'，分别对应不同的组件，那么就会把这俩组件都渲染出来!
+
+```ts
+<Router>
+	<Route path="/">
+		<Home />
+	</Route>
+	<Route path="/about">
+		<About />
+	</Route>
+	<Route path="/dashboard">
+		<Dashboard />
+	</Route>
+</Router>
+```
+
+如上代码中：如果 url 是`/`，此时只渲染`<Home />`，如果是`/about`，则渲染`<Home />`和`<About />`两个组件的内容。
+
+匹配解析 path ，这里使用了第三方库 `path-to-regexp`。·
 
 ### 组件渲染方式
 
@@ -71,6 +91,8 @@ computedMatch 是使用 Switch 包裹的子组件才有的值，Switch 的作用
 <Route exact path="/">
    <HomePage />
 </Route>
+// 或：
+<Route path="/:id" children={<Child />} />
 
 // 2. func 方式
 <Route
@@ -118,7 +140,7 @@ React-router 使用了 Compound components（复合组件模式），在这种�
 
 #### 编程式导航的传参
 
-同样的用 location,search,state
+同样的用 location，search，state。
 
 1. 直接写到 URL 里
 
@@ -155,7 +177,9 @@ const { name, id } = location.state;
 
 ### 获取路由中定义的 params 参数
 
-#### 如：`path: '/test/:type',`
+#### 添加单个参数
+
+`path: '/test/:type',`
 
 -   useParams
 
@@ -175,10 +199,12 @@ const FC = () => {
 const { id } = this.props.match.params; // id = 1
 ```
 
-#### 添加多个参数:`path: '/myurl/:id/:name',`
+#### 添加多个参数
+
+`path: '/myurl/:id/:name',`
 
 -   挨个添加解析：`const { id, name } = this.props.match.params;`
--   一起添加解析：
+-   以对象的形式，一起添加解析：
 
 ```js
 // 添加
@@ -191,7 +217,7 @@ const { id, name } = JSON.parse(manyParams);
 
 ### 获取 url 中定义的参数
 
-如：`myurl?id=1`.
+如：`https://baidu.com/myurl?id=1`
 
 #### props.location
 
@@ -266,7 +292,7 @@ console.log("useLocation location", location);
 
 1. url params：稳定，参数不易丢失；但如果要带很多参数就麻烦且丑，可用于页面之间。
 2. query params：方便优雅；刷新还存在，但参数易丢失或者被覆盖，可用于同一个页面。
-3. state: 刷新 url, 参数就没有了，可用于同一个页面。
+3. state: 刷新 url， 参数就没有了，可用于同一个页面。
 
 ### Redirect 重定向
 

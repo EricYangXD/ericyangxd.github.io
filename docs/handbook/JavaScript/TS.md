@@ -442,7 +442,7 @@ const api = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
 
 #### 找到某个包的定义/声明
 
-TypeScript 没有找到某个包的定义/声明时，你可以通过 npm install @types/xxx 安装相关声明;或者自己定义一份.d.ts 文件，并将 xxx 声明为 declare module。（安装 @types 和 自己 declare module）就是 TypeScript 官方提出的， 你可以选择适合你的方案。我的推荐是尽量使用 @types 下的声明，实在没有，再使用第二种方法。
+TypeScript 没有找到某个包的定义/声明时，你可以通过 `npm install @types/xxx` 安装相关声明;或者自己定义一份.d.ts 文件，并将 xxx 声明为 declare module。（安装 @types 和 自己 declare module）就是 TypeScript 官方提出的， 你可以选择适合你的方案。我的推荐是尽量使用 @types 下的声明，实在没有，再使用第二种方法。
 
 #### 包类型定义的查找
 
@@ -454,12 +454,12 @@ TypeScript 没有找到某个包的定义/声明时，你可以通过 npm instal
 
 tsconfig.json 中有两个配置和类型引入有关。
 
-1. typeRoots: 用来指定默认的类型声明文件查找路径，默认为 node_modules/@types, 指定 typeRoots 后，TypeScript 编译器会从指定的路径去引入声明文件，而不是 node_modules/@types, 比如以下配置会从 typings 路径下去搜索声明.
+1. typeRoots: 用来指定默认的类型声明文件查找路径，默认为 `node_modules/@types`, 指定 typeRoots 后，TypeScript 编译器会从指定的路径去引入声明文件，而不是 `node_modules/@types`, 比如以下配置会从 typings 路径下去搜索声明.
 2. types: TypeScript 编译器会默认引入 typeRoot 下所有的声明文件，但是有时候我们并**不希望全局引入所有定义**，而是仅引入部分模块。这种情景下可以通过 types 指定模块名只引入我们想要的模块，比如以下只会引入 jquery 的声明文件
 
 #### 总结
 
-1. typeRoots 是 tsconfig 中 compilerOptions 的一个配置项，typeRoots 下面的包会被 ts 编译器自动包含进来，typeRoots 默认指向 node_modules/@types。
+1. typeRoots 是 tsconfig 中 compilerOptions 的一个配置项，typeRoots 下面的包会被 ts 编译器自动包含进来，typeRoots 默认指向 `node_modules/@types`。
 2. @types 是 npm 的 scope 命名空间，和@babel 类似，@types 下的所有包会默认被引入，你可以通过修改 compilerOptions 来修改默认策略。
 3. types 和 typeRoots 一样也是 compilerOptions 的配置，指定 types 后，typeRoots 下只有被指定的包才会被引入。
 
