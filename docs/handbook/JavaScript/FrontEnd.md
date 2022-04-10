@@ -1561,3 +1561,73 @@ Cookie 发送顺序：Path 属性较长的应该在前面；如果 Path 路径�
 4. 如何快速调试 Cookie
 
 浏览器控制台->Applications 下，通过分析 Cookie 属性来定位问题。
+
+#### 如何控制浏览器资源加载优先级之 Priority Hints
+
+-   常规做法：
+
+1. 根据期望的资源的下载顺序放置资源标签，例如 `<script>`和 `<link>`，具有相同优先级的资源通常按照它们被放置的顺序加载。
+2. 使用 preload 属性提前下载必要的资源，特别是对于浏览器早期不易发现的资源。
+3. 使用 async 或 defer 下载非首屏不需要阻塞的资源。
+4. 延迟加载一些首屏内容，以便浏览器可以将可用的网络带宽用于更重要的首屏资源。
+
+> async 标记异步下载，异步执行，多条 js 可以并行下载，当 js 下载完成后会立即(尽快)执行，多条 js 不会互相等待，不能确保彼此的先后顺序。
+> defer 标记异步下载，多条 js 可以并行下载，不过当 js 下载完成之后不会立即执行，而是会等待解析完整个 HTML 之后在开始执行，而且多条 defer 标记的 js 会按照顺序执行。defer 脚本会在**DOMContentLoaded**和 load 事件之前执行。
+> 如果两个 script 之间没有依赖关系并且可以尽快执行的更加适合使用 async，反之如果两个 script 之间有依赖关系，或者希望优先解析 HTML，则 defer 更加适合。
+
+-   特殊情况：
+
+1. 网站现在有多个首屏图像，但它们并具有相同的优先级，比如在轮播图中只有第一张图需要更高的优先级。
+2. 将 `<script>` 声明为 async 或 defer 可以告诉浏览器异步加载它们。但是，根据我们上面的分析，这些 `<script>` 也被分配了 “低” 优先级。但是你可能希望在确保浏览器异步下载它们的同时提高它们的优先级，尤其是一些对用户体验至关重要脚本。
+3. 浏览器为 JavaScript fetch API 异步获取资源或数据分配了高优先级，但是某些场景下你可能不希望以高优先级请求所有资源。
+4. 浏览器为 CSS、Font 分配了同样的高优先级，但是并不是所有 CSS 和 Font 资源都是一样重要的，你可能需要更具体的指定它们的优先级。
+
+-   可行的解决方法**试验特性** —— Priority Hints：
+
+1. 可以使用一个 **importance** 属性来更细粒度的控制资源加载的优先级，包括 link、img、script 和 iframe 这些标签。
+    - high：你认为该资源具有高优先级，并希望浏览器对其进行优先级排序。
+    - low：你认为该资源的优先级较低，并希望浏览器降低其优先级。
+    - auto：采用浏览器的默认优先级。
+    - 例：`<link rel="preload" href="/js/script.js" as="script" importance="low">`
+2. 实际应用
+    - 提升 LCP 图像的优先级
+    - 降低首屏图片的优先级
+    - 降低预加载资源的优先级
+    - 改变脚本的优先级，配合 async/defer
+    - 降低不太关键的数据请求的优先级
+
+#### HTML - link 标签
+
+1. `<link rel="preload" href="style.css" as="style">`，as 属性可以指定预加载的类型，除了 style 还支持很多类型，常用的一般是 style 和 script，css 和 js。
+2. 使用 link 的 preload 属性预加载一个资源。
+3. prefetch 和 preload 差不多，prefetch 是一个低优先级的获取，通常用在这个资源可能会在用户接下来访问的页面中出现的时候。对当前页面的要用 preload，不要用 prefetch，可以用到的一个场景是在用户鼠标移入 a 标签时进行一个 prefetch。
+4. preconnect 和 dns-prefetch 做的事情类似，提前进行 TCP，SSL 握手，省去这一部分时间，基于 HTTP1.1(keep-alive)和 HTTP2(多路复用)的特性，都会在同一个 TCP 链接内完成接下来的传输任务。
+5. `<script src="" crossorigin="anonymous"></script>`，crossorigin 可以使用本属性来使那些将静态资源放在另外一个域名的站点打印错误信息。通过`window.onerror`捕获错误信息。
+
+#### 对 lodash 进行 tree-shaking
+
+Tree-shaking 指的是消除没被引用的模块代码，减少代码体积大小，以提高页面的性能，最初由 rollup 提出。
+
+webpack2 加入对 Tree-shaking 的支持，webpack4 中 Tree-shaking 默认开启，Tree-shaking 基于 ESModule 静态编译而成，所以如果想要生效，在写代码的时候注意不要用 CommonJS 的模块，同时也要注意不要让 babel 给编译成 CommonJS 的形式。
+
+对于一些第三方库来说为了兼容性考虑通常入口文件都是 CommonJS 的形式，这时想要成功抖掉不需要的部分通常有两种方式。
+
+lodash 默认是 CommonJS 的形式，使用常规的方法 `import { cloneDeep } from 'lodash';` 导入后，webpack 会把整个 lodash 打包进来，这对于只用到了一个函数的我们的来说显然不可接受，此时可以改写为：
+
+```js
+import cloneDeep from "lodash/cloneDeep";
+```
+
+或者如果提供了 ESModule 的版本也可以直接使用:
+
+```js
+import { cloneDeep } from 'lodash-es;
+```
+
+前者是精准导入不依赖 re-exports，后者则是一个正经的 Tree-shaking。
+
+webpack4+无需配置默认会压缩代码，如果你想亲自试试，Js 可选 `UglifyJS`，CSS 可选 `mini-css-extract-plugin`。
+
+使用动态 import()代替静态 import 做条件渲染的懒加载。其实具体到组件内部，也可以用同样的方式将一些基于判断条件的子组件/第三方库通过 import()的方式导入，这样 webpack 在打包时会单独将它列为一个块，当符合判断条件时才会尝试去加载这个文件。
+
+服务器端渲染出来的 HTML 部分最好不要超过 14kb，TCP 慢开始的规则让第一个 TCP 包的大小是 14kb，这是与网站交互会接受到的第一个包。

@@ -174,3 +174,41 @@ git push gitee master
 ```
 
 这样一来，本地库就可以同时与多个远程库互相同步
+
+### 不切换 Git 分支，却能同时在多个分支上工作
+
+正在开发某个 feature，老板突然跳出来说让你做生产上的 hotfix，面对这种情况，使用 Git 的我们通常有两种解决方案：
+
+1. 草草提交未完成的 feature，然后切换分支到 hotfix
+2. git stash | git stash pop 暂存工作内容，然后再切换到 hotfix
+3. git clone 多个 repo
+
+使用 git-worktree，仅需维护一个 repo，又可以同时在多个 branch 上工作，互不影响！！！
+
+常用的其实只有下面这四个命令：
+
+```bash
+# 添加一个worktree
+git worktree add [-f] [--detach] [--checkout] [--lock] [-b <new-branch>] <path> [<commit-ish>]
+# 列出当前的worktree，在任意一个worktree下都可用
+git worktree list [--porcelain]
+# 移除某些不需要的worktree
+git worktree remove [-f] <worktree>
+# 清洁的兜底操作，可以让我们的工作始终保持整洁
+git worktree prune [-n] [-v] [--expire <expire>]
+```
+
+普及两个你可能忽视的 Git 知识点：
+
+1. 默认情况下， git init 或 git clone 初始化的 repo，只有一个 worktree，叫做 main worktree;
+2. 在某一个目录下使用 Git 命令，当前目录下要么有 .git 文件夹；要么有 .git 文件，如果只有 .git 文件，里面的内容必须是指向 .git 文件夹的;
+
+eg.
+
+`git worktree add -b "hotfix/JIRA234-fix-naming" ../hotfix/JIRA234-fix-naming`.
+
+`git worktree list`.
+
+`git worktree remove hotfix/hotfix/JIRA234-fix-naming`.
+
+建议：通常使用 git worktree，我会统一目录结构，比如 feature 目录下存放所有 feature 的 worktree，hotfix 目录下存放所有 hotfix 的 worktree，这样整个磁盘目录结构不至于因为创建多个 worktree 而变得混乱。

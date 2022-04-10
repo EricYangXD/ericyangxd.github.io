@@ -118,6 +118,10 @@ module.exports = {
 						title: "算法数据结构基础",
 						path: "/handbook/LeetCode/Basic",
 					},
+					{
+						title: "双越前端面试100题",
+						path: "/handbook/LeetCode/Interview",
+					},
 				],
 			},
 			{
@@ -275,6 +279,10 @@ module.exports = {
 					{
 						title: "GeekTime 图解 Google V8",
 						path: "/handbook/Chrome/V8",
+					},
+					{
+						title: "在浏览器中输入URL后发生了什么",
+						path: "/handbook/Chrome/Url",
 					},
 				],
 			},

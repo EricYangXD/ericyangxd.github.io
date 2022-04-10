@@ -36,9 +36,13 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 
 ### 1. useState
 
-类似 this.setState，用于函数组件中。每当 state/props 发生修改时，该函数组件都会重新渲染/执行。
+-   类似 this.setState，用于函数组件中。每当 state/props 发生修改时，该函数组件都会重新渲染/执行。
 
-每次改变 state/props 造成函数组件重新渲染/执行，从而每次渲染函数中的 state/props 都是独立的，固定的，确定的 -- 只在这一次渲染过程中存在。
+-   每次改变 state/props 造成函数组件重新渲染/执行，从而每次渲染函数中的 state/props 都是独立的，固定的，确定的 -- 只在这一次渲染过程中存在。
+
+-   对于 setState 的更新机制，究竟是同步还是异步。也就是所谓是否是批量更新，可以把握这个原则：
+    1. 凡是 React 可以管控的地方，他就是异步批量更新。比如事件函数，生命周期函数中，组件内部同步代码。
+    2. 凡是 React 不能管控的地方，就是同步批量更新。比如 setTimeout，setInterval，源生 DOM 事件中，包括 Promise 中都是同步批量更新。
 
 ### 2. useEffect
 
@@ -46,9 +50,12 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 -   useEffect 的设计理念本身就比较推荐我们把依赖函数直接放在 useEffect 内部。
 
 -   对于无法移动到 useEffect 内部的函数：
-    -   尝试把函数移到组件外、
-    -   对于纯计算，可以在 effect 之外调用它，让 effect 依赖他的返回值、
-    -   万不得已时，将函数加入 effect 的依赖，并使用 useCallback 包裹该函数，确保他不随渲染而改变，除非函数的依赖发生变化。
+    1.  尝试把函数移到组件外、
+    2.  对于纯计算，可以在 effect 之外调用它，让 effect 依赖他的返回值、
+    3.  万不得已时，将函数加入 effect 的依赖，并使用 useCallback 包裹该函数，确保他不随渲染而改变，除非函数的依赖发生变化。
+-   useEffect VS useLayoutEffect：
+    1. 默认情况下，useEffect 将**在每轮渲染结束后异步执行**，不同于 class Component 中的 componentDidUpdate 和 componentDidMount 在渲染后同步执行，useEffect 不会阻塞浏览器的渲染。
+    2. useLayoutEffect 的作用几乎与 useEffect 一致，不同的是，useLayoutEffect 是**同步执行**的，与 componentDidUpdate 和 componentDidMount 执行机制一样，在 DOM 更新后，在浏览器渲染这些更改之前，立即执行。
 
 ### 3. useContext
 
@@ -81,10 +88,14 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 -   类似 useEffect，把“创建”函数和依赖项数组作为参数传入  useMemo，它仅会在某个依赖项改变时才重新计算 memoized 值。这种优化有助于避免在每次渲染时都进行高开销的计算。
 -   记住，传入  useMemo  的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于  useEffect  的适用范畴，而不是  useMemo。
 -   如果没有提供依赖项数组，useMemo  在每次渲染时都会计算新的值。
-
 -   总结一下，useMemo 帮我们缓存了某个值，比如组件中某个数组/对象需要通过大量计算得到,而这个值依赖于某一个 state,我们希望只在依赖的 state 改变之后计算而不是任意 state 改变之后都会计算,这无疑会造成性能上的问题。
-
 -   useMemo 可以缓存某个高开销的计算函数，React.memo 可以缓存一个不需要频繁渲染更新的组件
+
+简单理解： useCallback 与 useMemo 一个缓存的是函数，一个缓存的是函数的返回值。
+
+1. useCallback 是来优化子组件的，防止子组件的重复渲染。
+
+2. useMemo 可以优化当前组件也可以优化子组件，优化当前组件主要是通过 memoize 来将一些复杂计算逻辑的结果进行缓存。
 
 ### 6. useReducer
 

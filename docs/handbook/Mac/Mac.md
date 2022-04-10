@@ -169,3 +169,9 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 -   Mac: finder 右键 -> 连接服务器：IP:port
 -   Windows: Chrome 访问
+
+### 无法打开软件
+
+苹果 macOS Catalina 系统打开软件出现：无法打开“XXXX”，因为 Apple 无法检查其是否包含恶意软件。怎么解决?
+
+`sudo spctl --master-disable`

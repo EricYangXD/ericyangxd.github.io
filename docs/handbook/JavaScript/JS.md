@@ -286,12 +286,20 @@ console.log(getUUID("https://www.baidu.com/"));
 
 1. Array
 
+-   创建 Array
+
 ```js
 Array("1" + 1);
 // ['11']
 Array(1 + 1);
 // [empty × 2]
 ```
+
+-   搜索数组的四种方法
+
+1. 只需要知道值是否存在？这时可以使用 includes()。
+2. 需要获取元素本身？可以对单个项目使用 find()或对多个项目使用 filter()。
+3. 需要查找元素的索引？应该使用 indexOf()搜索原语或使用 findIndex()/lastIndexOf()搜索函数。
 
 ## 回车与换行
 
@@ -308,3 +316,20 @@ Array(1 + 1);
 一个直接后果是，Unix/Mac 系统下的文件在 Windows 里打开的话，所有文字会变成一行；而 Windows 里的文件在 Unix/Mac 下打开的话，在每行的结尾可能会多出一个^M 符号。
 
 `\n`是匹配一个换行符，`\r`是匹配一个回车符。`\0`表示匹配 NULL（U+0000）字符，空字符（Null character）又称结束符，缩写 NUL，是一个数值为 0 的控制字符。
+
+## React 源码中的位运算
+
+### 按位与（&）、或（|）、非（～）
+
+在 JS 中，位运算的操作数会先转换为 Int32（32 位有符号整型），执行完位运算会把 Int32 转换回对应浮点数。Int32 的最高位是符号位，不保存具体的数.
+
+1. 找出当前最高优先级的更新在哪一位，低位优先级高：
+
+```js
+// 由于Int32采用「补码」表示，所以-lanes可以看作如下两步操作：
+// 1. lanes取反（~lanes）
+// 2. 加1
+function getHighestPriorityLane(lanes) {
+	return lanes & -lanes;
+}
+```

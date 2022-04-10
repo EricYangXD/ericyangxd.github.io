@@ -75,6 +75,20 @@ type Readonly<T> = {
 };
 ```
 
+被 readonly 标记的属性只能在声明时或类的构造函数中赋值。readonly 只能用在类（TS 里也可以是接口）中的属性上，相当于一个只有 getter 没有 setter 的属性的语法糖。
+
+实现一个深度声明 readonly 的类型：
+
+```ts
+type DeepReadonly<T> = {
+	readonly [P in keyof T]: DeepReadonly<T[P]>;
+};
+
+const a = { foo: { bar: 22 } };
+const b = a as DeepReadonly<typeof a>;
+b.foo.bar = 33; // Cannot assign to 'bar' because it is a read-only property.ts(2540)
+```
+
 ### Record
 
 -   Construct a type with a set of properties K of type T，即将 K 中的每个属性([P in K]),都转为 T 类型。
@@ -320,10 +334,12 @@ An interface can have multiple merged declarations, but a type alias for an obje
 
 **能用 interface 实现，就用 interface， 如果不能才用 type。**
 
-| type                                               | interface                             |
+| type 类型别名                                      | interface 接口                        |
 | -------------------------------------------------- | ------------------------------------- |
 | 只能通过 & 进行合并/扩展，也可以叫做 交叉类型      | 同名自动合并，通过 extends 扩展/继承  |
 | 更强大，除了以上的类型，还可以支持 string，数组... | 自身只能表达 object/class/function 等 |
+
+接口和类型别名不是互斥的。接口可以扩展类型别名 `extends`，反之亦然 `&`。
 
 1. type 可以做到，但 interface 不能做到的事情
 
@@ -335,6 +351,18 @@ An interface can have multiple merged declarations, but a type alias for an obje
 2. interface 可以做到，但是 type 不可以做到的事情
 
 -   interface 可以 声明合并，即两个同名的 interface 会自动合并成二者的并集，而对于 type 的话，就会是 覆盖 的效果，始终只有最后一个 type 生效
+
+3. 查找类型 + 泛型 + keyof
+
+```ts
+interface API {
+	"/user": { name: string };
+	"/menu": { foods: string[] };
+}
+const get = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
+	return fetch(url).then((res) => res.json());
+};
+```
 
 ## TypeScript 编译器是如何工作的？
 
@@ -406,6 +434,21 @@ declare var HTMLElement: {
 	prototype: HTMLElement;
 	new (): HTMLElement;
 };
+```
+
+-   显式泛型
+
+```ts
+function $<T extends HTMLElement>(id: string): T {
+	return document.getElementById(id) as T;
+}
+
+// 不确定 input 的类型
+// const input = $('input');
+
+// Tell me what element it is.
+const input = $<HTMLInputElement>("input");
+console.log("input.value: ", input.value);
 ```
 
 ### React.FC

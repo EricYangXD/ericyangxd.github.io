@@ -721,3 +721,220 @@ background-clip: padding-box; // 使用paddingbox
 -   nth-of-type
 
 按照类型来计算，如果是 class 那么碰到不同类型的，单独一类，符合条件的选中。
+
+## Tips
+
+### 设置阴影
+
+当使用透明图像时，可以使用 `filter: drop-shadow()` 函数在图像上创建阴影，而不是使用 `box-shadow` 属性在元素的整个框后面创建矩形阴影.
+
+```css
+.drop-shadow {
+	filter: drop-shadow(2px 4px 8px #585858);
+}
+```
+
+### 平滑滚动
+
+无需 JavaScript 即可实现平滑滚动，只需一行 CSS：`scroll-behavior: smooth；`.
+
+### 自定义光标
+
+在某个 DOM 元素上可以使用自定义图像，甚至表情符号来作为光标。
+
+```css
+.tile-image-cursor {
+	background-color: #1da1f2;
+	cursor: url(https://picsum.photos/20/20), auto;
+}
+.tile-emoji-cursor {
+	background-color: #4267b2;
+	cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>🚀</text></svg>"),
+		auto;
+}
+```
+
+### 截断文本
+
+一行文本溢出隐藏：
+
+```css
+div {
+	width: 200px;
+	background-color: #fff;
+	padding: 15px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+```
+
+还可以使用“-webkit-line-clamp”属性将文本截断为特定的行数。文本将在截断的地方会显示省略号：
+
+```css
+div {
+	width: 200px;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+}
+```
+
+### 自定义选中样式
+
+CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样式。
+
+```css
+.custom-highlighting::selection {
+	background-color: #8e44ad;
+	color: #fff;
+}
+```
+
+### CSS 模态框
+
+使用 CSS 中的 :target 伪元素来创建一个模态框。
+
+### 空元素样式
+
+可以使用 :empty 选择器来设置完全没有子元素或文本的元素的样式：
+
+```css
+.box {
+	display: inline-block;
+	background: #999;
+	border: 1px solid #585858;
+	height: 200px;
+	width: 200px;
+	margin-right: 15px;
+}
+
+.box:empty {
+	background: #fff;
+}
+```
+
+### 创建自定义滚动条
+
+滚动的条件：父容器设置了`height`和`overflow!=visiable`，子元素高度要超过父容器。
+
+```css
+.tile-custom-scrollbar::-webkit-scrollbar {
+	width: 12px;
+	background-color: #eff1f5;
+}
+
+.tile-custom-scrollbar::-webkit-scrollbar-track {
+	border-radius: 3px;
+	background-color: transparent;
+}
+
+.tile-custom-scrollbar::-webkit-scrollbar-thumb {
+	border-radius: 5px;
+	background-color: #515769;
+	border: 2px solid #eff1f5;
+}
+```
+
+### 动态工具提示 tooltip
+
+可以使用 CSS 函数 attr() 来创建动态的纯 CSS 工具提示 。
+
+```html
+<h1>HTML/CSS tooltip</h1>
+<p>
+	Hover <span class="tooltip" data-tooltip="Tooltip Content">Here</span> to
+	see the tooltip.
+</p>
+<p>
+	You can also hover
+	<span class="tooltip" data-tooltip="This is another Tooltip Content"
+		>here</span
+	>
+	to see another example.
+</p>
+```
+
+```css
+.tooltip {
+	position: relative;
+	border-bottom: 1px dotted black;
+}
+
+.tooltip:before {
+	content: attr(data-tooltip);
+	position: absolute;
+	width: 100px;
+	background-color: #062b45;
+	color: #fff;
+	text-align: center;
+	padding: 10px;
+	line-height: 1.2;
+	border-radius: 6px;
+	z-index: 1;
+	opacity: 0;
+	transition: opacity 0.6s;
+	bottom: 125%;
+	left: 50%;
+	margin-left: -60px;
+	font-size: 0.75em;
+	visibility: hidden;
+}
+
+.tooltip:after {
+	content: "";
+	position: absolute;
+	bottom: 75%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	opacity: 0;
+	transition: opacity 0.6s;
+	border-color: #062b45 transparent transparent transparent;
+	visibility: hidden;
+}
+
+.tooltip:hover:before,
+.tooltip:hover:after {
+	opacity: 1;
+	visibility: visible;
+}
+```
+
+### 圆形渐变边框
+
+```html
+<div class="box gradient-border">炫酷渐变边框</div>
+```
+
+```css
+.gradient-border {
+	border: solid 5px transparent;
+	border-radius: 10px;
+	background-image: linear-gradient(white, white), linear-gradient(315deg, #833ab4, #fd1d1d
+				50%, #fcb045);
+	background-origin: border-box;
+	background-clip: content-box, border-box;
+}
+
+.box {
+	width: 350px;
+	height: 100px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 100px auto;
+}
+```
+
+### 灰度图片
+
+可以使用 `filter: grayscale()` 过滤器功能将输入图像转换为灰度。
+
+```css
+.gray {
+	filter: grayscale(100%);
+}
+```
