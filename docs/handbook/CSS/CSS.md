@@ -205,17 +205,48 @@ html * {
     -   前两个值和只有两个值时的用法相同。
     -   第三个值必须是`<length>`。它始终代表 Z 轴偏移量。
 
-## 修改图片「颜色」
+## 修改图片「颜色」-- drop-shadow
 
 -   背景色变化时突出图片，或者修改某个 icon 的背景色以实现变色（UI 垃圾！）。
+-   drop-shadow 可用于 png 图片变色。
 
 ```css
 img {
 	width: 16px;
 	height: 16px;
 	margin: 0 0 4px 8px;
-	filter: drop-shadow(0px 0px red);
+	filter: drop-shadow(0px 0px red); # x,y,color
 }
+```
+
+-   通过 img 引入的 svg 如何改颜色?例如：`<img src="img/success.svg">`。
+
+1. 通过 drop-shadow，把原始的 img 移到窗口/移出视线之外
+
+```css
+img {
+	position: relative;
+	left: -8000px;
+	filter: drop-shadow(8000px 0px red);
+}
+```
+
+2. 通过插件 `svg-inject`，`npm install @iconfu/svg-inject`
+
+```html
+<html>
+	<head>
+		<script src="svg-inject.min.js"></script>
+		<style>
+			.svg-img g {
+				fill: blue;
+			}
+		</style>
+	</head>
+	<body>
+		<img class="svg-img" src="image1.svg" onload="SVGInject(this)" />
+	</body>
+</html>
 ```
 
 ## font
@@ -939,7 +970,7 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 }
 ```
 
-### 打印分页
+### 打印分页时，换页处样式
 
 ```css
 @media print {
@@ -948,3 +979,11 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 	}
 }
 ```
+
+### 数字等宽
+
+比如：1 和 9 宽度是不一样的。
+
+-   font-variant-numeric: CSS 属性控制数字，分数和序号标记的替代字形的使用；
+-   tabular-nums: 启用表格数字显示。使数字等宽，易于像表格那样对齐。等同于 OpenType 特性 tnum。
+-   也可以通过 font-feature-settings: "tnum";来实现相同的功能，兼容性更好。

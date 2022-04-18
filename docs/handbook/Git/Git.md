@@ -36,11 +36,26 @@ reset 之后再提交代码时需要强制提交-f
 
 ### git tag
 
-常用于上线之前对当前的 commit 记录打一个 tag，方便上线的代码有问题时可以及时回滚
+Git 中的标签分为两种，一种是轻量标签（lightweight tag），一种是附注标签（annotated tag）。
 
-1. git tag 列出所有的 tag 列表
-2. git tag [tagname] 创建一个新 tag
-3. git show [tagname] 查看对应 tag 的 commit 信息
+tag 对应某次 commit， 是一个点，是不可移动的。branch 对应一系列 commit，是很多点连成的一根线，有一个 HEAD 指针，是可以依靠 HEAD 指针移动的。所以，两者的区别决定了使用方式，改动代码用 branch，不改动只查看用 tag。常用于上线之前对当前的 commit 记录打一个 tag，方便上线的代码有问题时可以及时回滚。
+
+需要特别说明的是，如果我们想要修改 tag 检出代码分支，那么虽然分支中的代码改变了，但是 tag 标记的 commit 还是同一个，标记的代码是不会变的。
+
+1. `git tag <lightweght_name>`：为当前分支所在的提交记录打上轻量标签。
+2. `git tag <lightweght_name> <commit SHA-1 value>`：为某次具体的提交记录打上轻量标签。
+3. `git tag -a <anotated_name> -m <tag_message>`：为当前分支所在的提交记录打上附注标签。
+4. `git tag`或`git tag -l`：列出所有的标签名。
+5. `git ls-remote --tags origin`：查看远程所有 tag。
+6. `git tag -d <tag_name>`：删除某个标签，本质上就是移除 `.git/refs/tags/` 中对应的文件。
+7. `git show <tag_name>`：显示标签对应提交记录的具体信息。
+8. `git push <remote> <tag_name>`：推送某个标签到远程仓库。
+9. `git push <remote> --tags`：推送所有标签到远程仓库。
+10. `git tag -d <tagName>`：本地 tag 的删除。
+11. `git push <remote> --delete <tag_name>`：删除远程仓库中的某个标签。
+12. `git push <remote> :refs/tags/<tagname>`：删除远程仓库某个标签的等价方式，相当于将冒号前面的空值推送到远程标签名，从而高效地删除它。
+13. `git checkout -b <branchName> <tagName>`：检出标签，因为 tag 本身指向的就是一个 commit，所以和根据 commit id 检出分支是一个道理。
+14. ``：。
 
 示例：
 
@@ -212,3 +227,11 @@ eg.
 `git worktree remove hotfix/hotfix/JIRA234-fix-naming`.
 
 建议：通常使用 git worktree，我会统一目录结构，比如 feature 目录下存放所有 feature 的 worktree，hotfix 目录下存放所有 hotfix 的 worktree，这样整个磁盘目录结构不至于因为创建多个 worktree 而变得混乱。
+
+### git 命令设置别名
+
+1. git config --global alias.ps push - 把 push 设为 ps；
+2. 手动编辑全局配置文件：
+    - `nano ~/.gitconfig`
+    - 写入对应的别名对，例：`co = checkout pl = pull`等并保存退出，
+    - 执行`source ~/.gitconfig`使改动生效

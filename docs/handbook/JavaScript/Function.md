@@ -119,6 +119,8 @@ function corsEnabled(url) {
 
 ## 数组乱序 Fisher–Yates
 
+原理：遍历数组元素，吧当前元素与之后的随机位置的元素交换位置。
+
 缺陷：理论上会有可能 shuffle 结果和原数组相同的情况。
 
 ```js
@@ -482,4 +484,172 @@ const fetchHR = (url: string) => {
 	};
 	xhr.send();
 };
+```
+
+### 尾递归优化
+
+核心是把递归变成 while 循环，这样就不会产生堆栈。
+
+JS 目前还没有做到自动尾递归优化，但可以通过自定义函数 TCO 模拟实现，下面放出这个函数的实现：
+
+```js
+function tco(f) {
+	var value;
+	var active = false;
+	var accumulated = [];
+	return function accumulator(...rest) {
+		accumulated.push(rest);
+		if (!active) {
+			active = true;
+			while (accumulated.length) {
+				value = f.apply(this, accumulated.shift());
+			}
+			active = false;
+			return value;
+		}
+	};
+}
+```
+
+### 类型判断的通用方法
+
+```js
+function getType(obj) {
+	return Object.prototype.toString
+		.call(obj)
+		.replaceAll(new RegExp(/\[|\]|object /g), "");
+}
+```
+
+## 深浅拷贝
+
+### 浅拷贝
+
+1. 数组浅拷贝：Array.from()/Object.assign()/...扩展运算符/arr.slice()/arr.concat()/等；
+2. 数组「深」拷贝：JSON.parse(JSON.stringify(arr));不能拷贝函数。
+3. 自己实现浅拷贝：
+
+```js
+// 需要判断obj是数组还是对象
+let newObj = {};
+for (let key in obj) {
+	if (obj.hasOwnProperty(key)) {
+		newObj[key] = obj[key];
+	}
+}
+```
+
+4. 手动实现深拷贝：
+
+```js
+// 极简版
+function deepClone(obj) {
+	if (typeof obj !== "object" && !obj) return;
+	const newObj = obj instanceof Array ? [] : {};
+	for (let key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			newObj[key] =
+				typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key];
+		}
+	}
+	return newObj;
+}
+
+// 完整版
+// 判断类型的方法移到外部，避免递归过程中多次执行
+const judgeType = (origin) => {
+	return Object.prototype.toString
+		.call(origin)
+		.replaceAll(new RegExp(/\[|\]|object /g), "");
+};
+const reference = [
+	"Set",
+	"WeakSet",
+	"Map",
+	"WeakMap",
+	"RegExp",
+	"Date",
+	"Error",
+];
+
+// Object.getOwnPropertyDescriptors(obj)方法用来获取一个对象的所有自身属性的描述符。
+// Object.getOwnPropertyDescriptor(obj, propertyName)方法用来获取一个对象的某个自身属性的描述符。eg. {value: 'zangtai', writable: false, enumerable: false, configurable: false}
+// 返回所指定对象的所有自身属性的描述符，如果没有任何自身属性，则返回空对象。
+function deepClone(obj) {
+	// 定义新的对象，最后返回
+	//通过 obj 的原型创建对象
+	const cloneObj = Object.create(
+		Object.getPrototypeOf(obj),
+		Object.getOwnPropertyDescriptors(obj)
+	);
+
+	// 遍历对象，克隆属性
+	for (let key of Reflect.ownKeys(obj)) {
+		const val = obj[key];
+		const type = judgeType(val);
+		if (reference.includes(type)) {
+			newObj[key] = new val.constructor(val);
+		} else if (typeof val === "object" && val !== null) {
+			// 递归克隆
+			newObj[key] = deepClone(val);
+		} else {
+			// 基本数据类型和function
+			newObj[key] = val;
+		}
+	}
+	return newObj;
+}
+
+// 清晰版
+function deepClone(obj) {
+	let res = null;
+	const reference = [Date, RegExp, Set, WeakSet, Map, WeakMap, Error];
+	if (reference.includes(obj?.constructor)) {
+		res = new obj.constructor(obj);
+	} else if (Array.isArray(obj)) {
+		res = [];
+		obj.forEach((e, i) => {
+			res[i] = deepClone(e);
+		});
+	} else if (typeof obj === "object" && obj !== null) {
+		res = {};
+		for (const key in obj) {
+			if (Object.hasOwnProperty.call(obj, key)) {
+				res[key] = deepClone(obj[key]);
+			}
+		}
+	} else {
+		res = obj;
+	}
+	return res;
+}
+
+// 缓存版
+function deepClone(obj, hash = new WeakMap()) {
+	if (hash.has(obj)) {
+		return obj;
+	}
+	let res = null;
+	const reference = [Date, RegExp, Set, WeakSet, Map, WeakMap, Error];
+
+	if (reference.includes(obj?.constructor)) {
+		res = new obj.constructor(obj);
+	} else if (Array.isArray(obj)) {
+		res = [];
+		obj.forEach((e, i) => {
+			res[i] = deepClone(e);
+		});
+	} else if (typeof obj === "object" && obj !== null) {
+		res = {};
+		for (const key in obj) {
+			if (Object.hasOwnProperty.call(obj, key)) {
+				res[key] = deepClone(obj[key]);
+			}
+		}
+		hash.set(obj, res);
+	} else {
+		res = obj;
+	}
+	return res;
+}
 ```

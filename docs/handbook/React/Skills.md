@@ -14,6 +14,7 @@ date: "2021-12-29"
 
 -   参考[这里 webpack](https://github.com/EricYangXD/LearnReact)
 -   参考[这里 vite](https://github.com/EricYangXD/vite-pro)
+-   修改默认启动端口：`"start": "cross-env PORT=8090 react-scripts start",`
 
 ## key
 
@@ -768,4 +769,3 @@ React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和�
 	dangerouslySetInnerHTML={{ __html: formatedHtml }}
 />
 ```
-

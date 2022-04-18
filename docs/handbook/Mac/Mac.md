@@ -175,3 +175,7 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 苹果 macOS Catalina 系统打开软件出现：无法打开“XXXX”，因为 Apple 无法检查其是否包含恶意软件。怎么解决?
 
 `sudo spctl --master-disable`
+
+### m1 MacBook 安装 adb
+
+`brew install android-platform-tools`

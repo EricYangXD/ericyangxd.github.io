@@ -367,3 +367,19 @@ function asyncPool(poolLimit, array, iteratorFn) {
 	return enqueue().then(() => Promise.all(ret));
 }
 ```
+
+## 宏任务与微任务
+
+JS 引擎为了让 microtask 尽快的输出，做了一些优化，连续的多个 then（3 个）如果没有 reject 或者 resolve 会交替执行 then 而不至于让 1 个 promise 阻塞太久完成，导致用户的不到响应。不单单 V8 这样，其它引擎也是如此，此时 promise 内部状态实际已经执行结束了。
+
+UI 触发的 click 事件是异步的，每个 listener 是一个 macrotask；代码触发的 click 底层是 dispatchEvent，这是一个同步的方法，会同步执行所有 listener.
+
+当 V8 执行完调用要返回 Blink 时，由于 MicrotasksScope 作用域失效，在其析构函数中检查 JS 调用栈是否为空，如果为空就会运行 Microtasks。
+
+不是 Macrotasks（宏任务）执行完才会执行 Microtasks!
+
+所有使用 V8 引擎的应用 Microtasks 的运行时机并不都是一样的：
+
+1. explicit 模式下，由应用自己主动调用才会运行 Microtasks。目前 Node 是使用了这种策略。
+2. scoped 模式下，由 MicrotasksScope 控制，但作用域失效时，在其析构函数中运行 Microtasks。目前 Blink 是使用这种策略。
+3. auto 模式为 V8 的默认值，当调用栈为空的时候就会执行 Microtasks。
