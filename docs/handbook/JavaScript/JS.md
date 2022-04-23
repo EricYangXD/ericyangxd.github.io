@@ -282,25 +282,6 @@ function getUUID(domain) {
 console.log(getUUID("https://www.baidu.com/"));
 ```
 
-### JS APIs
-
-1. Array
-
--   创建 Array
-
-```js
-Array("1" + 1);
-// ['11']
-Array(1 + 1);
-// [empty × 2]
-```
-
--   搜索数组的四种方法
-
-1. 只需要知道值是否存在？这时可以使用 includes()。
-2. 需要获取元素本身？可以对单个项目使用 find()或对多个项目使用 filter()。
-3. 需要查找元素的索引？应该使用 indexOf() 搜索原语或使用 findIndex() / lastIndexOf()搜索函数。
-
 ## 回车与换行
 
 电传打字机：

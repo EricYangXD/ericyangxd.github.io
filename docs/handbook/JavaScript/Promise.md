@@ -383,3 +383,117 @@ UI 触发的 click 事件是异步的，每个 listener 是一个 macrotask；�
 1. explicit 模式下，由应用自己主动调用才会运行 Microtasks。目前 Node 是使用了这种策略。
 2. scoped 模式下，由 MicrotasksScope 控制，但作用域失效时，在其析构函数中运行 Microtasks。目前 Blink 是使用这种策略。
 3. auto 模式为 V8 的默认值，当调用栈为空的时候就会执行 Microtasks。
+
+### nodejs 中宏任务的优先级
+
+从高到低：
+
+1. timers: 执行 setTimeout，setInterval 的回调;
+2. I/O pending callbacks: 处理网络、流、TCP 的错误回调，执行由上一个 tick 延迟下来的 I/O 回调;
+3. idle, prepare: 闲置状态 -- nodejs 内部调用，可以忽略;
+4. poll 轮询: 执行 poll 中的 I/O 队列，执行除 close callbacks 之外的几乎所有回调，incoming、connections、data、etc.;
+5. check 检查存储: 执行 setImmediate 回调;
+6. close callbacks: 关闭回调，如`socket.on('close',...)`;
+
+每一步（1-5）执行完了之后，都会执行所有 next tick queue 以及 microtask queue 的回调。
+
+### nodejs 中的 event loop
+
+1. 先执行同步代码；
+2. 执行微任务：process.nextTick 优先级最高；
+3. 按顺序执行 6 个类型的宏任务，每个任务开始之前都要先执行当前的微任务；
+
+### nodejs 开启「多进程」
+
+1. 进程 process，线程 thread
+2. 进程，OS 进行资源分配和调度的最小单位，有独立内存空间
+3. 线程，OS 进行运算调度的最小单位，共享进程内存空间
+4. JS 是单线程的，但可以开启多进程执行，如 WebWorkers
+
+-   process-child.fork 方式开启多进程
+
+```js
+// process-fork.js
+const http = require("http");
+const fork = require("child_process").fork;
+
+const server = http.createServer((req, res) => {
+	if (req.url === "/xxx") {
+		console.log(process.pid);
+
+		// 开启子进程
+		const computeProcess = fork("./compute.js");
+		computeProcess.send("start");
+		computeProcess.on("message", (data) => {
+			console.log(data);
+			res.end("compute = " + data);
+		});
+		computeProcess.on("close", () => {
+			console.log("close");
+			computeProcess.kill();
+			res.end("error");
+		});
+		// res.end(
+		// 	JSON.stringify({
+		// 		code: 1,
+		// 		data: { msg: "hello" },
+		// 		message: "success",
+		// 		success: true,
+		// 	})
+		// );
+	}
+});
+
+server.listen(3000, () => {
+	console.log("listen 3000");
+});
+
+// compute.js
+function compute() {
+	// ...
+}
+
+process.on("message", (data) => {
+	console.log(process.pid);
+	console.log(data);
+
+	const res = compute();
+	// 发送消息给主进程
+	process.send(sum);
+});
+```
+
+-   cluster.fork 方式开启多进程
+
+```js
+// cluster.js
+const http = require("http");
+const cluster = require("cluster");
+// CPU核数
+const cpuCoreLength = require("os").cpus().length;
+
+if (cluster.isMaster) {
+	for (let i = 0; i < cpuCoreLength; i++) {
+		cluster.fork(); // 开启子进程
+	}
+	cluster.on("exit", (worker) => {
+		console.log("子进程exit");
+		cluster.fork(); // 进程守护，工作中使用pm2
+	});
+} else {
+	const server = http.createServer((req, res) => {
+		res.writeHead(200);
+		res.end("done");
+	});
+	// 多个子进程会共享一个TCP链接，提供一份网络服务
+	server.listen(3000);
+}
+```
+
+### requestAnimationFrame 和 requestIdleCallback
+
+都是宏任务！
+
+1. requestAnimationFrame：每次渲染完都会执行，高优先级
+2. requestIdleCallback：浏览器空闲的时候才执行，执行时间最长不超过某个阈值，以免影响后续渲染啥的，低优先级
+3. 优先级：setTimeout > requestAnimationFrame > requestIdleCallback

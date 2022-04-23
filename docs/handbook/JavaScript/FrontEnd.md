@@ -1252,16 +1252,48 @@ const debounceFetcher = React.useMemo(() => {
 
 ### 同源
 
-同源：same-origin: 何为同源：url 是由协议、域名、端口和路径组成 如果两个路径的协议、域名、端口都相同则表示在同一个域上，即同源;在浏览器上 `<script>、<img>、<link>、<iframe>`等标签都可以加载跨域资源 且不受同源策略限制。
+同源：same-origin: 何为同源：url 是由协议、域名、端口和路径组成 如果两个路径的协议、域名、端口都相同则表示在同一个域上，即同源；在浏览器上 `<script>、<img>、<link>、<iframe>`等标签都可以加载跨域资源 且不受同源策略限制。
 
 ### 跨域
 
 1. JSONP: 通过 javascript callback 的形式实现跨域访问，服务器收到请求后，将数据放在一个指定名字的回调函数里传回来;
 2. postMessage / Channel Messaging API;
-3. window.name: window.name+iframe 需要目标服务器响应 window.name，window 对象有一个 name 属性，该属性有个特征：即在一个窗口（window）的生命周期内，窗口载入的所有的页面都是共享一个 window.name 的，每个页面对 window. name 都有读写的权利，window.name 是持久存在一个窗口载入过的所有页面中的;
+3. window.name: window.name + iframe 需要目标服务器响应 window.name，window 对象有一个 name 属性，该属性有个特征：即在一个窗口（window）的生命周期内，窗口载入的所有的页面都是共享一个 window.name 的，每个页面对 window. name 都有读写的权利，window.name 是持久存在一个窗口载入过的所有页面中的;
 4. document.domain: 当两个页面的 document.domain 都设置为 ericyangxd.top 也就是同一个二级域名的时候，浏览器就将两个来源视为同源。这时候主页面就可以和 iframe/子页面 进行通信了。**Chrome 决定在 101 版本禁用掉它**。解决办法：给你的网页增加下面这个 Header 就可以了:`Origin-Agent-Cluster: ?0`.
-5. CORS: Nginx 设置 header: Access-Control-Allow-Origin:\*;
+5. CORS: Nginx 设置 header: `Access-Control-Allow-Origin: *`;
 6. websocket: 单独的持久连接上提供全双工、双向通信;
+
+### 跨域请求服务端有没有收到，收到的话是否执行，执行的话是否有返回，返回的 response 在哪里
+
+1. 简单请求：不管是否跨域，只要发出去了，一定会到达服务端并被执行，浏览器只会隐藏返回值
+2. 复杂请求：先发预检，预检不会真正执行业务逻辑，预检通过后才会发送真正请求并在服务端被执行
+
+在发送真正的请求之前，浏览器会先发送一个 Preflight 请求，也就是我们常说的预检请求，它的方法为 OPTIONS。当预检请求到达服务端时，服务端是不会真正执行这个请求的逻辑的，只会在这个请求上返回一些 HTTP Header，以此来告诉客户端是不是要发送真正的请求。
+
+**一旦浏览器把请求判定为 简单请求，浏览器就不会发送预检了。**
+
+浏览器判定请求是否为简单请求要同时满足以下四个条件：
+
+1. 使用下列方法之一：
+
+-   GET
+-   HEAD
+-   POST
+
+2. 只使用了如下的安全 Header，不得人为设置其他 Header
+
+-   text/plain
+-   multipart/form-data
+-   application/x-www-form-urlencoded
+-   Content-Type 的值仅限于下列三者之一：
+    -   Accept
+    -   Accept-Language
+    -   Content-Language
+
+3. 请求中的任意 XMLHttpRequest 对象均没有注册任何事件监听器；XMLHttpRequest 对象可以使用 XMLHttpRequest.upload 属性访问。
+4. 请求中没有使用 ReadableStream 对象。
+
+**所以，如果你发送的是一个简单请求，这个请求不管是不是会受到跨域的限制，只要发出去了，一定会在服务端被执行，浏览器只是隐藏了返回值而已。**
 
 ### Vue 跨域配置
 
@@ -1631,3 +1663,393 @@ webpack4+无需配置默认会压缩代码，如果你想亲自试试，Js 可�
 使用动态 import()代替静态 import 做条件渲染的懒加载。其实具体到组件内部，也可以用同样的方式将一些基于判断条件的子组件/第三方库通过 import()的方式导入，这样 webpack 在打包时会单独将它列为一个块，当符合判断条件时才会尝试去加载这个文件。
 
 服务器端渲染出来的 HTML 部分最好不要超过 14kb，TCP 慢开始的规则让第一个 TCP 包的大小是 14kb，这是与网站交互会接受到的第一个包。
+
+## 页面间通信
+
+-   url 传参
+-   postmessage
+-   localStorage
+-   WebSocket
+-   SharedWorker
+-   Service Worker
+
+### url 传参
+
+0. A 页面通过 url 传递参数与 B 页面通信，同样通过监听 hashchange 事件，在页面 B 关闭时与 A 通信。
+1. `let windowObjectReference = window.open(strUrl, strWindowName, [strWindowFeatures]);`
+
+-   strUrl === 要在新打开的窗口中加载的 URL。
+-   strWindowName === 新窗口的名称。
+-   strWindowFeatures === 一个可选参数，列出新窗口的特征(大小，位置，滚动条等)作为一个 DOMString。-- menubar, location, resizable, scrollbars, status...
+-   返回值 WindowObjectReference：打开的新窗口对象的引用。如果调用失败，返回值会是 null 。如果父子窗口满足“同源策略”，你可以通过这个引用访问新窗口的属性或方法。
+
+2. 监听方法
+
+```js
+// A.html
+window.addEventListener(
+	"hashchange",
+	function () {
+		// 监听 hash
+		alert(window.location.hash);
+	},
+	false
+);
+// B.html
+window.onbeforeunload = function (e) {
+	window.open("A.html#close", "A");
+	return "确定离开此页吗？";
+};
+```
+
+3. B 页面正常关闭，如何通知 A 页面：页面正常关闭时，会先执行 window.onbeforeunload ，然后执行 window.onunload ，我们可以在这两个方法里向 A 页面通信。
+
+### postMessage
+
+postMessage 是 h5 引入的 API，postMessage() 方法允许来自不同源的脚本采用异步方式进行有效的通信，可以实现跨文本文档、多窗口、跨域消息传递，可在多用于窗口间数据通信，这也使它成为跨域通信的一种有效的解决方案。
+
+```js
+// A.html
+window.name = "A";
+function openB() {
+	window.open("B.html?code=123", "B");
+}
+window.addEventListener("message", receiveMessage, false);
+function receiveMessage(event) {
+	console.log("收到消息：", event.data);
+}
+// B.html
+window.name = "B";
+function sendA() {
+	let targetWindow = window.opener;
+	targetWindow.postMessage("Hello A", "http://localhost:3000");
+}
+```
+
+### localStorage
+
+localStorage 仅允许你访问一个 Document 源（origin）的对象 Storage；存储的数据将保存在浏览器会话中。如果 A 打开的 B 页面和 A 是不同源，则无法访问同一 Storage。
+
+可以通过挂载 iframe 给 localStorage 扩容。
+
+### WebSocket
+
+基于服务端的页面通信方式，服务器可以主动向客户端推送信息，客户端也可以主动向服务器发送信息，是真正的双向平等对话，属于服务器推送技术的一种。
+
+<!-- TODO -->
+
+```js
+// A.html
+
+// B.html
+```
+
+### SharedWorker
+
+SharedWorker 接口代表一种特定类型的 worker，可以从几个浏览上下文中访问，例如几个窗口、iframe 或其他 worker。它们实现一个不同于普通 worker 的接口，具有不同的全局作用域， SharedWorkerGlobalScope 。
+
+```js
+// A.html
+var sharedworker = new SharedWorker("worker.js");
+sharedworker.port.start();
+sharedworker.port.onmessage = (evt) => {
+	// evt.data
+	console.log(evt.data); // hello A
+};
+
+// B.html
+var sharedworker = new SharedWorker("worker.js");
+sharedworker.port.start();
+sharedworker.port.postMessage("hello A");
+
+// worker.js
+const ports = [];
+onconnect = (e) => {
+	const port = e.ports[0];
+	ports.push(port);
+	port.onmessage = (evt) => {
+		ports
+			.filter((v) => v !== port) // 此处为了贴近其他方案的实现，剔除自己
+			.forEach((p) => p.postMessage(evt.data));
+	};
+};
+```
+
+### Service Worker
+
+基于 web worker（一个独立于 JavaScript 主线程的独立线程，在里面执行需要消耗大量资源的操作时不会堵塞主线程）。
+
+Service Worker 是一个可以长期运行在后台的 Worker 线程，充当一个服务，能够实现与页面的双向通信。最常见用途就是**拦截和处理网络请求、计算、数据离线缓存**。
+
+多页面共享间的 Service Worker 可以共享，将 Service Worker 作为消息的处理中心（中央站）即可实现广播效果。
+
+Service Worker 可以修改用户的请求，或者直接向用户发出回应，不用联系服务器，这使得用户可以在离线情况下使用网络应用。它还可以在本地缓存资源文件，直接从缓存加载文件，因此可以加快访问速度。
+
+Service Worker 不能直接操作 DOM。可以访问 cache 和 indexDB。支持推送，并且可以让开发者自己控制管理缓存的内容以及版本。
+
+它设计为完全异步，同步 API（如 XHR 和 localStorage）不能在 service worker 中使用。
+
+出于安全考量，Service workers 只能由 HTTPS 承载。
+
+在 Firefox 浏览器的用户隐私模式，Service Worker 不可用。
+
+其生命周期与页面无关（关联页面未关闭时，它也可以退出，没有关联页面时，它也可以启动）。
+
+为了节省内存，Service worker 在不使用的时候是休眠的。它也不会保存数据，所以重新启动的时候，为了拿到数据，最好把数据放在 IndexedDb 里面。
+
+```js
+// 注册：service worker 不支持跨域脚本。另外，sw.js必须是从 HTTPS 协议加载的。
+navigator.serviceWorker
+	// scope 参数是可选的，可以用来指定你想让 service worker 控制的内容的子目录。在这个例子里，我们指定了 '/'，表示 根网域下的所有内容。这也是默认值。
+	.register("./sw.js", { scope: "./" })
+	.then(function () {
+		console.log("Service Worker 注册成功");
+	});
+
+// sw.js 负责做信息中转站
+// 安装
+/* 监听安装事件，install 事件一般是被用来设置你的浏览器的离线缓存逻辑 */
+this.addEventListener("install", function (event) {
+	/* 通过这个方法可以防止缓存未完成，就关闭serviceWorker */
+	event.waitUntil(
+		/* 创建一个名叫V1的缓存版本 */
+		caches.open("v1").then(function (cache) {
+			/* 指定要缓存的内容，地址为相对于根域名的访问路径 */
+			return cache.addAll(["./index.html"]);
+		})
+	);
+});
+
+/* 注册fetch事件，拦截全站的请求 */
+this.addEventListener("fetch", function (event) {
+	event.respondWith(
+		// magic goes here
+
+		/* 在缓存中匹配对应请求资源直接返回 */
+		caches.match(event.request);
+	);
+});
+
+// 激活
+self.addEventListener("activate", (event) => {
+	event.waitUntil(
+		self.clients.matchAll().then((client) => {
+			client.postMessage({
+				msg: "Hey, from service worker! I'm listening to your fetch requests.",
+				source: "service-worker",
+			});
+		})
+	);
+});
+
+// A.html
+navigator.serviceWorker.addEventListener("message", function (e) {
+	console.log(e.data);
+});
+
+// B.html
+// 网页可以通过 navigator.serviceWorker.controller.postMessage API 向掌管自己的 SW 发送消息
+navigator.serviceWorker.controller.postMessage("Hello A");
+```
+
+### B 页面意外崩溃，该如何通知 A 页面
+
+可以利用 window 对象的 load 和 beforeunload 事件，通过心跳监控来获取 B 页面的崩溃。巧妙的利用了页面崩溃无法触发 beforeunload 事件来实现的。
+
+-   Service Worker 有自己独立的工作线程，与网页区分开，网页崩溃了，Service Worker 一般情况下不会崩溃；
+-   Service Worker 生命周期一般要比网页还要长，可以用来监控网页的状态；
+-   网页可以通过 navigator.serviceWorker.controller.postMessage API 向掌管自己的 SW 发送消息
+
+流程如下：
+
+1. B 页面加载后，通过 postMessage API 每 5s 给 sw 发送一个心跳，表示自己的在线，sw 将在线的网页登记下来，更新登记时间；
+2. B 页面在 beforeunload 时，通过 postMessage API 告知 sw 自己已经正常关闭，sw 将登记的网页清除；
+3. 如果 B 页面在运行的过程中 crash 了，sw 中的 running 状态将不会被清除，更新时间停留在崩溃前的最后一次心跳；
+4. A 页面 Service Worker 每 10s 查看一遍登记中的网页，发现登记时间已经超出了一定时间（比如 15s）即可判定该网页 crash 了。
+
+```js
+// A.html
+// 每 10s 检查一次，超过15s没有心跳则认为已经 crash
+const CHECK_CRASH_INTERVAL = 10 * 1000;
+const CRASH_THRESHOLD = 15 * 1000;
+const pages = {};
+let timer;
+function checkCrash() {
+	const now = Date.now();
+	for (var id in pages) {
+		let page = pages[id];
+		if (now - page.t > CRASH_THRESHOLD) {
+			// 上报 crash
+			delete pages[id];
+		}
+	}
+	if (Object.keys(pages).length == 0) {
+		clearInterval(timer);
+		timer = null;
+	}
+}
+
+worker.addEventListener("message", (e) => {
+	const data = e.data;
+	if (data.type === "heartbeat") {
+		pages[data.id] = {
+			t: Date.now(),
+		};
+		if (!timer) {
+			timer = setInterval(function () {
+				checkCrash();
+			}, CHECK_CRASH_INTERVAL);
+		}
+	} else if (data.type === "unload") {
+		delete pages[data.id];
+	}
+});
+
+// B.html
+if (navigator.serviceWorker.controller !== null) {
+	let HEARTBEAT_INTERVAL = 5 * 1000; // 每五秒发一次心跳
+	let sessionId = uuid(); // B页面会话的唯一 id
+	let heartbeat = function () {
+		navigator.serviceWorker.controller.postMessage({
+			type: "heartbeat",
+			id: sessionId,
+			data: {}, // 附加信息，如果页面 crash，上报的附加数据
+		});
+	};
+	window.addEventListener("beforeunload", function () {
+		navigator.serviceWorker.controller.postMessage({
+			type: "unload",
+			id: sessionId,
+		});
+	});
+	setInterval(heartbeat, HEARTBEAT_INTERVAL);
+	heartbeat();
+}
+```
+
+### Proxy 与 Reflect
+
+代理与反射的关系：简单来说，我们可以通过 Proxy 创建对于原始对象的代理对象，从而在代理对象中使用 Reflect 达到对于 JavaScript 原始操作的拦截。
+
+-   Proxy 代理，它内置了一系列”陷阱“用于创建一个对象的代理，从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）。
+
+-   Reflect 反射，它提供拦截 JavaScript 操作的方法。这些方法与 Proxy 的方法相同。
+
+```js
+const parent = {
+	get value() {
+		return "19Qingfeng";
+	},
+};
+
+const proxy = new Proxy(parent, {
+	// get陷阱中target表示原对象 key表示访问的属性名
+	get(target, key, receiver) {
+		console.log(receiver === proxy);
+		console.log(receiver === obj);
+		console.log(receiver === parent);
+		return target[key];
+	},
+});
+
+const obj = {
+	name: "wang.haoyu",
+};
+
+// 设置obj继承与parent的代理对象proxy
+Object.setPrototypeOf(obj, proxy);
+
+obj.value;
+// false
+// true
+// false
+// '19Qingfeng'
+```
+
+在 Proxy 中 getter 的 receiver 不仅仅会表示代理对象本身同时也还有可能表示继承于代理对象的对象，具体需要区别于调用方。
+
+receiver: The reference to use as the `this` value in the getter function, if `target[properKey]` is an accessor property.
+
+综上：Proxy 中 getter 的第三个参数 receiver 存在的意义就是为了正确的在陷阱中传递上下文，是为了传递正确的调用者指向。
+
+PS：不要将 revceiver 和 get 陷阱中的 this 弄混了，陷阱中的 this 关键字表示的是代理的 handler 对象，也就是 Proxy 的第二个参数接收的对象。
+
+你可以简单的将 `Reflect.get(target, key, receiver)` 理解成为 `target[key].call(receiver)`，不过这是一段伪代码，但是这样你可能更好理解。
+
+针对于 getter（当然 setter 其他之类涉及到 receiver 的陷阱同理）：
+
+-   Proxy 中接受的 Receiver 形参表示代理对象本身或者继承于代理对象的对象。
+-   Reflect 中传递的 Receiver 实参表示修改执行原始操作时的 this 指向。
+
+### FastClick 原理
+
+1. 监听 touchend 事件（touchstart touchend 会先于 click 事件触发）
+2. 使用自定义 DOM 事件模拟一个 click 事件
+3. 把默认的 click 事件（300ms 之后触发）禁止掉
+
+现代浏览器对 click 事件 300ms 延迟的处理方法：在`meta`标签中设置 viewport，并设置`content='width=device-width'`之后，就会取消掉 300ms 延时。
+
+`<meta name='viewport' content='width=device-width,initial-scale=1.0>`
+
+### token 和 cookie&session
+
+### cookie
+
+1.  http 是无状态的，所以增加了 cookie，每次请求时可以带上 cookie，以帮助服务端识别用户身份
+2.  服务端也可以向客户端 set-cookie，cookie 大小限制 4kb
+3.  默认有跨域限制：不可跨域共享或跨域传递 cookie
+
+现代浏览器开始禁止第三方 cookie：
+
+1. 和跨域限制不同，这里是禁止网页引入的第三方 js 设置 cookie
+2. 打击第三方广告，保护用户隐私
+3. 新增属性 SameSite：Strict、Lax、None；值可自己选择
+
+### session
+
+1.  cookie 用于登录验证，存储用户标识（如 userId）
+2.  session 在服务端，存储用户详细信息，和 cookie 信息一一对应
+3.  cookie+session 是常用的登录验证解决方案
+
+### token
+
+1. cookie 是 HTTP 规范，而 token 是自定义传递
+2. cookie 会默认被浏览器存储，而 token 需自己存储
+3. token 默认没有跨域限制
+4. token 可以放在 request header 中传递，`Authorization: Bearer xxxxx`
+
+#### JWT - JSON Web Token
+
+1. 前端发起登录，后端验证成功后，返回一个加密 token
+2. 前端自行存储这个 token（其中包含了用户信息，加密了）
+3. 以后再访问服务端接口时，都带着这个 token，作为用户信息
+
+### 综上
+
+1. cookie： HTTP 标准；跨域限制；配合 session 使用；
+2. token：无标准；无跨域限制；用于 JWT；
+3. session：
+    1. 原理简单，易于学习
+    2. 用户信息存储在服务端，可快速封禁某个用户
+    3. 占用服务端内存，硬件成本高
+    4. 多进程，多服务器时，不好同步--需使用第三方缓存，如 Redis
+    5. 默认有跨域限制
+4. JWT：
+    1. 不占用服务端内存
+    2. 多进程，多服务器 不受影响
+    3. 无跨域限制
+    4. 用户信息存储在客户端，无法快速封禁某用户
+    5. 万一服务端秘钥被泄露，则用户信息全部丢失
+    6. token 体积一般大于 cookie，会增加请求的数据量
+
+### 怎么实现单点登录
+
+设置 cookie 跨域共享
+
+1. 主域名/一级相同时，设置 cookie domain 为主域名，即可共享 cookie：`Set-Cookie:domain=.baidu.com;`，之后请求后端时可以带上 cookie；
+
+主域名完全不同，则 cookie 无法共享
+
+2. 可以使用 SSO 技术方案：有一个单独的第三方 SSO 服务，做专门的登录和信息保存、检验
+
+3. OAuth2.0 使用第三方的登录验证，如 GitHub、微信扫码登录等等

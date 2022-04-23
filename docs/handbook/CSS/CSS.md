@@ -987,3 +987,21 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 -   font-variant-numeric: CSS 属性控制数字，分数和序号标记的替代字形的使用；
 -   tabular-nums: 启用表格数字显示。使数字等宽，易于像表格那样对齐。等同于 OpenType 特性 tnum。
 -   也可以通过 font-feature-settings: "tnum";来实现相同的功能，兼容性更好。
+
+### offsetWidth、clientWidth、scrollWidth、scrollTop 的区别
+
+1. offsetWidth：border+padding+content;
+2. clientWidth：padding+content;
+3. scrollWidth：padding+content 实际宽度;
+4. scrollTop：向上滚动的距离;
+
+### NodeList、HTMLCollection 的区别
+
+0. 都是类数组，不是真正的数组，要用 Array.from()转换。
+1. Node 是 Document、DocumentFragment、Element、CharacterData 等的基类，Element 是 HTMLElement、SVGElement 的基类，HTMLElement 是 HTMLHEADElement、HTMLInputElement、HTMLTitleElement 等的基类。
+2. 获取 Node 和 Element 的返回结果可能不一样，如 elem.childNodes 和 elem.children 不一样。
+3. 前者 Node 会包含 Text、Comment 等节点，后者 Element 只会包含 HTML 原素。
+
+### 毛玻璃效果
+
+使用 `backdrop-filter: blur(6px);` 给元素后面区域添加模糊效果.

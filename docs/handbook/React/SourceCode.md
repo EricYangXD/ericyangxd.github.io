@@ -33,6 +33,61 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 ## hooks
 
 -   简单了解一下原理啥的
+-   在 class 状态中，通过一个实例化的 class，去维护组件中的各种状态；但是在 function 组件中，没有一个状态去保存这些信息，每一次函数上下文执行，所有变量，常量都重新声明，执行完毕，再被垃圾机制回收。
+-   对于 class 组件，我们只需要实例化一次，实例中保存了组件的 state 等状态。对于每一次更新只需要调用 render 方法就可以。但是在 function 组件中，每一次更新都是一次新的函数执行，为了保存一些状态，执行一些副作用钩子，react-hooks 应运而生，去帮助记录组件的状态，处理一些额外的副作用。
+-   对于 function 组件是什么时候执行的呢？function 组件初始化：
+
+```js
+// react-reconciler/src/ReactFiberBeginWork.js
+renderWithHooks(
+	null, // current Fiber
+	workInProgress, // workInProgress Fiber
+	Component, // 函数组件本身
+	props, // props
+	context, // 上下文
+	renderExpirationTime // 渲染 ExpirationTime
+);
+```
+
+-   对于初始化是没有 current 树的，之后完成一次组件更新后，会把当前 workInProgress 树赋值给 current 树。
+-   所有的函数组件执行，都是在这里方法中，首先我们应该明白几个感念，这对于后续我们理解 useState 是很有帮助的。
+
+    1. current fiber 树: 当完成一次渲染之后，会产生一个 current 树,current 会在 commit 阶段替换成真实的 Dom 树。
+    2. workInProgress fiber 树: 即将调和渲染的 fiber 树。再一次新的组件更新过程中，会从 current 复制一份作为 workInProgress,更新完毕后，将当前的 workInProgress 树赋值给 current 树。
+    3. workInProgress.memoizedState: 在 class 组件中，memoizedState 存放 state 信息，在 function 组件中，这里可以提前透漏一下，memoizedState 在一次调和渲染过程中，以链表的形式存放 hooks 信息。
+    4. workInProgress.expirationTime: react 用不同的 expirationTime,来确定更新的优先级。
+    5. currentHook : 可以理解 current 树上的指向的当前调度的 hooks 节点。
+    6. workInProgressHook : 可以理解 workInProgress 树上指向的当前调度的 hooks 节点。
+
+-   renderWithHooks 函数主要作用:
+
+    1. 首先先置空即将调和渲染的 workInProgress 树的 memoizedState 和 updateQueue，为什么这么做，因为在接下来的函数组件执行过程中，要把新的 hooks 信息挂载到这两个属性上，然后在组件 commit 阶段，将 workInProgress 树替换成 current 树，替换真实的 DOM 元素节点。并在 current 树保存 hooks 信息。
+    2. 然后根据当前函数组件是否是第一次渲染，赋予 ReactCurrentDispatcher.current 不同的 hooks,终于和上面讲到的 ReactCurrentDispatcher 联系到一起。对于第一次渲染组件，那么用的是 HooksDispatcherOnMount hooks 对象。对于渲染后，需要更新的函数组件，则是 HooksDispatcherOnUpdate 对象，那么两个不同就是通过 current 树上是否 memoizedState（hook 信息）来判断的。如果 current 不存在，证明是第一次渲染函数组件。
+    3. 接下来，调用`Component(props, secondArg);`执行我们的函数组件，我们的函数组件在这里真正的被执行了，然后我们写的 hooks 被依次执行，把 hooks 信息依次保存到 workInProgress 树上。
+    4. 接下来，也很重要，将 ContextOnlyDispatcher 赋值给 ReactCurrentDispatcher.current，由于 js 是单线程的，也就是说我们没有在函数组件中，调用的 hooks，都是 ContextOnlyDispatcher 对象上 hooks，react-hooks 就是通过这种函数组件执行赋值不同的 hooks 对象方式，判断在 hooks 执行是否在函数组件内部，捕获并抛出异常的。
+
+-   初始化阶段 react-hooks 做的事情：在一个函数组件第一次渲染执行上下文过程中，每个 react-hooks 执行，都会调用`mountWorkInProgressHook()`产生一个 hook 对象=>`workInProgressHook`，并形成链表结构，绑定在 workInProgress 的 memoizedState 属性上，然后 react-hooks 上的状态，绑定在当前 hooks 对象的 memoizedState 属性上。对于 effect 副作用钩子，会绑定在 workInProgress.updateQueue 上，等到 commit 阶段，dom 树构建完成，再执行每个 effect 副作用钩子。
+-   hook 对象中都保留了哪些信息:
+
+    -   memoizedState： useState 中 保存 state 信息 ｜ useEffect 中 保存着 effect 对象 ｜ useMemo 中 保存的是缓存的值和 deps ｜ useRef 中保存的是 ref 对象。
+    -   baseState : usestate 和 useReducer 中 保存最新的更新队列。
+    -   baseState ： usestate 和 useReducer 中,一次更新中 ，产生的最新 state 值。
+    -   queue ：保存待更新队列 pendingQueue ，更新函数 dispatch 等信息。
+    -   next: 指向下一个 hooks 对象。
+
+-   一旦在条件语句中声明 hooks，在下一次函数组件更新，hooks 链表结构，将会被破坏，current 树的 memoizedState 缓存 hooks 信息，和当前 workInProgress 不一致，如果涉及到读取 state 等操作，就会发生异常。
+-   hooks 通过什么来证明唯一性的，答案 ，通过 hooks 链表顺序。
+-   在无状态组件中，useState 和 useReducer 触发函数更新的方法都是 dispatchAction,useState，可以看成一个简化版的 useReducer。
+-   dispatchAction 第一个参数和第二个参数，已经被 bind 给改成 currentlyRenderingFiber 和 queue,我们传入的参数是第三个参数 action。
+-   无论是类组件调用 setState,还是函数组件的 dispatchAction ，都会产生一个 update 对象，里面记录了此次更新的信息，然后将此 update 放入待更新的 pending 队列中，dispatchAction 第二步就是判断当前函数组件的 fiber 对象是否处于渲染阶段，如果处于渲染阶段，那么不需要我们在更新当前函数组件，只需要更新一下当前 update 的 expirationTime 即可。
+-   如果当前 fiber 没有处于更新阶段。那么通过调用 lastRenderedReducer 获取最新的 state,和上一次的 currentState，进行浅比较，如果相等，那么就退出，这就证实了为什么 useState，两次值相等的时候，组件不渲染的原因了，这个机制和 Component 模式下的 setState 有一定的区别。
+-   如果两次 state 不相等，那么调用 scheduleUpdateOnFiber 调度渲染当前 fiber，scheduleUpdateOnFiber 是 react 渲染更新的主要函数。
+-   对于更新阶段，说明上一次 workInProgress 树已经赋值给了 current 树。存放 hooks 信息的 memoizedState，此时已经存在 current 树上，react 对于 hooks 的处理逻辑和 fiber 树逻辑类似。
+-   对于一次函数组件更新，当再次执行 hooks 函数的时候，比如 useState(0) ，首先要从 current 的 hooks 中找到与当前 workInProgressHook 对应的 currentHooks，然后复制一份 currentHooks 给 workInProgressHook，接下来 hooks 函数执行的时候，把最新的状态更新到 workInProgressHook，保证 hooks 状态不丢失。
+-   所以函数组件每次更新，每一次 react-hooks 函数执行，都需要有一个函数去做上面的操作，这个函数就是 `updateWorkInProgressHook()`=>`workInProgressHook`。
+-   首先如果是第一次执行 hooks 函数，那么从 current 树上取出 memoizedState ，也就是旧的 hooks。
+-   然后声明变量 nextWorkInProgressHook，这里应该值得注意，正常情况下，一次 renderWithHooks 执行，workInProgress 上的 memoizedState 会被置空，hooks 函数顺序执行，nextWorkInProgressHook 应该一直为 null，那么什么情况下 nextWorkInProgressHook 不为 null，也就是当一次 renderWithHooks 执行过程中，执行了多次函数组件 -- 实际就是判定，如果当前函数组件执行后，当前函数组件的还是处于渲染优先级，说明函数组件又有了新的更新任务，那么循坏执行函数组件。这就造成了上述的，nextWorkInProgressHook 不为 null 的情况。
+-   最后复制 current 的 hooks，把它赋值给 workInProgressHook，用于更新新的一轮 hooks 状态。
 
 ### 1. useState
 
@@ -41,13 +96,155 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 -   每次改变 state/props 造成函数组件重新渲染/执行，从而每次渲染函数中的 state/props 都是独立的，固定的，确定的 -- 只在这一次渲染过程中存在。
 
 -   对于 setState 的更新机制，究竟是同步还是异步。也就是所谓是否是批量更新，可以把握这个原则：
+
     1. 凡是 React 可以管控的地方，他就是异步批量更新。比如事件函数，生命周期函数中，组件内部同步代码。
     2. 凡是 React 不能管控的地方，就是同步批量更新。比如 setTimeout，setInterval，源生 DOM 事件中，包括 Promise 中都是同步批量更新。
+
+-   useState，两次值相等的时候，组件不渲染。如果两次 state 不相等，那么调用 scheduleUpdateOnFiber 调度渲染当前 fiber。
+-   无状态组件中 fiber 对象 memoizedState 保存当前的 hooks 形成的「链表」。因为是链表保存，所以 hooks 不能用在条件判断里。
+
+-   有两个 memoizedState：
+
+    1. workInProgress / current 树上的 memoizedState 保存的是当前函数组件每个 hooks 形成的链表。
+    2. 每个 hooks 上的 memoizedState 保存了当前 hooks 信息，不同种类的 hooks 的 memoizedState 内容不同。
+
+-   实现一个 useState
+<!-- TODO -->
+
+1. 简易版，利用函数闭包和数组下标实现 state 和 stateSetter 一一对应
+
+```js
+let states = [];
+let setters = [];
+let firstRun = true;
+// 使用时，每次都要重置 cursor
+let cursor = 0;
+
+//  使用工厂模式生成一个 createSetter，通过 cursor 指定指向的是哪个 state
+function createSetter(cursor) {
+	return function (newVal) {
+		// 闭包
+		states[cursor] = newVal;
+	};
+}
+
+function useState(initVal) {
+	// 首次
+	if (firstRun) {
+		states.push(initVal);
+		setters.push(createSetter(cursor));
+		firstRun = false;
+	}
+	let state = states[cursor];
+	let setter = setters[cursor];
+	// 光标移动到下一个位置
+	cursor++;
+	// 返回
+	return [state, setter];
+}
+```
+
+2. 进阶版：使用链表
+
+```js
+// workInProgressHook 指针，指向当前 hook 对象
+let workInProgressHook = null;
+// workInProgressHook fiber，这里指的是 App 组件
+let fiber = {
+	stateNode: App, // App 组件
+	memoizedState: null, // hooks 链表，初始为 null
+};
+// 是否是首次渲染
+let isMount = true;
+
+// 调度函数，模拟 react scheduler
+function schedule() {
+	workInProgressHook = fiber.memoizedState;
+	const app = fiber.stateNode();
+	isMount = false;
+	return app;
+}
+
+function useState(initVal) {
+	let hook;
+	// 首次会生成 hook 对象，并形成链表结构，绑定在 workInProgress 的 memoizedState 属性上
+	if (isMount) {
+		// 每个 hook 对象，例如 state hook、memo hook、ref hook 等
+		hook = {
+			memoizedState: initVal, // 当前state的值，例如 useState(initVal)
+			action: null, // update 函数
+			next: null, // 因为是采用链表的形式连接起来，next指向下一个 hook
+		};
+		// 绑定在 workInProgress 的 memoizedState 属性上
+		if (!fiber.memoizedState) {
+			// 如果是第一个 hook 对象
+			fiber.memoizedState = hook;
+		} else {
+			// 如果不是, 将 hook 追加到链尾
+			workInProgressHook.next = hook;
+		}
+		// 指针指向当前 hook，链表尾部，最新 hook
+		workInProgressHook = hook;
+	} else {
+		// 拿到当前的 hook
+		hook = workInProgressHook;
+		// workInProgressHook 指向链表的下一个 hook
+		workInProgressHook = workInProgressHook.next;
+	}
+	// 状态更新，拿到 current hook，调用 action 函数，更新到最新 state
+	let baseState = hook.memoizedState;
+	// 执行 update
+	if (hook.action) {
+		// 更新最新值
+		let action = hook.action;
+		// 如果是 setNum(num=>num+1) 形式
+		if (typeof action === "function") {
+			baseState = action(baseState);
+		} else {
+			baseState = action;
+		}
+		// 清空 action
+		hook.action = null;
+	}
+	// 更新最新值
+	hook.memoizedState = baseState;
+	// 返回最新值 baseState、dispatchAction
+	return [baseState, dispatchAction(hook)];
+}
+
+// action 函数
+function dispatchAction(hook) {
+	return function (action) {
+		hook.action = action;
+	};
+}
+
+// 使用
+function App() {
+	const [num, setNum] = useState(0);
+	return {
+		onClick() {
+			console.log("num: ", num);
+			setNum(num + 1);
+		},
+	};
+}
+
+// 测试结果
+schedule().onClick(); // 'num: ' 0
+schedule().onClick(); // 'num: ' 1
+schedule().onClick(); // 'num: ' 2
+```
+
+3. 优化版：useState 是如何更新的
+
+<!-- TODO -->
 
 ### 2. useEffect
 
 -   可以把 useEffect Hook 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
 -   useEffect 的设计理念本身就比较推荐我们把依赖函数直接放在 useEffect 内部。
+-   无状态组件中 fiber 对象 memoizedState 保存当前的 hooks 形成的链表。而 updateQueue 保存的是 effect 副作用钩子。
 
 -   对于无法移动到 useEffect 内部的函数：
     1.  尝试把函数移到组件外、
@@ -56,6 +253,7 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 -   useEffect VS useLayoutEffect：
     1. 默认情况下，useEffect 将**在每轮渲染结束后异步执行**，不同于 class Component 中的 componentDidUpdate 和 componentDidMount 在渲染后同步执行，useEffect 不会阻塞浏览器的渲染。
     2. useLayoutEffect 的作用几乎与 useEffect 一致，不同的是，useLayoutEffect 是**同步执行**的，与 componentDidUpdate 和 componentDidMount 执行机制一样，在 DOM 更新后，在浏览器渲染这些更改之前，立即执行。
+-   effect list 可以理解为是一个存储 effectTag 副作用列表容器。它是由 fiber 节点和指针 nextEffect 构成的单链表结构，这其中还包括第一个节点 firstEffect ，和最后一个节点 lastEffect。 React 采用深度优先搜索算法，在 render 阶段遍历 fiber 树时，把每一个有副作用的 fiber 筛选出来，最后构建生成一个只带副作用的 effect list 链表。在 commit 阶段，React 拿到 effect list 数据后，通过遍历 effect list，并根据每一个 effect 节点的 effectTag 类型，执行每个 effect，从而对相应的 DOM 树执行更改。
 
 ### 3. useContext
 

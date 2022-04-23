@@ -129,6 +129,10 @@ module.exports = {
 				path: "/handbook/JavaScript/FrontEnd",
 				children: [
 					{
+						title: "APIs",
+						path: "/handbook/JavaScript/Api",
+					},
+					{
 						title: "前端开发技巧",
 						path: "/handbook/JavaScript/FrontEnd",
 					},
