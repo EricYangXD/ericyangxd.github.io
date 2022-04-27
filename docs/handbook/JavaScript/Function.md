@@ -135,6 +135,17 @@ function shuffle(a) {
 
 ## 面试题
 
+### sleep 函数
+
+配合 async/await 休眠几秒，然后继续执行。
+
+```js
+const sleep = (timeoutMs) =>
+	new Promise((resolve) => {
+		setTimeout(resolve, timeoutMs);
+	});
+```
+
 ### ['1', '2', '3'].map(parseInt)
 
 输出：`[1, NaN, NaN]`
@@ -197,11 +208,10 @@ const target2 = Object.fromEntries(arr); // 注意，这里接收的是entries�
 
 -   直接使用 URLSearchParams。
     > 这个 API 是一个原生的构造函数，可以获取地址?后面的参数信息。也可直接传入 window.location.search 或者?后面的字符串.
+-   URLSearchParams 构造函数不会解析完整 URL，但是如果字符串起始位置有 ? 的话会被去除。
 
 ```js
-const params = new URLSearchParams(
-	"https://juejin.cn/post/7016593221815910408?test=1&name=eric"
-);
+const params = new URLSearchParams("?test=1&name=eric");
 params.get("name"); // eric
 params.get("test"); // 1
 ```

@@ -109,7 +109,6 @@ renderWithHooks(
     2. 每个 hooks 上的 memoizedState 保存了当前 hooks 信息，不同种类的 hooks 的 memoizedState 内容不同。
 
 -   实现一个 useState
-<!-- TODO -->
 
 1. 简易版，利用函数闭包和数组下标实现 state 和 stateSetter 一一对应
 

@@ -643,18 +643,20 @@ const LoaderWrap = styled.div`
 
 -   BFC 全称为块级格式化上下文 (Block Formatting Context) 。
 
-触发 BFC 的条件：
+触发 BFC 的条件：dofp
 
-1. 根元素或其它包含它的元素
-2. 浮动元素 (元素的 float 不是 none)
-3. 绝对定位元素 (元素具有 position 为 absolute 或 fixed)
+1. `<html>`根元素或其它包含它的元素
+2. 浮动元素 (元素的 float 不是 none)`float: left/right;`
+3. 绝对定位元素 (元素具有 position 为 absolute 或 fixed)`position: absolute/fixed`
 4. 内联块 (元素具有 display: inline-block)
-5. 表格单元格 (元素具有 display: table-cell，HTML 表格单元格默认属性)
-6. 表格标题 (元素具有 display: table-caption, HTML 表格标题默认属性)
-7. 具有 overflow 且值不是 visible 的块元素
-8. 弹性盒（flex 或 inline-flex）
-9. display: flow-root
-10. column-span: all
+5. 表格 `display: table`
+6. 表格单元格 (元素具有 `display: table-cell/table-row`，HTML 表格单元格默认属性)
+7. 表格标题 (元素具有 `display: table-caption`, HTML 表格标题默认属性)
+8. 具有 overflow 且值不是 visible 的块元素`overflow: auto/scroll/hidden;`
+9. 弹性盒（flex 或 inline-flex）
+10. `display: flex/grid;`的直接子元素
+11. `display: flow-root`
+12. `column-span: all`
 
 BFC 可以解决的问题:
 

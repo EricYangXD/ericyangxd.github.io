@@ -452,8 +452,6 @@ export default class AmPagination extends Vue {
   }
 }
 </style>
-
-
 ```
 
 ## webpack devServer proxy 配置

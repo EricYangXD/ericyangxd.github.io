@@ -325,24 +325,26 @@ Debugger 打断点的方式除了直接在对应代码行单击的普通断点�
 
 ### nvm
 
+管理 nodejs 版本
+
 1. 官方`curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash`命令不好使
 2. 使用 gitee，执行并重新打开 zsh 即可
    `cd ~/ git clone https://gitee.com/Annlix/nvm-sh_nvm.git .nvm`
 
 ### yrm/nrm
 
+管理 registry 源地址。
+
 `npm i yrm -g`
 
 ### pm2
 
-PM2 是 node 进程管理工具，可以利用它来简化很多 node 应用管理的繁琐任务，如性能监控、自动重启、负载均衡等，而且使用非常简单。
-
-`npm install -g pm2`
+PM2 是 node 进程管理工具，可以利用它来简化很多 node 应用管理的繁琐任务，如性能监控、自动重启、负载均衡等，而且使用非常简单。`npm install -g pm2`，使用的时候`pm2 node.js`
 
 ### nodemon
 
 nodemon 是 node 的一个调试工具。当我们修改了后台 node 服务器的代码之后，都需要重启 node 服务器。我们可以使用 nodemon 来自动重启服务。
-`npm install -g nodemon`
+`npm install -g nodemon`，使用的时候`nodemon node.js`
 
 ### npm/yarn/pnpm
 
@@ -355,3 +357,31 @@ nodemon 是 node 的一个调试工具。当我们修改了后台 node 服务器
 自动依赖安装，不用管 npm/yarn/pnpm.
 
 `npm i ni -g`
+
+### npm ERR! code EINTEGRITY 解决方案
+
+0. [github issue](https://github.com/npm/npm/issues/16861)
+1. 可以删除 package-lock.json；
+2. 可以选择执行下面的操作：
+
+```bash
+npm cache verify
+// 清理npm缓存
+npm cache clean
+npm cache clean --force
+// 更新npm版本
+npm i -g npm
+// 修改SHA
+grep -ir "sha1-xxxxxxxxxxxxxxxx" ~/.npm
+
+npm install --no-shrinkwrap --update-binary
+```
+
+### Chrome 浏览器如何强制刷新页面(不使用缓存)？
+
+1. 按下 F12(Windows) 或 Cmd+Opt+I(MAC)，打开"开发者工具"；
+2. 在左上角「浏览器刷新」按扭上点右键，在弹出菜单上选择"清空缓存并硬件加载"；
+
+### Chrome 浏览器网络请求日志
+
+chrome://net-export/

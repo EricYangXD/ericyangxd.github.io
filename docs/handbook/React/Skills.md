@@ -763,6 +763,8 @@ React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和�
 
 ## dangerouslySetInnerHTML 插入 html
 
+会有 XSS 风险，同 Vue 中的`v-html`
+
 ```jsx
 <div
 	className="news-detail-content"

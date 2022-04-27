@@ -326,6 +326,7 @@ const MyApp = () => {
 ### pdf.js
 
 -   参考 GitHub
+-   关闭 pdf 缓存：不使用 pdf.workers.js，设置`PDFViewerApplication.viewerPrefs.showPreviousViewOnLoad = false`
 
 ### react-pdf-viewer
 
@@ -1184,22 +1185,25 @@ JavaScript 语言的作用域链是由词法作用域决定的，而词法作用
 15. 浏览器进程获取到通知，根据当前页面 B 是否是从页面 A 打开的并且和页面 A 是否是同一个站点（根域名和协议一样就被认为是同一个站点），如果满足上述条件，就复用之前网页的进程，否则，新创建一个单独的渲染进程
 16. 浏览器会发出“提交文档”的消息给渲染进程，渲染进程收到消息后，会和网络进程建立传输数据的“管道”，文档数据传输完成后，渲染进程会返回“确认提交”的消息给浏览器进程
 17. 浏览器收到“确认提交”的消息后，会更新浏览器的页面状态，包括了安全状态、地址栏的 URL、前进后退的历史状态，并更新 web 页面，此时的 web 页面是空白页
-18. 渲染进程对文档进行页面解析和子资源加载，HTML 通过 HTM 解析器转成 DOM Tree（二叉树类似结构的东西），CSS 按照 CSS 规则和 CSS 解释器转成 CSSOM TREE，两个 tree 结合，形成 render tree（不包含 HTML 的具体元素和元素要画的具体位置），通过 Layout 可以计算出每个元素具体的宽高颜色位置，结合起来，开始绘制，最后显示在屏幕中新页面显示出来
+18. 渲染进程对文档进行页面解析和子资源加载，HTML 通过 HTML 解析器转成 DOM Tree（二叉树类似结构的东西），CSS 按照 CSS 规则和 CSS 解释器转成 CSSOM TREE，两个 tree 结合，形成 render tree（不包含 HTML 的具体元素和元素要画的具体位置），通过 Layout 可以计算出每个元素具体的宽高颜色位置，结合起来，开始绘制，最后显示在屏幕中新页面显示出来
 
 ### 渲染过程
 
 渲染过程：[渲染流水线](../../assets/render.jpg "渲染流水线")
 
-总结：[](../../assets/layout.jpg)
+总结：[总结](../../assets/layout.jpg "总结")
 
-### 减少重排重绘, 方法很多
+### 减少重排重绘
 
-1. 使用 class 操作样式，而不是频繁操作 style
+1. 集中修改样式或直接切换 class 操作样式，而不是频繁操作 style
 2. 避免使用 table 布局
 3. 批量 dom 操作，例如 createDocumentFragment，或者使用框架，例如 React
-4. Debounce window resize 事件
+4. Debounce window resize scroll 事件，频繁触发使用节流和防抖
 5. 对 dom 属性的读写要分离
 6. will-change: transform 做优化
+7. 修改之前先设置`display:none`，脱离文档流，修改完了再恢复
+8. 使用 BFC 特性，不影响其他元素
+9. 优化动画，使用 css3 和 requestAnimationFrame
 
 减少重排重绘，相当于少了渲染进程的主线程和非主线程的很多计算和操作，能够加快 web 的展示。
 
@@ -1537,7 +1541,7 @@ cookieStore
 		maxAge: 10000, // 有效期，单位秒，秒数为 0 或 -1 将会使 cookie 直接过期，如果 Expires 和Max-Age 同时存在时，Max-Age优先级更高。
 		sameParty: false, // 允许特定条件跨域共享 Cookie
 		priority: "Medium", // 优先级，仅 Chrome 支持， Low|Medium|High，如果设置了 Priority，Chrome 会先将优先级低的清除，并且每种优先级 Cookie 至少保留一个。
-		httpOnly: false, // 设置了 HttpOnly 属性的 cookie 不能使用 JavaScript 经由  Document.cookie 属性、XMLHttpRequest 和  Request APIs、Cookie Store APIs 进行访问。
+		httpOnly: false, // 设置了 HttpOnly 属性的 cookie 不能使用 JavaScript 经由  document.cookie 属性、XMLHttpRequest 和  Request APIs、Cookie Store APIs 进行访问。
 	})
 	.then(
 		function () {
@@ -1777,25 +1781,25 @@ onconnect = (e) => {
 
 ### Service Worker
 
-基于 web worker（一个独立于 JavaScript 主线程的独立线程，在里面执行需要消耗大量资源的操作时不会堵塞主线程）。
+基于 web worker（一个独立于 JavaScript 主线程的**独立线程**，在里面执行需要消耗大量资源的操作时不会堵塞主线程）。
 
-Service Worker 是一个可以长期运行在后台的 Worker 线程，充当一个服务，能够实现与页面的双向通信。最常见用途就是**拦截和处理网络请求、计算、数据离线缓存**。
+Service Worker 是一个可以长期运行在后台的 Worker 线程，充当一个服务，**能够实现与页面的双向通信**。最常见用途就是**拦截和处理网络请求、计算、数据离线缓存**。
 
 多页面共享间的 Service Worker 可以共享，将 Service Worker 作为消息的处理中心（中央站）即可实现广播效果。
 
-Service Worker 可以修改用户的请求，或者直接向用户发出回应，不用联系服务器，这使得用户可以在离线情况下使用网络应用。它还可以在本地缓存资源文件，直接从缓存加载文件，因此可以加快访问速度。
+Service Worker **可以拦截并修改用户的请求，或者直接向用户发出回应**，不用联系服务器，这使得用户可以在**离线**情况下使用网络应用。它还**可以在本地缓存资源文件，直接从缓存加载文件**，因此可以加快访问速度。
 
-Service Worker 不能直接操作 DOM。可以访问 cache 和 indexDB。支持推送，并且可以让开发者自己控制管理缓存的内容以及版本。
+Service Worker **不能直接操作 DOM**。**可以访问 cache 和 indexDB**。**支持推送**，并且可以让开发者自己控制管理缓存的内容以及版本。
 
-它设计为完全异步，同步 API（如 XHR 和 localStorage）不能在 service worker 中使用。
+它设计为**完全异步**，**同步 API（如 XHR 和 localStorage）不能在 service worker 中使用**。
 
-出于安全考量，Service workers 只能由 HTTPS 承载。
+出于安全考量，Service workers **只能由 HTTPS 承载**。
 
-在 Firefox 浏览器的用户隐私模式，Service Worker 不可用。
+在 **Firefox 浏览器的用户隐私模式，Service Worker 不可用**。
 
-其生命周期与页面无关（关联页面未关闭时，它也可以退出，没有关联页面时，它也可以启动）。
+其**生命周期与页面无关**（关联页面未关闭时，它也可以退出，没有关联页面时，它也可以启动）。
 
-为了节省内存，Service worker 在不使用的时候是休眠的。它也不会保存数据，所以重新启动的时候，为了拿到数据，最好把数据放在 IndexedDb 里面。
+为了节省内存，Service worker **在不使用的时候是休眠的**。它也**不会保存数据**，所以重新启动的时候，为了拿到数据，最好把数据放在 IndexedDb 里面。
 
 ```js
 // 注册：service worker 不支持跨域脚本。另外，sw.js必须是从 HTTPS 协议加载的。
@@ -1851,6 +1855,51 @@ navigator.serviceWorker.addEventListener("message", function (e) {
 // 网页可以通过 navigator.serviceWorker.controller.postMessage API 向掌管自己的 SW 发送消息
 navigator.serviceWorker.controller.postMessage("Hello A");
 ```
+
+-   ["Status Code:200 OK (from ServiceWorker)" in Chrome Network DevTools?](https://stackoverflow.com/questions/33590378/status-code200-ok-from-serviceworker-in-chrome-network-devtools)
+
+-   移除&unregister，[参考](https://stackoverflow.com/questions/33704791/how-do-i-uninstall-a-service-worker/47515250#47515250)
+-   移除&unregister，方法 1:
+
+```js
+try {
+	self.addEventListener("install", function (e) {
+		self.skipWaiting();
+	});
+
+	self.addEventListener("activate", function (e) {
+		self.registration
+			.unregister()
+			.then(function () {
+				return self.clients.matchAll();
+			})
+			.then(function (clients) {
+				clients.forEach((client) => client.navigate(client.url));
+			});
+	});
+} catch (e) {
+	console.log("close sw: ", e);
+}
+
+try {
+	if (window.navigator && navigator.serviceWorker) {
+		navigator.serviceWorker
+			.getRegistrations()
+			.then(function (registrations) {
+				for (let registration of registrations) {
+					registration.unregister();
+				}
+			});
+	}
+} catch (e) {
+	console.log("unregister sw: ", e);
+}
+```
+
+-   移除&unregister，方法 2:
+    `chrome://serviceworker-internals` 找到对应的 sw 并关闭
+-   移除&unregister，方法 3:
+    Open Developer Tools (F12) and Select Application. Then Either `Select Clear Storage -> Unregister service worker` or `Select Service Workers -> Choose Update on Reload`
 
 ### B 页面意外崩溃，该如何通知 A 页面
 
@@ -1926,6 +1975,10 @@ if (navigator.serviceWorker.controller !== null) {
 	heartbeat();
 }
 ```
+
+### Chrome Capture Network Log
+
+`chrome://net-export/`
 
 ### Proxy 与 Reflect
 
@@ -2053,3 +2106,31 @@ PS：不要将 revceiver 和 get 陷阱中的 this 弄混了，陷阱中的 this
 2. 可以使用 SSO 技术方案：有一个单独的第三方 SSO 服务，做专门的登录和信息保存、检验
 
 3. OAuth2.0 使用第三方的登录验证，如 GitHub、微信扫码登录等等
+
+### preload 和 prefetch
+
+1. preload 资源在当前页面使用，会优先加载，资源预获取
+2. prefetch 资源在未来页面使用，空闲时加载
+
+```html
+<link rel="preload" href="style.css" as="style" />
+<link rel="preload" href="main.js" as="script" />
+
+<link rel="prefetch" href="other.js" as="script" />
+```
+
+### dns-prefetch 和 preconnect
+
+1. dns-prefetch 即 DNS 预查询
+2. preconnect 即 DNS 预连接
+3. DNS 查询通常使用 UDP 协议
+
+```html
+<link rel="dns-prefetch" href="https://fonts.google.com/" />
+<link
+	rel="preconnect"
+	href="https://fonts.google.com/"
+	as="script"
+	crossorigin
+/>
+```

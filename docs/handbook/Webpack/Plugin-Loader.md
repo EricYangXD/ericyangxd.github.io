@@ -321,35 +321,36 @@ module.exports = CustomHtmlPlugin;
 
 ## Plugin Table
 
-| Name                          | Description                                                |
-| :---------------------------- | :--------------------------------------------------------- |
-| AggressiveSplittingPlugin     | 将原来的 chunk 分成更小的 chunk                            |
-| BabelMinifyWebpackPlugin      | 使用 babel-minify 进行压缩                                 |
-| BannerPlugin                  | 在每个生成的 chunk 顶部添加 banner                         |
-| CommonsChunkPlugin            | 提取 chunks 之间共享的通用模块                             |
-| CompressionWebpackPlugin      | 预先准备的资源压缩版本，使用 Content-Encoding 提供访问服务 |
-| ContextReplacementPlugin      | 重写 require 表达式的推断上下文                            |
-| CopyWebpackPlugin             | 将单个文件或整个目录复制到构建目录                         |
-| DefinePlugin                  | 允许在编译时(compile time)配置的全局常量                   |
-| DllPlugin                     | 为了极大减少构建时间，进行分离打包                         |
-| EnvironmentPlugin             | DefinePlugin 中 process.env 键的简写方式。                 |
-| ExtractTextWebpackPlugin      | 从 bundle 中提取文本（CSS）到单独的文件                    |
-| HotModuleReplacementPlugin    | 启用模块热替换(Enable Hot Module Replacement - HMR)        |
-| HtmlWebpackPlugin             | 简单创建 HTML 文件，用于服务器访问                         |
-| I18nWebpackPlugin             | 为 bundle 增加国际化支持                                   |
-| IgnorePlugin                  | 从 bundle 中排除某些模块                                   |
-| LimitChunkCountPlugin         | 设置 chunk 的最小/最大限制，以微调和控制 chunk             |
-| LoaderOptionsPlugin           | 用于从 webpack 1 迁移到 webpack 2                          |
-| MinChunkSizePlugin            | 确保 chunk 大小超过指定限制                                |
-| NoEmitOnErrorsPlugin          | 在输出阶段时，遇到编译错误跳过                             |
-| NormalModuleReplacementPlugin | 替换与正则表达式匹配的资源                                 |
-| NpmInstallWebpackPlugin       | 在开发时自动安装缺少的依赖                                 |
-| ProvidePlugin                 | 不必通过 import/require 使用模块                           |
-| SourceMapDevToolPlugin        | 对 source map 进行更细粒度的控制                           |
-| EvalSourceMapDevToolPlugin    | 对 eval source map 进行更细粒度的控制                      |
-| UglifyjsWebpackPlugin         | 可以控制项目中 UglifyJS 的版本                             |
-| ZopfliWebpackPlugin           | 通过 node-zopfli 将资源预先压缩的版本                      |
-| webpack-deadcode-plugin       | 移除项目中的无效引用文件和导出                             |
+| Name                                | Description                                                |
+| :---------------------------------- | :--------------------------------------------------------- |
+| AggressiveSplittingPlugin           | 将原来的 chunk 分成更小的 chunk                            |
+| BabelMinifyWebpackPlugin            | 使用 babel-minify 进行压缩                                 |
+| BannerPlugin                        | 在每个生成的 chunk 顶部添加 banner                         |
+| CommonsChunkPlugin                  | 提取 chunks 之间共享的通用模块                             |
+| CompressionWebpackPlugin            | 预先准备的资源压缩版本，使用 Content-Encoding 提供访问服务 |
+| ContextReplacementPlugin            | 重写 require 表达式的推断上下文                            |
+| CopyWebpackPlugin                   | 将单个文件或整个目录复制到构建目录                         |
+| DefinePlugin                        | 允许在编译时(compile time)配置的全局常量                   |
+| DllPlugin                           | 为了极大减少构建时间，进行分离打包                         |
+| EnvironmentPlugin                   | DefinePlugin 中 process.env 键的简写方式。                 |
+| ExtractTextWebpackPlugin            | 从 bundle 中提取文本（CSS）到单独的文件                    |
+| HotModuleReplacementPlugin          | 启用模块热替换(Enable Hot Module Replacement - HMR)        |
+| HtmlWebpackPlugin                   | 简单创建 HTML 文件，用于服务器访问                         |
+| I18nWebpackPlugin                   | 为 bundle 增加国际化支持                                   |
+| IgnorePlugin                        | 从 bundle 中排除某些模块                                   |
+| LimitChunkCountPlugin               | 设置 chunk 的最小/最大限制，以微调和控制 chunk             |
+| LoaderOptionsPlugin                 | 用于从 webpack 1 迁移到 webpack 2                          |
+| MinChunkSizePlugin                  | 确保 chunk 大小超过指定限制                                |
+| NoEmitOnErrorsPlugin                | 在输出阶段时，遇到编译错误跳过                             |
+| NormalModuleReplacementPlugin       | 替换与正则表达式匹配的资源                                 |
+| NpmInstallWebpackPlugin             | 在开发时自动安装缺少的依赖                                 |
+| ProvidePlugin                       | 不必通过 import/require 使用模块                           |
+| SourceMapDevToolPlugin              | 对 source map 进行更细粒度的控制                           |
+| EvalSourceMapDevToolPlugin          | 对 eval source map 进行更细粒度的控制                      |
+| UglifyjsWebpackPlugin               | 可以控制项目中 UglifyJS 的版本                             |
+| ZopfliWebpackPlugin                 | 通过 node-zopfli 将资源预先压缩的版本                      |
+| webpack-deadcode-plugin             | 移除项目中的无效引用文件和导出                             |
+| webpack-remove-serviceworker-plugin | 移除项目中的 service worker                                |
 
 -   更多插件参考[https://webpack.js.org/awesome-webpack/](https://webpack.js.org/awesome-webpack/)
 
