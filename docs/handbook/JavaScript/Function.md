@@ -30,6 +30,23 @@ function debounce(fn, wait, immediate) {
 }
 ```
 
+极简版
+
+```js
+function debounce(fn, delay = 300) {
+	let timer;
+	return function (...args) {
+		if (timer) {
+			clearTimeout(timer);
+		}
+		timer = setTimeout(() => {
+			fn.apply(this, args);
+			timer = 0;
+		}, delay);
+	};
+}
+```
+
 ### 节流 throttle
 
 节流(throttle): 每隔一段时间后执行一次，也就是降低频率，将高频操作优化成低频操作，通常使用场景: 滚动条事件 或者 resize 事件，通常每隔 100~500 ms 执行一次即可。
@@ -54,6 +71,21 @@ function throttle(fn, wait, immediate) {
 				timer = null;
 			}, wait);
 		}
+	};
+}
+```
+
+极简版
+
+```js
+function throttle(fn, delay) {
+	let timer = 0; // 上次触发时间
+	return function (...args) {
+		if (timer) return;
+		timer = setTimeout(() => {
+			fn.apply(this, args);
+			timer = 0;
+		}, delay);
 	};
 }
 ```
@@ -93,6 +125,63 @@ function bd_encrypt(gg_lng, gg_lat) {
 }
 ```
 
+## 发布订阅模式
+
+```js
+class EventEmitter {
+	constructor() {
+		this.cache = {};
+	}
+
+	on(name, fn) {
+		if (this.cache[name]) {
+			this.cache[name].push(fn);
+		} else {
+			this.cache[name] = [fn];
+		}
+	}
+
+	off(name, fn) {
+		const tasks = this.cache[name];
+		if (tasks) {
+			const index = tasks.findIndex((f) => f === fn || f.callback === fn);
+			if (index >= 0) {
+				tasks.splice(index, 1);
+			}
+		}
+	}
+
+	emit(name, once = false) {
+		if (this.cache[name]) {
+			// 创建副本，如果回调函数内继续注册相同事件，会造成死循环
+			const tasks = this.cache[name].slice();
+			for (let fn of tasks) {
+				fn();
+			}
+			if (once) {
+				delete this.cache[name];
+			}
+		}
+	}
+}
+
+// 测试
+const eventBus = new EventEmitter();
+const task1 = () => {
+	console.log("task1");
+};
+const task2 = () => {
+	console.log("task2");
+};
+
+eventBus.on("task", task1);
+eventBus.on("task", task2);
+eventBus.off("task", task1);
+setTimeout(() => {
+	eventBus.emit("task"); // task2
+}, 1000);
+```
+
 ## 随机颜色
 
 ```js
@@ -103,6 +192,22 @@ function randomHexColor() {
 	);
 }
 ```
+
+## RGB 转换为 HEX
+
+```js
+const rgbToHex = (r, g, b) => {
+	const toHex = (num) => {
+		const hex = num.toString(16);
+		return `${hex.toString().padStart(2, 0)}`;
+	};
+	return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+```
+
+## 过滤数组中的 falsy 值
+
+`const truthy = nums.filter(Boolean);`
 
 ## 检测是否能跨域
 
@@ -134,6 +239,110 @@ function shuffle(a) {
 ```
 
 ## 面试题
+
+### 异步控制并发数
+
+```js
+function limitRequest(urls = [], limit = 3) {
+	return new Promise((resolve, reject) => {
+		const len = urls.length;
+		let count = 0;
+
+		// 同时启动limit个任务
+		while (limit > 0) {
+			start();
+			limit -= 1;
+		}
+
+		function start() {
+			const url = urls.shift(); // 从数组中拿取第一个任务
+			if (url) {
+				axios
+					.post(url)
+					.then((res) => {
+						// todo
+					})
+					.catch((err) => {
+						// todo
+					})
+					.finally(() => {
+						if (count == len - 1) {
+							// 最后一个任务完成
+							resolve();
+						} else {
+							// 完成之后，启动下一个任务
+							count++;
+							start();
+						}
+					});
+			}
+		}
+	});
+}
+
+// 测试
+limitRequest([
+	"http://xxa",
+	"http://xxb",
+	"http://xxc",
+	"http://xxd",
+	"http://xxe",
+]);
+```
+
+### ES5 继承（寄生组合继承）
+
+```js
+// 1.定义Parent父类
+function Parent(name) {
+	this.name = name;
+}
+Parent.prototype.eat = function () {
+	console.log(this.name + " is eating");
+};
+// 2.定义Child子类
+function Child(name, age) {
+	// 3.Parent.call() 继承Parent
+	Parent.call(this, name);
+	this.age = age;
+}
+// 4.Object.create复制Parent的原型
+Child.prototype = Object.create(Parent.prototype);
+// 5.定义Child的constructor为Child
+Child.prototype.constructor = Child;
+
+// 测试
+let xm = new Child("xiaoming", 12);
+console.log(xm.name); // xiaoming
+console.log(xm.age); // 12
+xm.eat(); // xiaoming is eating
+```
+
+### ES6 继承
+
+```js
+class Parent {
+	constructor(name) {
+		this.name = name;
+	}
+	eat() {
+		console.log(this.name + " is eating");
+	}
+}
+
+class Child extends Parent {
+	constructor(name, age) {
+		super(name);
+		this.age = age;
+	}
+}
+
+// 测试
+let xm = new Child("xiaoming", 12);
+console.log(xm.name); // xiaoming
+console.log(xm.age); // 12
+xm.eat(); // xiaoming is eating
+```
 
 ### sleep 函数
 

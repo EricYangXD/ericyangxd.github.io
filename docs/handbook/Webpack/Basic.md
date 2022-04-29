@@ -70,3 +70,278 @@ hash 所有文件哈希值相同； chunkhash 根据不同的入口文件(Entry)
 
 1. **不管是在 chunkhash 还是 contenthash，修改 css 都会引发 js 和 css 的改变；**
 2. **在 chunkhash 时，由于 js 和 css 的 chunkhash 是一样的，所以修改了 js，会导致整个 chunk 的 chunkhash 改变，它们俩是同一个 chunkhash，肯定就都变了；而在 contenthash 时，js 修改不会影响 css 的改变。**
+
+## Hot Module Replacement(HMR)--热模块替换
+
+见名思意，即无需刷新在内存环境中即可替换掉过旧模块。与 Live Reload 相对应。在 webpack 的运行时中 `__webpack__modules__` 用以维护所有的模块。
+
+而热模块替换的原理，即通过 chunk 的方式加载最新的 modules，找到 `__webpack__modules__` 中对应的模块逐一替换，并删除其上下缓存。
+
+1. `webpack-dev-server` 将打包输出 bundle 使用内存型文件系统控制，而非真实的文件系统。此时使用的是 memfs (opens new window)模拟 node.js fs API;
+2. 每当文件发生变更时，webpack 将会重新编译，`webpack-dev-server` 将会监控到此时文件变更事件，并找到其对应的 module。此时使用的是 chokidar (opens new window)监控文件变更;
+3. `webpack-dev-server` 将会把变更模块通知到浏览器端，此时使用 websocket 与浏览器进行交流。此时使用的是 ws(opens new window);
+4. 浏览器根据 websocket 接收到 hash，并通过 hash 以 JSONP 的方式请求更新模块的 chunk;
+5. 浏览器加载 chunk，并使用新的模块对旧模块进行热替换，并删除其缓存;
+
+## 如何提升 webpack 构建资源的速度
+
+### 更快的 loader: swc
+
+在 webpack 中耗时最久的当属负责 AST 转换的 loader。当 loader 进行编译时的 AST 操作均为 CPU 密集型任务，使用 Javascript 性能低下，此时可采用高性能语言 rust 编写的 swc。
+
+```js
+module: {
+	rules: [
+		{
+			test: /\.m?js$/,
+			exclude: /(node_modules)/,
+			use: {
+				loader: "swc-loader",
+			},
+		},
+	];
+}
+```
+
+### 持久化缓存: cache
+
+1. webpack5 内置了关于缓存的插件，可通过以下配置开启。它将 Module、Chunk、ModuleChunk 等信息序列化到磁盘中，二次构建避免重复编译计算，编译速度得到很大提升。
+
+2. 如对一个 JS 文件配置了 eslint、typescript、babel 等 loader，他将有可能执行五次编译，被五次解析为 AST：
+
+-   acorn: 用以依赖分析，解析为 acorn 的 AST
+-   eslint-parser: 用以 lint，解析为 espree 的 AST
+-   typescript: 用以 ts，解析为 typescript 的 AST
+-   babel: 用以转化为低版本，解析为 @babel/parser 的 AST
+-   terser: 用以压缩混淆，解析为 acorn 的 AST
+
+而当开启了持久化缓存功能，最耗时的 AST 解析将能够从磁盘的缓存中获取，再次编译时无需再次进行解析 AST。
+
+```js
+{
+	cache: {
+		type: "filesystem";
+	}
+}
+```
+
+3. 在 webpack4 中，可使用 cache-loader 仅仅对 loader 进行缓存。需要注意的是该 loader 目前已是 @depcrated 状态。
+
+```js
+module.exports = {
+	module: {
+		rules: [
+			{
+				test: /\.ext$/,
+				use: ["cache-loader", ...loaders],
+				include: path.resolve("src"),
+			},
+		],
+	},
+};
+```
+
+### 多进程: thread-loader
+
+1. thread-loader 为官方推荐的开启多进程的 loader，可对 babel 解析 AST 时开启多线程处理，提升编译的性能。
+
+```js
+module.exports = {
+	module: {
+		rules: [
+			{
+				test: /\.js$/,
+				use: [
+					{
+						loader: "thread-loader",
+						options: {
+							workers: 10,
+						},
+					},
+					"babel-loader",
+				],
+			},
+		],
+	},
+};
+```
+
+2. 在 webpack4 中，可使用 happypack plugin，但需要注意的是 happypack 已经久不维护了。
+
+## 如何分析前端打包体积
+
+在 webpack 中，可以使用 webpack-bundle-analyzer (opens new window)分析打包后体积分析。
+
+其原理是根据 webpack 打包后的 Stats (opens new window)数据进行分析，在 webpack compiler 的 done hook (opens new window)进行处理。
+
+```js
+compiler.hooks.done.tapAsync("webpack-bundle-analyzer", (stats) => {});
+```
+
+在查看页面中，有三个体积选项：
+
+-   stat: 每个模块的原始体积
+-   parsed: 每个模块经 webpack 打包处理之后的体积，比如 terser 等做了压缩，便会体现在上边
+-   gzip: 经 gzip 压缩后的体积
+
+```js
+// ANALYZE=true npm run build 设置环境变量
+const webpack = require("webpack");
+const BundleAnalyzerPlugin =
+	require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+
+function f1() {
+	return webpack({
+		entry: "./index.js",
+		mode: "none",
+		plugins: [process.env.ANALYZE && new BundleAnalyzerPlugin()],
+	});
+}
+
+f1().run((err, stat) => {});
+```
+
+## 如何正确地进行分包
+
+### 为什么需要分包？
+
+1. 一行代码将导致整个 bundle.js 的缓存失效
+2. 一个页面仅仅需要 bundle.js 中 1/N 的代码，剩下代码属于其它页面，完全没有必要加载
+
+### 如何更好的分包？
+
+#### 打包工具运行时
+
+webpack(或其他构建工具) 运行时代码不容易变更，需要单独抽离出来，比如 webpack.runtime.js。由于其体积小，必要时可注入 index.html 中，减少 HTTP 请求数，优化关键请求路径
+
+#### 前端框架运行时
+
+React(Vue) 运行时代码不容易变更，且每个组件都会依赖它，可单独抽离出来 framework.runtime.js。请且注意，务必将 React 及其所有依赖(react-dom/object-assign)共同抽离出来，否则有可能造成性能损耗。(因 webpack 依赖其 object-assign，而 object-assign 将被打入共同依赖 vendor.chunk.js，因此此时它必回加载，但是该页面并不依赖任何第三方库，完全没有必要全部加载 vendor.chunk.js)
+
+#### 高频库
+
+一个模块被 N(2 个以上) 个 Chunk 引用，可称为公共模块，可把公共模块给抽离出来，形成 vendor.js。
+
+1. 问：那如果一个模块被用了多次 (2 次以上)，但是该模块体积过大(1MB)，每个页面都会加载它(但是无必要，因为不是每个页面都依赖它)，导致性能变差，此时如何分包？
+
+-   答：如果一个模块虽是公共模块，但是该模块体积过大，可直接 import() 引入，异步加载，单独分包，比如 echarts 等
+
+2. 问：如果公共模块数量多，导致 vendor.js 体积过大(1MB)，每个页面都会加载它，导致性能变差，此时如何分包
+
+答：有以下两个思路
+
+-   思路一: 可对 vendor.js 改变策略，比如被引用了十次以上，被当做公共模块抽离成 verdor-A.js，五次的抽离为 vendor-B.js，两次的抽离为 vendor-C.js
+-   思路二: 控制 vendor.js 的体积，当大于 100KB 时，再次进行分包，多分几个 vendor-XXX.js，但每个 vendor.js 都不超过 100KB
+
+#### 使用 webpack 分包
+
+-   在 webpack 中可以使用 SplitChunksPlugin (opens new window)进行分包，它需要满足三个条件:
+
+1. minChunks: 一个模块是否最少被 minChunks 个 chunk 所引用
+2. maxInitialRequests/maxAsyncRequests: 最多只能有 maxInitialRequests/maxAsyncRequests 个 chunk 需要同时加载 (如一个 Chunk 依赖 VendorChunk 才可正常工作，此时同时加载 chunk 数为 2)
+3. minSize/maxSize: chunk 的体积必须介于 (minSize, maxSize) 之间
+
+-   以下是 next.js 的默认配置，可视作最佳实践: 源码位置: [next/build/webpack-config.ts](https://github.com/vercel/next.js/blob/v12.0.5-canary.10/packages/next/build/webpack-config.ts#L728)
+
+```js
+{
+  // Keep main and _app chunks unsplitted in webpack 5
+  // as we don't need a separate vendor chunk from that
+  // and all other chunk depend on them so there is no
+  // duplication that need to be pulled out.
+  chunks: (chunk) =>
+    !/^(polyfills|main|pages\/_app)$/.test(chunk.name) &&
+    !MIDDLEWARE_ROUTE.test(chunk.name),
+  cacheGroups: {
+    framework: {
+      chunks: (chunk: webpack.compilation.Chunk) =>
+        !chunk.name?.match(MIDDLEWARE_ROUTE),
+      name: 'framework',
+      test(module) {
+        const resource =
+          module.nameForCondition && module.nameForCondition()
+        if (!resource) {
+          return false
+        }
+        return topLevelFrameworkPaths.some((packagePath) =>
+          resource.startsWith(packagePath)
+        )
+      },
+      priority: 40,
+      // Don't let webpack eliminate this chunk (prevents this chunk from
+      // becoming a part of the commons chunk)
+      enforce: true,
+    },
+    lib: {
+      test(module: {
+        size: Function
+        nameForCondition: Function
+      }): boolean {
+        return (
+          module.size() > 160000 &&
+          /node_modules[/\\]/.test(module.nameForCondition() || '')
+        )
+      },
+      name(module: {
+        type: string
+        libIdent?: Function
+        updateHash: (hash: crypto.Hash) => void
+      }): string {
+        const hash = crypto.createHash('sha1')
+        if (isModuleCSS(module)) {
+          module.updateHash(hash)
+        } else {
+          if (!module.libIdent) {
+            throw new Error(
+              `Encountered unknown module type: ${module.type}. Please open an issue.`
+            )
+          }
+
+          hash.update(module.libIdent({ context: dir }))
+        }
+
+        return hash.digest('hex').substring(0, 8)
+      },
+      priority: 30,
+      minChunks: 1,
+      reuseExistingChunk: true,
+    },
+    commons: {
+      name: 'commons',
+      minChunks: totalPages,
+      priority: 20,
+    },
+    middleware: {
+      chunks: (chunk: webpack.compilation.Chunk) =>
+        chunk.name?.match(MIDDLEWARE_ROUTE),
+      filename: 'server/middleware-chunks/[name].js',
+      minChunks: 2,
+      enforce: true,
+    },
+  },
+  maxInitialRequests: 25,
+  minSize: 20000,
+}
+```
+
+## JS 代码压缩 minify 的原理是什么
+
+通过 AST 分析，根据选项配置一些策略，来生成一颗更小体积的 AST 并生成代码。
+
+目前前端工程化中使用 terser (opens new window)和 swc (opens new window)进行 JS 代码压缩，他们拥有相同的 API。
+
+常见用以压缩 AST 的几种方案如下:
+
+### 去除多余字符: 空格，换行及注释
+
+一般来说中文会占用更大的空间。多行代码压缩到一行时要注意行尾分号。
+
+### 压缩变量名：变量名，函数名及属性名
+
+缩短变量的命名也需要 AST 支持，不至于在作用域中造成命名冲突。
+
+### 解析程序逻辑：合并声明以及布尔值简化
+
+### 解析程序逻辑: 编译预计算
+
+在编译期进行计算，减少运行时的计算量。

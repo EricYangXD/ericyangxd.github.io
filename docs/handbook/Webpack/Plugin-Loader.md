@@ -172,6 +172,71 @@ module.exports = {
 
 ### html-webpack-plugin
 
+作用：将打包后的 js 资源注入 html 中。而注入的原理为当打包器已生成 entryPoint 文件资源后，获得其文件名及 publicPath，并将其注入到 html 中
+
+```js
+class HtmlWebpackPlugin {
+	constructor(options) {
+		this.options = options || {};
+	}
+
+	apply(compiler) {
+		const webpack = compiler.webpack;
+
+		compiler.hooks.thisCompilation.tap(
+			"HtmlWebpackPlugin",
+			(compilation) => {
+				// compilation 是 webpack 中最重要的对象，文档见 [compilation-object](https://webpack.js.org/api/compilation-object/#compilation-object-methods)
+
+				compilation.hooks.processAssets.tapAsync(
+					{
+						name: "HtmlWebpackPlugin",
+
+						// processAssets 处理资源的时机，此阶段为资源已优化后，更多阶段见文档
+						// https://webpack.js.org/api/compilation-hooks/#list-of-asset-processing-stages
+						stage: webpack.Compilation
+							.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
+					},
+					(compilationAssets, callback) => {
+						// compilationAssets 将得到所有生成的资源，如各个 chunk.js、各个 image、css
+
+						// 获取 webpac.output.publicPath 选项，(PS: publicPath 选项有可能是通过函数设置)
+						const publicPath = getPublicPath(compilation);
+
+						// 本示例仅仅考虑单个 entryPoint 的情况
+						// compilation.entrypoints 可获取入口文件信息
+						const entryNames = Array.from(
+							compilation.entrypoints.keys()
+						);
+
+						// entryPoint.getFiles() 将获取到该入口的所有资源，并能够保证加载顺序！！！如 runtime-chunk -> main-chunk
+						const assets = entryNames
+							.map((entryName) =>
+								compilation.entrypoints
+									.get(entryName)
+									.getFiles()
+							)
+							.flat();
+						const scripts = assets.map((src) => publicPath + src);
+						const content = html({
+							title: this.options.title || "Demo",
+							scripts,
+						});
+
+						// emitAsset 用以生成资源文件，也是最重要的一步
+						compilation.emitAsset(
+							"index.html",
+							new webpack.sources.RawSource(content)
+						);
+						callback();
+					}
+				);
+			}
+		);
+	}
+}
+```
+
 ### webpack-bundle-analyzer
 
 ### progress-bar-webpack-plugin
@@ -206,76 +271,11 @@ module.exports = {
 
 ### autodll-webpack-plugin
 
-###
+### mini-css-extract-plugin
+
+将 CSS 单独抽离出来，以便单独加载 CSS 资源。
 
 ## webpack5
-
-### 提高打包速度
-
--   持久化缓存: cache
-
-1. webpack5 内置了关于缓存的插件，可通过以下配置开启。它将 Module、Chunk、ModuleChunk 等信息序列化到磁盘中，二次构建避免重复编译计算，编译速度得到很大提升。
-
-2. 如对一个 JS 文件配置了 eslint、typescript、babel 等 loader，他将有可能执行五次编译，被五次解析为 AST
-
-acorn: 用以依赖分析，解析为 acorn 的 AST
-eslint-parser: 用以 lint，解析为 espree 的 AST
-typescript: 用以 ts，解析为 typescript 的 AST
-babel: 用以转化为低版本，解析为 @babel/parser 的 AST
-terser: 用以压缩混淆，解析为 acorn 的 AST
-
-而当开启了持久化缓存功能，最耗时的 AST 解析将能够从磁盘的缓存中获取，再次编译时无需再次进行解析 AST。
-
-```js
-{
-	cache: {
-		type: "filesystem";
-	}
-}
-```
-
-3. 在 webpack4 中，可使用 cache-loader 仅仅对 loader 进行缓存。需要注意的是该 loader 目前已是 @depcrated 状态。
-
-```js
-module.exports = {
-	module: {
-		rules: [
-			{
-				test: /\.ext$/,
-				use: ["cache-loader", ...loaders],
-				include: path.resolve("src"),
-			},
-		],
-	},
-};
-```
-
--   多进程: thread-loader
-
-1. thread-loader 为官方推荐的开启多进程的 loader，可对 babel 解析 AST 时开启多线程处理，提升编译的性能。
-
-```js
-module.exports = {
-	module: {
-		rules: [
-			{
-				test: /\.js$/,
-				use: [
-					{
-						loader: "thread-loader",
-						options: {
-							workers: 10,
-						},
-					},
-					"babel-loader",
-				],
-			},
-		],
-	},
-};
-```
-
-2. 在 webpack4 中，可使用 happypack plugin，但需要注意的是 happypack 已经久不维护了。
 
 ## 手写简单 webpack 插件
 
@@ -388,5 +388,30 @@ module.exports = {
 		],
 	],
 	plugins: [],
+};
+```
+
+## Loader
+
+### css-loader
+
+css-loader 的原理就是 postcss，借用 postcss-value-parser 解析 CSS 为 AST，并将 CSS 中的 url() 与 @import 解析为模块。
+
+### style-loader
+
+style-loader 用以将 CSS 注入到 DOM 中，原理为使用 DOM API 手动构建 style 标签，并将 CSS 内容注入到 style 中。
+
+```js
+module.exports = function (source) {
+	return `
+    function injectCss(css) {
+      const style = document.createElement('style');
+      // 把css当成文本节点插入到style标签里
+      style.appendChild(document.createTextNode(css));
+      document.head.appendChild(style);
+    }
+
+    injectCss(\`${source}\`);
+  `;
 };
 ```

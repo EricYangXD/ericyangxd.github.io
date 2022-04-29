@@ -81,7 +81,7 @@ date: "2022-01-04"
 | 200                      | 成功，并返回数据                                           | OK                              |
 | 201                      | 已创建                                                     | Created                         |
 | 202                      | 已接受                                                     | Accepted                        |
-| 203                      | 成为，但未授权                                             | Non-Authoritative Information   |
+| 203                      | 成功，但未授权                                             | Non-Authoritative Information   |
 | 204                      | 成功，无内容                                               | No Content                      |
 | 205                      | 成功，重置内容                                             | Reset Content                   |
 | 206                      | 成功，部分内容                                             | Partial Content                 |
@@ -104,7 +104,7 @@ date: "2022-01-04"
 | 501                      | 服务器不支持请求方法                                       | Not Implemented                 |
 | 502                      | 网关错误的响应                                             | Bad Gateway                     |
 | 503                      | 服务不可用，服务器没有准备好处理请求                       | Service Temporarily Unavailable |
-| 504                      | 网管响应超时                                               | Gateway Timeout                 |
+| 504                      | 网关响应超时                                               | Gateway Timeout                 |
 | 505                      | 服务器不支持请求中使用的 HTTP 版本                         | HTTP Version Not Supported      |
 
 ## HTTP 缓存

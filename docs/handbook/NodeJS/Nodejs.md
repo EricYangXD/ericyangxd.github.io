@@ -6,6 +6,28 @@ date: "2022-02-23"
 
 ## 记录 nodejs 知识
 
+### npx
+
+npx 想要解决的主要问题:
+
+1.  就是「**调用项目内部安装的模块**」。
+2.  npx 还能「**避免全局安装的模块**」。
+
+#### 调用项目内部安装的模块
+
+1. 比如，项目内部安装了测试工具 Mocha。`npm install -D mocha`
+2. 一般来说，调用 Mocha ，只能在项目脚本和 package.json 的 scripts 字段里面， 如果想在命令行下调用，必须像下面这样。`node-modules/.bin/mocha --version`
+3. 通过 npx 调用就会很简单：`npx mocha --version`
+4. npx 的原理很简单，就是运行的时候，会到`node_modules/.bin`路径和环境变量`$PATH`里面，检查命令是否存在。
+5. 由于 npx 会检查环境变量`$PATH`，所以系统命令也可以调用。`npx ls`
+6. 注意，Bash 内置的命令不在`$PATH`里面，所以不能用。比如，cd 是 Bash 命令，因此就不能用`npx cd`。
+
+#### 避免全局安装的模块
+
+-   npx 可以运行某些模块/脚手架工具，而且不进行全局安装。`npx create-react-app my-react-app`
+-   npx 将`create-react-app`下载到一个临时目录，使用以后再删除。所以，以后再次执行上面的命令，会重新下载`create-react-app`。只要 npx 后面的模块无法在本地发现，就会下载同名模块。
+-   下载全局模块时，npx 允许指定版本。`npx uglify-js@3.1.0 main.js -o ./dist/main.js`
+
 ### require 工作原理
 
 -   require 方法

@@ -235,3 +235,14 @@ eg.
     - `nano ~/.gitconfig`
     - 写入对应的别名对，例：`co = checkout pl = pull`等并保存退出，
     - 执行`source ~/.gitconfig`使改动生效
+
+### git hooks 原理
+
+1. git 允许在各种操作之前添加一些 hook 脚本，如未正常运行则 git 操作不通过。最出名的还是以下两个：
+    - precommit
+    - prepush
+2. hook 脚本置于目录 ~/.git/hooks 中，以「可执行文件」的形式存在。查看命令：`ls -lah .git/hooks`。
+3. git hooks 可使用 core.hooksPath 自定义脚本位置。
+4. husky 即通过自定义 core.hooksPath 并将 npm scripts 写入其中的方式来实现此功能。
+    - 在`~/.husky` 目录下手动创建 hook 脚本。如：`vim .husky/pre-commit`
+    - 在 hook 脚本中做一些操作，如：在 pre-commit 中进行代码风格校验：`npm run lint && npm run test`
