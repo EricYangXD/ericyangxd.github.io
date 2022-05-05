@@ -4,7 +4,7 @@ author: EricYangXD
 date: "2022-02-09"
 ---
 
-## 安装谷歌服务简介
+## 安卓手机安装谷歌服务
 
 首先必须了解 Google 套件正常运行是由三个基础构建而成：服务框架，账户管理程序，Play 服务。
 
@@ -19,4 +19,4 @@ date: "2022-02-09"
 3. 安装 Google Play Service (Google Play 服务)。
 4. 安装 商店 Google Play Store。
 
-可以从此处[www.apkmirror.com](https://www.apkmirror.com)下载所需的 APP 及对应版本。
+可以从此处[www.apkmirror.com](https://www.apkmirror.com)下载所需的 APK 及对应版本。

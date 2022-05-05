@@ -133,8 +133,12 @@ module.exports = {
 						path: "/handbook/JavaScript/Api",
 					},
 					{
-						title: "前端开发技巧",
-						path: "/handbook/JavaScript/FrontEnd",
+						title: "前端开发技巧(1)",
+						path: "/handbook/JavaScript/FrontEnd1",
+					},
+					{
+						title: "前端开发技巧(2)",
+						path: "/handbook/JavaScript/FrontEnd2",
 					},
 					{
 						title: "手写Promise",
@@ -219,6 +223,10 @@ module.exports = {
 					{
 						title: "Android",
 						path: "/handbook/Skill/Android",
+					},
+					{
+						title: "问题记录",
+						path: "/handbook/Skill/FixBugs",
 					},
 				],
 			},

@@ -108,6 +108,427 @@ function maxLen(str) {
 }
 ```
 
+### 反转链表
+
+```js
+// 迭代
+var reverseList = function (head) {
+	if (head === null || head.next === null) {
+		return head;
+	}
+	let prev = null,
+		cur = head;
+	while (cur !== null) {
+		const next = cur.next;
+		cur.next = prev;
+		prev = cur;
+		cur = next;
+	}
+	return prev;
+};
+
+// 递归
+var reverseList = function (head) {
+	// 递归终止条件
+	if (head == null || head.next == null) return head;
+	// 递
+	const newHead = reverseList(head.next);
+	// 归：这时候右边已经反转的node和左边未反转的node相邻的两个节点是互相指向对方的状态，此时的head指向递归调用栈这一层的node
+	head.next.next = head;
+	head.next = null;
+	return newHead;
+};
+```
+
+### 删除链表倒数第 N 个节点
+
+-   假设 N<=链表长度。通过快慢指针，快指针先走 n+1 步，使快慢指针之间有 N 个节点，然后两个指针一起右移直到快指针指向 null，这时慢指针的下一个节点就是要删除的节点，让 slow.next=slow.next.next 即可，中间要注意删除 head 节点的情况。
+
+```js
+var removeNthFromEnd = function (head, n) {
+	let slow = head,
+		fast = head;
+	// 先让 fast 往后移 n 位
+	while (n--) {
+		fast = fast.next;
+	}
+	// 如果 n 和 链表中总结点个数相同，即要删除的是链表头结点时，fast 经过上一步已经到外面了
+	if (!fast) {
+		return head.next;
+	}
+	// 然后 快慢指针 一起往后遍历，当 fast 是链表最后一个结点时，此时 slow 下一个就是要删除的结点
+	while (fast.next) {
+		slow = slow.next;
+		fast = fast.next;
+	}
+	slow.next = slow.next.next;
+	return head;
+};
+```
+
+### 寻找链表中点
+
+-   通过快慢指针寻找链表中点：快指针每次移动 2 步，慢指针每次移动 1 步
+
+```js
+function findCenter(head) {
+	let slower = head,
+		faster = head;
+	while (faster && faster.next != null) {
+		slower = slower.next;
+		faster = faster.next.next;
+	}
+	// 如果 faster 不等于 null，说明是奇数个，slower 再移动一格
+	if (faster != null) {
+		slower = slower.next;
+	}
+	return slower;
+}
+```
+
+### 前序遍历判断回文链表
+
+1. 利用链表的后序遍历，使用函数调用栈作为后序遍历栈，来判断是否回文
+
+```js
+var isPalindrome = function (head) {
+	let left = head;
+	function traverse(right) {
+		if (right == null) return true;
+		// 这里会递归到最后一个node，然后一层一层往前
+		let res = traverse(right.next);
+		// 记录左右指针是否相等，初始值是tailNode.next===null，也就是true
+		res = res && right.val === left.val;
+		// 左边的指针每次要右移一个
+		left = left.next;
+		return res;
+	}
+	return traverse(head);
+};
+```
+
+2. 通过 快、慢指针找链表中点，然后反转链表，比较两个链表两侧是否相等，来判断是否是回文链表
+
+```js
+var isPalindrome = function (head) {
+	// 反转 slower 链表
+	let right = reverse(findCenter(head));
+	let left = head;
+	// 开始比较
+	while (right != null) {
+		if (left.val !== right.val) {
+			return false;
+		}
+		left = left.next;
+		right = right.next;
+	}
+	return true;
+};
+function findCenter(head) {
+	let slower = head,
+		faster = head;
+	while (faster && faster.next != null) {
+		slower = slower.next;
+		faster = faster.next.next;
+	}
+	// 如果 faster 不等于 null，说明是奇数个，slower 再移动一格
+	if (faster != null) {
+		slower = slower.next;
+	}
+	return slower;
+}
+function reverse(head) {
+	let prev = null,
+		cur = head,
+		nxt = head;
+	while (cur != null) {
+		nxt = cur.next;
+		cur.next = prev;
+		prev = cur;
+		cur = nxt;
+	}
+	return prev;
+}
+```
+
+### 合并 2 个升序链表
+
+```js
+// 迭代1
+function merge(l1, l2) {
+	if (l1 == null && l2 == null) return null;
+	if (l1 != null && l2 == null) return l1;
+	if (l1 == null && l2 != null) return l2;
+	let newHead = null,
+		head = null;
+	while (l1 != null && l2 != null) {
+		if (l1.val < l2.val) {
+			if (!head) {
+				newHead = l1;
+				head = l1;
+			} else {
+				newHead.next = l1;
+				newHead = newHead.next;
+			}
+			l1 = l1.next;
+		} else {
+			if (!head) {
+				newHead = l2;
+				head = l2;
+			} else {
+				newHead.next = l2;
+				newHead = newHead.next;
+			}
+			l2 = l2.next;
+		}
+	}
+	newHead.next = l1 ? l1 : l2;
+	return head;
+}
+
+// 迭代2
+function merge(l1, l2) {
+	if (l1 == null && l2 == null) return null;
+	if (l1 != null && l2 == null) return l1;
+	if (l1 == null && l2 != null) return l2;
+	// 自定义头结点，最后只需返回自定义头结点的next即可
+	const prehead = new ListNode(-1);
+	let prev = prehead; // 记录已排序的链表的尾指针，方便指向下一个排序节点
+
+	while (l1 != null && l2 != null) {
+		if (l1.val <= l2.val) {
+			prev.next = l1;
+			l1 = l1.next;
+		} else {
+			prev.next = l2;
+			l2 = l2.next;
+		}
+		prev = prev.next; // 更新prev，指向最新的尾部node
+	}
+	prev.next = l1 === null ? l2 : l1; // 最后把剩余的有序链表直接合并进来
+	return prehead.next; // 返回自定义头结点的next
+}
+
+// 递归
+var mergeTwoLists = function (l1, l2) {
+	if (l1 === null) return l2;
+	if (l2 === null) return l1;
+	if (l1.val < l2.val) {
+		l1.next = mergeTwoLists(l1.next, l2);
+		return l1;
+	} else {
+		l2.next = mergeTwoLists(l1, l2.next);
+		return l2;
+	}
+};
+```
+
+### 合并 K 个升序链表
+
+-   递归或循环的方式两两合并即可
+
+```js
+var mergeKLists = function (lists) {
+	if (lists.length === 0) return null;
+	return mergeArr(lists);
+};
+function mergeArr(lists) {
+	if (lists.length <= 1) return lists[0];
+	let index = Math.floor(lists.length / 2);
+	const left = mergeArr(lists.slice(0, index));
+	const right = mergeArr(lists.slice(index));
+	return merge(left, right);
+}
+function merge(l1, l2) {
+	if (l1 == null && l2 == null) return null;
+	if (l1 != null && l2 == null) return l1;
+	if (l1 == null && l2 != null) return l2;
+	let newHead = null,
+		head = null;
+	while (l1 != null && l2 != null) {
+		if (l1.val < l2.val) {
+			if (!head) {
+				newHead = l1;
+				head = l1;
+			} else {
+				newHead.next = l1;
+				newHead = newHead.next;
+			}
+			l1 = l1.next;
+		} else {
+			if (!head) {
+				newHead = l2;
+				head = l2;
+			} else {
+				newHead.next = l2;
+				newHead = newHead.next;
+			}
+			l2 = l2.next;
+		}
+	}
+	newHead.next = l1 ? l1 : l2;
+	return head;
+}
+```
+
+### K 个一组翻转链表
+
+```js
+var reverseKGroup = function (head, k) {
+	let a = head,
+		b = head;
+	for (let i = 0; i < k; i++) {
+		if (b == null) return head;
+		b = b.next;
+	}
+	// 每次翻转a到b这一段
+	const newHead = reverse(a, b);
+	// 递归，a指向下一段新的head节点
+	a.next = reverseKGroup(b, k);
+	return newHead;
+};
+// 翻转a->b
+function reverse(a, b) {
+	let prev = null,
+		cur = a,
+		nxt = a;
+	while (cur != b) {
+		nxt = cur.next;
+		cur.next = prev;
+		prev = cur;
+		cur = nxt;
+	}
+	return prev;
+}
+```
+
+### 环形链表
+
+-   快慢指针判断链表有没有环，有环的话两个指针肯定会相遇（套圈），无环的话会退出。
+
+```js
+var hasCycle = function (head) {
+	if (head == null || head.next == null) return false;
+	let slower = head,
+		faster = head;
+	while (faster != null && faster.next != null) {
+		slower = slower.next;
+		faster = faster.next.next;
+		if (slower === faster) return true;
+	}
+	return false;
+};
+```
+
+### 排序链表
+
+-   TODO
+
+```js
+var sortList = function (head) {
+	if (head == null) return null;
+	let newHead = head;
+	return mergeSort(head);
+};
+function mergeSort(head) {
+	if (head.next != null) {
+		let slower = getCenter(head);
+		let nxt = slower.next;
+		slower.next = null;
+		console.log(head, slower, nxt);
+		const left = mergeSort(head);
+		const right = mergeSort(nxt);
+		head = merge(left, right);
+	}
+	return head;
+}
+function merge(left, right) {
+	let newHead = null,
+		head = null;
+	while (left != null && right != null) {
+		if (left.val < right.val) {
+			if (!head) {
+				newHead = left;
+				head = left;
+			} else {
+				newHead.next = left;
+				newHead = newHead.next;
+			}
+			left = left.next;
+		} else {
+			if (!head) {
+				newHead = right;
+				head = right;
+			} else {
+				newHead.next = right;
+				newHead = newHead.next;
+			}
+			right = right.next;
+		}
+	}
+	newHead.next = left ? left : right;
+	return head;
+}
+function getCenter(head) {
+	let slower = head,
+		faster = head.next;
+	while (faster != null && faster.next != null) {
+		slower = slower.next;
+		faster = faster.next.next;
+	}
+	return slower;
+}
+```
+
+### 相交链表
+
+-   TODO
+
+```js
+var getIntersectionNode = function (headA, headB) {
+	let lastHeadA = null;
+	let lastHeadB = null;
+	let originHeadA = headA;
+	let originHeadB = headB;
+	if (!headA || !headB) {
+		return null;
+	}
+	while (true) {
+		if (headB == headA) {
+			return headB;
+		}
+		if (headA && headA.next == null) {
+			lastHeadA = headA;
+			headA = originHeadB;
+		} else {
+			headA = headA.next;
+		}
+		if (headB && headB.next == null) {
+			lastHeadB = headB;
+			headB = originHeadA;
+		} else {
+			headB = headB.next;
+		}
+		if (lastHeadA && lastHeadB && lastHeadA != lastHeadB) {
+			return null;
+		}
+	}
+	return null;
+};
+```
+
+### K 个一组翻转链表
+
+```js
+
+```
+
+### K 个一组翻转链表
+
+```js
+
+```
+
 ## 山月前端工程化
 
 厘清几个概念

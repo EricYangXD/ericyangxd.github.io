@@ -605,6 +605,8 @@ background-image: url(${HeaderImg}) no-repeat; // fixed bottom
 
 ## 加载动画
 
+-   使用`styled-components`的组件
+
 ```js
 import styled, { keyframes } from "styled-components";
 
@@ -990,6 +992,10 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 -   tabular-nums: 启用表格数字显示。使数字等宽，易于像表格那样对齐。等同于 OpenType 特性 tnum。
 -   也可以通过 font-feature-settings: "tnum";来实现相同的功能，兼容性更好。
 
+### font-variant
+
+-   `font-variant:small-caps;` 可以实现把段落设置为小型大写字母字体，这意味着所有的小写字母均会被转换为大写，但是所有使用小型大写字体的字母与其余文本相比，其字体尺寸更小。
+
 ### offsetWidth、clientWidth、scrollWidth、scrollTop 的区别
 
 1. offsetWidth：border+padding+content;
@@ -1007,3 +1013,44 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 ### 毛玻璃效果
 
 使用 `backdrop-filter: blur(6px);` 给元素后面区域添加模糊效果.
+
+### 改变输入框光标颜色
+
+```css
+input {
+	caret-color: red;
+}
+```
+
+### 阻止你的用户复制文本
+
+```css
+div {
+	-webkit-user-select: none; /* Safari */
+	-ms-user-select: none; /* IE 10 and IE 11 */
+	user-select: none; /* Standard syntax */
+}
+```
+
+### Filter 属性
+
+```css
+filter: drop-shadow(16px 16px 20px red);
+filter: blur(5px);
+filter: contrast(200%);
+filter: grayscale(80%);
+```
+
+### writing-mode 文字排版方向
+
+```css
+writing-mode: vertical-lr;
+```
+
+### Grid 中的 place-items
+
+在 grid 布局中，align-items 属性控制垂直位置，justify-items 属性控制水平位置。这两个属性的值一致时，就可以合并写成一个值。所以，`place-items: center;`等同于`place-items: center center;`。
+
+```css
+place-items: center stretch;
+```

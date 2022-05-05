@@ -1,0 +1,1179 @@
+---
+title: 记录一些前端知识(2)
+author: EricYangXD
+date: "2021-05-02"
+---
+
+## a 标签 rel 属性
+
+`<a target="_blank" rel="noopener noreferrer" class="hover" href="https://linkmarket.aliyun.com/hardware_store?spm=a2c3t.11219538.iot-navBar.62.4b5a51e7u2sXtw" data-spm-anchor-id="a2c3t.11219538.iot-navBar.62">硬件商城</a>`
+
+使用 noopener noreferrer 就是告诉浏览器，新打开的子窗口不需要访问父窗口的任何内容，这是为了防止一些钓鱼网站窃取父窗口的信息。
+
+浏览器在打开新页面时，解析到含有 noopener noreferrer 时，就知道他们不需要共享页面内容，所以这时候浏览器就会让新链接在一个新页面中打开了。
+
+## 防抖函数的使用
+
+直接使用 lodash 的 debounce 函数即可。
+
+```ts
+const fetchRef = useRef(0);
+
+const debounceFetcher = React.useMemo(() => {
+	const loadOptions = (value: string) => {
+		fetchRef.current += 1;
+		const fetchId = fetchRef.current;
+
+		setLoading(true);
+		getDataList(value).then((res) => {
+			if (fetchId !== fetchRef.current) {
+				return;
+			}
+			if (res.code === 1) {
+				setDataList(res.data);
+			} else {
+				setDataList([]);
+			}
+			setLoading(false);
+		});
+	};
+
+	return debounce(loadOptions, debounceTimeout);
+}, [xxx, yyy]);
+```
+
+## Nignx 使用 njs
+
+[知乎链接](https://zhuanlan.zhihu.com/p/393788937)
+
+## 前端跨域
+
+### 同源
+
+同源：same-origin: 何为同源：url 是由协议、域名、端口和路径组成 如果两个路径的协议、域名、端口都相同则表示在同一个域上，即同源；在浏览器上 `<script>、<img>、<link>、<iframe>`等标签都可以加载跨域资源 且不受同源策略限制。
+
+### 跨域
+
+1. JSONP: 通过 javascript callback 的形式实现跨域访问，服务器收到请求后，将数据放在一个指定名字的回调函数里传回来;
+2. postMessage / Channel Messaging API;
+3. window.name: window.name + iframe 需要目标服务器响应 window.name，window 对象有一个 name 属性，该属性有个特征：即在一个窗口（window）的生命周期内，窗口载入的所有的页面都是共享一个 window.name 的，每个页面对 window. name 都有读写的权利，window.name 是持久存在一个窗口载入过的所有页面中的;
+4. document.domain: 当两个页面的 document.domain 都设置为 ericyangxd.top 也就是同一个二级域名的时候，浏览器就将两个来源视为同源。这时候主页面就可以和 iframe/子页面 进行通信了。**Chrome 决定在 101 版本禁用掉它**。解决办法：给你的网页增加下面这个 Header 就可以了:`Origin-Agent-Cluster: ?0`.
+5. CORS: Nginx 设置 header: `Access-Control-Allow-Origin: *`;
+6. websocket: 单独的持久连接上提供全双工、双向通信;
+
+### 跨域请求服务端有没有收到，收到的话是否执行，执行的话是否有返回，返回的 response 在哪里
+
+1. 简单请求：不管是否跨域，只要发出去了，一定会到达服务端并被执行，浏览器只会隐藏返回值
+2. 复杂请求：先发预检，预检不会真正执行业务逻辑，预检通过后才会发送真正请求并在服务端被执行
+
+在发送真正的请求之前，浏览器会先发送一个 Preflight 请求，也就是我们常说的预检请求，它的方法为 OPTIONS。当预检请求到达服务端时，服务端是不会真正执行这个请求的逻辑的，只会在这个请求上返回一些 HTTP Header，以此来告诉客户端是不是要发送真正的请求。
+
+**一旦浏览器把请求判定为 简单请求，浏览器就不会发送预检了。**
+
+浏览器判定请求是否为简单请求要同时满足以下四个条件：
+
+1. 使用下列方法之一：
+
+-   GET
+-   HEAD
+-   POST
+
+2. 只使用了如下的安全 Header，不得人为设置其他 Header
+
+-   text/plain
+-   multipart/form-data
+-   application/x-www-form-urlencoded
+-   Content-Type 的值仅限于下列三者之一：
+    -   Accept
+    -   Accept-Language
+    -   Content-Language
+
+3. 请求中的任意 XMLHttpRequest 对象均没有注册任何事件监听器；XMLHttpRequest 对象可以使用 XMLHttpRequest.upload 属性访问。
+4. 请求中没有使用 ReadableStream 对象。
+
+**所以，如果你发送的是一个简单请求，这个请求不管是不是会受到跨域的限制，只要发出去了，一定会在服务端被执行，浏览器只是隐藏了返回值而已。**
+
+### Vue 跨域配置
+
+利用 http-proxy-middleware 代理解决；
+
+```js
+// vue.config.js
+devServer:{
+	proxy:{
+		"/api":{
+			target:"https://****.com" //数据接口的地址
+			changeOrigin:true,  // 允许跨域
+			secure:false, // 允许运行在https上
+			pathRewrite: { //如果你不想总是传递 /api,可以重写路径
+				'^/api': ''
+			}
+		}
+	}
+}
+```
+
+### Nginx 跨域配置
+
+1. 跨域主要涉及四个响应头：
+
+-   Access-Control-Allow-Origin: 设置允许跨域请求源地址（预检和正式请求在跨域时都会验证）
+-   Access-Control-Allow-Headers: 跨域允许携带的特殊头信息字段（只在预检请求验证）
+-   Access-Control-Allow-Methods: 跨域允许的请求方法（只在预检请求验证）
+-   Access-Control-Allow-Credentials: 是否允许跨域使用 cookies
+
+2. CORS 机制跨域会首先进行 preflight 预检（一个 OPTIONS 请求），该请求成功后才会发送真正的请求
+3. 示例：
+
+```http
+server {
+	listen 22222;
+	server_name localhost;
+	location / {
+		if ($request_method = 'OPTIONS') {
+			add_header Access-Control-Allow-Origin 'http://localhost:8080';
+			add_header Access-Control-Allow-Headers '*';
+			add_header Access-Control-Allow-Methods '*';
+			add_header Access-Control-Allow-Credentials 'true';
+			return 204;
+		}
+		if ($request_method != 'OPTIONS') {
+			add_header Access-Control-Allow-Origin 'http://localhost:8080' always;
+			add_header Access-Control-Allow-Credentials 'true';
+		}
+		proxy_pass http://localhost:8090;
+	}
+}
+```
+
+## BFF
+
+BFF（Backend for Frontend）层，主要就是就是为了前端服务的后端。与其说是后端，不如说是各种端（Browser、APP、miniprogram）和后端各种微服务、API 之间的一层胶水代码。这层代码主要的业务场景也比较集中，大多数是请求转发、数据组织、接口适配、鉴权和 SSR。在这种业务场景下，采用大前端的开发模式，会提升业务的迭代效率。
+
+1. 前端和后端都使用 JavasScript，技术栈是统一的。从写代码，到编译、打包、脚手架、组件化、包管理，再到 CICD，采用同一套都不是问题。
+2. Client Side JavaScript 和 Server Side JavaScript 本身就有很多可服用的代码，例如现在行业里有很多同构代码的 CSR 和 SSR 解决方案。
+3. 优化研发组织结构。大前端的开发模式，让接口定义、接口联调、环境模拟等，原来需要两种不同技术能力栈的工程师互相协作的模式，变为同一种技术技术能力栈的工程师独立完成的模式，让沟通和推动的成本降到最低。
+
+## moment
+
+时间：var time = new Date(); // Tue Aug 28 2018 09:16:06 GMT+0800 (中国标准时间)
+
+时间戳：var timestamp = Date.parse(time); // 1535419062000 （Date.parse() 默认不取毫秒，即后三位毫秒为 0）
+
+moment 转时间戳：moment(time).valueOf(); // 1535419062126
+
+moment 转时间：moment(timestamp).format(); // 2018-08-28T09:17:42+08:00
+
+## new URL() 和 window.location
+
+### location 对象
+
+```js
+// window.location
+/*
+https://www.baidu.com/s?wd=Reflect.%20defineProperty&rsv_spt=1#123
+*/
+const { href, origin, host, port, protocol, pathname, hash, search } =
+	window.location;
+console.log(href); // 获取整个URL xxx
+console.log(origin); // 协议+域名+端口  https://www.baidu.com
+console.log(host); // 主机名+端口号（http或者https会省略端口号）  www.baidu.com
+console.log(port); // '' http默认端口80 https默认端口443
+console.log(protocol); // 协议 https:
+console.log(pathname); // 除了域名的路由地址路径
+console.log(hash); // 路径带#的参数
+console.log(search); // 地址?后面所有参数
+```
+
+在 location.search、location.hash、location.origin、location.href 是通常项目中几个比较高频的获取当前地址的一些参数方法，不过注意只有 location.origin 这个是只读的，其他 API 都是可读可写.
+
+### URL
+
+```js
+const url = new URL(
+	"https://www.baidu.com/s?wd=Reflect.%20defineProperty&rsv_spt=1#123"
+);
+console.log(url.search); // ?wd=Reflect.%20defineProperty&rsv_spt=1
+console.log(url.hash); // #123
+console.log(url.origin); // https://www.baidu.com
+console.log(url.href); // 'https://www.baidu.com/s?wd=Reflect.%20defineProperty&rsv_spt=1#123'
+```
+
+URL 这个原生构造的地址中属性与 location 获取地址上的通用属性都基本一样。
+
+唯一的区别是，location 多了 replace 与 reload 方法,URL 除了拥有 location 的通用属性，没有 replace 与 reload 方法，但是他具备一个获取参数的一个 searchParamsAPI.
+
+#### searchParams
+
+```js
+// 返回 URLSearchParams 的对象
+console.log(url.searchParams);
+// { 'wd' => 'Reflect. defineProperty', 'rsv_spt' => '1' }
+
+// 可以替代qs.stringify()
+console.log(url.searchParams.toString());
+// wd=Reflect.+defineProperty&rsv_spt=1
+
+// 相当于 URLSearchParams(search) ，不用考虑'?'
+const { search } = this.props.location;
+const { id, name } = qs.parse(search.replace(/^\?/, ""));
+```
+
+-   url query params 解析转换
+-   原生 Object 提供了一个 `fromEntries` API，它可以将 entries 数据还原成以前的 obj。
+
+```js
+function formateQueryUrl() {
+	const { search } = window.location;
+	// 以？分割，获取url上的真正的参数
+	const [, searchStr] = search.split("?");
+	// 以&分割前后参数
+	const arr = searchStr.split("&");
+	const ret = {};
+	arr.forEach((v) => {
+		const [key, val] = v.split("=");
+		ret[key] = val;
+	});
+	return ret;
+}
+
+// 与上面formateQueryUrl方法等价
+function eazyFormateQueryUrl() {
+	const url = new URL(window.location);
+	return Object.fromEntries(url.searchParams.entries());
+}
+// 如果当前浏览器地址 https://www.badu.com?a=1&b=2
+// {a:1,b:2}
+```
+
+## Cookie
+
+### 作用
+
+因为 HTTP 是无状态的，所以为了协助 Web 保持状态，Cookie 诞生了。主要用于以下三个方面：
+
+-   会话状态管理（如用户登录状态、购物车、游戏分数或其它需要记录的信息）
+-   个性化设置（如用户自定义设置、主题等）
+-   浏览器行为跟踪（如跟踪分析用户行为等）
+
+### 设置
+
+| 平台                    | 操作示例                                   | 说明                                              |
+| ----------------------- | ------------------------------------------ | ------------------------------------------------- |
+| 服务端                  | `set-cookie: <cookie-name>=<cookie-value>` | 服务端通过设置 set-cookie 控制 Cookie             |
+| 浏览器 document.cookie  | `document.cookie = "name=scar";`           | 获取并设置与当前文档相关联的 cookie，操作不灵活。 |
+| 浏览器 Cookie Store API | `cookieStore.set("name", "scar");`         | 新特性，仅支持在 HTTPS 使用，目前还在实验阶段。   |
+
+### 伪代码/使用
+
+1. 服务端，例 nodejs：
+
+```js
+const http = require("http");
+http.createServer((req, res) => {
+	if (req.url === "/read") {
+		// 读取 Cookie
+		res.end(`Read Cookie: ${req.headers.cookie || ""}`);
+	} else if (req.url === "/write") {
+		// 设置 Cookie
+		res.setHeader("Set-Cookie", [
+			`name=scar;`,
+			//set-cookie 属性大小写不敏感，你可以写成 path=/ 或者 Path=/
+			`language=javascript;Path=/; HttpOnly;Expires=${new Date(
+				Date.now() + 1000
+			).toUTCString()};`,
+		]);
+		res.end("Write Success");
+	} else if (req.url === "/delete") {
+		// 删除 cookie
+		res.setHeader("Set-Cookie", [
+			// 设置过期时间为过去的时间
+			`name=;expires=${new Date(1).toUTCString()}`,
+			// 有效期 max-age 设置成 0 或 -1 这种无效秒，让 cookie 当场去世
+			// 有些浏览器不支持 max-age 属性，所以用此方法需要考虑兼容性
+			"language=javascript; max-age=0",
+		]);
+		res.end("Delete Success");
+	} else {
+		res.end("Not Found");
+	}
+}).listen(3000);
+```
+
+2. 客户端，通过浏览器方法 document.cookie 读写当前界面的 Cookie。
+
+```js
+// 编辑 Cookie，必须一个一个设置！！！不能多个一起设置！！！
+document.cookie = "name=scar";
+document.cookie = "language=javascript";
+// 读取 Cookie
+console.log(document.cookie);
+//name=scar; language=javascript
+
+// 删除 Cookie
+document.cookie = "name=scar;expires=Thu, 01 Jan 1970 00:00:01 GMT";
+```
+
+1. 客户端：Cookie Store API，目前正在试验阶段，Firefox、Safari 浏览器 还不支持，所以不建议在生产环境使用，相信在将来我们会用上它更方便地操作 Cookie。
+
+```js
+// 读取 Cookie，返回的是Promise，所以要用await！！！
+await cookieStore.get("enName");
+await cookieStore.getAll();
+
+// 设置 Cookie
+const day = 24 * 60 * 60 * 1000;
+cookieStore
+	.set({
+		name: "enName",
+		value: "scar",
+		expires: Date.now() + day, // 过期时间，默认为会话关闭时间
+		domain: "scar.siteÏ", // 生效域名，是接受请求的域名
+		path: "/report_mgmt", // 生效路径，子路径也会被匹配
+		sameSite: "none", // 允许服务器设定 Cookie 不随着跨站请求一起发送，Lax|Strict|None，服务器要求某个 Cookie 在跨站请求时不会被发送，从而可以阻止跨站请求伪造攻击。限制了发送 Cookie 的域名
+		secure: false, // 仅 HTTPS 可用，标记为 Secure 的 Cookie 只应通过被 HTTPS 协议加密过的请求发送给服务端，因此可以预防 man-in-the-middle 攻击。
+		maxAge: 10000, // 有效期，单位秒，秒数为 0 或 -1 将会使 cookie 直接过期，如果 Expires 和Max-Age 同时存在时，Max-Age优先级更高。
+		sameParty: false, // 允许特定条件跨域共享 Cookie
+		priority: "Medium", // 优先级，仅 Chrome 支持， Low|Medium|High，如果设置了 Priority，Chrome 会先将优先级低的清除，并且每种优先级 Cookie 至少保留一个。
+		httpOnly: false, // 设置了 HttpOnly 属性的 cookie 不能使用 JavaScript 经由  document.cookie 属性、XMLHttpRequest 和  Request APIs、Cookie Store APIs 进行访问。
+	})
+	.then(
+		function () {
+			console.log("It worked!");
+		},
+		function (reason) {
+			console.error("It failed: ", reason);
+		}
+	);
+
+// 删除 Cookie
+await cookieStore.delete("session_id");
+
+// 监听 Cookie 变化
+cookieStore.addEventListener("change", (event) => {
+	for (const cookie of event.changed) {
+		if (cookie.name === "name") sessionCookieChanged(cookie.value);
+	}
+	for (const cookie of event.deleted) {
+		if (cookie.name === "enName") sessionCookieChanged(null);
+	}
+});
+```
+
+### Q&A
+
+#### Cookie 的限制
+
+1. 大小限制
+
+大多数浏览器支持最大为 4KB 的 Cookie，4KB 是针对 Cookie 单条记录的 Value 值。
+
+2. 数量限制
+
+Cookie 有数量限制，而且只允许每个站点存储一定数量的 Cookie，当超过时，最早过期的 Cookie 便被删除，或者优先级低的会被干掉。在 150-180 左右。
+
+实际上影响 Cookie 被删除的要素不止是 Expires 和 Max-Age，还有 Priority、Secure。
+
+#### 和 Cookie 相关的不安全事件有哪些？
+
+1. CSRF 跨站请求攻击：攻击者通过一些技术手段欺骗用户的浏览器去访问一个自己曾经认证过的网站并运行一些操作（如发邮件，发消息，甚至财产操作如转账和购买商品）。
+
+通过设置 sameSite 可以防止跨域发送 Cookie，抵御 CSRF。
+
+2. XSS 跨站脚本攻击：是一种网站应用程序的安全漏洞攻击。通常指的是通过利用网页开发时留下的漏洞，通过巧妙的方法注入恶意指令代码到网页，使用户加载并执行攻击者恶意制造的网页程序。攻击成功后，攻击者可能得到 Cookie 从而实现攻击。
+
+3. 同名 Cookie 发送时，优先级如何判断？
+
+Cookie 发送顺序：Path 属性较长的应该在前面；如果 Path 路径一样，创建时间早的在前面。
+
+除了考虑发送顺序，还要考虑不同的服务器框架可能有不同的接收逻辑，所以笔者推荐尽量避免出现同名 Cookie，减少端表现不统一带来的不确定性。
+
+4. 如何快速调试 Cookie
+
+浏览器控制台->Applications 下，通过分析 Cookie 属性来定位问题。
+
+#### 如何控制浏览器资源加载优先级之 Priority Hints
+
+-   常规做法：
+
+1. 根据期望的资源的下载顺序放置资源标签，例如 `<script>`和 `<link>`，具有相同优先级的资源通常按照它们被放置的顺序加载。
+2. 使用 preload 属性提前下载必要的资源，特别是对于浏览器早期不易发现的资源。
+3. 使用 async 或 defer 下载非首屏不需要阻塞的资源。
+4. 延迟加载一些首屏内容，以便浏览器可以将可用的网络带宽用于更重要的首屏资源。
+
+> async 标记异步下载，异步执行，多条 js 可以并行下载，当 js 下载完成后会立即(尽快)执行，多条 js 不会互相等待，不能确保彼此的先后顺序。
+> defer 标记异步下载，多条 js 可以并行下载，不过当 js 下载完成之后不会立即执行，而是会等待解析完整个 HTML 之后在开始执行，而且多条 defer 标记的 js 会按照顺序执行。defer 脚本会在**DOMContentLoaded**和 load 事件之前执行。
+> 如果两个 script 之间没有依赖关系并且可以尽快执行的更加适合使用 async，反之如果两个 script 之间有依赖关系，或者希望优先解析 HTML，则 defer 更加适合。
+
+-   特殊情况：
+
+1. 网站现在有多个首屏图像，但它们并具有相同的优先级，比如在轮播图中只有第一张图需要更高的优先级。
+2. 将 `<script>` 声明为 async 或 defer 可以告诉浏览器异步加载它们。但是，根据我们上面的分析，这些 `<script>` 也被分配了 “低” 优先级。但是你可能希望在确保浏览器异步下载它们的同时提高它们的优先级，尤其是一些对用户体验至关重要脚本。
+3. 浏览器为 JavaScript fetch API 异步获取资源或数据分配了高优先级，但是某些场景下你可能不希望以高优先级请求所有资源。
+4. 浏览器为 CSS、Font 分配了同样的高优先级，但是并不是所有 CSS 和 Font 资源都是一样重要的，你可能需要更具体的指定它们的优先级。
+
+-   可行的解决方法**试验特性** —— Priority Hints：
+
+1. 可以使用一个 **importance** 属性来更细粒度的控制资源加载的优先级，包括 link、img、script 和 iframe 这些标签。
+    - high：你认为该资源具有高优先级，并希望浏览器对其进行优先级排序。
+    - low：你认为该资源的优先级较低，并希望浏览器降低其优先级。
+    - auto：采用浏览器的默认优先级。
+    - 例：`<link rel="preload" href="/js/script.js" as="script" importance="low">`
+2. 实际应用
+    - 提升 LCP 图像的优先级
+    - 降低首屏图片的优先级
+    - 降低预加载资源的优先级
+    - 改变脚本的优先级，配合 async/defer
+    - 降低不太关键的数据请求的优先级
+
+#### HTML - link 标签
+
+1. `<link rel="preload" href="style.css" as="style">`，as 属性可以指定预加载的类型，除了 style 还支持很多类型，常用的一般是 style 和 script，css 和 js。
+2. 使用 link 的 preload 属性预加载一个资源。
+3. prefetch 和 preload 差不多，prefetch 是一个低优先级的获取，通常用在这个资源可能会在用户接下来访问的页面中出现的时候。对当前页面的要用 preload，不要用 prefetch，可以用到的一个场景是在用户鼠标移入 a 标签时进行一个 prefetch。
+4. preconnect 和 dns-prefetch 做的事情类似，提前进行 TCP，SSL 握手，省去这一部分时间，基于 HTTP1.1(keep-alive)和 HTTP2(多路复用)的特性，都会在同一个 TCP 链接内完成接下来的传输任务。
+5. `<script src="" crossorigin="anonymous"></script>`，crossorigin 可以使用本属性来使那些将静态资源放在另外一个域名的站点打印错误信息。通过`window.onerror`捕获错误信息。
+
+#### 对 lodash 进行 tree-shaking
+
+Tree-shaking 指的是消除没被引用的模块代码，减少代码体积大小，以提高页面的性能，最初由 rollup 提出。
+
+webpack2 加入对 Tree-shaking 的支持，webpack4 中 Tree-shaking 默认开启，Tree-shaking 基于 ESModule 静态编译而成，所以如果想要生效，在写代码的时候注意不要用 CommonJS 的模块，同时也要注意不要让 babel 给编译成 CommonJS 的形式。
+
+对于一些第三方库来说为了兼容性考虑通常入口文件都是 CommonJS 的形式，这时想要成功抖掉不需要的部分通常有两种方式。
+
+lodash 默认是 CommonJS 的形式，使用常规的方法 `import { cloneDeep } from 'lodash';` 导入后，webpack 会把整个 lodash 打包进来，这对于只用到了一个函数的我们的来说显然不可接受，此时可以改写为：
+
+```js
+import cloneDeep from "lodash/cloneDeep";
+```
+
+或者如果提供了 ESModule 的版本也可以直接使用:
+
+```js
+import { cloneDeep } from 'lodash-es;
+```
+
+前者是精准导入不依赖 re-exports，后者则是一个正经的 Tree-shaking。
+
+webpack4+无需配置默认会压缩代码，如果你想亲自试试，Js 可选 `UglifyJS`，CSS 可选 `mini-css-extract-plugin`。
+
+使用动态 import()代替静态 import 做条件渲染的懒加载。其实具体到组件内部，也可以用同样的方式将一些基于判断条件的子组件/第三方库通过 import()的方式导入，这样 webpack 在打包时会单独将它列为一个块，当符合判断条件时才会尝试去加载这个文件。
+
+服务器端渲染出来的 HTML 部分最好不要超过 14kb，TCP 慢开始的规则让第一个 TCP 包的大小是 14kb，这是与网站交互会接受到的第一个包。
+
+## 页面间通信
+
+-   url 传参
+-   postmessage
+-   localStorage
+-   WebSocket
+-   SharedWorker
+-   Service Worker
+
+### url 传参
+
+0. A 页面通过 url 传递参数与 B 页面通信，同样通过监听 hashchange 事件，在页面 B 关闭时与 A 通信。
+1. `let windowObjectReference = window.open(strUrl, strWindowName, [strWindowFeatures]);`
+
+-   strUrl === 要在新打开的窗口中加载的 URL。
+-   strWindowName === 新窗口的名称。
+-   strWindowFeatures === 一个可选参数，列出新窗口的特征(大小，位置，滚动条等)作为一个 DOMString。-- menubar, location, resizable, scrollbars, status...
+-   返回值 WindowObjectReference：打开的新窗口对象的引用。如果调用失败，返回值会是 null 。如果父子窗口满足“同源策略”，你可以通过这个引用访问新窗口的属性或方法。
+
+2. 监听方法
+
+```js
+// A.html
+window.addEventListener(
+	"hashchange",
+	function () {
+		// 监听 hash
+		alert(window.location.hash);
+	},
+	false
+);
+// B.html
+window.onbeforeunload = function (e) {
+	window.open("A.html#close", "A");
+	return "确定离开此页吗？";
+};
+```
+
+3. B 页面正常关闭，如何通知 A 页面：页面正常关闭时，会先执行 window.onbeforeunload ，然后执行 window.onunload ，我们可以在这两个方法里向 A 页面通信。
+
+### postMessage
+
+postMessage 是 h5 引入的 API，postMessage() 方法允许来自不同源的脚本采用异步方式进行有效的通信，可以实现跨文本文档、多窗口、跨域消息传递，可在多用于窗口间数据通信，这也使它成为跨域通信的一种有效的解决方案。
+
+```js
+// A.html
+window.name = "A";
+function openB() {
+	window.open("B.html?code=123", "B");
+}
+window.addEventListener("message", receiveMessage, false);
+function receiveMessage(event) {
+	console.log("收到消息：", event.data);
+}
+// B.html
+window.name = "B";
+function sendA() {
+	let targetWindow = window.opener;
+	targetWindow.postMessage("Hello A", "http://localhost:3000");
+}
+```
+
+### localStorage
+
+localStorage 仅允许你访问一个 Document 源（origin）的对象 Storage；存储的数据将保存在浏览器会话中。如果 A 打开的 B 页面和 A 是不同源，则无法访问同一 Storage。
+
+可以通过挂载 iframe 给 localStorage 扩容。
+
+### WebSocket
+
+基于服务端的页面通信方式，服务器可以主动向客户端推送信息，客户端也可以主动向服务器发送信息，是真正的双向平等对话，属于服务器推送技术的一种。
+
+<!-- TODO -->
+
+```js
+// A.html
+
+// B.html
+```
+
+### SharedWorker
+
+SharedWorker 接口代表一种特定类型的 worker，可以从几个浏览上下文中访问，例如几个窗口、iframe 或其他 worker。它们实现一个不同于普通 worker 的接口，具有不同的全局作用域， SharedWorkerGlobalScope 。
+
+```js
+// A.html
+var sharedworker = new SharedWorker("worker.js");
+sharedworker.port.start();
+sharedworker.port.onmessage = (evt) => {
+	// evt.data
+	console.log(evt.data); // hello A
+};
+
+// B.html
+var sharedworker = new SharedWorker("worker.js");
+sharedworker.port.start();
+sharedworker.port.postMessage("hello A");
+
+// worker.js
+const ports = [];
+onconnect = (e) => {
+	const port = e.ports[0];
+	ports.push(port);
+	port.onmessage = (evt) => {
+		ports
+			.filter((v) => v !== port) // 此处为了贴近其他方案的实现，剔除自己
+			.forEach((p) => p.postMessage(evt.data));
+	};
+};
+```
+
+### Service Worker
+
+基于 web worker（一个独立于 JavaScript 主线程的**独立线程**，在里面执行需要消耗大量资源的操作时不会堵塞主线程）。
+
+Service Worker 是一个可以长期运行在后台的 Worker 线程，充当一个服务，**能够实现与页面的双向通信**。最常见用途就是**拦截和处理网络请求、计算、数据离线缓存**。
+
+多页面共享间的 Service Worker 可以共享，将 Service Worker 作为消息的处理中心（中央站）即可实现广播效果。
+
+Service Worker **可以拦截并修改用户的请求，或者直接向用户发出回应**，不用联系服务器，这使得用户可以在**离线**情况下使用网络应用。它还**可以在本地缓存资源文件，直接从缓存加载文件**，因此可以加快访问速度。
+
+Service Worker **不能直接操作 DOM**。**可以访问 cache 和 indexDB**。**支持推送**，并且可以让开发者自己控制管理缓存的内容以及版本。
+
+它设计为**完全异步**，**同步 API（如 XHR 和 localStorage）不能在 service worker 中使用**。
+
+出于安全考量，Service workers **只能由 HTTPS 承载**。
+
+在 **Firefox 浏览器的用户隐私模式，Service Worker 不可用**。
+
+其**生命周期与页面无关**（关联页面未关闭时，它也可以退出，没有关联页面时，它也可以启动）。
+
+为了节省内存，Service worker **在不使用的时候是休眠的**。它也**不会保存数据**，所以重新启动的时候，为了拿到数据，最好把数据放在 IndexedDb 里面。
+
+```js
+// 注册：service worker 不支持跨域脚本。另外，sw.js必须是从 HTTPS 协议加载的。
+navigator.serviceWorker
+	// scope 参数是可选的，可以用来指定你想让 service worker 控制的内容的子目录。在这个例子里，我们指定了 '/'，表示 根网域下的所有内容。这也是默认值。
+	.register("./sw.js", { scope: "./" })
+	.then(function () {
+		console.log("Service Worker 注册成功");
+	});
+
+// sw.js 负责做信息中转站
+// 安装
+/* 监听安装事件，install 事件一般是被用来设置你的浏览器的离线缓存逻辑 */
+this.addEventListener("install", function (event) {
+	/* 通过这个方法可以防止缓存未完成，就关闭serviceWorker */
+	event.waitUntil(
+		/* 创建一个名叫V1的缓存版本 */
+		caches.open("v1").then(function (cache) {
+			/* 指定要缓存的内容，地址为相对于根域名的访问路径 */
+			return cache.addAll(["./index.html"]);
+		})
+	);
+});
+
+/* 注册fetch事件，拦截全站的请求 */
+this.addEventListener("fetch", function (event) {
+	event.respondWith(
+		// magic goes here
+
+		/* 在缓存中匹配对应请求资源直接返回 */
+		caches.match(event.request);
+	);
+});
+
+// 激活
+self.addEventListener("activate", (event) => {
+	event.waitUntil(
+		self.clients.matchAll().then((client) => {
+			client.postMessage({
+				msg: "Hey, from service worker! I'm listening to your fetch requests.",
+				source: "service-worker",
+			});
+		})
+	);
+});
+
+// A.html
+navigator.serviceWorker.addEventListener("message", function (e) {
+	console.log(e.data);
+});
+
+// B.html
+// 网页可以通过 navigator.serviceWorker.controller.postMessage API 向掌管自己的 SW 发送消息
+navigator.serviceWorker.controller.postMessage("Hello A");
+```
+
+-   ["Status Code:200 OK (from ServiceWorker)" in Chrome Network DevTools?](https://stackoverflow.com/questions/33590378/status-code200-ok-from-serviceworker-in-chrome-network-devtools)
+
+-   移除&unregister，[参考](https://stackoverflow.com/questions/33704791/how-do-i-uninstall-a-service-worker/47515250#47515250)
+-   移除&unregister，方法 1:
+
+```js
+try {
+	self.addEventListener("install", function (e) {
+		self.skipWaiting();
+	});
+
+	self.addEventListener("activate", function (e) {
+		self.registration
+			.unregister()
+			.then(function () {
+				return self.clients.matchAll();
+			})
+			.then(function (clients) {
+				clients.forEach((client) => client.navigate(client.url));
+			});
+	});
+} catch (e) {
+	console.log("close sw: ", e);
+}
+
+try {
+	if (window.navigator && navigator.serviceWorker) {
+		navigator.serviceWorker
+			.getRegistrations()
+			.then(function (registrations) {
+				for (let registration of registrations) {
+					registration.unregister();
+				}
+			});
+	}
+} catch (e) {
+	console.log("unregister sw: ", e);
+}
+```
+
+-   移除&unregister，方法 2:
+    `chrome://serviceworker-internals` 找到对应的 sw 并关闭
+-   移除&unregister，方法 3:
+    Open Developer Tools (F12) and Select Application. Then Either `Select Clear Storage -> Unregister service worker` or `Select Service Workers -> Choose Update on Reload`
+
+### B 页面意外崩溃，该如何通知 A 页面
+
+可以利用 window 对象的 load 和 beforeunload 事件，通过心跳监控来获取 B 页面的崩溃。巧妙的利用了页面崩溃无法触发 beforeunload 事件来实现的。
+
+-   Service Worker 有自己独立的工作线程，与网页区分开，网页崩溃了，Service Worker 一般情况下不会崩溃；
+-   Service Worker 生命周期一般要比网页还要长，可以用来监控网页的状态；
+-   网页可以通过 navigator.serviceWorker.controller.postMessage API 向掌管自己的 SW 发送消息
+
+流程如下：
+
+1. B 页面加载后，通过 postMessage API 每 5s 给 sw 发送一个心跳，表示自己的在线，sw 将在线的网页登记下来，更新登记时间；
+2. B 页面在 beforeunload 时，通过 postMessage API 告知 sw 自己已经正常关闭，sw 将登记的网页清除；
+3. 如果 B 页面在运行的过程中 crash 了，sw 中的 running 状态将不会被清除，更新时间停留在崩溃前的最后一次心跳；
+4. A 页面 Service Worker 每 10s 查看一遍登记中的网页，发现登记时间已经超出了一定时间（比如 15s）即可判定该网页 crash 了。
+
+```js
+// A.html
+// 每 10s 检查一次，超过15s没有心跳则认为已经 crash
+const CHECK_CRASH_INTERVAL = 10 * 1000;
+const CRASH_THRESHOLD = 15 * 1000;
+const pages = {};
+let timer;
+function checkCrash() {
+	const now = Date.now();
+	for (var id in pages) {
+		let page = pages[id];
+		if (now - page.t > CRASH_THRESHOLD) {
+			// 上报 crash
+			delete pages[id];
+		}
+	}
+	if (Object.keys(pages).length == 0) {
+		clearInterval(timer);
+		timer = null;
+	}
+}
+
+worker.addEventListener("message", (e) => {
+	const data = e.data;
+	if (data.type === "heartbeat") {
+		pages[data.id] = {
+			t: Date.now(),
+		};
+		if (!timer) {
+			timer = setInterval(function () {
+				checkCrash();
+			}, CHECK_CRASH_INTERVAL);
+		}
+	} else if (data.type === "unload") {
+		delete pages[data.id];
+	}
+});
+
+// B.html
+if (navigator.serviceWorker.controller !== null) {
+	let HEARTBEAT_INTERVAL = 5 * 1000; // 每五秒发一次心跳
+	let sessionId = uuid(); // B页面会话的唯一 id
+	let heartbeat = function () {
+		navigator.serviceWorker.controller.postMessage({
+			type: "heartbeat",
+			id: sessionId,
+			data: {}, // 附加信息，如果页面 crash，上报的附加数据
+		});
+	};
+	window.addEventListener("beforeunload", function () {
+		navigator.serviceWorker.controller.postMessage({
+			type: "unload",
+			id: sessionId,
+		});
+	});
+	setInterval(heartbeat, HEARTBEAT_INTERVAL);
+	heartbeat();
+}
+```
+
+### Chrome Capture Network Log
+
+`chrome://net-export/`
+
+### Proxy 与 Reflect
+
+代理与反射的关系：简单来说，我们可以通过 Proxy 创建对于原始对象的代理对象，从而在代理对象中使用 Reflect 达到对于 JavaScript 原始操作的拦截。
+
+-   Proxy 代理，它内置了一系列”陷阱“用于创建一个对象的代理，从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）。
+
+-   Reflect 反射，它提供拦截 JavaScript 操作的方法。这些方法与 Proxy 的方法相同。
+
+```js
+const parent = {
+	get value() {
+		return "19Qingfeng";
+	},
+};
+
+const proxy = new Proxy(parent, {
+	// get陷阱中target表示原对象 key表示访问的属性名
+	get(target, key, receiver) {
+		console.log(receiver === proxy);
+		console.log(receiver === obj);
+		console.log(receiver === parent);
+		return target[key];
+	},
+});
+
+const obj = {
+	name: "wang.haoyu",
+};
+
+// 设置obj继承与parent的代理对象proxy
+Object.setPrototypeOf(obj, proxy);
+
+obj.value;
+// false
+// true
+// false
+// '19Qingfeng'
+```
+
+在 Proxy 中 getter 的 receiver 不仅仅会表示代理对象本身同时也还有可能表示继承于代理对象的对象，具体需要区别于调用方。
+
+receiver: The reference to use as the `this` value in the getter function, if `target[properKey]` is an accessor property.
+
+综上：Proxy 中 getter 的第三个参数 receiver 存在的意义就是为了正确的在陷阱中传递上下文，是为了传递正确的调用者指向。
+
+PS：不要将 revceiver 和 get 陷阱中的 this 弄混了，陷阱中的 this 关键字表示的是代理的 handler 对象，也就是 Proxy 的第二个参数接收的对象。
+
+你可以简单的将 `Reflect.get(target, key, receiver)` 理解成为 `target[key].call(receiver)`，不过这是一段伪代码，但是这样你可能更好理解。
+
+针对于 getter（当然 setter 其他之类涉及到 receiver 的陷阱同理）：
+
+-   Proxy 中接受的 Receiver 形参表示代理对象本身或者继承于代理对象的对象。
+-   Reflect 中传递的 Receiver 实参表示修改执行原始操作时的 this 指向。
+
+### FastClick 原理
+
+0. 在 document.body 上绑定监听 touchstart 和 touchend 事件（touchstart touchend 会先于 click 事件触发）
+1. 监听 touchstart 事件记录当前点击元素 targetElement
+2. 监听 touchend 事件，使用自定义 DOM 事件模拟一个 click 事件，使用 targetElement.dispatchEvent 触发事件
+3. 把默认的 click 事件（300ms 之后触发）禁止掉
+
+现代浏览器对 click 事件 300ms 延迟的处理方法：在`meta`标签中设置 viewport，并设置`content='width=device-width'`之后，就会取消掉 300ms 延时。
+
+`<meta name='viewport' content='width=device-width,initial-scale=1.0>`
+
+## token 和 cookie&session
+
+### cookie
+
+1.  http 是无状态的，所以增加了 cookie，每次请求时可以带上 cookie，以帮助服务端识别用户身份
+2.  服务端可以向客户端 set-cookie，cookie 大小限制 4kb
+3.  默认有跨域限制：不可跨域共享或跨域传递 cookie
+
+#### Set-Cookie 中的几个属性
+
+1. Expires 属性指定一个具体的到期时间，到了指定时间以后，浏览器就不再保留这个 Cookie。它的值是 **UTC 格式**。如果不设置该属性，或者设为 null，Cookie 只在当前会话（session）有效，浏览器窗口一旦关闭，当前 Session 结束，该 Cookie 就会被删除。另外，浏览器根据本地时间，决定 Cookie 是否过期，由于本地时间是不精确的，所以没有办法保证 Cookie 一定会在服务器指定的时间过期。
+2. Max-Age 属性指定从现在开始 Cookie 存在的秒数，比如 60 _ 60 _ 24 \* 365（即一年）。过了这个时间以后，浏览器就不再保留这个 Cookie。如果同时指定了 Expires 和 Max-Age，那么 Max-Age 的值将优先生效。如果 Set-Cookie 字段没有指定 Expires 或 Max-Age 属性，那么这个 Cookie 就是 Session Cookie，即它只在本次对话存在，一旦用户关闭浏览器，浏览器就不会再保留这个 Cookie。
+3. Domain 属性指定浏览器发出 HTTP 请求时，哪些域名要附带这个 Cookie。**如果没有指定该属性，浏览器会默认将其设为当前 URL 的一级域名**，比如 www.example.com 会设为 example.com，而且以后如果访问 example.com 的任何子域名，HTTP 请求也会带上这个 Cookie。如果服务器在 Set-Cookie 字段指定的域名，不属于当前域名，浏览器会拒绝这个 Cookie。
+4. Path 属性指定浏览器发出 HTTP 请求时，哪些路径要附带这个 Cookie。只要浏览器发现，Path 属性是 HTTP 请求路径的开头一部分，就会在头信息里面带上这个 Cookie。比如，PATH 属性是/，那么请求/docs 路径也会包含该 Cookie。当然，前提是域名必须一致。
+5. Secure 属性指定浏览器只有在加密协议 HTTPS 下，才能将这个 Cookie 发送到服务器。另一方面，如果当前协议是 HTTP，浏览器会自动忽略服务器发来的 Secure 属性。该属性只是一个开关，不需要指定值。如果通信是 HTTPS 协议，该开关自动打开。
+6. HttpOnly 属性指定该 Cookie 无法通过 JavaScript 脚本拿到，主要是 Document.cookie 属性、XMLHttpRequest 对象和 Request API 都拿不到该属性。这样就防止了该 Cookie 被脚本读到，只有浏览器发出 HTTP 请求时，才会带上该 Cookie。
+7.
+
+-   现代浏览器开始禁止第三方 cookie：
+
+1. 和跨域限制不同，这里是禁止网页引入的第三方 js 设置 cookie
+2. 打击第三方广告，保护用户隐私
+3. 新增属性 SameSite：值可自己选择
+    1. Strict:将阻止所有三方 Cookie 携带，这种设置基本可以阻止所有 CSRF 攻击，然而，它的友好性太差，即使是普通的 GET 请求它也不允许通过。
+    2. Lax:只会阻止在使用危险 HTTP 方法进行请求携带的三方 Cookie，例如 POST 方式。同时，使用 JavaScript 脚本发起的请求也无法携带三方 Cookie。
+    3. None:关闭/不启用
+4. First-Party Sets 策略：Chrome 新推出的，可以允许由同一实体拥有的不同关域名都被视为第一方。我们可以标记打算在同一方上下文共享 Cookie 的不同域名，目的是在防止第三方跨站点跟踪和仍然保持正常的业务场景下之间找到平衡。有一些限制：
+    1. 一个集合可能只有一个所有者。
+    2. 一个成员只能属于一个集合，不能重叠或混合。
+    3. 域名列表不要过大。
+5. 新增属性 SameParty：就是为了配合 First-Party Sets 使用的；允许特定条件跨域共享 Cookie，所有开启了 First-Party Sets 域名下需要共享的 Cookie 都需要增加 SameParty 属性。在 SameParty 被广泛支持之前，你可以把它和 SameSite 属性一起定义来确保 Cookie 的行为降级，另外还有一些额外的要求：可以试用 --use-first-party-set 这个命令启动 Chrome ，就可以进行试用。
+    1. SameParty Cookie 必须包含 Secure.
+    2. SameParty Cookie 不得包含 SameSite=Strict.
+
+### session
+
+1.  cookie 用于登录验证，存储用户标识（如 userId）
+2.  session 在服务端，存储用户详细信息，和 cookie 信息一一对应
+3.  cookie+session 是常用的登录验证解决方案
+
+### token
+
+token 中可以存储用户信息、登录信息、有效期、使用限制等各种数据。
+
+1. cookie 是 HTTP 规范，而 token 是自定义传递
+2. cookie 会默认被浏览器存储，而 token 需自己存储
+3. token 默认没有跨域限制
+4. token 可以放在 request header 中传递，`Authorization: Bearer xxxxx`
+
+#### 刷新 token
+
+设置 access token 和 refresh token：
+
+1. access token：用来访问业务接口，由于有效期足够短，盗用风险小，也可以使请求方式更宽松灵活
+2. refresh token：用来获取 access token，有效期可以长一些，通过独立服务和严格的请求方式增加安全性；由于不常验证，也可以如前面的 session 一样处理
+
+请求流程：
+
+-   初次登录，POST 账号密码到认证服务，校验通过之后，生成 access token 和 refresh token，返回给客户端，客户端自行保存下来；
+-   access token 有效期内，请求接口时都只需带上 access token 即可；
+-   access token 过期之后，使用 refresh token 去认证服务校验 refresh token 是否在有效期；
+    -   如果 refresh token 仍在有效期，那么重新生成一个 access token 返回客户端，客户端使用新的 access token 去请求接口即可；
+    -   如果 refresh token 已过期，那么就重新登录。
+
+#### JWT - JSON Web Token
+
+由 3 部分组成：header.payload.signature；
+
+1. 前端发起登录，后端验证成功后，返回一个加密 token
+2. 前端自行存储这个 token（其中包含了用户信息，加密了）
+3. 以后再访问服务端接口时，都带着这个 token，作为用户信息
+
+### 综上
+
+1. cookie： HTTP 标准；跨域限制；配合 session 使用；
+2. token：无标准；无跨域限制；用于 JWT；
+3. session：
+    1. 原理简单，易于学习
+    2. 用户信息存储在服务端，可快速封禁某个用户
+    3. 占用服务端内存，硬件成本高
+    4. 多进程，多服务器时，不好同步--需使用第三方缓存，如 Redis
+    5. 默认有跨域限制
+4. JWT：
+    1. 不占用服务端内存
+    2. 多进程，多服务器 不受影响
+    3. 无跨域限制
+    4. 用户信息存储在客户端，无法快速封禁某用户
+    5. 万一服务端秘钥被泄露，则用户信息全部丢失
+    6. token 体积一般大于 cookie，会增加请求的数据量
+5. session 和 token 的对比就是「用不用 cookie」和「后端存不存」的对比
+
+### 怎么实现单点登录 SSO
+
+设置 cookie 跨域共享
+
+1. 主域名/一级域名相同时，设置 cookie domain 为主域名，即可共享 cookie：`Set-Cookie:domain=.baidu.com;`，之后请求后端时可以带上 cookie；
+
+主域名完全不同，则 cookie 无法共享
+
+2. 可以使用 SSO 技术方案：有一个单独的第三方 SSO 服务，做专门的登录和信息保存、检验，例：有 A.com、B.com 和 SSO.com
+
+-   用户进入 A 系统，没有登录凭证（ticket），A 系统给他跳到 SSO；
+-   SSO 没登录过，也就没有 sso 系统下没有凭证（注意这个和前面 A ticket 是两回事），输入账号密码登录
+-   SSO 账号密码验证成功，通过接口返回做两件事：一是种下 sso 系统下凭证（记录用户在 SSO 登录状态）；二是下发一个 ticket
+-   在 SSO 域下，SSO 不是通过接口把 ticket 直接返回，而是通过一个带 code 的 URL 重定向到系统 A 的接口上，这个接口通常在 A 向 SSO 注册时约定
+-   浏览器被重定向到 A 域下，带着 code 访问了 A 的 callback 接口，callback 接口通过 code 换取 ticket
+-   这个 code 不同于 ticket，code 是一次性的，暴露在 URL 中，只为了传一下换 ticket，换完就失效
+-   callback 接口拿到 ticket 后，在自己的域下 set cookie 成功，带着请求系统 A 接口
+-   系统 A 校验 ticket，成功后正常处理业务请求
+-   此时用户第一次进入系统 B，没有登录凭证（ticket），B 系统给他跳到 SSO
+-   SSO 登录过，系统下有凭证，不用再次登录，只需要跟上面一样，一个带 code 的 URL 重定向到系统 B 的接口上
+-   然后浏览器被重定向到 B 域下，带着 code 访问了 B 的 callback 接口，callback 接口通过 code 换取 ticket
+-   客户端拿到 ticket，保存起来，带着请求系统 B 接口
+
+1. OAuth2.0 使用第三方的登录验证，如 GitHub、微信扫码登录等等
+
+### preload 和 prefetch
+
+1. preload 资源在当前页面使用，会优先加载，资源预获取
+2. prefetch 资源在未来页面使用，空闲时加载
+
+```html
+<link rel="preload" href="style.css" as="style" />
+<link rel="preload" href="main.js" as="script" />
+
+<link rel="prefetch" href="other.js" as="script" />
+```
+
+### dns-prefetch 和 preconnect
+
+1. dns-prefetch 即 DNS 预查询
+2. preconnect 即 DNS 预连接
+3. DNS 查询通常使用 UDP 协议
+
+```html
+<link rel="dns-prefetch" href="https://fonts.google.com/" />
+<link
+	rel="preconnect"
+	href="https://fonts.google.com/"
+	as="script"
+	crossorigin
+/>
+```
+
+### meta 标签
+
+meta 是文档级元数据元素，用来表示那些不能由其它 HTML 元相关元素（`<base>、<link>, <script>、<style>或 <title>`）之一表示的任何元数据。
+
+-   如果设置了 `name` 属性，meta 元素提供的是文档级别的元数据，应用于整个页面。
+-   如果设置了 `http-equiv `属性，meta 元素则是编译指令，提供的信息与类似命名的 HTTP 头部相同。
+-   如果设置了 `charset` 属性，meta 元素是一个字符集声明，告诉文档使用哪种字符编码。
+-   如果设置了 `itemprop` 属性，meta 元素提供用户定义的元数据。
+
+1. name 属性: name 和 content 一起使用，前者表示要表示的元数据的名称，后者是元数据的值。
+    - 例：author、description、keywords、viewport
+    - robots:爬虫对此页面的处理行为
+    - renderer:指定双核浏览器的渲染方式
+2. http-equiv 属性: http-equiv 也是和 content 一起使用，前者表示要表示的元数据的名称，后者是元数据的值。http-equiv 所有允许的值都是特定 HTTP 头部的名称。
+    - 例：`<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1' >`用来是做 IE 浏览器适配（IE8-IE11）。
+    - 如果在我们的 http 头部中也设置了这个属性，并且和 meta 中设置的有冲突，那么哪一个优先呢？答案是：开发者偏好（meta 元素）优先于 Web 服务器设置（HTTP 头）。
+    - `content-type`:用来声明文档类型和字符集
+    - `x-dns-prefetch-control`:一般来说，HTML 页面中的 a 标签会自动启用 DNS 提前解析来提升网站性能，但是在使用 https 协议的网站中失效了，此时用这个属性打开 dns 对 a 标签的提前解析
+    - `cache-control`、`Pragma`、`Expires`:和缓存相关的设置，但是遗憾的是这些往往不生效，我们一般都通过 http headers 来设置缓存策略
+
+### 我们日常接触最频繁的前端工程化工具:
+
+-   Loader: 因为前端项目中包含各种文件类型和数据, 需要将其进行相应的转换变成 JS 模块才能为打包工具使用并进行构建. JS 的 Compiler 和其他类型文件的 Loader 可以统称为 Transfomer.
+-   Plugin: 可以更一步定制化构建流程, 对模块进行改造(比如压缩 JS 的 Terser)
+-   还有一些前端构建工具是基于通用构建工具进行了一定封装或者增加额外功能的, 比如 CRA/Jupiter/Vite/Umi
+-   Task Runner 任务运行器: 开发者设置脚本让构建工具完成开发、构建、部署中的一系列任务, 大家日常常用的是 npm/yarn 的脚本功能; 在更早一些时候, 比较流行 Gulp/Grunt 这样的工具
+-   Package Manager 包管理器: 这个大家都不会陌生, npm/Yarn/pnmp 帮开发者下载并管理好依赖, 对于现在的前端开发来说必不可少.
+-   Compiler/Transpiler 编译器: 在市场上很多浏览器还只支持 ES5 语法的时候, Babel 这样的 Comipler 在前端开发中必不可少; 如果你是用 TypeScript 的话, 也需要通过 tsc 或者 ts-loader 进行编译.
+-   Bundler 打包工具: 从开发者设置的入口出发, 分析模块依赖, 加载并将各类资源最终打包成 1 个或多个文件的工具.
+
+### 响应式图片
+
+1. 使用 img 的 srcset 属性：
+    - tips：srcset 和 sizes 要放到 src 之前，否则 Safari 会先解析 src 导致产生不必要的请求。
+
+```html
+<!-- 根据dpr选择图片 -->
+<img src="image.png" srcset="image.jpg, image_2x.jpg 2x, image_3x.jpg 3x" />
+
+<!-- 根据需要选择图片 -->
+<img
+	src="image.png"
+	srcset="
+		image_S.jpg   600w,
+		image_M.jpg   900w,
+		image_L.jpg  1500w,
+		image_XL.jpg 3000w
+	"
+/>
+<!-- 借助sizes实现更精细的控制 -->
+<img
+	src="image.png"
+	srcset="
+		image_S.jpg   600w,
+		image_M.jpg   900w,
+		image_L.jpg  1500w,
+		image_XL.jpg 3000w
+	"
+	sizes="(max-width:450px) 100vw,(max-width:900px) 50vw,(max-width:1300px) 33vw, 300px"
+/>
+```
+
+### 适配 iPhone 的齐刘海
+
+1. 设置`viewport-fit:cover;`
+2. 预定义变量：`safe-area-inset-left`、`safe-area-inset-right`、`safe-area-inset-top`、`safe-area-inset-bottom`
+3. 设置样式`padding-top:env(safe-area-inset-top);padding-top:constant(safe-area-inset-top);`
+4. Taro 小程序中直接使用 3 即可
+
+### 滚动穿透
+
+-   表现：在滚动弹出框的内容时，弹框下的可滚动元素也会跟着滚动。
+-   scroll 事件特性：
+    1. 不会冒泡，所以无法阻止默认行为；
+    2. 如果当前节点是不能滚动的，那么将尝试 document 上的滚动；
+-   解决方案：打开弹窗的时候禁用外层页面滚动
+    1. 在 body 上设置`overflow: hidden;`缺点：兼容性问题
+    2. 在 body 上设置`position:fixed;height:100%;width:100%;`，缺点：外层页面不会停留在原来的位置而是被置顶。需记录下 scrollTop 的位置，然后通过`scrollTop(0,scrollTop)`恢复
+    3. 在 body 上设置`position:fixed;height:100%;width:100%;`；在 body 下的 div 上使用自己的`height:100%;overflow:auto/scroll;`
+
+### App 唤起
+
+1.  URL Schema：把页面地址的协议 http/https 换成自己的 schema 协议，通过啊、标签或者 loca.href 跳转，Native 解析 url 参数打开对应页面，监听 visibilitychange 事件并使用定时延时 2.5 左右判断是否唤起成功，否则执行下载 App 操作。（安卓在 manifest 里注册 intent-filter，苹果在 info.plist 里注册 URL types）
+2.  Universal Link（iOS 9+）
+3.  微信开放标签`wx-open-launch-app`，需要一个公众平台的服务号和一个开放平台的账号以及应用进行绑定，通过腾讯应用宝打开 App
+
+### picture 标签
+
+HTML `<picture>` 元素通过包含零或多个 `<source>` 元素和一个 `<img>` 元素来为不同的显示/设备场景提供图像版本。浏览器会选择最匹配的子 `<source>` 元素，如果没有匹配的，就选择 `<img>` 元素的 src 属性中的 URL。然后，所选图像呈现在`<img>`元素占据的空间中。对于不支持`<picture>` 的浏览器，也只是相当于`<img>` 外面套了一层`<div>`，不会影响展示。
+
+```html
+<!-- data-thumbnail是自定义属性 -->
+<picture>
+	<source
+		srcset="/media/cc0-images/surfer-240-200.jpg"
+		media="(min-width: 600px)"
+	/>
+	<source
+		srcset="/media/cc0-images/surfer-240-400.jpg"
+		media="(min-width: 1200px)"
+	/>
+	<img
+		data-thumbnail="data:image/jpeg;base64,PNNAABCFGHJ4678VBD..."
+		src="/media/cc0-images/painted-hand-298-332.jpg"
+		alt=""
+	/>
+</picture>
+```
+
+-   img 中的 alt:属性包含一条对图像的文本描述，这不是强制性的，但对可访问性而言，它难以置信地有用——屏幕阅读器会将这些描述读给需要使用阅读器的使用者听，让他们知道图像的含义。如果由于某种原因无法加载图像，普通浏览器也会在页面上显示 alt 属性中的备用文本：例如，网络错误、内容被屏蔽或链接过期时。
+
+### Fragment 文档碎片
+
+`const fragment = document.createDocumentFragment();...;fragment.appendChild(div);...;container.appendChild(fragment);`，好处：
+
+1. 之前都是每次创建一个 div 标签就 appendChild 一次，但是有了文档碎片可以先把 1 页的 div 标签先放进文档碎片中，然后一次性 appendChild 到 container 中，这样减少了 appendChild 的次数，极大提高了性能；
+2. 页面只会渲染文档碎片包裹着的元素，而不会渲染文档碎片
+
+### getBoundingClientRect
+
+1. `const domRect:DOMRect = myElement.getBoundingClientRect();` 方法返回元素的大小及其相对于视口的位置。
+
+    - 返回值是一个 DOMRect 对象，这个对象是由该元素的 getClientRects() 方法返回的一组矩形的集合，就是该元素的 CSS 边框大小。
+    - 返回的结果是包含完整元素的最小矩形，并且拥有 left, top, right, bottom, x, y, width, 和 height 这几个以像素为单位的只读属性用于描述整个边框。
+    - 除了 width 和 height 以外的属性都是相对于视图窗口的左上角（0,0）来计算的。
+
+2. 如果是标准盒子模型，元素的尺寸等于`width/height + padding + border-width`的总和。如果`box-sizing: border-box`，元素的的尺寸等于 `width/height`。
+    - 当滚动位置发生了改变，top 和 left 属性值就会随之立即发生变化（因此，它们的值是相对于视口的，而不是绝对的）。
+    - 如果你需要获得相对于整个网页左上角定位的属性值，那么只要给 top、left 属性值加上当前的滚动位置（通过 window.scrollX 和 window.scrollY），这样就可以获取与当前的滚动位置无关的值。
+    - 如果需要更好的跨浏览器兼容性，请使用 window.pageXOffset 和 window.pageYOffset 代替 window.scrollX 和 window.scrollY。
+
+## SSR 服务端渲染
+
+### 优点
+
+1. 无首屏等待，首屏直出
+2. 方便 SEO 优化
+3. 生成完整的 HTML 字符串，方便缓存及生成静态化文件
+4. 减少请求次数，减轻服务器压力
+
+### 缺点
+
+1. 服务端需要做复杂的处理逻辑，且同构的过程需要服务端和客户端都执行一遍代码，消耗大量服务端资源
+2. 页面的加载都需要向服务器请求完整的页面内容
+3. 学习开发维护成本较高
+
+### React 提供的服务端渲染 api
+
+1. ReactDOMServer.renderToString(element)
+2. ReactDOM.hydrate(element,container)
+3. renderToNodeStream/renderToString 对最终的渲染结果没区别，前者性能要好得多，因为组件渲染为字符串，是一次性处理完之后才开始向浏览器端返回结果，而采用流的话可以边读边输出，可以让页面更快的展现，缩短首屏展示时间。
+4. 发起请求到渲染流程：
+    - [流程图](../../assets/ssr1.png)
+    - 从图中可以看出：同一份代码需要运行两次，一次在服务端渲染完成页面结构，一次在客户端渲染完成事件绑定。
+    - 所谓同构就是采用一套代码，构建双端逻辑，最大限度重用代码，不需维护两套代码。
+    - 还有一个重要特性也是同构的重要体现：浏览器接管页面后的进一步渲染（交互、事件）过程中，会判断已有的 DOM 结构和浏览器渲染出的结构是否相同，若相同则不重复渲染，只需绑定事件即可。该特性是 react 提供的双端节点对比功能。
+
+### 同构
+
+#### 路由同构
+
+1. 双端共用一套路由表、集中式路由配置（因为服务端渲染时需要根据 path 去找对应的组件）
+2. StaticRouter、express.Router()、约定式路由（next.js）、动态路由需要正则匹配（pathToRegexp、reac-router 的 matchPath 方法）
+3. 路由分割、按需渲染 import()
+
+#### 数据预取同构
+
+1. 双端都支持的请求 api axios
+2. 组件的静态方法 Component.getInitialProps
+3. 在 renderToString 前预取数据，并作为 props 传入组件
+
+#### 渲染同构
+
+1. 数据注水
+2. 数据脱水
+
+#### 缓存及静态文件原理
+
+-   静态文件优化
+    1. 不需要预取数据的页面
+    2. CDN
+-   页面缓存
+    1. url 作为 key，html 字符串作为 key
+    2. redis
+
+#### 双端差异对比
+
+|                   | 服务端 | 客户端 | 解决方案        |
+| ----------------- | ------ | ------ | --------------- |
+| window            | [X]    | [Y]    | 判断环境        |
+| document          | [X]    | [Y]    | jsdom           |
+| fetch             | [X]    | [Y]    | axios           |
+| useEffect         | [X]    | [Y]    | getInitialProps |
+| styled-components | [Y]    | [Y]    | ssr 配置        |

@@ -246,3 +246,25 @@ eg.
 4. husky 即通过自定义 core.hooksPath 并将 npm scripts 写入其中的方式来实现此功能。
     - 在`~/.husky` 目录下手动创建 hook 脚本。如：`vim .husky/pre-commit`
     - 在 hook 脚本中做一些操作，如：在 pre-commit 中进行代码风格校验：`npm run lint && npm run test`
+
+### git 设置识别文件名大小写
+
+`git config core.ignoreCase true/false`
+
+### git reflog
+
+结合`.git/logs/HEAD`，勿删 commit 或分支之后找回。
+
+### 强制禁用 Fast-Forward
+
+`git merge --no-ff`会生成一个新的 commit
+
+### git 是如何存储信息的
+
+查看.git/objects 目录：
+
+1. 当使用 git add 命令把文件加入暂存区时，git 会根据这个对象的内容计算出 SHA-1 值
+2. git 接着会用 SHA-1 值的前 2 个字符作为目录名称（避免让.git/objects 目录因为文件过多而降低读取效率），后 38 个字符作为文件名，创建目录及文件并放在.git/objects 目录下
+3. 文件的内容则是 git 使用压缩算法把原本的内容压缩之后的结果（二进制 blob 文件）
+4. git commit 存储的是：打包前存储的是全新文件，打包后使用了类似差异备份的方式进行存储
+5. 当.git/objects 目录下对象过多时会自动触发资源回收，或者 git push 到远端服务器时，也可通过`git gc`手动触发

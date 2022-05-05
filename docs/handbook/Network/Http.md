@@ -111,28 +111,29 @@ date: "2022-01-04"
 
 ### 1. 强缓存
 
-对于强制缓存来说，响应 header 中会有两个字段来标明失效规则（ Expires 、 Cache-Control ）。
+对于强制缓存来说，响应 header 中会有两个字段来标明失效规则（ `Expires` 、 `Cache-Control` ）。
 
-1. Expires 的值为服务端返回的到期时间，即下一次请求时，请求时间小于服务端返回的到期时间，直接使用缓存数据；Expires 是 HTTP 1.0 的东西，现在浏览器均默认使用 HTTP 1.1，所以它的作用基本忽略。此外到期时间是由服务端生成的，但是客户端时间可能跟服务端时间有误差，这就会导致缓存命中的误差。所以 HTTP 1.1 的版本，使用 Cache-Control 替代。
+1. `Expires` 的值为服务端返回的到期时间，即下一次请求时，请求时间小于服务端返回的到期时间，直接使用缓存数据；`Expires` 是 HTTP 1.0 的东西，现在浏览器均默认使用 HTTP 1.1，所以它的作用基本忽略。此外到期时间是由服务端生成的，但是客户端时间可能跟服务端时间有误差，这就会导致缓存命中的误差。所以 HTTP 1.1 的版本，使用 `Cache-Control` 替代。
 
-2. Cache-Control 常见的取值有 private、public、no-cache、max-age，no-store，默认为 private。
+2. `Cache-Control` 常见的取值有 private、public、no-cache、max-age，no-store，默认为 private。
 
 -   private: 客户端可以缓存，防止信息泄漏；
 -   public: 客户端和代理服务器都可缓存；
 -   max-age=xxx: 缓存的内容将在 xxx 秒后失效；
 -   no-cache: 需要使用对比缓存来验证缓存数据；
 -   no-store: 所有内容都不会缓存，强制缓存、对比缓存都不会触发；
+-   must-revalidate: 告诉浏览器、缓存服务器，本地副本过期前，可以使用本地副本；本地副本一旦过期，必须去源服务器进行有效性校验。
 
-3. Pragma，HTTP/1.0 中规定的通用首部；用来向后兼容只支持 HTTP/1.0 协议的缓存服务器，那时候 HTTP/1.1 协议中的 Cache-Control 还没有出来。 只有一个值“no-cache”，与 Cache-Control: no-cache 效果一致。
+3. Pragma，HTTP/1.0 中规定的通用首部；用来向后兼容只支持 HTTP/1.0 协议的缓存服务器，那时候 HTTP/1.1 协议中的 `Cache-Control` 还没有出来。 只有一个值“no-cache”，与 `Cache-Control: no-cache` 效果一致。
 
 ### 2. 协商缓存
 
 浏览器第一次请求数据时，服务器会将缓存标识与数据一起返回给客户端。再次请求数据时，客户端将备份的缓存标识发送给服务器，服务器根据缓存标识进行判断，判断成功后，返回 304 状态码，通知客户端可以使用缓存数据。缓存标识在请求 header 和响应 header 间进行传递，一共分为两种。
 
--   1. Last-Modified(response header) / If-Modified-Since(request header)；
--   2. ETag(response header) / If-None-Match(request header);
+-   1. `Last-Modified(response header) / If-Modified-Since(request header)`:http1.0;
+-   2. `ETag(response header) / If-None-Match(request header)`:http1.1;
 
-ETag 在服务器响应请求时，告诉浏览器当前资源在服务器的唯一标识，生成规则由服务器决定。其优先级高于 Last-Modified，这里优先级指服务端优先级，客户端两者并存的情况下，都会在 request header 中带上，但是 nginx 会优先匹配 Etag。
+ETag 在服务器响应请求时，告诉浏览器当前资源在服务器的唯一标识，生成规则由服务器决定。ETag 优先级高于 Last-Modified，这里优先级指服务端优先级，客户端两者并存的情况下，都会在 request header 中带上，但是 Nginx 会优先匹配 Etag。
 
 ### 3. 例外：Last-Modified 命中强缓存
 
@@ -146,13 +147,19 @@ ETag 在服务器响应请求时，告诉浏览器当前资源在服务器的唯
 
 ### HTTP 缓存别再乱用了！推荐一个缓存设置的最佳姿势！
 
-1. 为了防止中介缓存，建议设置：Cache-Control: private;
+1. 为了防止中介缓存，建议设置：`Cache-Control: private`;
 
 禁用 Public Cache，减少了攻击者跨界访问到公共内存的可能性。
 
-2. 建议设置适当的二级缓存 key：如果我们请求的响应是跟请求的 Cookie 相关的，建议设置：Vary: Cookie;
+2. 建议设置适当的二级缓存 key：如果我们请求的响应是跟请求的 Cookie 相关的，建议设置：`Vary: Cookie;`
 
 默认情况下，我们浏览器的缓存使用 URL 和 请求方法来做缓存 key 的。这意味着，如果一个网站需要登录，不同用户的请求由于它们的请求 URL 和方法相同，数据会被缓存到一块内存里。这显然是有点问题，我们可以通过设置 Vary: Cookie 来避免这个问题。当用户身份信息发生变化的时候，缓存的内存也会发生变化。
+
+### 200 状态码和 304 状态码何时出现
+
+1. 在没有设置 `Cache-Control` 的情况下，设置 `Last-Modified` 和 `ETag` 缓存，会出现 200（from cache）和 304 交替出现的情况。
+
+2. 设置 `Cache-Control` 的情况下，过期刷新会出现 304(如果有更新内容，则是 200)，之后再过期之前刷新都是 200（from cache）。如果要确保要向服务端确认，可以将 `Cache-Control` 的 `max-age` 设置为 0。
 
 ## HTTP 版本对比
 
