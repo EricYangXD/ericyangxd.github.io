@@ -827,6 +827,7 @@ PS：不要将 revceiver 和 get 陷阱中的 this 弄混了，陷阱中的 this
 
 -   Proxy 中接受的 Receiver 形参表示代理对象本身或者继承于代理对象的对象。
 -   Reflect 中传递的 Receiver 实参表示修改执行原始操作时的 this 指向。
+-   也就是说 Reflect 中的 receiver 参数相当于实际调用时触发 getter、setter 的对象的指针，有了它就可以得到期望的值。
 
 ### FastClick 原理
 
@@ -855,7 +856,6 @@ PS：不要将 revceiver 和 get 陷阱中的 this 弄混了，陷阱中的 this
 4. Path 属性指定浏览器发出 HTTP 请求时，哪些路径要附带这个 Cookie。只要浏览器发现，Path 属性是 HTTP 请求路径的开头一部分，就会在头信息里面带上这个 Cookie。比如，PATH 属性是/，那么请求/docs 路径也会包含该 Cookie。当然，前提是域名必须一致。
 5. Secure 属性指定浏览器只有在加密协议 HTTPS 下，才能将这个 Cookie 发送到服务器。另一方面，如果当前协议是 HTTP，浏览器会自动忽略服务器发来的 Secure 属性。该属性只是一个开关，不需要指定值。如果通信是 HTTPS 协议，该开关自动打开。
 6. HttpOnly 属性指定该 Cookie 无法通过 JavaScript 脚本拿到，主要是 Document.cookie 属性、XMLHttpRequest 对象和 Request API 都拿不到该属性。这样就防止了该 Cookie 被脚本读到，只有浏览器发出 HTTP 请求时，才会带上该 Cookie。
-7.
 
 -   现代浏览器开始禁止第三方 cookie：
 
@@ -1065,9 +1065,98 @@ meta 是文档级元数据元素，用来表示那些不能由其它 HTML 元相
 
 ### App 唤起
 
-1.  URL Schema：把页面地址的协议 http/https 换成自己的 schema 协议，通过啊、标签或者 loca.href 跳转，Native 解析 url 参数打开对应页面，监听 visibilitychange 事件并使用定时延时 2.5 左右判断是否唤起成功，否则执行下载 App 操作。（安卓在 manifest 里注册 intent-filter，苹果在 info.plist 里注册 URL types）
-2.  Universal Link（iOS 9+）
-3.  微信开放标签`wx-open-launch-app`，需要一个公众平台的服务号和一个开放平台的账号以及应用进行绑定，通过腾讯应用宝打开 App
+#### URL Scheme
+
+URL Scheme：把页面地址的协议 http/https 换成自己的 scheme 协议，通过 a 标签或者 location.href 跳转，Native 解析 url 参数打开对应页面，监听 visibilitychange 事件并使用定时延时 2.5 左右判断是否唤起成功，否则执行下载 App 操作。
+
+-   原理：安卓在 manifest 里通过 intent-filter 配置，苹果在 info.plist 里添加 URL types 来注册一个 scheme
+-   优点：兼容性好，无论安卓或者 iOS 都能支持，是目前最常用的方式
+-   缺点：
+    1.  无法准确判断是否唤起成功，因为本质上这种方式就是打开一个链接，并且还不是普通的 http 链接，所以如果用户没有安装对应的 APP，那么尝试跳转后在浏览器中会没有任何反应，甚至在一些 webview 里还会跳到一个类似「无法打开 taobao://xxxx」这样的错误页或者错误弹框，体验不够好；
+    2.  在很多浏览器和 webview 中会有一个弹窗提示你是否打开对应 APP，可能会导致用户流失；
+    3.  有 URL Scheme 劫持风险，比如某不知名 app 也向系统注册了 taobao:// 这个 scheme ，唤起流量可能就会被劫持到这个 app 里；
+    4.  很容易被屏蔽，app 很轻松就可以拦截掉通过 URL Scheme 发起的跳转。
+
+#### Universal Links
+
+Universal Links（iOS 9+），可以直接通过 https 协议的链接来打开 APP，如果没有安装则打开对应 H5 页面。例：`<a href="https://b.mashort.cn/">打开手淘</a>`
+
+-   原理：
+    1. 在 APP 中注册自己要支持的域名；
+    2. 在自己域名的根目录下配置一个 apple-app-site-associatio 文件即可。
+-   优点：
+    1. 相对 URL Scheme，universal links 有一个较大优点是它唤端时没有弹窗提示，可减少一部分流失；
+    2. 对于没有安装应用的用户，点击链接就会直接打开对应的页面，那么我们也可以对这种情况做统一的处理，比如引导到一个中转页，也能一定程度解决 URL Scheme 无法准确判断唤端失败的问题；
+-   缺点：
+    1. 只能在 iOS 上用；
+    2. 只能由用户主动触发，比如用浏览器扫码打开页面，就没有办法由页面直接唤起 APP，而需要用户手动点击页面按钮才能唤起；
+
+#### 微信开放标签
+
+微信开放标签`wx-open-launch-app`，需要一个公众平台的服务号和一个开放平台的账号以及应用进行绑定，通过腾讯应用宝打开 App
+
+#### H5 唤端兼容
+
+不管是 URL Scheme 还是 universal links，其本质上都是打开一个 URL，在 H5 中有几种实现方式：
+
+1. iframe：最常采用的方式是使用 iframe 来做跳转， 方法是动态插入一个隐藏的 iframe，在 iframe onload 之后就会触发唤起，这样的好处是即便用户没有安装应用，当前页面也不会跳转到错误的页面。
+
+```js
+iframe = document.createElement("iframe");
+iframe.frameborder = "0";
+iframe.style.cssText = "display:none;border:0;width:0;height:0;";
+document.body.appendChild(iframe);
+iframe.src = "taobao://m.taobao.com";
+```
+
+2. a 标签：在 iOS 9 以上的 safari 中，不支持 iframe 唤起，可以用生成 a 标签并模拟点击的方式。
+
+```js
+var a = document.createElement("a");
+a.setAttribute("href", url);
+a.style.display = "none";
+document.body.appendChild(a);
+
+var e = document.createEvent("HTMLEvents");
+e.initEvent("click", false, false);
+a.dispatchEvent(e);
+```
+
+3. window.location：对于 intent 和 universal links 可以直接使用设置 window.location.href 的方式跳转，因为如果没有安装 app 他们也不会跳到错误的页面。这三种方式基本可以兼容所有的浏览器。
+
+#### 判断是否唤起成功
+
+不管哪种唤起方式，目前在 H5 页面中都没有办法直接知道是否唤起成功。这也很好理解，唤端本身就是打开一个 URL，即使我们通过 a 标签打开的是一个正常的 http 的链接，作为页面本身同样也无法得知页面是否加载成功。不过我们可以通过一些其他的办法间接的去判断，主要是利用成功唤起后，当前的 H5 页面会被切到后台这一特性：在触发唤起后，监听 n 秒内是否触发了 blur 或者 visibilitychange 事件，有触发并且 document.hidden 为 true 说明可能是唤起成功（当然也有可能是用户自己切走了）;
+
+```js
+const timer = window.setTimeout(() => {
+	// 失败回调
+}, 3000);
+
+const successHandler = () => {
+	if (document.hidden) {
+		window.clearTimeout(timer);
+	}
+};
+window.addEventListener("blur", successHandler, { once: true });
+window.addEventListener("visibilitychange", successHandler, { once: true });
+```
+
+#### 下载还原
+
+实际业务中，通常会希望用户在唤端失败后跳转到到 app 下载页，以继续引导用户进端，但下载一般是通过跳转到应用商店或者直接拉起下载 APK 包，期间是没有办法给安装包传递参数的，所以用户安装好 app 后也不能继续在端内还原下载之前的页面。为了让用户可以在安装 app 之后继续还原之前的链路，尽可能的减少流失，我们实现了一套「口令还原」的协议：
+
+1. 在用户点击下载时，把希望在安装后打开的链接按协议约定的格式写入到剪贴板中；
+2. 用户安装 app 并首次激活时，进入端内如果取出来的是约定好的「还原口令」，则根据口令打开对应的页面。
+   通过这种方式，即便用户唤端失败，也可能最后能进到端内的承接页，一定程度上把原本在下载 app 后无法继续承接的用户捞了回来。
+
+缺点：
+
+1. 写到剪贴板的口令可能会被劫持，所以端内目前只支持在白名单里的链接进行还原；
+2. 如果剪贴板中的口令被覆盖，依然没法还原成功；
+3. 用户安装后首次打开 app 时会有很多初始化的加载，此时打开承接页会使得整体性能表现更差；
+4. 如果是比较习惯用剪贴板的用户，这个方式无疑污染了用户的剪贴板；
+5. 浏览器限制前端写剪贴板的动作只能在用户触发的同步事件中触发。
 
 ### picture 标签
 
@@ -1177,3 +1266,88 @@ HTML `<picture>` 元素通过包含零或多个 `<source>` 元素和一个 `<img
 | fetch             | [X]    | [Y]    | axios           |
 | useEffect         | [X]    | [Y]    | getInitialProps |
 | styled-components | [Y]    | [Y]    | ssr 配置        |
+
+## 虚拟列表
+
+1. 超多条数据渲染时，一般的解决方案有：前/后端分页、触底加载、懒加载、虚拟列表等。
+
+2. 虚拟列表的概念：虚拟滚动，就是根据容器可视区域的列表容积数量，监听用户滑动或滚动事件，动态截取长列表数据中的部分数据渲染到页面上，动态使用空白站位填充容器上下滚动区域内容，模拟实现原生滚动效果。
+3. 基本实现
+
+-   可视区域的高度
+-   列表项的高度
+-   可视区域能展示的列表项个数 = ~~(可视区域高度 / 列表项高度) + 2
+-   开始索引
+-   结束索引
+-   预加载（防止滚动过快，造成暂时白屏）
+-   根据开始索引和结束索引，截取数据展示在可视区域
+-   滚动节流
+-   上下空白区使用 padding 实现
+-   滑动到底，再次请求数据并拼接
+
+4. 参考[这里](https://juejin.cn/post/6966179727329460232)
+
+## JS Bridge
+
+### 什么是 JSBridge
+
+JSBridge 是一种 webview 侧和 native 侧进行通信的手段，webview 可以通过 jsb 调用 native 的能力，native 也可以通过 jsb 在 webview 上执行一些逻辑。
+
+### JSBridge 的实现方式
+
+在比较流行的 JSBridge 中，主要是通过拦截 URL 请求来达到 native 端和 webview 端相互通信的效果的。以比较火的 WebviewJavascriptBridge 为例，来解析一下它的实现方式。
+
+#### 1.在 native 端和 webview 端注册 Bridge
+
+注册的时候，需要在 webview 侧和 native 侧分别注册 jsbridge，其实就是用一个对象把所有函数储存起来。
+
+#### 2.在 webview 里面注入初始化代码
+
+主要做了以下几件事：
+
+1. 创建一个名为 WVJBCallbacks 的数组，将传入的 callback 参数放到数组内
+2. 创建一个 iframe，设置不可见，设置 src 为`https://__bridge_loaded__`
+3. 设置定时器移除这个 iframe
+
+#### 3.在 native 端监听 URL 请求
+
+iOS 中有两种 webview，一种是 UIWebview，另一种是 WKWebview，这里以 WKWebview 为例：
+
+1. 拦截了所有的 URL 请求并拿到 url
+2. 首先判断 isWebViewJavascriptBridgeURL，判断这个 url 是不是 webview 的 iframe 触发的，具体可以通过 host 去判断
+3. 继续判断，如果是 isBridgeLoadedURL，那么会执行 injectJavascriptFile 方法，会向 webview 中再次注入一些逻辑，其中最重要的逻辑就是，在 window 对象上挂载一些全局变量和 WebViewJavascriptBridge 属性
+4. 继续判断，如果是 isQueueMessageURL，那么这就是个处理消息的回调，需要执行一些消息处理的方法
+
+#### 4.webview 调用 native 能力
+
+1. webview 侧 callHandler
+
+-   当 webview 调用 native 时，会调用 callHandler 方法：实际上就是先生成一个 message，然后 push 到 sendMessageQueue 里，然后更改 iframe 的 src。
+
+2.  native 侧 flushMessageQueue
+
+-   然后，当 native 端检测到 iframe src 的变化时，会走到 isQueueMessageURL 的判断逻辑，然后执行 WKFlushMessageQueue 函数，获取到 JS 侧的 sendMessageQueue 中的所有 message。
+-   当一个 message 结构存在 responseId 的时候说明这个 message 是执行 bridge 后传回的。
+-   取不到 responseId 说明是第一次调用 bridge 传过来的，这个时候会生成一个返回给调用方的 message，其 reponseId 是传过来的 message 的 callbackId，当 native 执行 responseCallback 时，会触发\_dispatchMessage 方法执行 webview 环境的的 js 逻辑，将生成的包含 responseId 的 message 返回给 webview。
+
+3. webview 侧 handleMessageFromObjC
+
+-   如果从 native 获取到的 message 中有 responseId，说明这个 message 是 JS 调 Native 之后回调接收的 message，所以从一开始 sendData 中添加的 responseCallbacks 中根据 responseId（一开始存的时候是用的 callbackId，两个值是相同的）取出这个回调函数并执行，这样就完成了一次 JS 调用 Native 的流程。
+
+4. 过程总结，如图：[webview 调用 native 能力](../../assets/jsb1.jpeg)
+
+-   native 端注册 jsb
+-   webview 侧创建 iframe，设置 src 为`__bridge_load__`
+-   native 端捕获请求，注入 jsb 初始化代码，在 window 上挂载相关对象和方法
+-   webview 侧调用 callHandler 方法，并在 responseCallback 上添加 callbackId: responseCallback，并修改 iframe 的 src，触发捕获
+-   native 收到 message，生成一个 responseCallback，并执行 native 侧注册好的方法
+-   native 执行完毕后，通过 webview 执行\_handleMessageFromObjC 方法，取出 callback 函数，并执行
+
+#### 5.native 调用 webview 能力
+
+native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通过触发 iframe 的 src 触发执行的了，因为 Native 可以自己主动调用 JS 侧的方法。其具体过程如图：[native 调用 webview 能力](../../assets/jsb2.jpeg)
+
+1. native 侧调用 callHandler 方法，并在 responseCallback 上添加 callbackId: responseCallback
+2. native 侧主动调用\_handleMessageFromObjC 方法，在 webview 中执行对应的逻辑
+3. webview 侧执行结束后，生成带有 responseId 的 message，添加到 sendMessageQueue 中，并修改 iframe 的 src 为`__wvjb_queue_message__`
+4. native 端拦截到 url 变化，调用 webview 的逻辑获取到 message，拿到 responseId，并执行对应的 callback 函数

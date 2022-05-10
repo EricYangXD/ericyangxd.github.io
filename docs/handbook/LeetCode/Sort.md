@@ -22,13 +22,7 @@ date: "2022-01-11"
 
 -   有原地排序和非原地排序的区别
 
-1. 非原地排序
-
-```js
-
-```
-
-2. 原地排序
+1. 原地排序
 
 ```js
 // min -> max
@@ -71,7 +65,7 @@ function quickSort(arr) {
 }
 ```
 
-3. es6
+2. es6
 
 ```js
 function quickSort(arr) {

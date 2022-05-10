@@ -358,7 +358,7 @@ export default useWindowWidth;
 
 ## useLayoutEffect
 
--   useLayoutEffect 与 useEffect 使用方式是完全一致的，useLayoutEffect 的区别在于它会在所有的 DOM 变更之后同步调用 effect。
+-   useLayoutEffect 与 useEffect 使用方式是完全一致的，useLayoutEffect 的区别在于它会在所有的 「DOM 变更之后，浏览器渲染之前」「同步」调用 effect。
 -   可以使用它来读取 DOM 布局并同步触发重渲染。在浏览器执行绘制之前， useLayoutEffect 内部的更新计划将被同步刷新。
 -   通常对于一些通过 JS 计算的布局，如果你想减少 useEffect 带来的「页面抖动」,你可以考虑使用 useLayoutEffect 来代替它。
 -   需要注意 useLayoutEffect 与 componentDidMount、componentDidUpdate 的调用阶段是一样的。

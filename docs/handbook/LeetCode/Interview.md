@@ -517,10 +517,86 @@ var getIntersectionNode = function (headA, headB) {
 };
 ```
 
-### K 个一组翻转链表
+### 寻找 2 个升序数组的中位数
+
+-   暴力求解，先合并再计算中位数
+-   双指针，都从头开始比较，谁小就向右移动谁的指针，直到第(m+n)/2 次
+-   二分查找
+-   类似求第 K 小的值的算法
 
 ```js
+// 二分 O(log(min(m,n)))
+var findMedianSortedArrays = function (nums1, nums2) {
+	// nums1长度比nums2小
+	if (nums1.length > nums2.length) {
+		[nums1, nums2] = [nums2, nums1];
+	}
 
+	let m = nums1.length;
+	let n = nums2.length;
+	// 在0～m中查找
+	let left = 0;
+	let right = m;
+
+	// median1：前一部分的最大值
+	// median2：后一部分的最小值
+	let median1 = 0;
+	let median2 = 0;
+
+	while (left <= right) {
+		// 前一部分包含 nums1[0 .. i-1] 和 nums2[0 .. j-1]
+		// 后一部分包含 nums1[i .. m-1] 和 nums2[j .. n-1]
+		const i = left + Math.floor((right - left) / 2);
+		const j = Math.floor((m + n + 1) / 2) - i;
+
+		const maxLeft1 = i === 0 ? -Infinity : nums1[i - 1];
+		const minRight1 = i === m ? Infinity : nums1[i];
+
+		const maxLeft2 = j === 0 ? -Infinity : nums2[j - 1];
+		const minRight2 = j === n ? Infinity : nums2[j];
+
+		if (maxLeft1 <= minRight2) {
+			median1 = Math.max(maxLeft1, maxLeft2);
+			median2 = Math.min(minRight1, minRight2);
+			left = i + 1;
+		} else {
+			right = i - 1;
+		}
+	}
+	return (m + n) % 2 == 0 ? (median1 + median2) / 2 : median1;
+};
+
+// 双指针 O(m+n)
+var findMedianSortedArrays = function (nums1, nums2) {
+	let n1 = nums1.length;
+	let n2 = nums2.length;
+
+	// 两个数组总长度
+	let len = n1 + n2;
+
+	// 保存当前移动的指针的值(在nums1或nums2移动)，和上一个值
+	let preValue = -1;
+	let curValue = -1;
+
+	//  两个指针分别在nums1和nums2上移动
+	let point1 = 0;
+	let point2 = 0;
+
+	// 需要遍历len/2次，当len是奇数时，最后取curValue的值，是偶数时，最后取(preValue + curValue)/2的值
+	for (let i = 0; i <= Math.floor(len / 2); i++) {
+		preValue = curValue;
+		// 需要在nums1上移动point1指针
+		if (point1 < n1 && (point2 >= n2 || nums1[point1] < nums2[point2])) {
+			curValue = nums1[point1];
+			point1++;
+		} else {
+			curValue = nums2[point2];
+			point2++;
+		}
+	}
+
+	return len % 2 === 0 ? (preValue + curValue) / 2 : curValue;
+};
 ```
 
 ### K 个一组翻转链表
@@ -854,7 +930,11 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 
 #### forEach 和 map 的区别
 
-#### Proxy、Symbol 概念
+#### Proxy 概念
+
+#### Reflect 概念
+
+#### Symbol 概念
 
 #### 防抖、节流 概念
 
@@ -873,3 +953,28 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 #### export 与 import 的区别
 
 #### CSS 加载是否阻塞 DOM 渲染
+
+### 别人面试
+
+昨天晚上面试题：
+
+1. webpack 编译过程
+2. webpack 热更新
+3. 从浏览器地址栏输入 url 到用户看到界面发生了什么
+4. http 的请求报文跟响应报文都有什么
+5. 说下 http 的缓存（强缓存，协商缓存）
+6. http 的短连接和长连接
+7. websocket 和长连接的区别
+8. 同域名下两个浏览器窗口的 数据共享
+9. 不同域名下两个浏览器窗口的 数据共享（主要是跟 iframe 的数据共享 ）
+10. css 动画. 栅格布局，自适应布局
+11. call,apply,bind 的区别
+12. 闭包
+13. 柯里化函数
+14. 防抖，节流
+15. vue 父子通信的方式
+16. diff 原理
+17. vue 路由的实现，从地址改变到渲染组件发生了什么
+18. vue 的响应式原理
+19. vue 的生命周期，父子生命周期的循序
+20. nextTick 的实现原理

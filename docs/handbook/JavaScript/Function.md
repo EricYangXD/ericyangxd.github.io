@@ -736,7 +736,9 @@ function tco(f) {
 function getType(obj) {
 	return Object.prototype.toString
 		.call(obj)
-		.replaceAll(new RegExp(/\[|\]|object /g), "");
+		.replaceAll(new RegExp(/\[|\]|object /g), "")
+		.toLowerCase();
+	// return Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
 }
 ```
 

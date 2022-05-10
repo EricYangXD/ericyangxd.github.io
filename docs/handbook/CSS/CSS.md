@@ -632,6 +632,21 @@ const LoaderWrap = styled.div`
 
 ## 说说 CSS 选择器以及这些选择器的优先级
 
+### 选择器
+
+-   id 选择器(#myid)
+-   类选择器(.myclass)
+-   属性选择器(`a[rel="external"]`)
+-   伪类选择器(`a:hover, li:nth-child`)
+-   伪元素选择器(`a::before, li:after`)
+-   标签选择器(`div, h1 ,p`)
+-   相邻选择器（`h1 + p`）
+-   子选择器(`ul > li`)
+-   后代选择器(`li a`)
+-   通配符选择器(`*`)
+
+### 优先级
+
 从高到低：
 
 1. !important
@@ -640,6 +655,8 @@ const LoaderWrap = styled.div`
 4. 类选择器/属性选择器/伪类选择器（0010）
 5. 元素选择器/伪元素选择器（0001）
 6. 关系选择器/通配符选择器（0000）
+
+带!important 标记的样式属性优先级最高； 样式表的来源相同时：!important > 行内样式 > ID 选择器 > 类选择器 > 标签 > 通配符 > 继承 > 浏览器默认属性
 
 ## BFC
 
