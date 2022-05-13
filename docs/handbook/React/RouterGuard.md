@@ -101,3 +101,45 @@ return (<>
 ```
 
 3. In addition, you can add some custom functions as needed.
+
+## 改进版
+
+```ts
+/* eslint-disable no-param-reassign */
+import React, { useEffect, useRef } from "react";
+import { Prompt } from "react-router-dom";
+
+interface Props {
+	/** 离开时显示的提示信息。注意：在 Chrome 中，关闭窗口只能显示系统默认提示 */
+	message: string;
+	/** 离开时是否要提示 */
+	enabled: boolean | undefined;
+}
+const ExitAlert = (props: Props): JSX.Element => {
+	// window beforeUnload 事件
+	const refCurProps = useRef(props);
+	refCurProps.current = props;
+
+	useEffect(() => {
+		const handleBeforeUnload: EventListener = (event) => {
+			if (!refCurProps.current.enabled) {
+				return undefined;
+			}
+
+			event.preventDefault(); // 用于 Firefox —— Ref: https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+			event.returnValue = false; // 用于 Chrome
+			return refCurProps.current.message; //  用于 IE
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
+		return () => {
+			window.removeEventListener("beforeunload", handleBeforeUnload);
+		};
+	}, []);
+
+	// React Router 切换事件
+	return <Prompt message={props.message} when={props.enabled} />;
+};
+
+export default ExitAlert;
+```

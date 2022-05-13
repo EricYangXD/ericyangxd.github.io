@@ -139,9 +139,9 @@ ETag 在服务器响应请求时，告诉浏览器当前资源在服务器的唯
 
 出现这种情况，一般是 Nginx 配置有问题，可以通过增加`add_header Cache-Control no-cache;`来解决。
 
-在我们的认知里，通常 Last-Modified 是和协商缓存相关，但一些情况下也会触发启发式(heuristic)缓存。
+在我们的认知里，通常 `Last-Modified` 是和协商缓存相关，但一些情况下也会触发启发式(heuristic)缓存。
 
-如果服务器总是提供强缓存所需字段（ Expires 、 Cache-Control ），浏览器可以通过判断是否使用本地缓存文件，来实现更好的加载性能。但由于服务器不是总返回强缓存的 response 字段，此时浏览器会根据其他的 response header 字段来计算 Cache-Control 的 max-age 值（通常是 Last-Modified 字段）。HTTP/1.1 规范没有给出特定的实现算法，使得不同浏览器内核的浏览器对此表现不尽相同。
+如果服务器总是提供强缓存所需字段（ `Expires` 、 `Cache-Control` ），浏览器可以通过判断是否使用本地缓存文件，来实现更好的加载性能。但由于服务器不是总返回强缓存的 response 字段，此时浏览器会根据其他的 response header 字段来计算 `Cache-Control` 的 `max-age` 值（通常是 `Last-Modified` 字段）。HTTP/1.1 规范没有给出特定的实现算法，使得不同浏览器内核的浏览器对此表现不尽相同。
 
 通常推荐的计算方法是 过期时间 < 时间间隔 \_ 系数。时间间隔指的是 response 的返回时间与最后更新时间的间隔，而这个系数的典型值是 10%，计算公式为：`max-age = ( date - last-modified ) * 0.1`，绝大多数的客户端，包括浏览器和各类 app 都是采用的这一推荐算法。
 
@@ -159,20 +159,20 @@ ETag 在服务器响应请求时，告诉浏览器当前资源在服务器的唯
 
 2. 建议设置适当的二级缓存 key：如果我们请求的响应是跟请求的 Cookie 相关的，建议设置：`Vary: Cookie;`
 
--   默认情况下，我们浏览器的缓存使用 URL 和 请求方法来做缓存 key 的。这意味着，如果一个网站需要登录，不同用户的请求由于它们的请求 URL 和方法相同，数据会被缓存到一块内存里。这显然是有点问题，我们可以通过设置 Vary: Cookie 来避免这个问题。当用户身份信息发生变化的时候，缓存的内存也会发生变化。
+-   默认情况下，我们浏览器的缓存使用 URL 和 请求方法来做缓存 key 的。这意味着，如果一个网站需要登录，不同用户的请求由于它们的请求 URL 和方法相同，数据会被缓存到一块内存里。这显然是有点问题，我们可以通过设置 `Vary: Cookie` 来避免这个问题。当用户身份信息发生变化的时候，缓存的内存也会发生变化。
 
 ### 200 状态码和 304 状态码何时出现
 
-1. 在没有设置 `Cache-Control` 的情况下，设置 `Last-Modified` 和 `ETag` 缓存，会出现 200（from cache）和 304 交替出现的情况。
+1. 在没有设置 `Cache-Control` 的情况下，设置 `Last-Modified` 和 `ETag` 缓存，会出现 `200（from cache）`和 304 交替出现的情况。
 
-2. 设置 `Cache-Control` 的情况下，过期刷新会出现 304(如果有更新内容，则是 200)，之后再过期之前刷新都是 200（from cache）。如果要确保要向服务端确认，可以将 `Cache-Control` 的 `max-age` 设置为 0。
+2. 设置 `Cache-Control` 的情况下，过期刷新会出现 304(如果有更新内容，则是 200)，之后再过期之前刷新都是 `200（from cache）`。如果要确保要向服务端确认，可以将 `Cache-Control` 的 `max-age` 设置为 0。
 
 ## HTTP 版本对比
 
 简单对比：
 
 1. http1.0：最基础的 http 协议，支持基本的 get、post 方法
-2. http1.1：目前广泛应用，增加缓存策略 cache-control|E-tag 等；支持长连接 Connection:keep-alive，一次 TCP 连接可以多次请求；支持断点续传，状态码 206；支持新的方法 put、delete 等，可用于 restful api；
+2. http1.1：目前广泛应用，增加缓存策略 `cache-control|E-tag` 等；支持长连接 `Connection:keep-alive`，一次 TCP 连接可以多次请求；支持断点续传，状态码 206；支持新的方法 put、delete 等，可用于 restful api；
 3. http2.0：可压缩 header，减小体积；多路复用，一次 tcp 连接中可以多个 http 并行请求；支持服务端推送；
 
 ## websocket 和 http 的区别

@@ -862,6 +862,52 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 
 -   不一定。打包后的 index.js 中引用 lib 时并不会包含 lib.aaaaaa.js，而是采用 chunkId 的形式，如果 chunkId 是固定的话(chunkIds = deterministic 时)，则不会发生变更。即在 webpack 中，通过 `optimization.chunkIds = 'deterministic'` 可设置确定的 chunkId，来增强 Long Term Cache 能力。此时打包，仅仅 lib.js 路径发生了变更 -- `lib.bbbbbb.js`。
 
+### 设计模式
+
+#### 工厂模式
+
+生成一个函数，return 一个实例，每次需要生成实例的时候直接调这个函数即可，而不需要 new。
+
+#### 单例模式
+
+生成一个全局唯一的实例且不能生成第二个，比如 Redux、Vuex 的 store 或者全局唯一的 dialog、modal 等。例：js 是单线程的，创建单例很简单
+
+```ts
+class SingleTon {
+	private static instance: SingleTon | null = null;
+	private constructor() {}
+	public static getInstance(): SingleTon {
+		if (this.instance === null) {
+			this.instance = new SingleTon();
+		}
+		return this.instance;
+	}
+	fn1() {}
+	fn2() {}
+}
+
+const sig = SingleTon.getInstance();
+sig.fn1();
+```
+
+#### 代理模式
+
+Proxy：在对象之间架设一个拦截层，对一些操作进行拦截和处理。
+
+#### 观察者模式
+
+一个主题，一个观察者，主体变化后触发观察者执行：`btn.addEventListener('click',()=>{...})`，Subject 和 Observer 直接绑定，没有中间媒介。
+
+#### 发布订阅模式
+
+订阅/绑定一些事件`eventBus.on('event1',()=>{});`，然后发布/触发这些事件`eventBus.emit('event1',props);`，绑定的事件在组件销毁时记得删除解绑。Publisher 和 Observer 互不认识，需要中间媒介 Event Channel。
+
+和观察者模式的区别：[对比](../../assets/subwatcher.png)
+
+#### 装饰器模式
+
+Decorator：装饰类或者方法，不会修改原有的功能，只是增加一些新功能（AOP 面向切面编程）。
+
 ## 面试题
 
 ### 2022-04-27
