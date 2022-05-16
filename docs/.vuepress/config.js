@@ -163,6 +163,10 @@ module.exports = {
 						title: "包管理工具",
 						path: "/handbook/JavaScript/PackageManageTools",
 					},
+					{
+						title: "用TS封装Axios",
+						path: "/handbook/JavaScript/Axios",
+					},
 				],
 			},
 			{

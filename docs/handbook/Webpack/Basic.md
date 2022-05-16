@@ -326,7 +326,7 @@ React(Vue) 运行时代码不容易变更，且每个组件都会依赖它，可
 
 ## JS 代码压缩 minify 的原理是什么
 
-通过 AST 分析，根据选项配置一些策略，来生成一颗更小体积的 AST 并生成代码。
+通过 AST 分析，根据选项配置一些策略，来生成一棵更小体积的 AST 并生成代码。
 
 目前前端工程化中使用 terser (opens new window)和 swc (opens new window)进行 JS 代码压缩，他们拥有相同的 API。
 
@@ -345,3 +345,143 @@ React(Vue) 运行时代码不容易变更，且每个组件都会依赖它，可
 ### 解析程序逻辑: 编译预计算
 
 在编译期进行计算，减少运行时的计算量。
+
+## 15 个 Webpack 优化点
+
+### 构建时间的优化
+
+#### thread-loader
+
+多进程打包，可以大大提高构建的速度，使用方法是将 thread-loader 放在比较费时间的 loader 之前，比如 babel-loader，数组中右侧的 loader 先执行。
+
+#### cache-loader
+
+缓存资源，提高二次构建的速度，使用方法是将 cache-loader 放在比较费时间的 loader 之前，比如 babel-loader，同上。
+
+#### 开启热更新
+
+在 plugins 中增加 webpack 提供的热更新插件`new webpack.HotModuleReplacementPlugin()`，并配置`devServer.hot=true`。
+
+#### 合理设置 exclude & include
+
+```js
+{
+  //....
+  test: /\.js$/,
+  //使用include来指定编译文件夹
+  include: path.resolve(__dirname, '../src'),
+  //使用exclude排除指定文件夹
+  exclude: /node_modules/,
+  use: [
+    'babel-loader'
+  ]
+},
+```
+
+#### 构建区分环境
+
+1. 开发环境：去除代码压缩、gzip、体积分析等优化的配置，大大提高构建速度
+2. 生产环境：需要代码压缩、gzip、体积分析等优化的配置，大大降低最终项目打包体积
+
+#### 提升 webpack 版本
+
+### 打包体积优化
+
+主要是打包后项目整体体积的优化，有利于项目上线后的页面加载速度提升
+
+#### CSS 代码压缩
+
+CSS 代码压缩使用`css-minimizer-webpack-plugin`，效果包括压缩、去重
+
+#### JS 代码压缩
+
+JS 代码压缩使用`terser-webpack-plugin`，实现打包后 JS 代码的压缩
+
+```js
+const TerserPlugin = require('terser-webpack-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+
+  optimization: {
+    minimizer: [
+      new CssMinimizerPlugin(), // 去重压缩css
+      new TerserPlugin({ // 压缩JS代码
+        terserOptions: {
+          compress: {
+            drop_console: true, // 去除console
+          },
+        },
+      }), // 压缩JavaScript
+    ],
+  }
+```
+
+#### tree-shaking
+
+tree-shaking 简单说作用就是：只打包用到的代码，没用到的代码不打包，而 webpack5 默认开启 tree-shaking，当打包的 mode 为 production 时，自动开启 tree-shaking 进行优化
+
+#### source-map 类型
+
+source-map 的作用是：方便你报错的时候能定位到错误代码的位置。它的体积不容小觑，所以对于不同环境设置不同的类型是很有必要的。
+
+1. 开发环境: `devtool: 'eval-cheap-module-source-map'`, 开发环境的时候我们需要能精准定位错误代码的位置
+2. 生产环境: `devtool: 'nosources-source-map'`, 生产环境，我们想开启 source-map，但是又不想体积太大，那么可以换一种类型
+
+#### 打包体积分析
+
+使用`webpack-bundle-analyzer`插件可以审查打包后的体积分布，进而进行相应的体积优化
+
+### 用户体验优化
+
+#### 模块懒加载
+
+如果不进行模块懒加载的话，最后整个项目代码都会被打包到一个 js 文件里，单个 js 文件体积非常大，那么当用户网页请求的时候，首屏加载时间会比较长，使用模块懒加载之后，大 js 文件会分成多个小 js 文件，网页加载时会按需加载，大大提升首屏加载速度。在配置路由时使用 lazy 动态 import 页面组件。
+
+#### Gzip
+
+开启 Gzip 后，大大提高用户的页面加载速度，因为 gzip 的体积比原文件小很多，当然需要后端的配合，使用`compression-webpack-plugin`。
+
+```js
+plugins: [
+	// ...
+	// gzip
+	new CompressionPlugin({
+		algorithm: "gzip",
+		threshold: 10240,
+		minRatio: 0.8,
+	}),
+];
+```
+
+#### 小图片转 base64
+
+对于一些小图片，可以转 base64，这样可以减少用户的 http 网络请求次数，提高用户的体验。webpack5 中`url-loader`已被废弃，改用`asset-module`
+
+```js
+{
+   test: /\.(png|jpe?g|gif|svg|webp)$/,
+   type: 'asset',
+   parser: {
+     // 转base64的条件
+     dataUrlCondition: {
+        maxSize: 25 * 1024, // 25kb
+     }
+   },
+   generator: {
+     // 打包到 image 文件下
+    filename: 'images/[contenthash][ext][query]',
+   },
+},
+```
+
+#### 合理配置 hash
+
+我们要保证，改过的文件需要更新 hash 值，而没改过的文件依然保持原本的 hash 值，这样才能保证在上线后，浏览器访问时没有改变的文件会命中缓存，从而达到性能优化的目的。
+
+```js
+ output: {
+    path: path.resolve(__dirname, '../dist'),
+    // 给js文件加上 contenthash
+    filename: 'js/chunk-[contenthash].js',
+    clean: true,
+  },
+```

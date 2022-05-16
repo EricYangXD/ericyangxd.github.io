@@ -99,3 +99,7 @@ Module._load = function (request, parent, isMain) {
 7. 在 Module.\_cache 中缓存该对象，`Module._cache[filename] = module;`。
 8. 调用`tryModuleLoad(module, filename);`，去尝试加载模块，如果报错，那么清除模块的缓存。
 9. 返回模块本身的 exports 对象。
+
+## RPC 协议之 protobuf
+
+nodejs 中的 `protobufjs` 库包含一个 `toObject` 方法，该方法提供一个可以传递给 `JSON.stringify()` 的纯 javascript 对象。接收一个 protobuf 实例对象和一个配置对象。返回一个 js 对象。

@@ -1071,3 +1071,250 @@ writing-mode: vertical-lr;
 ```css
 place-items: center stretch;
 ```
+
+## 如何覆盖组件库的样式
+
+在开发中，经常需要修改第三方组件库的样式，比如 ant-design 和 elementUI，一般有这么几种做法：
+
+1. 直接修改 node_modules 中的源码：多端难以同步，不可取；
+2. 修改全局样式：容易与别人的样式发生冲突，也可能不允许这么做，视情况；
+3. 样式隔离 CSS Module（React）和 Scoped（Vue)：推荐；
+
+### CSS 中的样式隔离
+
+#### CSS Module（React）
+
+CSS Module 的原理：它的使用很简单，在 CSS 文件加一个后缀`.module`，然后当做一个变量引入到 JS 文件中。
+
+```js
+// src/Demo.js
+import styles from "./demo.module.css";
+export default function Demo() {
+	return (
+		<div className={styles.myWrapper}>
+			<Calendar />
+		</div>
+	);
+}
+```
+
+```css
+/* src/demo.module.css */
+.myWrapper {
+	border: 5px solid black;
+}
+```
+
+被编译后 👇，插入的样式表和元素的 class 属性都会加上一个哈希值作为命名空间。
+
+```html
+<style>
+	.demo_myWrapper__Hd9Qg {
+		border: 5px solid black;
+	}
+</style>
+<div class="demo_myWrapper__Hd9Qg">...</div>
+```
+
+React 给我们提供了一个语法`:global`。它生效范围内的样式会被当作全局 CSS。具体使用如下，在 CSS 文件中，使用`:global`包裹希望全局生效的样式，`:global`作用域下的样式编译过后都不会加上哈希：
+
+```css
+:global(.ant-picker-calendar-full
+		.ant-picker-panel
+		.ant-picker-calendar-date-today) {
+	border-color: purple; /* 覆盖为紫色 */
+}
+/* SCSS或SASS中，还可以使用嵌套语法： */
+:global {
+	.ant-picker-calendar-full
+		.ant-picker-panel
+		.ant-picker-calendar-date-today {
+		border-color: purple;
+	}
+}
+```
+
+借助`:global`语法，即使使用 CSS Module 进行样式隔离也可以如愿实现覆盖功能。
+
+#### Vue 中的 Scoped
+
+Vue 中也有类似的样式隔离功能，使用 Scoped 标记 CSS 部分，使用也很简单 👇：
+
+```vue
+<div class="myWrapper">
+  <Calendar />
+</div>
+<style scoped>
+.myWrapper {
+	border: 5px solid black;
+}
+</style>
+```
+
+编译出来的代码如下 👇：
+
+```html
+<style>
+	.myWrapper[data-v-2fc5154c] {
+		border: 5px solid black;
+	}
+</style>
+<div class="myWrapper" data-v-2fc5154c>...</div>
+```
+
+实际就是借助属性选择器实现样式隔离，样式只会对有 data-v 属性的标签生效。此时 UI 组件库内部的 HTML 元素都没有该属性，因此样式不会对他生效。所以 Vue 提供了一个类似的语法：深度作用选择器。
+
+使用很简单，把要“渗透“进组件内部的样式前面加上`>>>`，作用域内的 CSS 样式都不会带上哈希值作为属性选择器。也可以将`>>>`写成`/deep/`或者`::v-deep`。
+
+相较于 React 的`:global`，Vue 的深度作用选择器是一种更优秀的方案，它必须要一个前导（也就是上面例子中的`.myWrapper` 选择器），前导依旧会被打上哈希值作为属性选择器，要渗透进去的样式实际上是作为它的子选择器，只在当前这个文件下生效，彻底避免造成全局污染。
+
+#### ShadowDOM
+
+ShadowDOM 是 web components 方案中非常重要的一个新增对象，它通过在 custom element 中使用 attachShadow 来开启，开启之后，一个 HTMLElement 将不再显示其原本内部的元素，而是显示其 shadowRoot 内的元素，shadowRoot 是一个 document fragment，是脱离原始文档流的一种存在，因此它具有 css 样式隔离性，通过这种隔离，我们可以很好的在应用中实现一些局部样式的重置和定义（当然，还有组件化效果）。
+
+```js
+const snake = document.querySelector("#snake");
+const root = snake.createShadowRoot();
+root.inner = `
+  <style>span { color: red }</style>
+  ${snake.innerHTML}
+`;
+```
+
+#### 总结
+
+综上，对于 Vue 项目，使用提供了一个类似的语法：深度作用选择器--`>>>`或者`/deep/`或者`::v-deep`即可。对于 React 项目，可以使用`:global`属性。
+
+#### React 中 AntDesign 组件样式修改
+
+1. 方法一：借助`styled-components`的 GlobalStyle，创建全局样式；
+2. 方法二：创建单独的 style 文件夹，并对相应的组件的样式进行重写，之后在 app.js 中引入，打包的时候确保自定义的样式在 AntDesign 默认样式之后引入即可；
+
+## 防御性 CSS 技能
+
+防的是一切使表现和行为偏离预期效果的情景。出现这些场景的原因是因为终端环境的多样化，开发及测试用例只能覆盖大多数使用场景，在其他环境下，解析机制差异、内容动态变化等，都是导致非预期效果的原因。
+
+### flex-wrap
+
+控制 flex 容器内元素所占空间超出 flex 容器空间时是否折行。flex-wrap 属性默认是不折行的，容易忽略多元素溢出兜底；为兜底，请设置`flex-wrap: wrap;`
+
+### margin 间距
+
+调整元素的外边距。用于指定元素与周围空间的距离关系。场景：防止元素与元素之间挤压空间，造成重叠等情况；比如文本溢出、元素换行之后重叠在一起等。
+
+### 长文本处理
+
+当文本长度超出容器时，该如何显示。
+
+1. 换行：不要设置容器的 height 和 word-break 即可；
+
+2. 省略：
+
+```css
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+```
+
+3. 固定展示几行后省略剩余部分：
+
+```css
+display: -webkit-box;
+overflow: hidden;
+max-height: calc(2 * 1.15 * 1.5rem);
+line-height: 25px;
+word-break: break-all;
+-webkit-box-orient: vertical;
+-webkit-line-clamp: 2;
+```
+
+### 防止图像被拉伸或压缩
+
+通常，服务器下发的图片尺寸以及用户自定义上传的图片，显示在页面时，不可能百分百与容器尺寸贴合，不可避免的会遇到图片的放缩处理：`object-fit: cover;`
+
+### 锁定滚动链接
+
+`overscroll-behavior`是`overscroll-behavior-x`和`overscroll-behavior-y`的简写属性，它控制的是元素滚动到边界时的表现。换个能听得懂的说法：在 JS 世界里，有事件冒泡机制，你可以通过 event 的 stopPropagation 方法去阻止冒泡的发生，同样，在 CSS 世界里，滚动也有冒泡机制，当内部元素滚动到边界时，如果继续滚动，会带动外层祖先元素发生滚动，这种现象被称为滚动链，为了方便记忆，你也可以把他形象的记忆为滚动冒泡。而`overscroll-behavior`这个属性，就是类似 event 的 stopPropagation 方法阻止冒泡事件一样，提供给开发者去控制内层元素是否可以发生”冒泡“带动外层元素滚动的属性。
+
+页面存在多层滚动元素，需要单独控制每层滚动是否引起外层滚动；
+
+```css
+.child {
+	overscroll-behavior-y: contain; // 默认是auto；none  和 contain 一样，但它也可以防止节点本身的滚动效果
+	overflow-y: auto;
+}
+```
+
+### CSS 变量默认值
+
+CSS 变量可以实现动态控制元素属性，但是当 CSS 变量未定义或无效时，造成变量值异常，此时，元素的样式将会脱离预期，而变量默认值可以实现异常兜底，保证变量值异常时页面依然能运行。
+
+```css
+.item {
+	color: var(--my-var, red); /* Red if --my-var is not defined */
+}
+```
+
+### 弹性元素尺寸 min-height / min-width
+
+当需求要求完整展示某个列表数据，但列表数据所占空间无法固定时，为避免部分内容过宽、过高突破固定空间破坏布局，可以使用弹性尺寸 min-_ 或者 max-_ , 这样能自动适应部分内容所占空间过大或过小带来的样式美观问题；
+
+### 被遗忘的 background-repeat
+
+使用图片作为容器的背景图，当容器的尺寸大于图片尺寸时，默认背景图会重复，如果你在开发中忽略了上述问题，则会出现背景图重复的问题:`background-repeat: no-repeat;`
+
+### 媒体查询 @media
+
+媒体查询的使用更像是 CSS 中的条件判断，它会根据你定义的条件，当条件满足时，条件内的样式生效；
+
+```css
+/* 将 body 的背景色设置为蓝色 */
+body {
+	background-color: blue;
+}
+
+/* 在小于或等于 800 像素的屏幕上，将背景色设置为黄色 */
+@media screen and (max-width: 800px) {
+	body {
+		background-color: yellow;
+	}
+}
+
+/* 在 600 像素或更小的屏幕上，将背景色设置为红色 */
+@media screen and (max-width: 600px) {
+	body {
+		background-color: red;
+	}
+}
+```
+
+### 图片上的文字
+
+当需要在图片上层展示文字时，如果图片加载失败，而外层容器的背景色和文字颜色接近，那么文字的展示效果就不理想；可以给图片容器设置适当的背景色。至于图片加载失败时左上角的“破图”标记，可以使用伪类进行遮挡美化；
+
+### 合理使用滚动条属性
+
+overflow 属性有两个作用很相近的属性值，一个是 scroll, 另一个是 auto; 这两个属性值都能实现当内容大于所占空间时滚动展示，不同点在于使用 scroll 属性无论内容是否超出容器空间，都会展示滚动条，而 auto 属性会分辩条件，内容超出时才会展示滚动条，为超出时则会自动隐藏，样式上较为美观；
+
+### 预留滚动条空间，避免重排
+
+一开始就预留好滚动条的位置，只是不可见，到了滚动条应该出场的时候再让它可见，就能避免不必要的重排了。借助`scrollbar-gutter: stable;`即可实现；也可以把滚动条干掉；
+
+### 图片最大宽度
+
+当给固定宽高容器设置背景图时，如果背景图尺寸超过容器宽高，图片会溢出，因此，最好在项目的 resetCss 中按照以下属性属性初始化：
+
+```css
+img {
+	max-width: 100%;
+	object-fit: cover;
+}
+```
+
+### 粘性定位
+
+position 的粘性定位指的是通过用户的滚动，元素的 position 属性在 position:relative 与 position:fixed 定位之间切换；这对于需要使用滚动吸顶的场景非常方便；是典型的依据业务场景推动 CSS 技术发展的典例；
+
+### 浏览器兼容性 CSS 请勿批量处理
+
+根据 W3C 标准，批量分组选择选择器，如果分组中，其中一个无效，那么整个选择器都将会失效。因此，在遇到浏览器兼容属性时，切勿批量组合书写；
