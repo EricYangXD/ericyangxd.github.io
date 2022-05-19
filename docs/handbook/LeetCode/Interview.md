@@ -824,7 +824,7 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 
 有很多 npm package 被攻击后，就是通过 `npm postinstall` 自动执行一些事，比如挖矿等。
 
-#### 总结
+#### 总结-npm run script 时发生了什么
 
 -   表面上：`npm run xxx`的时候，首先会去项目的 package.json 文件里找 scripts 里找对应的 xxx，然后执行 xxx 的命令，例如启动 vue 项目 `npm run serve`的时候，实际上就是执行了`vue-cli-service serve` 这条命令。
 -   实际上：`vue-cli-service`这条指令不存在操作系统中，我们在安装依赖的时候，是通过 npm i xxx 来执行的，例如 `npm i @vue/cli-service`，npm 在 安装这个依赖的时候，就会在 `node_modules/.bin/` 目录中创建好 `vue-cli-service` 为名的几个可执行文件，实际是些软链接/node 脚本。
@@ -1022,5 +1022,39 @@ Decorator：装饰类或者方法，不会修改原有的功能，只是增加�
 16. diff 原理
 17. vue 路由的实现，从地址改变到渲染组件发生了什么
 18. vue 的响应式原理
-19. vue 的生命周期，父子生命周期的循序
+19. vue 的生命周期，父子生命周期的顺序
 20. nextTick 的实现原理
+21. React.PureComponent 与 Component 的区别
+    1. `PureComponent` 会默认实现在 `shouldComponentUpdate` 中对 props 的第一层属性做浅比较，然后决定是否更新，相当于做了个性能小优化。不能在 `PureComponent` 中使用 `shouldComponentUpdate`。类似 `React.memo()`。
+22. 如何统一监听 Vue 组件报错
+    1. `window.onerror`：全局监听所有 js 错误，可以捕捉 Vue 监听不到的错误；但它是 js 级别的，识别不了 Vue 组件信息；监听不到 try/catch，可以监听异步报错；
+    2. `window.addEventListener('error', function(){})`：同上。参数略有不同。捕获的异常如何上报？常用的发送形式主要有两种: 通过 ajax 发送数据`(xhr、jquery...)` 或动态创建 img 标签的形式；
+    3. `errorCaptured:(errmsg,vm,info)={}`：在组件中配置（使用类似钩子函数）；监听所有下级组件的错误；返回 false 会阻止向上传播；无法监听异步报错；
+    4. `errorHandler:(errmsg,vm,info)={}`：在 main.js 中配置（使用类似钩子函数）`app.config.errorHandler=()=>{}`；Vue 全局错误监听，所有错误都会汇总到这里；但 `errorCaptured` 返回 false，不会传播到这里；会干掉 `window.onerror`；无法监听异步报错；
+23. 如何统一监听 React 组件报错
+    1. 编写 `ErrorBoundary` 组件：利用`static getDerivedStateFromError`钩子监听所有下级组件的错误，可降级展示 UI；只监听组件渲染时报错，不监听 DOM 事件、异步错误；降级展示只在 production 环境生效，dev 会直接抛出错误。
+    2. 从上可知 `ErrorBoundary` 不会监听 DOM 事件报错和异步错误，所以可以用 `try-catch`，也可用 `window.onerror`;
+    3. Promise 未处理的 catch 需要监听 `onunhandledrejection`：onerror 事件无法捕获到网络异常的错误(资源加载失败、图片显示异常等)，例如 img 标签下图片 url 404 网络请求异常的时候，onerror 无法捕获到异常，此时需要监听`unhandledrejection`。
+    4. JS 报错统计（埋点、上报、统计）用 sentry；sentry 是一个基于 Django 构建的现代化的实时事件日志监控、记录和聚合平台，主要用于快速的发现故障。sentry 支持自动收集和手动收集两种错误收集方法。我们能成功监控到 vue 中的错误、异常，但是还不能捕捉到异步操作、接口请求中的错误，比如接口返回 404、500 等信息，此时我们可以通过`Sentry.caputureException()`进行主动上报。
+24. 鉴权
+25. hmr 热更新原理
+26. mixin,vue router 的原理
+27. vue 双向绑定原理
+28. es6 的新特性
+
+#### 一个页面打开比较慢，怎么处理？
+
+1.  通过 Chrome 的 performance 面板或者 Lighthouse 等工具分析页面性能，通过查看 FP（首次渲染）、FCP（首次内容渲染）、DOMContentLoaded（DCL）、Largest Contentfull Paint 最大内容渲染（LCP）、Load（L)等性能指标，结合资源的加载情况，来判断是哪个过程有问题：加载过程慢还是渲染过程慢？
+2.  对于加载过程慢：说明是网络问题比较严重。
+    1.  优化服务端硬件配置，静态资源上 cdn 或者是压缩图片、使用 base64 等减少请求数，服务端开启 gzip 等；
+    2.  路由懒加载，大组件异步加载，减少主包的体积；
+    3.  优化 http 缓存策略，强缓存、协商缓存，对于静态资源可以开启强缓存。
+3.  对于渲染过程慢：可能是接口数据返回的慢，也可能是代码写的有问题。
+    1.  优化服务端接口，提高响应速度；
+    2.  分析前端代码逻辑，优化 Vue/React 组件代码，比如减少重排重绘；
+    3.  服务端渲染 SSR；
+4.  优化体验：骨架屏，加载动画、进度条。
+5.  持续跟进：
+    1. 性能优化是一个循序渐进的过程，不像 bug 一次性解决；
+    2. 持续跟进统计结果，再逐步分析性能瓶颈，持续优化；
+    3. 可以使用第三方统计服务，如阿里云 ARMS，百度统计等；
