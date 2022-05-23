@@ -385,3 +385,12 @@ npm install --no-shrinkwrap --update-binary
 ### Chrome 浏览器网络请求日志
 
 chrome://net-export/
+
+### zsh 打印本机 ip
+
+```zsh
+#!/bin/bash
+
+ip=$(curl -s http://myip.ipip.net)
+echo "My public IP address is: $ip"
+```

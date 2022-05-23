@@ -990,6 +990,39 @@ Decorator：装饰类或者方法，不会修改原有的功能，只是增加�
 
 #### JS 中 new 一个对象的过程
 
+-   使用 Object.create
+
+1. 以构造函数 Parent 的 prototype 属性为原型，创建一个新的空对象 obj：`const obj = Object.create(Parent.prototype);`
+2. 将 obj 作为 this，并传入参数，执行构造函数：`Parent.apply(obj, args);`
+3. 返回 obj(如果构造器没有手动返回对象，则返回第一步的对象)：`return obj;`
+
+```js
+function MockNew(Parent, ...args) {
+	const obj = Object.create(Parent.prototype);
+	const result = Parent.apply(obj, args);
+	return typeof result === "object" ? result : obj;
+}
+```
+
+-   不使用 Object.create
+
+1. 创建一个空对象 obj：`const obj = {};`
+2. 让 obj 继承构造函数的的原型 prototype，即将构造函数的作用域赋给新对象（因此 this 就指向了这个新对象）：`obj.proto = Parent.prototype;`
+3. 将 obj 作为 this，并传入参数，执行构造函数：`Parent.apply(obj, args);`
+4. 返回 obj(如果构造器没有手动返回对象，则返回第一步的对象)：`return obj;`
+
+```js
+function MockNew(Parent, ...args) {
+	const obj = {};
+	obj.proto = Parent.prototype;
+	const result = Parent.apply(obj, args);
+	return typeof result === "object" ? result : obj;
+}
+```
+
+-   `{}`创建空对象，原型指向 Object.prototype
+-   `Object.create`创建空对象，原型指向传入的参数（构造函数或者 null）
+
 #### 宏任务与微任务
 
 #### 闭包的优缺点

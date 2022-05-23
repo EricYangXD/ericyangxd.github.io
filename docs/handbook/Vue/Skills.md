@@ -578,3 +578,7 @@ const registerRoutes = () => {
 	return routes;
 };
 ```
+
+## 查看 Vue 默认 webpack 配置
+
+在使用 vue-cli-service 新建的项目中：`vue-cli-service inspect > output.js`
