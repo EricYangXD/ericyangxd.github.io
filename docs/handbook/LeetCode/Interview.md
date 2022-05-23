@@ -605,6 +605,136 @@ var findMedianSortedArrays = function (nums1, nums2) {
 
 ```
 
+### 深度优先遍历 DOM 节点
+
+-   el.childNodes:获取全部节点，包括 element 节点、注释节点、文本节点等等，返回的是：NodeList[]
+-   el.children:只获取 element 节点，不获取注释节点、文本节点，返回的是：HTMLCollection[]
+
+```js
+// 递归
+function dfs1(root) {
+	visitNode(root);
+	const childNodes = root.childNodes; // childNodes与children不同！
+	if (childNodes.length) {
+		childNodes.forEach((child) => {
+			dfs1(child); // 递归
+		});
+	}
+}
+// 不用递归，用栈
+function dfs2(root) {
+	const stack = [];
+	// 根节点入栈
+	stack.push(root);
+	while (stack.length) {
+		const curNode = stack.pop();
+		if (!curNode) break;
+		visitNode(curNode);
+
+		// 子节点压栈
+		const childNodes = curNode.childNodes;
+		if (childNodes.length) {
+			// reverse反顺序压栈
+			Array.from(childNodes)
+				.reverse()
+				.forEach((child) => stack.push(child));
+		}
+	}
+}
+function visitNode(node) {
+	if (node instanceof Comment) {
+		// 注释节点
+		console.log("Comment node ---", node.textContent);
+	}
+	if (node instanceof Text) {
+		// 文本节点
+		const t = node.textContent?.trim();
+		if (t) {
+			console.log("Text node ---", t);
+		}
+	}
+	if (node instanceof HTMLElement) {
+		// element节点
+		console.log("HTMLElement node ---", `<${node.tagName.toLowerCase()}>`);
+	}
+}
+```
+
+### 广度优先遍历 DOM 节点
+
+```js
+function bfs(root) {
+	const queue = [];
+	// 根节点入队
+	queue.unshift(root);
+	while (queue.length) {
+		const curNode = queue.pop();
+		visitNode(curNode); // 工具函数，判断节点类型然后做需要的处理
+		// 子节点入队
+		const childNodes = curNode.childNodes;
+		if (childNodes.length) {
+			childNodes.forEach((child) => queue.unshift(child));
+		}
+	}
+}
+```
+
+### 手写柯里函数
+
+```js
+function curry(fn) {
+	const fnArgsLength = fn.length;
+	let args = [];
+
+	function calc(...newArgs) {
+		args = [...args, ...newArgs];
+		if (args.length < fnArgsLength) {
+			return calc;
+		} else {
+			return fn.apply(this, args.slice(0, fnArgsLength));
+		}
+	}
+
+	return calc;
+}
+```
+
+### 手写 LazyMan 函数，实现 sleep 功能
+
+```js
+class LazyMan {
+	constructor(name) {
+		this.name = name;
+		this.tasks = [];
+		setTimeout(() => {
+			this.next();
+		}, 0);
+	}
+
+	next() {
+		const task = this.tasks.shift();
+		if (task) task();
+	}
+
+	sleep(delay) {
+		this.tasks.push(() => {
+			setTimeout(() => {
+				this.next();
+			}, delay * 1000);
+		});
+		return this;
+	}
+
+	eat(food) {
+		this.tasks.push(() => {
+			console.log(`eat ${food}`);
+			this.next();
+		});
+		return this;
+	}
+}
+```
+
 ## 山月前端工程化
 
 厘清几个概念
@@ -1020,12 +1150,42 @@ function MockNew(Parent, ...args) {
 }
 ```
 
--   `{}`创建空对象，原型指向 Object.prototype
--   `Object.create`创建空对象，原型指向传入的参数（构造函数或者 null）
+-   `{}`创建空对象，原型`__proto__`指向 Object.prototype
+-   `Object.create`创建空对象，原型`__proto__`指向传入的参数（构造函数或者 null）
 
 #### 宏任务与微任务
 
+JS 引擎是单线程的，一个时间点下 JS 引擎只能做一件事。而事件循环 Event Loop 是 JS 的执行机制。
+
+JS 做的任务分为同步和异步两种，所谓 "异步"，简单说就是一个任务不是连续完成的，先执行第一段，等做好了准备，再回过头执行第二段，第二段也被叫做回调；同步则是连贯完成的。
+
+在等待异步任务准备的同时，JS 引擎去执行其他同步任务，等到异步任务准备好了，再去执行回调。这种模式的优势显而易见，完成相同的任务，花费的时间大大减少，这种方式也被叫做非阻塞式。
+
+而实现这个“通知”的，正是事件循环，把异步任务的回调部分交给事件循环，等时机合适交还给 JS 线程执行。事件循环并不是 JavaScript 首创的，它是计算机的一种运行机制。
+
+事件循环是由一个队列组成的，异步任务的回调遵循先进先出，在 JS 引擎空闲时会一轮一轮地被取出，所以被叫做循环。
+
+微任务和宏任务皆为异步任务，它们都属于一个队列，主要区别在于他们的执行顺序，Event Loop 的走向和取值。
+
+事件循环由宏任务和在执行宏任务期间产生的所有微任务组成。完成当下的宏任务后，会立刻执行所有在此期间入队的微任务。
+
+这种设计是为了给紧急任务一个插队的机会，否则新入队的任务永远被放在队尾。区分了微任务和宏任务后，本轮循环中的微任务实际上就是在插队，这样微任务中所做的状态修改，在下一轮事件循环中也能得到同步。
+
+async 函数在 await 之前的代码都是同步执行的，可以理解为 await 之前的代码属于 new Promise 时传入的代码，await 之后的所有代码都是在 Promise.then 中的回调。
+
 #### 闭包的优缺点
+
+1. 闭包是指有权访问另一个函数作用域中变量的函数。创建闭包最常见的方式就是，在一个函数内部创建另一个函数。
+2. 闭包通常用来创建内部变量，使得 这些变量不能被外部随意修改，同时又可以通过指定的接口来操作。
+3. 优点：
+    1. 包含函数内变量的安全，实现封装，防止变量流入其他环境发生命名冲突，造成环境污染。
+    2. 在适当的时候，可以在内存中维护变量并缓存，提高执行效率。
+    3. 即可以用来传递、缓存变量，使用合理，一定程度上能提高代码执行效率。
+4. 缺点：
+    1. 函数拥有的外部变量的引用，在函数返回时，该变量仍处于活跃状态。
+    2. 闭包作为一个函数返回时，其执行上下文不会被销毁，仍处于执行上下文中。
+    3. 即消耗内存，使用不当容易造成内存泄漏，性能下降。
+5. 常见使用：节流防抖、IIFE（自执行函数）、柯里化实现
 
 #### commonJs 中的 require 与 ES6 中的 import 的区别
 

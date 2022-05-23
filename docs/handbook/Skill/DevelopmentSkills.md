@@ -386,7 +386,7 @@ npm install --no-shrinkwrap --update-binary
 
 chrome://net-export/
 
-### zsh 打印本机 ip
+### zsh 打印本机公网 ip
 
 ```zsh
 #!/bin/bash
