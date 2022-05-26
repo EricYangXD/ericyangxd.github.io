@@ -699,6 +699,182 @@ function curry(fn) {
 }
 ```
 
+### 手写 call 函数
+
+```js
+function customCall(ctx, ...args) {
+	if (ctx == null) {
+		ctx = globalThis;
+	}
+	// 值类型返回一个包装类
+	if (typeof ctx !== "object") {
+		ctx = new Object(ctx);
+	}
+	// 防止属性名覆盖
+	const fnKey = Symbol();
+	// this就是当前的函数
+	ctx[fnKey] = this;
+	const res = ctx[fnKey](...args);
+	// 清理掉fn，防止污染
+	delete ctx[fnKey];
+	return res;
+}
+```
+
+### 手写 apply 函数
+
+```js
+function customApply(ctx, args) {
+	if (ctx == null) {
+		ctx = globalThis;
+	}
+	// 值类型返回一个包装类
+	if (typeof ctx !== "object") {
+		ctx = new Object(ctx);
+	}
+	const fnKey = Symbol();
+	ctx[fnKey] = this;
+	const res = ctx[fnKey](...args);
+	delete ctx[fnKey];
+	return res;
+}
+```
+
+### 手写 EventBus 函数
+
+```js
+/*
+	this.events：存放各种类型对应的全部事件函数，格式：{key1:[{fn:fn1, isOnce: false},{fn:fn2, isOnce: true}],key2:[],...}
+*/
+class EventBus {
+	constructor() {
+		this.events = {};
+	}
+	on(type, fn, isOnce = false) {
+		const events = this.events;
+		if (events[type] == null) {
+			events[type] = [];
+		}
+		events[type].push({ fn, isOnce });
+	}
+	once(type, fn) {
+		this.on(type, fn, true);
+	}
+	off(type, fn) {
+		if (!fn) {
+			this.events = [type];
+		} else {
+			const fnList = this.events[type];
+			if (fnList) {
+				this.events[type] = fnList.filter((item) => item.fn !== fn);
+			}
+		}
+	}
+	emit(type, ...args) {
+		const fnList = this.events[type];
+		if (!fnList) return;
+		// 注意，使用filter，实现遍历执行并且把once的执行后移除
+		this.events[type] = fnList.filter((item) => {
+			const { fn, isOnce } = item;
+
+			fn(...args);
+
+			return isOnce ? false : true;
+		});
+	}
+}
+```
+
+### 手写 LRU 缓存函数
+
+使用 Map 实现，Map 中的存储是有序的，且取值赋值速度都比数组链表栈等快的多，Map 也有 size 属性。
+
+```js
+class LRUCache {
+	length = undefined;
+	data = new Map();
+	constructor(length) {
+		if (!length) throw new Error("Invalid length!");
+		this.length = length;
+	}
+	set(key, value) {
+		const data = this.data;
+		if (data.has(key)) data.delete(key);
+		data.set(key, value);
+		if (data.size > this.length) {
+			const deleteKey = data.keys().next().value;
+			data.delete(deleteKey);
+		}
+	}
+	get(key) {
+		const data = this.data;
+		if (!data.has(key)) return null;
+		const val = data.get(key);
+		data.delete(key);
+		data.set(key, val);
+		return val;
+	}
+}
+```
+
+### 扁平数组转成树
+
+```js
+function convert2Tree(arr) {
+	const idToTreeNode = new Map();
+	let root = null;
+
+	arr.forEach((item) => {
+		const { id, name, parentId } = item;
+
+		const treeNode = { id, name };
+		idToTreeNode.set(id, treeNode);
+
+		const parentNode = idToTreeNode.get(parentId);
+		if (parentNode) {
+			if (parentNode.children == null) parentNode.children = [];
+			parentNode.children.push(treeNode);
+		}
+
+		if (parentId === 0) root = treeNode;
+	});
+	return root;
+}
+```
+
+### 树转成扁平数组
+
+```js
+function convert2Array(root) {
+	const arr = [];
+	// 用来存 子节点和父节点的映射关系
+	const nodeToParent = new Map();
+
+	// 广度优先用队列先进先出 unshift+pop
+	const queue = [];
+	queue.unshift(root);
+
+	while (queue.length) {
+		const curNode = queue.pop();
+		if (curNode == null) break;
+
+		const { id, name, children = [] } = curNode;
+
+		const parentNode = nodeToParent.get(curNode);
+		const parentId = parentNode?.id || 0;
+		const item = { id, name, parentId };
+		arr.push(item);
+
+		child.forEach((node) => {
+			nodeToParent.set(node, curNode);
+			queue.unshift(node);
+		});
+	}
+
+	return arr;
+}
+```
+
 ### 手写 LazyMan 函数，实现 sleep 功能
 
 ```js
@@ -1172,6 +1348,13 @@ JS 做的任务分为同步和异步两种，所谓 "异步"，简单说就是�
 这种设计是为了给紧急任务一个插队的机会，否则新入队的任务永远被放在队尾。区分了微任务和宏任务后，本轮循环中的微任务实际上就是在插队，这样微任务中所做的状态修改，在下一轮事件循环中也能得到同步。
 
 async 函数在 await 之前的代码都是同步执行的，可以理解为 await 之前的代码属于 new Promise 时传入的代码，await 之后的所有代码都是在 Promise.then 中的回调。
+
+#### setState 是宏任务还是微任务
+
+1. setState 本质是同步执行，state 都是同步更新，只不过让 React 做成了异步的样子。比如在 setTimeout 中时，就是同步，比如在 Promise.then 开始之前，state 已经计算完了。
+2. 因为要考虑性能优化，多次修改 state，只进行一次 DOM 渲染。
+3. 日常说的异步是不严谨的，但沟通成本低。
+4. 所以，既不是宏任务也不是微任务，因为它是同步的。
 
 #### 闭包的优缺点
 

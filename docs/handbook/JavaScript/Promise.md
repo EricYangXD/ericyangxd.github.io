@@ -372,6 +372,8 @@ function asyncPool(poolLimit, array, iteratorFn) {
 
 JS 引擎为了让 microtask 尽快的输出，做了一些优化，连续的多个 then（3 个）如果没有 reject 或者 resolve 会交替执行 then 而不至于让 1 个 promise 阻塞太久完成，导致用户的不到响应。不单单 V8 这样，其它引擎也是如此，此时 promise 内部状态实际已经执行结束了。
 
+Promise.then 中返回一个 promise 实例的时候，会出现‘慢两拍’的效果：第一拍，promise 需要由 pending 变为 fulfilled；第二拍，then 函数挂载到 MicroTaskQueue 上（参考 Event Loop）。
+
 UI 触发的 click 事件是异步的，每个 listener 是一个 macrotask；代码触发的 click 底层是 dispatchEvent，这是一个同步的方法，会同步执行所有 listener.
 
 当 V8 执行完调用要返回 Blink 时，由于 MicrotasksScope 作用域失效，在其析构函数中检查 JS 调用栈是否为空，如果为空就会运行 Microtasks。

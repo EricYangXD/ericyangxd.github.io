@@ -415,3 +415,34 @@ export default Counter;
 -   hook 可以让你在 return 之外使用数据.
 -   hook 不会嵌套.
 -   简单易懂, 对比 hoc 和 render props 两种方式, 它非常直观, 也更容易理解.
+
+### redux-thunk
+
+middleware 可以让你提供一个拦截器在 reducer 处理 action 之前被调用。在这个拦截器中，你可以自由处理获得的 action。无论是把这个 action 直接传递到 reducer，或者构建新的 action 发送到 reducer，都是可以的。Middleware 正是在 Action 真正到达 Reducer 之前提供的一个额外处理 Action 的机会。结合 redux-thunk 中间件的机制，实现了异步请求逻辑的重用。
+
+所以说异步 Action 并不是一个具体的概念，而可以把它看作是 Redux 的一个使用模式。它通过组合使用同步 Action ，在没有引入新概念的同时，用一致的方式提供了处理异步逻辑的方案。
+
+### 按需加载的实现原理
+
+按需加载的实现原理：Webpack 利用了动态 import 语句，自动实现了整个应用的拆包。而我们在实际开发中，其实并不需要关心 Webpack 是如何做到的，而只需要考虑：该在哪个位置使用 import 语句去定义动态加载的拆分点。
+
+import() 这个语句完全是由 Webpack 进行处理的。例：
+
+```jsx
+function ProfilePage() {
+	// 定义一个 state 用于存放需要加载的组件
+	const [RealPage, setRealPage] = useState(null);
+
+	// 根据路径动态加载真正的组件实现
+	import("./RealProfilePage").then((comp) => {
+		setRealPage(Comp);
+	});
+	// 如果组件未加载则显示 Loading 状态
+	if (!RealPage) return "Loading....";
+
+	// 组件加载成功后则将其渲染到界面
+	return <RealPage />;
+}
+```
+
+使用 react-lodable，实现组件的异步加载。专门用于 React 组件的按需加载。

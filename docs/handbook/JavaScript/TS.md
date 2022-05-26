@@ -105,13 +105,21 @@ type Person6 = Record<'name' | 'age', string>;
 
 ### Exclude<T,U>
 
+把 T 中不属于 U 的提取出来
+
 ### Extract<T,U>
 
+把 T 中属于的 U 提取出来
+
 ### NonNullable<T>
+
+提取出 T 中不是 null、undefined 的值
 
 ### Parameters<T>
 
 ### ReturnType<T>
+
+获取返回值的类型
 
 ```ts
 type ReturnType<T extends (...args: any[]) => any> = T extends (
@@ -364,6 +372,8 @@ const get = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
 };
 ```
 
+4. 多个同名 interface 发生合并时，同名属性的类型必须一致，否则报错，而其中同名函数（函数重载）的顺序是：1.后声明的 interface 中的先于早声明的；2.同个 interface 中按声明的先后排列；3.如果某个重载的参数类型是字符串字面量，那么该重载的优先级最高；
+
 ## TypeScript 编译器是如何工作的？
 
 1. TypeScript 文本首先会被 scanner 解析为 token 流。这个过程比较简单，就是单纯地按照分隔符去分割文本即可。
@@ -514,3 +524,99 @@ tsconfig.json 中有两个配置和类型引入有关。
   }
 }
 ```
+
+## 类型检查的几种方法和机制
+
+1. typeof 检查基本类型；
+2. instanceof 检查引用类型；
+3. in 检查某个属性是否存在；
+4. 自定义类型保护函数，例如：
+
+```ts
+class Java {
+	helloJava() {}
+}
+class JavaScript {
+	helloJavaScript() {}
+}
+// lang is Java：这种返回值叫做类型谓词
+function isJava(lang: Javascript | Java): lang is Java {
+	return (lang as Java).helloJava !== undefined;
+}
+```
+
+5. 类型推断：自动推断，类型断言 as；
+6. 类型兼容：对于类或者接口，属性少的兼容属性多的；对于函数，参数多的兼容参数少的；
+
+## 命名空间
+
+1. 多个文件可以共享一个命名空间 namespace；
+2. 某个命名空间中的变量、函数只能在这个命名空间中访问，如果需要在全局可见，就需要用 export 导出变量、函数；
+3. 不要混用模块和命名空间，不要在模块中使用命名空间，尽量在全局环境使用命名空间；
+4. 通过三斜线指令来引用命名空间：`/// <reference path="xx/yy/zz.ts" />`（相对路径）；
+5. 命名空间会被编译成一个立即执行函数，这个函数创建了一个闭包，命名空间名称会作为一个全局变量被声明，用于挂载被导出的变量、函数，并被传入这个闭包；
+6. 命名空间和同名函数可以合并，相当于给函数增加了属性（命名空间声明要放在函数声明后面，且需要 export）；
+7. 命名空间和同名 class 可以合并，相当于给 class 增加了静态属性（命名空间声明要放在 class 声明后面，且需要 export）；
+8. 命名空间和同名 enum 可以合并，相当于给 enum 增加了属性（顺序无关，需要 export）；
+9.
+
+## 给外部类库增加自定义方法
+
+比如给 moment 增加一个自定义方法 myFunc:
+
+```ts
+// 在ts文件中增加声明：
+declare module "moment" {
+	export function myFunc(): void;
+}
+// or 可以在 global.d.ts 中增加：
+declare global {
+	namespace globalLib {
+		function doSth(): void;
+	}
+}
+```
+
+## tsconfig.json 的配置
+
+1. tsc --init：创建默认 tsconfig 文件；
+2. files/include/exclude：三者共同决定要编译的文件；
+3. extends：继承基础/其他文件中的 ts 配置；
+4. compileOnSave：保存时自动编译；
+5. compilerOptions：配置编译时的设置；
+    1. incremental：增量编译；
+    2. diagnostic：打印诊断信息；
+    3. composite：工程可以被引用且可以被增量编译；
+    4. target：编译结果的版本；
+    5. module：编译的模块类型；
+    6. outFile
+    7. lib
+    8. allowJs、checkJs
+    9. outDir、rootDir
+    10. declaration、declarationDir
+    11. sourceMap、inlineSourceMap
+    12. typeRoots、types
+    13. removeComments
+    14. noEmitHelpers、importHelpers
+6. strict
+    1. noImplicitAny
+    2. alwaysStrict
+    3. strictNullChecks
+    4. strictBindCallApply
+    5. noImplicitThis
+7. noUnusedLocals
+    1. noUnusedParameters
+    2. noFallthroughCasesInSwitch：switch 中防止忘记 break
+    3. noImplicitReturns：每个分支都要有返回值
+8. esModuleInterop:允许`export=`导出，有 import from 导入
+9. moduleResolution：模块解析策略，默认 node，定义查找文件时候的策略
+10. paths:[]：路径映射
+11. rootDirs:[]：将多个目录放在一个虚拟目录下，用于运行时
+12. references:[]：引用的其他工程 path、prepend 等
+
+## TS 的编译工具
+
+1. 在 webpack.config.js 中，如果使用了 ts-loader，那么可以设置`options.transpileOnly=true`，只做语言转换，不做类型检查，提高打包速度。
+2. 借助`fork-ts-checker-webpack-plugin`插件，在另一个独立的进程中做类型校验。
+3. `awesome-typescript-loader`：1.更适合与 babel 集成，使用 babel 的转义和缓存；2.不需安装额外的插件就可以把类型检查放在独立的进程中进行；不推荐；
+4. babel7 之前不支持 ts，使用`@babel/preset-typescript`插件

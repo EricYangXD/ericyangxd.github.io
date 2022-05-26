@@ -932,8 +932,8 @@ const getReverseString = function (string) {
 export default getReverseString;
 ```
 
-7. 根据码位获取字符串: String.fromCodePoint(0x20bb7) // '𠮷'
-8. 根据字符串获取码位: '𠮷'.codePointAt().toString(16) // 20bb7
+7. 根据码位获取字符串: `String.fromCodePoint(0x20bb7) // '𠮷'`
+8. 根据字符串获取码位: `'𠮷'.codePointAt().toString(16) // 20bb7`
 9. 遍历字符串
 
 ```js
@@ -1204,6 +1204,8 @@ JavaScript 语言的作用域链是由词法作用域决定的，而词法作用
 17. 浏览器收到“确认提交”的消息后，会更新浏览器的页面状态，包括了安全状态、地址栏的 URL、前进后退的历史状态，并更新 web 页面，此时的 web 页面是空白页
 18. 渲染进程对文档进行页面解析和子资源加载，HTML 通过 HTML 解析器转成 DOM Tree（二叉树类似结构的东西），CSS 按照 CSS 规则和 CSS 解释器转成 CSSOM TREE，两个 tree 结合，形成 render tree（不包含 HTML 的具体元素和元素要画的具体位置），通过 Layout 可以计算出每个元素具体的宽高颜色位置，结合起来，开始绘制，最后显示在屏幕中新页面显示出来
 
+-   在域名解析的过程中会有多级的缓存，浏览器首先看一下自己的缓存里有没有，如果没有就向操作系统的缓存要，还没有就检查本机域名解析文件 hosts，也就是上一讲中我们修改的`C:\WINDOWS\system32\drivers\etc\hosts`
+
 ### 渲染过程
 
 渲染过程：[渲染流水线](../../assets/render.jpg "渲染流水线")
@@ -1226,4 +1228,3 @@ JavaScript 语言的作用域链是由词法作用域决定的，而词法作用
 
 1. 触发 repaint、reflow 的操作尽量放在一起，比如改变 dom 高度和设置 margin 分开写，可能会触发两次重排；
 2. 通过虚拟 dom 层计算出操作总的差异，一起提交给浏览器。之前还用过 document.createDocumentFragment 来汇总 append 的 dom，来减少触发重排重绘次数。
-
