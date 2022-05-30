@@ -8,12 +8,34 @@ date: "2022-01-12"
 
 ### babel 编译 jsx
 
+-   Q:老版本的 React 中，为什么写 jsx 的文件要默认引入 React?
+-   A:因为 jsx 在被 babel 编译后，写的 jsx 会变成上述 React.createElement 形式，所以需要引入 React，防止找不到 React 引起报错。
+-   新版本 React 已经不需要引入 createElement ，这种模式来源于 `Automatic Runtime`，使用`@babel/plugin-syntax-jsx`插件向文件中提前注入了 `_jsxRuntime api`。不过这种模式下需要我们在 `.babelrc` 设置 `runtime: automatic` 。
+
 -   jsx 语法最终会被 babel 编译成为 React.createElement()方法
 
 比如：
 
-```html
+```js
+// element.js
 <div className="wrapper">hello</div>
+```
+
+```js
+// node
+const fs = require("fs");
+const babel = require("@babel/core");
+
+/* 第一步：模拟读取文件内容。 */
+fs.readFile("./element.js", (e, data) => {
+	const code = data.toString("utf-8");
+	/* 第二步：转换 jsx 文件 */
+	const result = babel.transformSync(code, {
+		plugins: ["@babel/plugin-transform-react-jsx"],
+	});
+	/* 第三步：模拟重新写入内容。 */
+	fs.writeFile("./element.js", result.code, function () {});
+});
 ```
 
 经过 babel 编译后它变成这样的代码:
@@ -53,9 +75,11 @@ React.createElement(
 
 > 这两种方式效果和原理是一模一样的，只是新版额外引入包去处理了引入。所以不需要单独进行引入 React。
 
--   React 之中元素是构建 React 的最小单位,其实也就是虚拟 Dom 对象。
+-   React 之中 element 是构建 React 的最小单位,其实也就是虚拟 Dom 对象。
 
 -   本质上 jsx 执行时就是在执行函数调用，是一种工厂模式通过 React.createElement 返回一个元素。
+
+-   JSX 会先转换成 React.element，再转化成 React.fiber。
 
 ### React.createElement
 
@@ -78,6 +102,13 @@ ReactDOM.render(<App />, document.getElementById("root"));
 -   所以在 react 中元素本身是不可变的，当元素被创建后是无法修改的。只能通过重新创建一个新的元素来更新旧的元素。
 
 -   你可以这样理解，在 react 中每一个元素类似于动画中的每一帧，都是不可以变得。
+
+### React.cloneElement
+
+createElement 把 jsx 变成 element 对象; 而 cloneElement 的作用是以 element 元素为样板克隆并返回新的 React element 元素。返回元素的 props 是将新的 props 与原始元素的 props 浅层合并后的结果。
+
+-   Q:React.createElement 和 React.cloneElement 到底有什么区别呢?
+-   A:可以完全理解为，一个是用来创建 element 。另一个是用来修改 element，并返回一个新的 React.element 对象。也就是用途不一样。
 
 ### ReactDOM.render
 

@@ -304,3 +304,33 @@ const notification = Instance.$children[0];
 ```
 
 需要注意的是，我们是用 `$mount` 手动渲染的组件，如果要销毁，也要用 `$destroy` 来手动销毁实例，必要时，也可以用 removeChild 把节点从 DOM 中移除。
+
+### Vue 响应式原理
+
+Vue 采用数据劫持结合发布者-订阅者模式的方式，通过 Object.defineProperty/Proxy 来劫持各个属性的 setter、getter，访问数据时添加订阅者到依赖收集器里，在数据变动时通过依赖收集器通知订阅者，触发订阅者的监听回调，去完成数据的更新和页面的渲染等工作。
+
+-   Observer 负责将数据转换成 getter/setter 形式；
+-   Dep 负责管理数据的依赖列表，是一个发布订阅模式，上游对接 Observer，下游对接 Watcher；
+-   Watcher 是实际上的数据依赖，负责将数据的变化转发到外界(渲染、回调)；
+
+1. 首先 Vue 将 data 初始化为一个 Observer，并通过 Object.defineProperty/Proxy ，循环遍历「对象」的所有属性，为对象中的每个属性设置 getter、setter，以达到拦截访问和设置的目的，如果属性值依旧为对象，则递归为属性值上的每个 key 设置 getter、setter；
+2. 对于 data 中的每个值，都对应一个独立的依赖收集器 Dep；
+3. 在 mount 时，实例了一个 Watcher，将收集器的目标指向了当前 Watcher；
+4. 在 getter 中，即访问数据时（obj.key)进行依赖收集，在依赖收集器 dep 中添加相关的监听 watcher；
+5. 在 data 值发生变更时，触发 setter，判断是否真的发生了变化，然后会去触发依赖收集器中的所有监听的更新 dep.notify()，来触发 Watcher.update；
+6. 对「数组」，增强数组的那 7 个可以更改自身的原型方法，然后拦截对这些方法的操作；「'push','pop','shift','unshift','splice','sort','reverse'」：
+    1. 添加新数据时进行响应式处理，然后由 dep 通知 watcher 去更新；
+    2. 删除数据时，也要由 dep 通知 watcher 去更新
+
+-   Object.defineProperty 只对初始对象里的属性有监听作用，而对新增的属性无效。这也是为什么 Vue2 中对象新增属性的修改需要使用 Vue.$set 来设值的原因。
+
+### Vue 数据双向绑定原理
+
+响应式原理基本就是数据到 DOM 的绑定，双向绑定还需要监听 input 或其他 DOM 的变化，当 DOM 的 value 发生变化之后，触发 change 事件，去修改对应的属性的值，实现了页面驱动数据。
+
+Vue 接收一个模板和 data 参数。
+
+1. 首先将 data 中的数据进行递归遍历，对每个属性执行 Object.defineProperty，定义 get 和 set 函数。并为每个属性添加一个 dep 数组。当 get 执行时，会为调用的 dom 节点创建一个 watcher 存放在该数组中。当 set 执行时，重新赋值，并调用 dep 数组的 notify 方法，通知所有使用了该属性 watcher，并更新对应 dom 的内容。
+2. 将模板加载到内存中，递归模板中的元素，检测到元素有 v-开头的命令或者双大括号的指令，就会从 data 中取对应的值去修改模板内容，这个时候就将该 dom 元素添加到了该属性的 dep 数组中。这就实现了数据驱动视图。
+3. 在处理 v-model 指令的时候，为该 dom 添加 input 事件（或 change），输入时就去修改对应的属性的值，实现了页面驱动数据。
+4. 将模板与数据进行绑定后，将模板添加到真实 dom 树中。

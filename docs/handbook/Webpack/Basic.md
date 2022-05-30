@@ -328,7 +328,7 @@ React(Vue) 运行时代码不容易变更，且每个组件都会依赖它，可
 
 通过 AST 分析，根据选项配置一些策略，来生成一棵更小体积的 AST 并生成代码。
 
-目前前端工程化中使用 terser (opens new window)和 swc (opens new window)进行 JS 代码压缩，他们拥有相同的 API。
+目前前端工程化中使用 terser 和 swc 进行 JS 代码压缩，他们拥有相同的 API。
 
 常见用以压缩 AST 的几种方案如下:
 

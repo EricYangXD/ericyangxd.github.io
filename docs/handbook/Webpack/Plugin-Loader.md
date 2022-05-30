@@ -259,8 +259,6 @@ class HtmlWebpackPlugin {
 
 ### ssh-webpack-plugin
 
-### moment-locales-webpack-plugin
-
 ### script-ext-html-webpack-plugin
 
 ### offline-plugin

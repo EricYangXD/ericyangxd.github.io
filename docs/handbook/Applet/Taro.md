@@ -407,25 +407,27 @@ updateProjectConfig(path.join(__dirname, "../project.config.json"));
 
 ## 页面跳转之前进行「简单提示」的做法
 
-// useEffect(() => {
-// Taro.eventCenter.once(getCurrentInstance()?.router?.onHide, () => {
-// console.log('onHide');
-// });
-// Taro.eventCenter.on('beforegoback', () => {
-// console.log('beforegoback');
-// });
-// Taro.disableAlertBeforeUnload()
-// Taro.enableAlertBeforeUnload({
-// message: '询问对话框内容询问对话框内容询问对话框内容询问对话框内容',
-// success(res) {
-// console.log(res);
-// Taro.navigateBack({ delta: 1 });
-// },
-// fail(e) {
-// console.log(e);
-// },
-// });
-// }, []);
+```tsx
+useEffect(() => {
+	Taro.eventCenter.once(getCurrentInstance()?.router?.onHide, () => {
+		console.log("onHide");
+	});
+	Taro.eventCenter.on("beforegoback", () => {
+		console.log("beforegoback");
+	});
+	Taro.disableAlertBeforeUnload();
+	Taro.enableAlertBeforeUnload({
+		message: "询问对话框内容询问对话框内容询问对话框内容询问对话框内容",
+		success(res) {
+			console.log(res);
+			Taro.navigateBack({ delta: 1 });
+		},
+		fail(e) {
+			console.log(e);
+		},
+	});
+}, []);
+```
 
 ## Hooks in Taro
 

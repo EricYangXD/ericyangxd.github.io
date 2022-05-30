@@ -1222,7 +1222,7 @@ JavaScript 语言的作用域链是由词法作用域决定的，而词法作用
 6. will-change: transform 做优化
 7. 修改之前先设置`display:none`，脱离文档流，修改完了再恢复
 8. 使用 BFC 特性，不影响其他元素
-9. 优化动画，使用 css3 和 requestAnimationFrame
+9. 优化动画，使用 css3 的 transform（直接在非主线程上执行合成动画操作） 和 requestAnimationFrame 来实现动画效果
 
 减少重排重绘，相当于少了渲染进程的主线程和非主线程的很多计算和操作，能够加快 web 的展示。
 
