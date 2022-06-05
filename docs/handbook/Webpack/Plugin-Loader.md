@@ -172,7 +172,9 @@ module.exports = {
 
 ### html-webpack-plugin
 
-作用：将打包后的 js 资源注入 html 中。而注入的原理为当打包器已生成 entryPoint 文件资源后，获得其文件名及 publicPath，并将其注入到 html 中
+-   作用：作用是当使用 webpack 打包时，创建一个 html 文件，并把 webpack 打包后的静态文件自动插入到这个 html 文件当中。html-webpack-plugin 默认将会在 output.path 的目录下创建一个 index.html 文件， 并在这个文件中插入一个 script 标签，标签的 src 为 output.filename。(将打包后的 js 资源注入 html 中)。
+
+-   注入的原理为当打包器已生成 entryPoint 文件资源后，获得其文件名及 publicPath，并将其注入到 html 中
 
 ```js
 class HtmlWebpackPlugin {

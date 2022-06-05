@@ -6,11 +6,11 @@ date: "2021-05-02"
 
 ## a 标签 rel 属性
 
-`<a target="_blank" rel="noopener noreferrer" class="hover" href="https://linkmarket.aliyun.com/hardware_store?spm=a2c3t.11219538.iot-navBar.62.4b5a51e7u2sXtw" data-spm-anchor-id="a2c3t.11219538.iot-navBar.62">硬件商城</a>`
+-   `<a target="_blank" rel="noopener noreferrer" class="hover" href="https://linkmarket.aliyun.com/hardware_store?spm=a2c3t.11219538.iot-navBar.62.4b5a51e7u2sXtw" data-spm-anchor-id="a2c3t.11219538.iot-navBar.62">硬件商城</a>`
 
-使用 noopener noreferrer 就是告诉浏览器，新打开的子窗口不需要访问父窗口的任何内容，这是为了防止一些钓鱼网站窃取父窗口的信息。
+-   使用 noopener noreferrer 就是告诉浏览器，新打开的子窗口不需要访问父窗口的任何内容，这是为了防止一些钓鱼网站窃取父窗口的信息。
 
-浏览器在打开新页面时，解析到含有 noopener noreferrer 时，就知道他们不需要共享页面内容，所以这时候浏览器就会让新链接在一个新页面中打开了。
+-   浏览器在打开新页面时，解析到含有 noopener noreferrer 时，就知道他们不需要共享页面内容，所以这时候浏览器就会让新链接在一个新页面中打开了。
 
 ## 防抖函数的使用
 
@@ -50,7 +50,7 @@ const debounceFetcher = React.useMemo(() => {
 
 ### 同源
 
-同源：same-origin: 何为同源：url 是由协议、域名、端口和路径组成 如果两个路径的协议、域名、端口都相同则表示在同一个域上，即同源；在浏览器上 `<script>、<img>、<link>、<iframe>`等标签都可以加载跨域资源 且不受同源策略限制。
+同源：`same-origin`: 何为同源：url 是由协议、域名、端口和路径组成 如果两个路径的协议、域名、端口都相同则表示在同一个域上，即同源；在浏览器上 `<script>、<img>、<link>、<iframe>`等标签都可以加载跨域资源且不受同源策略限制。
 
 ### 跨域
 
@@ -328,7 +328,7 @@ cookieStore
 		name: "enName",
 		value: "scar",
 		expires: Date.now() + day, // 过期时间，默认为会话关闭时间
-		domain: "scar.siteÏ", // 生效域名，是接受请求的域名
+		domain: "scar.site", // 生效域名，是接受请求的域名
 		path: "/report_mgmt", // 生效路径，子路径也会被匹配
 		sameSite: "none", // 允许服务器设定 Cookie 不随着跨站请求一起发送，Lax|Strict|None，服务器要求某个 Cookie 在跨站请求时不会被发送，从而可以阻止跨站请求伪造攻击。限制了发送 Cookie 的域名
 		secure: false, // 仅 HTTPS 可用，标记为 Secure 的 Cookie 只应通过被 HTTPS 协议加密过的请求发送给服务端，因此可以预防 man-in-the-middle 攻击。
@@ -378,19 +378,34 @@ Cookie 有数量限制，而且只允许每个站点存储一定数量的 Cookie
 
 1. CSRF 跨站请求攻击：攻击者通过一些技术手段欺骗用户的浏览器去访问一个自己曾经认证过的网站并运行一些操作（如发邮件，发消息，甚至财产操作如转账和购买商品）。
 
-通过设置 sameSite 可以防止跨域发送 Cookie，抵御 CSRF。
+-   通过设置 SameSite 可以防止跨域发送 Cookie，抵御 CSRF。
 
 2. XSS 跨站脚本攻击：是一种网站应用程序的安全漏洞攻击。通常指的是通过利用网页开发时留下的漏洞，通过巧妙的方法注入恶意指令代码到网页，使用户加载并执行攻击者恶意制造的网页程序。攻击成功后，攻击者可能得到 Cookie 从而实现攻击。
 
 3. 同名 Cookie 发送时，优先级如何判断？
 
-Cookie 发送顺序：Path 属性较长的应该在前面；如果 Path 路径一样，创建时间早的在前面。
+-   Cookie 发送顺序：Path 属性较长的应该在前面；如果 Path 路径一样，创建时间早的在前面。
 
-除了考虑发送顺序，还要考虑不同的服务器框架可能有不同的接收逻辑，所以笔者推荐尽量避免出现同名 Cookie，减少端表现不统一带来的不确定性。
+-   除了考虑发送顺序，还要考虑不同的服务器框架可能有不同的接收逻辑，所要尽量避免出现同名 Cookie，减少端表现不统一带来的不确定性。后端也不应该依赖 cookie 的顺序，因为这个顺序是不确定的。
 
 4. 如何快速调试 Cookie
 
-浏览器控制台->Applications 下，通过分析 Cookie 属性来定位问题。
+-   浏览器控制台->Applications 下，通过分析 Cookie 属性来定位问题。
+
+#### 多个域名或多级域名下的 cookie 优先级
+
+1. 场景：一个一级域名下面还有多个二级域名，当我们在一级域名下登录之后，有一个 cookie1，如果又去二级域名下也写入一个 cookie1，那么向二级域名请求后端的时候，这两个同名 cookie1 会携带哪个？优先级如何？
+2. A：两个同名 cookie1 都会被请求头带上发送给服务端，不会说有什么 domain 的优先级，导致后端只收到“优先级高”的一个。
+3. A：后端取到的，只有 cookie 的 name 与 value，所以想通过 domain 过滤出需要的 cookie 是不可取的。
+4. A：某些情况下，后端收到 cookie 还是有一个稳定的顺序的（但是不应该依赖这个顺序）：path 更长的 cookie 更靠前；path 相等的，更早创建的 cookie 更靠前。
+
+#### SameSite 和 Domain 的区别
+
+1. SameSite：可以设置某个 Cookie 在跨站请求时不会被发送，从而可以阻止跨站请求伪造攻击。默认：LAX；
+2. Domain：指定 cookie 可以送达的主机名。如果设置为“.google.com”，则所有以“google.com”结尾的域名都可以访问该 Cookie。注意第一个字符必须为“.”。为了保证安全性，cookie 无法设置除当前域名或者其父域名之外的其他 domain。domain 默认为当前域名（不包含子域名）。请求这些 domain 下的接口时会自动带上符合条件 cookie。
+3. Domain：对于前端来说，只要请求的目标地址匹配 Domain 规则，那 Cookie 就会被发送过去，即 domain 是接受请求/cookie 的域名。对于后端来说，set-cookie 时，如果指定了 server 服务的域名，那么在服务端生成的 cookie 的 domain 只能指定为相应的 domain 或父 domain，其他 domain 都无法成功设置 cookie。
+4. Path：对于 domain 相同，path 不同的同名 cookie，请求该 domain 下的接口时同名 cookie 也会都被带上。
+5. cookie 的作用域是 domain 本身以及 domain 下的所有子域名。
 
 #### 如何控制浏览器资源加载优先级之 Priority Hints
 
@@ -851,8 +866,8 @@ PS：不要将 revceiver 和 get 陷阱中的 this 弄混了，陷阱中的 this
 #### Set-Cookie 中的几个属性
 
 1. Expires 属性指定一个具体的到期时间，到了指定时间以后，浏览器就不再保留这个 Cookie。它的值是 **UTC 格式**。如果不设置该属性，或者设为 null，Cookie 只在当前会话（session）有效，浏览器窗口一旦关闭，当前 Session 结束，该 Cookie 就会被删除。另外，浏览器根据本地时间，决定 Cookie 是否过期，由于本地时间是不精确的，所以没有办法保证 Cookie 一定会在服务器指定的时间过期。
-2. Max-Age 属性指定从现在开始 Cookie 存在的秒数，比如 60 _ 60 _ 24 \* 365（即一年）。过了这个时间以后，浏览器就不再保留这个 Cookie。如果同时指定了 Expires 和 Max-Age，那么 Max-Age 的值将优先生效。如果 Set-Cookie 字段没有指定 Expires 或 Max-Age 属性，那么这个 Cookie 就是 Session Cookie，即它只在本次对话存在，一旦用户关闭浏览器，浏览器就不会再保留这个 Cookie。
-3. Domain 属性指定浏览器发出 HTTP 请求时，哪些域名要附带这个 Cookie。**如果没有指定该属性，浏览器会默认将其设为当前 URL 的一级域名**，比如 www.example.com 会设为 example.com，而且以后如果访问 example.com 的任何子域名，HTTP 请求也会带上这个 Cookie。如果服务器在 Set-Cookie 字段指定的域名，不属于当前域名，浏览器会拒绝这个 Cookie。
+2. Max-Age 属性指定从现在开始 Cookie 存在的秒数，比如 `60 * 60 * 24 * 365`（即一年）。过了这个时间以后，浏览器就不再保留这个 Cookie。如果同时指定了 Expires 和 Max-Age，那么 Max-Age 的值将优先生效。如果 Set-Cookie 字段没有指定 Expires 或 Max-Age 属性，那么这个 Cookie 就是 Session Cookie，即它只在本次对话存在，一旦用户关闭浏览器，浏览器就不会再保留这个 Cookie。
+3. Domain 属性指定浏览器发出 HTTP 请求时，哪些域名要附带这个 Cookie。**如果没有指定该属性，浏览器会默认将其设为当前 URL 的一级域名**，比如 www.example.com 会设为 example.com，而且以后如果访问 example.com 的任何子域名，HTTP 请求也会带上这个 Cookie。如果服务器在 Set-Cookie 字段指定的域名，不是当前域名或不属于当前域名的子域名，浏览器会拒绝这个 Cookie。
 4. Path 属性指定浏览器发出 HTTP 请求时，哪些路径要附带这个 Cookie。只要浏览器发现，Path 属性是 HTTP 请求路径的开头一部分，就会在头信息里面带上这个 Cookie。比如，PATH 属性是/，那么请求/docs 路径也会包含该 Cookie。当然，前提是域名必须一致。
 5. Secure 属性指定浏览器只有在加密协议 HTTPS 下，才能将这个 Cookie 发送到服务器。另一方面，如果当前协议是 HTTP，浏览器会自动忽略服务器发来的 Secure 属性。该属性只是一个开关，不需要指定值。如果通信是 HTTPS 协议，该开关自动打开。
 6. HttpOnly 属性指定该 Cookie 无法通过 JavaScript 脚本拿到，主要是 Document.cookie 属性、XMLHttpRequest 对象和 Request API 都拿不到该属性。这样就防止了该 Cookie 被脚本读到，只有浏览器发出 HTTP 请求时，才会带上该 Cookie。
@@ -1293,7 +1308,7 @@ HTML `<picture>` 元素通过包含零或多个 `<source>` 元素和一个 `<img
 
 JSBridge 是一种 webview 侧和 native 侧进行通信的手段，webview 可以通过 jsb 调用 native 的能力，native 也可以通过 jsb 在 webview 上执行一些逻辑。
 
-### JSBridge 的实现方式
+### JSBridge 的实现方式 1
 
 在比较流行的 JSBridge 中，主要是通过拦截 URL 请求来达到 native 端和 webview 端相互通信的效果的。以比较火的 WebviewJavascriptBridge 为例，来解析一下它的实现方式。
 
@@ -1351,3 +1366,42 @@ native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通�
 2. native 侧主动调用\_handleMessageFromObjC 方法，在 webview 中执行对应的逻辑
 3. webview 侧执行结束后，生成带有 responseId 的 message，添加到 sendMessageQueue 中，并修改 iframe 的 src 为`__wvjb_queue_message__`
 4. native 端拦截到 url 变化，调用 webview 的逻辑获取到 message，拿到 responseId，并执行对应的 callback 函数
+
+-   Q:为什么选择 iframe.src 不选择 locaiton.href ？因为如果通过 location.href 连续调用 Native，很容易丢失一些调用。
+
+### JSBridge 的实现方式 2
+
+1. DSBridge
+2. 借助 WebView.addJavascriptInterface 实现 H5 与 Native 通信
+3. 通过 prompt 实现 H5 与 Native 的通信
+
+### JSBridge 注入失败怎么处理
+
+-   一
+
+1. 在返回至 H5 页面是 点击调用 window.location.reload()方法
+2. app 去抓取 reload()方法
+3. 调用 app 的 reload 方法（销毁原有 webView 创建新的 webView 注入 JsBridge）
+
+-   二
+
+1. jsBridge 提供 reload 方法（做的事件就是 reload 整个 webView，即上面说的 ios 自刷新的功能）
+2. 在返回至 H5 页面是 点击调用 jsBridge.reload()方法
+
+### 总结
+
+-   JavaScript 调用 Native 的方式，主要有两种：注入 API 和 拦截 URL SCHEME。
+
+1. 注入 API 方式的主要原理是，通过 WebView 提供的接口，向 JavaScript 的 Context（window）中注入对象或者方法，让 JavaScript 调用时，直接执行相应的 Native 代码逻辑，达到 JavaScript 调用 Native 的目的。
+2. 拦截 URL SCHEME 的主要流程是：Web 端通过某种方式（例如 iframe.src）发送 URL Scheme 请求，之后 Native 拦截到请求并根据 URL SCHEME（包括所带的参数）进行相关操作。
+3. 相比于 JavaScript 调用 Native， Native 调用 JavaScript 较为简单，毕竟不管是 iOS 的 UIWebView 还是 WKWebView，还是 Android 的 WebView 组件，都以子组件的形式存在于 View/Activity 中，直接调用相应的 API 即可。
+4. Native 调用 JavaScript，其实就是执行拼接 JavaScript 字符串，从外部调用 JavaScript 中的方法，因此 JavaScript 的方法必须在全局的 window 上。（闭包里的方法，JavaScript 自己都调用不了，更不用想让 Native 去调用了）。
+
+-   对于 JSBridge 的引用，常用有两种方式，各有利弊。
+
+1. 由 Native 端进行注入。注入方式和 Native 调用 JavaScript 类似，直接执行 JSBridge 的全部代码。
+    - 优点：JSBridge 的版本很容易与 Native 保持一致，Native 端不用对不同版本的 JSBridge 进行兼容；
+    - 缺点：注入时机不确定，需要实现注入失败后重试的机制，保证注入的成功率，同时 JavaScript 端在调用接口时，需要优先判断 JSBridge 是否已经注入成功。
+2. 由 JavaScript 端引用。直接与 JavaScript 一起执行。
+    - 优点：JavaScript 端可以确定 JSBridge 的存在，直接调用即可；
+    - 缺点：如果 JSBridge 的实现方式有更改，JSBridge 需要兼容多版本的 Native Bridge 或者 Native Bridge 兼容多版本的 JSBridge。

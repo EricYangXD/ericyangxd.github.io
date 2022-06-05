@@ -395,7 +395,7 @@ CSS 代码压缩使用`css-minimizer-webpack-plugin`，效果包括压缩、去�
 
 #### JS 代码压缩
 
-JS 代码压缩使用`terser-webpack-plugin`，实现打包后 JS 代码的压缩
+-   JS 代码压缩使用`terser-webpack-plugin`或者 uglify，实现打包后 JS 代码的压缩；
 
 ```js
 const TerserPlugin = require('terser-webpack-plugin')
@@ -438,7 +438,7 @@ source-map 的作用是：方便你报错的时候能定位到错误代码的位
 
 #### Gzip
 
-开启 Gzip 后，大大提高用户的页面加载速度，因为 gzip 的体积比原文件小很多，当然需要后端的配合，使用`compression-webpack-plugin`。
+使用`compression-webpack-plugin`，开启 Gzip 后，大大提高用户的页面加载速度，因为 gzip 的体积比原文件小很多，当然也需要后端的配合。
 
 ```js
 plugins: [
@@ -450,6 +450,23 @@ plugins: [
 		minRatio: 0.8,
 	}),
 ];
+```
+
+```zsh
+# 开启和关闭gzip模式
+gzip on;
+# gizp压缩起点，文件大于1k才进行压缩
+gzip_min_length 1k;
+# 设置压缩所需要的缓冲区大小，以4k为单位，如果文件为7k则申请2*4k的缓冲区
+gzip_buffers 4 16k;
+# 设置gzip压缩针对的HTTP协议版本
+gzip_http_version 1.0;
+# gzip 压缩级别，1-9，数字越大压缩的越好，也越占用CPU时间
+gzip_comp_level 2;
+# 进行压缩的文件类型
+gzip_types text/plain application/javascript text/css application/xml;
+# 是否在http header中添加Vary: Accept-Encoding，建议开启
+gzip_vary on;
 ```
 
 #### 小图片转 base64
@@ -484,4 +501,134 @@ plugins: [
     filename: 'js/chunk-[contenthash].js',
     clean: true,
   },
+```
+
+#### 首屏优化之 CDN 加速
+
+通过把类似 echart、element-ui、lodash 等第三方依赖库单独提取出，从而减小打包的体积大小，通过 chainWebpack 中配置 externals 属性后的依赖插件不会被打包进 chunk 。而使用 CDN 加速、缓存也能加快访问速度。
+
+1. 在 index.html 中手动引入 cdn 链接。并修改 webpack 配置，不再把 cdn 引入的依赖打包进 chunk。
+
+```js
+const IS_PRO = process.env.NODE_ENV === "production";
+module.exports = {
+	//... 其他基本配置
+	chainWebpack: (config) => {
+		if (IS_PRO) {
+			config.externals({ echarts: "echarts" });
+		}
+	},
+};
+```
+
+2. 通过 html-webpack-plugin 将 cdn 注入到 index.html 之中。需要修改 webpack 配置。
+
+```js
+const cdn = {
+	css: [],
+	js: ["https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"],
+};
+// 通过 html-webpack-plugin 将 cdn 注入到 index.html 之中
+config.plugin("html").tap((args) => {
+	args[0].cdn = cdn;
+	return args;
+});
+```
+
+#### 首屏优化之代码分割-splitChunks 拆包优化
+
+1. Bundle Splitting: 这个过程提供了一种优化构建的方法，允许 webpack 为单个应用程序生成多个 bundle 文件。因此，可以将每个 bundle 文件与影响其他文件的更改进行分离，从而减少重新发布并由此被客户端重新下载的代码量，并且运用浏览器「缓存」。
+    - 拆分的越小，文件越多，可能会有更多 Webpack 的辅助代码，也会带来更少的合并压缩。但是，通过数据分析，文件拆分越多，性能会更好。
+2. Code Splitting: 代码分离指将代码分成不同的包/块，然后可以「按需加载」，而不是加载包含所有内容的单个包。一般配合路由懒加载。通过 Webpack4 的 import()语法。
+
+-   webpack 默认配置下会把所有的依赖和插件都打包到 vendors.js 中，有些可能是 app.js 。所以，对于大量引入第三方依赖的项目，这个文件会非常的大。而对于在特定页面中才会使用的插件也会造成性能浪费。这时拆分和异步就显得尤为重要了。
+-   包的大小本地打包完成时可以看到，若想更仔细的分析可以通过插件 `webpack-bundle-analyzer`；
+-
+
+```js
+splitChunks: {
+    chunks: "async",// 哪些chunks需要进行优化，async-按需引入的模块将会被用于优化，initial-被直接引入的模块将会被用于优化，all-全部都会被用于优化。
+    minSize: 30000,// 打包优化完生成的新chunk大小要> 30000字节，否则不生成新chunk。
+    minChunks: 1,// 共享该module的最小chunk数
+    maxAsyncRequests: 5,// 最多有N个异步加载请求该module
+    maxInitialRequests: 3,// 一个入口文件可以并行加载的最大文件数量
+    automaticNameDelimiter: '~',// 名字中间的间隔符
+    name: true,// chunk的名字，true-自动生成，false-由 id 决定，string-缓存组最终会打包成一个 chunk，名称就是该 string。
+    cacheGroups:{// 要切割成的每一个新chunk就是一个cache group。
+      styles: {
+          name: 'style',
+          test: m => m.constructor.name === 'CssModule',// 用来决定提取哪些module，可以接受字符串，正则表达式，或者函数，函数的一个参数为module，第二个参数为引用这个module的chunk(数组)。
+          chunks: 'all',
+          enforce: true,
+          priority: 40,
+      },
+      emcommon: {
+          name: 'emcommon',
+          test: module => {
+              const regs = [/@ant-design/, /@em/, /@bytedesign/];
+              return regs.some(reg => reg.test(module.context));
+          },
+          chunks: 'all',
+          enforce: true,
+          priority: 30,// 优先级一样的话，size大的优先被选择。
+      },
+      byteedu: {
+          name: 'byteedu',
+          test: module => {
+              const regs = [
+                  /@ax/,
+                  /@bridge/,
+                  /axios/,
+                  /lodash/,
+                  /@byted-edu/,
+                  /codemirror/,
+                  /@syl-editor/,
+                  /prosemirror/,
+              ];
+              return regs.some(reg => reg.test(module.context));
+          },
+          chunks: 'all',
+          enforce: true,
+          priority: 20,
+      },
+      default: {
+          minChunks: 2,
+          priority: 1,
+          chunks: 'all',
+          reuseExistingChunk: true,// 当module未变时，是否可以使用之前的chunk。
+      },
+    },
+};
+```
+
+## webpack 构建流程
+
+1. 通过 yargs 解析 config 和 shell 的配置项
+2. webpack 初始化过程，首先会根据第一步的 options 生成 compiler 对象，然后初始化 webpack 的内置插件及 options 配置
+3. run 代表编译的开始，会构建 compilation 对象，用于存储这一次编译过程的所有数据
+4. make 执行真正的编译构建过程，从入口文件开始，构建模块，直到所有模块创建结束
+5. seal 生成 chunks，对 chunks 进行一系列的优化操作，并生成要输出的代码
+6. seal 结束后，Compilation 实例的所有工作到此也全部结束，意味着一次构建过程已经结束
+
+Webpack 插件统一以 apply 方法为入口，然后注册优化事件，apply 方法接收一个参数，该参数是 webpack 初始化过程中生成的 compiler 对象的引用，从而可以在回调函数中访问到 compiler 对象。
+
+```js
+apply(compiler) {
+  //Compiler 对象包含了 Webpack 环境的所有配置信息，包含options、loaders、plugins等信息。这个对象在 Webpack 启动时被实例化，它是全局唯一的，可以简单地将它理解为 Webpack 实例。
+  compiler.hooks.thisCompilation.tap("SplitChunksPlugin", compilation => {
+  //Compilation 对象包含了当前的模块资源、编译生成资源、变化的文件等。当 Webpack 以开发模式运行时，每当检测到一个文件变化，一次新的 Compilation 将被创建。Compilation 对象也提供了很多事件回调供插件做扩展。通过 Compilation 也能读取到 Compiler 对象。
+    let alreadyOptimized = false;
+    //当编译开始接受新模块时触发
+    compilation.hooks.unseal.tap("SplitChunksPlugin", () => {
+      alreadyOptimized = false;
+    });
+    //在块优化阶段的开始时调用。插件可以利用此钩子来执行块优化。
+    compilation.hooks.optimizeChunksAdvanced.tap(
+      "SplitChunksPlugin",
+      chunks => {
+          //核心代码
+      }
+    );
+  });
+}
 ```
