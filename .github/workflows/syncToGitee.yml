@@ -16,4 +16,4 @@ jobs:
                   dst_token: ${{ secrets.GITEE_TOKEN_FOR_GITHUB }}
                   static_list: "my-vuepress-blog"
                   force_update: true
-              debug: true
+                  debug: true
