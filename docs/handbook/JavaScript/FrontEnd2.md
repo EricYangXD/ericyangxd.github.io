@@ -1207,6 +1207,17 @@ HTML `<picture>` 元素通过包含零或多个 `<source>` 元素和一个 `<img
 
 ### getBoundingClientRect
 
+包含如下属性：
+
+-   x:DOMRect 原点的 x 坐标。
+-   y:DOMRect 原点的 y 坐标。
+-   width:DOMRect 的宽度。
+-   height:DOMRect 的高度。(视口高度，不包括工具栏)
+-   top:返回 DOMRect 的顶坐标值（与 y 具有相同的值，如果 height 为负值，则为 y + height 的值）。
+-   bottom:返回 DOMRect 的底坐标值（与 y + height 具有相同的值，如果 height 为负值，则为 y 的值）。
+-   left:返回 DOMRect 的左坐标值（与 x 具有相同的值，如果 width 为负值，则为 x + width 的值）。
+-   right:返回 DOMRect 的右坐标值（与 x + width 具有相同的值，如果 width 为负值，则为 x 的值）。
+
 1. `const domRect:DOMRect = myElement.getBoundingClientRect();` 方法返回元素的大小及其相对于视口的位置。
 
     - 返回值是一个 DOMRect 对象，这个对象是由该元素的 getClientRects() 方法返回的一组矩形的集合，就是该元素的 CSS 边框大小。

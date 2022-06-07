@@ -6,11 +6,11 @@ date: "2022-02-11"
 
 ## 概括
 
-先用最简单的话来概括一下 React-router 到底做了什么？
+先用最简单的话来概括一下 `React-Router` 到底做了什么？
 
-本质上， React-Router 就是在页面 URL 发生变化的时候，通过我们写的 path 去匹配，然后渲染对应的组件。
+-   本质上， `React-Router` 就是在页面 URL 发生变化的时候，通过我们写的 path 去匹配，然后渲染对应的组件。
 
-核心库是 react-router. react-router-dom 是在浏览器中使用的，react-router-native 是在 rn 中使用的。
+-   核心库是 `react-router`。 `react-router-dom` 是在浏览器中使用的，`react-router-native` 是在 rn 中使用的。
 
 ### 整体流程
 
@@ -26,7 +26,10 @@ date: "2022-02-11"
 -   基于 hash
 -   基于 history
 
-react-router 使用了 `history` 这个核心库。
+react-router 使用了 `history` 这个核心库。注意，当使用 history 模式时，生产环境刷新页面会 404。
+
+-   Q:为什么开发环境中，使用 history 模式时，刷新浏览器仍然可以正常访问页面？
+-   A:因为通常使用脚手架搭建项目的时候，脚手架里默认已经把`webpack-dev-server`里的`historyApiFallback.rewrites`做了相应的配置，使得浏览器的请求可以找到对应的配置好的页面。如果设置`historyApiFallback=false`而不配置 rewrites，那么浏览器会把我们这个当做是一次 get 请求，如果此时后端也没有对应的接口，那么就会报错：`Cannot get ...`。
 
 ### 如何监听 url 的变化
 
@@ -409,13 +412,16 @@ const route = {
 
 2. 两种常用 Router：HashRouter 和 BrowserRouter
 
--   HashRouter：使用 URL 的哈希值实现
+-   HashRouter：使用 URL 的哈希值`location.hash`实现
 
-    -   原理：监听 window 的 hashchange 事件来实现的
+    -   原理：监听 window 的 hashchange 事件来实现的：`window.addEventListener('hashchange',cb)`或`window.onhashchange = cb`。
 
--   （推荐）BrowserRouter：使用 H5 的 `history.pushState()` API 实现
+-   （推荐）BrowserRouter：使用 H5 的 `history.pushState()`、`history.replaceState()` API 实现
 
-    -   原理：监听 window 的 popstate 事件来实现的
+    -   原理：监听 window 的 popstate 事件来实现的：`window.addEventListener('popstate',cb)`或`window.onpopstate = cb`。
+
+-   需要注意的是调用 history.pushState()或 history.replaceState()不会触发 popstate 事件。只有在做出浏览器动作时，才会触发该事件，如用户点击浏览器的回退按钮（或者在 Javascript 代码中调用 history.back()或者 history.forward()方法）。
+-   不同的浏览器在加载页面时处理 popstate 事件的形式存在差异。页面加载时 Chrome 和 Safari 通常会触发(emit )popstate 事件，但 Firefox 则不会。
 
 ## 常用组件简介
 
