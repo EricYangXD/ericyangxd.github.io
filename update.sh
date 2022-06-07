@@ -24,5 +24,3 @@ git commit -m 'deploy'
 git push -f git@github.com:EricYangXD/ericyangxd.github.io.git master:gh-pages
 
 cd -
-
-

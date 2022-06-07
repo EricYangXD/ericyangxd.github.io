@@ -38,32 +38,104 @@ Nginx 的服务管理思路延续了当时的流行做法，使用磁盘上的�
 
 ### 常用的命令
 
--   查看版本：`./nginx -v`
--   启动：`./nginx`
--   关闭：`./nginx -s stop`(推荐) 或 `./nginx -s quit`
--   重新加载 nginx 配置：`./nginx -s reload`
+- 查看版本：`./nginx -v`
+- 启动：`./nginx`
+- 关闭：`./nginx -s stop`(推荐) 或 `./nginx -s quit`
+- 重新加载 nginx 配置：`./nginx -s reload`
 
 ### Nginx 的配置文件
 
 配置文件分为三个模块：
 
--   全局块：从配置文件开始到 events 块之间，主要是设置一些影响 nginx 服务器整体运行的配置指令。（按道理说：并发处理服务的配置时，值越大，可支持的并发处理量越多，但此时会受到硬件、软件等设备等的制约）
--   events 块：影响 nginx 服务器与用户的网络连接，常用的设置包括是否开启对多 workprocess 下的网络连接进行序列化，是否允许同时接收多个网络连接等等
--   http 块：如反向代理和负载均衡都在此配置
+- 全局块：从配置文件开始到 events 块之间，主要是设置一些影响 nginx 服务器整体运行的配置指令。（按道理说：并发处理服务的配置时，值越大，可支持的并发处理量越多，但此时会受到硬件、软件等设备等的制约）
+- events 块：影响 nginx 服务器与用户的网络连接，常用的设置包括是否开启对多 workprocess 下的网络连接进行序列化，是否允许同时接收多个网络连接等等
+- http 块：如反向代理和负载均衡都在此配置
 
 #### location 的匹配规则
 
 共有四种方式：`location[ = | ~ | ~* | ^~ ] url {}`:
 
 1. `=` ：精确匹配，用于不含正则表达式的 url 前，要求字符串与 url 严格匹配，完全相等时，才能停止向下搜索并处理请求
-2. `^~`：用于不含正则表达式的 url 前，要求 nginx 服务器找到表示 url 和字符串匹配度最高的 location 后，立即使用此 location 处理请求，而不再匹配
-3. `~` ：最佳匹配，用于表示 url 包含正则表达式，并且区分大小写。
-4. `~*`：与~一样，只是不区分大小写
+2. `^~`：用于不含正则表达式的 url 前，要求 nginx 服务器找到表示 url 和字符串匹配度最高的 location 后，立即使用此 location 处理请求，而不再匹配。表示 uri 以某个字符串开头
+3. `~` ：最佳匹配，用于表示 url 包含正则表达式，并且区分大小写，匹配到就停止
+4. `~*`：与~一样，只是不区分大小写，匹配到就停止
+5. `/`：不使用上面四种时，表示通用匹配，每个 URI 都能匹配成功
 
 注意:
 
--   如果 url 包含正则表达式，则不需要 ~ 作为开头表示
--   nginx 的匹配具有优先顺序，一旦匹配上就会立马退出，不再进行向下匹配
+- 如果 url 包含正则表达式，则不需要 ~ 作为开头表示
+- nginx 的匹配具有优先顺序，一旦匹配上就会立马退出，不再进行向下匹配
+
+location 的定义分为两种：
+
+- 前缀字符串（prefix string）
+- 正则表达式（regular expression），具体为前面带 ~\* 和 ~ 修饰符的
+
+而匹配 location 的顺序为：
+
+1. 检查使用前缀字符串的 locations，在使用前缀字符串的 locations 中选择最长匹配的，并将结果进行储存
+2. 如果符合带有 = 修饰符的 URI，则立刻停止匹配
+3. 如果符合带有 ^~ 修饰符的 URI，则也立刻停止匹配。
+4. 然后按照定义文件的顺序，检查正则表达式，匹配到就停止
+5. 当正则表达式匹配不到的时候，使用之前储存的前缀字符串
+
+再总结一下就是：
+
+1. 在顺序上，前缀字符串顺序不重要，按照匹配长度来确定，正则表达式则按照定义顺序。
+2. 在优先级上，= 修饰符最高，^~ 次之，再者是正则，最后是前缀字符串匹配。
+
+### root 与 alias 的区别
+
+1. root 是直接拼接 root + location 而 alias 是用 alias 替换 location
+2. server 和 location 中的 root:
+   1. server 和 location 中都可以使用 root
+   2. 如果两者都出现，优先级就是就近原则，如果 location 中能匹配到，就是用 location 中的 root 配置，忽略 server 中的 root，当 location 中匹配不到的时候，则使用 server 中的 root 配置。
+
+### 开启 gzip
+
+Nginx 内置了 ngx_http_gzip_module 模块，该模块会拦截请求，并对需要做 Gzip 压缩的文件做压缩。因为是内部集成，所以我们只用修改 Nginx 的配置，就可以直接开启。
+
+```nginx
+# 登陆服务器
+ssh -v root@8.147.xxx.xxx
+
+# 进入 Nginx 目录
+cd /etc/nginx
+
+# 修改 Nginx 配置
+vim nginx.conf
+
+# 在 server 中添加 Gzip 压缩相关配置：
+server {
+  listen 443 ssl;
+  server_name ericyangxd.top;
+  ssl_certificate ...;
+  ssl_certificate_key ...;
+  ssl_session_timeout 5m;
+  ssl_ciphers ECDHE-RSA-AES256-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+  ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;
+  ssl_prefer_server_ciphers on;
+  location ^~ /my-vuepress-blog/ {
+    alias /home/www/website/ts/;
+  }
+  location / {
+    alias /home/www/website/ts/;
+    index index.html;
+  }
+  # 这里是新增的 gzip 配置
+  gzip on;
+  gzip_min_length 1k;
+  gzip_comp_level 6;
+  gzip_types application/atom+xml application/geo+json application/javascript application/x-javascript application/json application/ld+json application/manifest+json application/rdf+xml application/rss+xml application/xhtml+xml application/xml font/eot font/otf font/ttf image/svg+xml text/css text/javascript text/plain text/xml;
+}
+```
+
+1. gzip ：是否开启 gzip 模块 on 表示开启 off 表示关闭，默认是 off
+2. gzip_min_length：设置压缩的最小文件大小，小于该设置值的文件将不会压缩
+3. gzip_comp_level：压缩级别，从 1 到 9，默认 1，数字越大压缩效果越好，但也会越占用 CPU 时间，这里选了一个常见的折中值
+4. gzip_types：进行压缩的文件类型
+
+重新加载一次 Nginx 配置：`systemctl reload nginx`
 
 ## OpenResty
 
@@ -76,3 +148,11 @@ OpenResty 并不是一个全新的 Web 服务器，而是基于 Nginx，它利�
 3. OpenResty 的工作语言是 Lua，它小巧灵活，执行效率高，支持“代码热加载”；
 4. OpenResty 的核心编程范式是“同步非阻塞”，使用协程，不需要异步回调函数；
 5. OpenResty 也使用“阶段式处理”的工作模式，但因为在阶段里执行的都是 Lua 代码，所以非常灵活，配合 Redis 等外部数据库能够实现各种动态配置。
+
+::: tip
+tips test
+:::
+
+::: details
+折叠详情块，在 IE/Edge 中不生效
+:::

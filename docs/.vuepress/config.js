@@ -1,7 +1,12 @@
+/**
+ * Copyright © 2011-2022 EricYangXD, All Rights Reserved.
+ */
+
 // 配置网站的标题和描述，方便 SEO
 module.exports = {
 	title: "木易的OT",
-	description: "前端面试|React|Vue|JavaScript|CSS|HTML|HTTP|TCP|Webpack|算法|数据结构|LeetCode|小程序|油猴|计算机网络|NodeJs|Vite|Antdesign|EricYangXD|Eric|Chrome|Android|V8|Mac|git|网络安全|开发技巧|路由|router|话费|充值|诗歌|金句|源码|面试|docker",
+	description:
+		"前端面试|React|Vue|JavaScript|CSS|HTML|HTTP|TCP|Webpack|算法|数据结构|LeetCode|小程序|油猴|计算机网络|NodeJs|Vite|Antdesign|EricYangXD|Eric|Chrome|Android|V8|Mac|git|网络安全|开发技巧|路由|router|话费|充值|诗歌|金句|源码|面试|docker",
 	// 路径名为 "/<REPO>/"
 	base: "/",
 	locales: {
@@ -361,11 +366,11 @@ module.exports = {
 		// ],
 		// 搜索设置
 		search: true,
-		// searchMaxSuggestions: 10,
+		searchMaxSuggestions: 10,
 		// 自动形成侧边导航
 		// sidebar: 'auto',
 		// 最后更新时间
-		lastUpdated: "Last Updated",
+		lastUpdated: "上次更新", //"Last Updated", // 上次更新
 		// 备案号
 		// record: "xxxx",
 		// 项目开始时间
@@ -375,6 +380,12 @@ module.exports = {
 	// 	lineNumbers: true,
 	// },
 	plugins: [
+		[
+			"sitemap",
+			{
+				hostname: "https://ericyangxd.top",
+			},
+		],
 		[
 			"vuepress-plugin-nuggets-style-copy",
 			{
@@ -396,12 +407,44 @@ module.exports = {
 			{
 				// showIcon:
 				// 	"https://www.typescriptlang.org/favicon-32x32.png?v=8944a05a8b601855de116c8a56d3b3ae",
-				showText: "客官欢迎回来~",
+				showText: "欢迎回来~",
 				// hideIcon:
 				// 	"https://www.typescriptlang.org/favicon-32x32.png?v=8944a05a8b601855de116c8a56d3b3ae",
-				hideText: "客官不要走嘛~",
+				hideText: "再学一会儿~",
 				recoverTime: 2000,
 			},
 		],
+		[
+			"@vuepress/last-updated",
+			{
+				transformer: (timestamp, lang) => {
+					// 不要忘了安装 moment
+					const moment = require("moment");
+					moment.locale(lang);
+					return moment(timestamp).fromNow();
+				},
+			},
+		],
+		[
+			"@vuepress-reco/vuepress-plugin-bgm-player",
+			{
+				audios: [
+					{
+						name: "LOSER",
+						artist: "莫扎特：C大调奏鸣曲",
+						url: "http://m10.music.126.net/20220608011844/3d5dd623edcf774853e955a55db8c7c0/ymusic/535b/0e5e/0608/d19fc3fe829430610ce61b58d95fecba.mp3",
+						cover:
+							"https://p1.music.126.net/qTSIZ27qiFvRoKj-P30BiA==/109951165895951287.jpg?param=200y200",
+					},
+				],
+				// 是否默认缩小
+				autoShrink: true,
+				// 缩小时缩为哪种模式
+				shrinkMode: "float",
+				// 悬浮窗样式
+				floatStyle: { bottom: "10px", "z-index": "999999" },
+			},
+		],
+		["@vuepress-reco/extract-code"],
 	],
 };
