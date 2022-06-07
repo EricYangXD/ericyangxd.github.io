@@ -2,14 +2,17 @@
 title: 重点记录一些 antd 组件库使用时遇到的问题以及解决方法
 author: EricYangXD
 date: "2021-12-29"
+meta:
+  - name: keywords
+    content: antd AntDesign react
 ---
 
 ## Form 组件
 
 ### 使用
 
--   antd 禁止在 Form.Item 下的组件使用默认属性，解决：统一在 form 组件的 initialValues 属性里设置。
--   如果 Form.Item 中包裹了两个组件，那么建议用 div 或别的把这俩组件包起来，否则会 warning：Item 的 children 是 array 时不能设置 name。
+- antd 禁止在 Form.Item 下的组件使用默认属性，解决：统一在 form 组件的 initialValues 属性里设置。
+- 如果 Form.Item 中包裹了两个组件，那么建议用 div 或别的把这俩组件包起来，否则会 warning：Item 的 children 是 array 时不能设置 name。
 
 #### Form
 
@@ -30,7 +33,7 @@ date: "2021-12-29"
 
 #### Form.Item
 
--   一种用法：3.x 版本
+- 一种用法：3.x 版本
 
 ```js
   const { getFieldDecorator } = form;
@@ -71,7 +74,7 @@ date: "2021-12-29"
 
 #### Form.List
 
--   为字段提供数组化管理;
+- 为字段提供数组化管理;
 
 ```js
 <Form.List>
@@ -149,9 +152,9 @@ date: "2021-12-29"
 
 ### 使用方式
 
--   API 有点怪异，使用 action 的话需要把 URL 直接写在代码里，而实际应用场景中 service 都会统一封装，所以不建议使用官方的示例那种用法
+- API 有点怪异，使用 action 的话需要把 URL 直接写在代码里，而实际应用场景中 service 都会统一封装，所以不建议使用官方的示例那种用法
 
--   自定义用法：使用参考[这里](https://github.com/EricYangXD/LearnReact/tree/master/public/wiki/demos/uploadFile);
+- 自定义用法：使用参考[这里](https://github.com/EricYangXD/LearnReact/tree/master/public/wiki/demos/uploadFile);
 
 ```js
   showUploadList={{
@@ -163,8 +166,8 @@ date: "2021-12-29"
   }}
 ```
 
--   customRequest={this.upload}：自定义上传方法；upload(option):option 包含文件信息：option.file.type、option.file.name...可以进行文件校验；
--   如何显示下载链接？请使用 fileList 属性设置数组项的 url 属性进行展示控制。如果不给 fileList 传入 url 属性，则上传后的 fileList 列表点击时不会下载文件。
+- customRequest={this.upload}：自定义上传方法；upload(option):option 包含文件信息：option.file.type、option.file.name...可以进行文件校验；
+- 如何显示下载链接？请使用 fileList 属性设置数组项的 url 属性进行展示控制。如果不给 fileList 传入 url 属性，则上传后的 fileList 列表点击时不会下载文件。
 
 ## Table
 
@@ -192,7 +195,7 @@ date: "2021-12-29"
 }
 ```
 
--   自定义空表格、自定义加载动画
+- 自定义空表格、自定义加载动画
 
 ```js
   locale：{{emptyText: <Empty />}}：自定义空内容；
@@ -212,7 +215,7 @@ date: "2021-12-29"
 }
 ```
 
--   表头过滤
+- 表头过滤
 
 ```js
 // 自定义筛选组件 columns 设置
@@ -222,23 +225,23 @@ onFilter:()=>{},
 filters:[{text:'',value:''}],
 ```
 
--   服务端排序
+- 服务端排序
 
 1. columns 里设置 sorter:true;
 2. Table 里通过 onChange(pagination, filters, sorter, extra)监听筛选变化;
 
--   排序 icon 恢复
+- 排序 icon 恢复
 
 1. sortOrder: 排序的受控属性，外界可用此控制列的排序，可设置为 ascend | descend | false;
 
--   支持的排序方式
+- 支持的排序方式
 
 1. sortDirections: 覆盖 Table 中 sortDirections， 取值为 ascend | descend，通过设置为[ascend, descend, ascend]，实现只有升降而没有 undefined/default。
 
 ### 踩坑注意
 
--   在 90.x 版本 Chrome 上，固定列滚动时会有 bug，导致某列显示不完全。原因是固定列下方的那几个对应的列（占位列）宽度没有设置成功。
--   解决方法：根据固定列的实现原理，给占位列设置最小宽度可以解决。
+- 在 90.x 版本 Chrome 上，固定列滚动时会有 bug，导致某列显示不完全。原因是固定列下方的那几个对应的列（占位列）宽度没有设置成功。
+- 解决方法：根据固定列的实现原理，给占位列设置最小宽度可以解决。
 
 ```css
 .ant-table-thead > tr > th {
@@ -269,24 +272,24 @@ filters:[{text:'',value:''}],
 </Menu>
 ```
 
--   如果使用了`<Sider>`组件包裹了`<Menu>`（使用某些布局的时候可能会用到），那么要在`<Sider>`中设置`collapsed={false}`才能使菜单默认展开。在`<Menu>`中设置`inlineCollapsed={false}`无效！
--   使用`selectedKeys={[path]} onClick={onMenuClick}`结合`history.push(path)`，可以实现菜单的选中与路由的变化相匹配。
+- 如果使用了`<Sider>`组件包裹了`<Menu>`（使用某些布局的时候可能会用到），那么要在`<Sider>`中设置`collapsed={false}`才能使菜单默认展开。在`<Menu>`中设置`inlineCollapsed={false}`无效！
+- 使用`selectedKeys={[path]} onClick={onMenuClick}`结合`history.push(path)`，可以实现菜单的选中与路由的变化相匹配。
 
 ## Input 组件
 
 ### 使用
 
--   autocomplete="off"，这是 H5 原生 input 的一个属性。注意全部小写。
--   autoComplete: "off", 可以禁止掉原生 input 的默认提示行为;
--   `<Input.Search value={val} onPressEnter={onPressEnter} onSearch={onSearch} allowClear />`: 在使用 Input 的 Search 功能时，如果组件是受控组件，那么执行 onPressEnter 之后，输入框里的内容时无法通过 backspace 删除的，只能通过 allowClear 功能清除，此时需要注意：onSearch 函数，他是点击搜索图标、清除图标或按下回车键时的回调！如果在 onSearch 中做了诸如`if(!value.trim()) return;`此类的判断，那么 allowClear 将会失效！
+- autocomplete="off"，这是 H5 原生 input 的一个属性。注意全部小写。
+- autoComplete: "off", 可以禁止掉原生 input 的默认提示行为;
+- `<Input.Search value={val} onPressEnter={onPressEnter} onSearch={onSearch} allowClear />`: 在使用 Input 的 Search 功能时，如果组件是受控组件，那么执行 onPressEnter 之后，输入框里的内容时无法通过 backspace 删除的，只能通过 allowClear 功能清除，此时需要注意：onSearch 函数，他是点击搜索图标、清除图标或按下回车键时的回调！如果在 onSearch 中做了诸如`if(!value.trim()) return;`此类的判断，那么 allowClear 将会失效！
 
 ## Select 组件
 
 ### 常规用法
 
--   自定义 option
--   支持本地过滤、排序
--   可以做模糊查询，搜索输入的内容
+- 自定义 option
+- 支持本地过滤、排序
+- 可以做模糊查询，搜索输入的内容
 
 ```tsx
 <Select
@@ -328,7 +331,7 @@ filters:[{text:'',value:''}],
 </Select>
 ```
 
--   多级选择菜单
+- 多级选择菜单
 
 ```tsx
 const renderOption = (item: IndustryOption) => (
@@ -376,16 +379,16 @@ const renderOptions = (dataSource: IndustryOption[]) => {
 
 ### 自定义下拉菜单
 
--   通过 dropdownRender 实现
+- 通过 dropdownRender 实现
 
--   [示例](https://codesandbox.io/s/kuo-zhan-cai-dan-antd-4-18-2-forked-gnnfb?file=/index.js)
+- [示例](https://codesandbox.io/s/kuo-zhan-cai-dan-antd-4-18-2-forked-gnnfb?file=/index.js)
 
 ## Pagination 组件
 
 ### 用法
 
--   一般会配合 table 来用，也不排除跟在 list 后面的情况
--   样式修改比较费劲，如下实现完全的样式自定义配置：
+- 一般会配合 table 来用，也不排除跟在 list 后面的情况
+- 样式修改比较费劲，如下实现完全的样式自定义配置：
 
 ```css
   .ant-pagination {
@@ -471,15 +474,15 @@ const renderOptions = (dataSource: IndustryOption[]) => {
 
 ### Usage
 
--   changeOnSelect:true; // 点击任一级菜单选项值都会发生变化
--   options={options}; // {value,label,children}
--   onChange={handleCascaderChange}; // 可以拿到 当前点击的 完整层级的 value, selectedOptions
--   defaultValue={['all']}; // 默认值，设置对应的 value 即可
--   expandTrigger="hover"; // 菜单展开方式 hover/click
+- changeOnSelect:true; // 点击任一级菜单选项值都会发生变化
+- options={options}; // {value,label,children}
+- onChange={handleCascaderChange}; // 可以拿到 当前点击的 完整层级的 value, selectedOptions
+- defaultValue={['all']}; // 默认值，设置对应的 value 即可
+- expandTrigger="hover"; // 菜单展开方式 hover/click
 
 ## 国际化 tips
 
--   修改 antd 国际化配置，自定义某些字段：
+- 修改 antd 国际化配置，自定义某些字段：
 
 ```js
 import zh_CN from "antd/lib/locale-provider/zh_CN";

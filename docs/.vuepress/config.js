@@ -6,7 +6,7 @@
 module.exports = {
 	title: "木易的OT",
 	description:
-		"前端面试|React|Vue|JavaScript|CSS|HTML|HTTP|TCP|Webpack|算法|数据结构|LeetCode|小程序|油猴|计算机网络|NodeJs|Vite|Antdesign|EricYangXD|Eric|Chrome|Android|V8|Mac|git|网络安全|开发技巧|路由|router|话费|充值|诗歌|金句|源码|面试|docker",
+		"前端面试,React,Vue,JavaScript,CSS,HTML,HTTP,TCP,Webpack,算法,数据结构,LeetCode,小程序,油猴,计算机网络,NodeJs,Vite,Antdesign,EricYangXD,Eric,Chrome,Android,V8,Mac,git,网络安全,开发技巧,路由,router,话费,充值,诗歌,金句,源码,面试,docker",
 	// 路径名为 "/<REPO>/"
 	base: "/",
 	locales: {
@@ -14,22 +14,42 @@ module.exports = {
 			lang: "zh-CN",
 		},
 	},
-	// head: [
-	// [
-	// 	"link",
-	// 	{
-	// 		rel: "icon",
-	// 		href: "/public/favicon.ico",
-	// 	},
-	// ],
-	// [
-	// 	"meta",
-	// 	{
-	// 		name: "viewport",
-	// 		content: "width=device-width,initial-scale=1,user-scalable=no",
-	// 	},
-	// ],
-	// ],
+	head: [
+		[
+			"link",
+			{
+				rel: "icon",
+				href: "/public/favicon.ico",
+			},
+		],
+		[
+			"meta",
+			{
+				name: "viewport",
+				content: "width=device-width,initial-scale=1",
+			},
+		],
+		[
+			"meta",
+			{
+				name: "keywords",
+				content:
+					"前端面试,React,Vue,JavaScript,CSS,HTML,HTTP,TCP,Webpack,算法,数据结构,LeetCode,小程序,油猴,计算机网络,NodeJs,Vite,Antdesign,EricYangXD,Eric,Chrome,Android,V8,Mac,git,网络安全,开发技巧,路由,router,话费,充值,诗歌,金句,源码,面试,docker",
+			},
+		],
+		// SEO - JS 重定向
+		[
+			"script",
+			{},
+			`
+        (function() {
+          if (location.href.indexOf('github.io') > -1 || location.href.indexOf('gitee.io') > -1) {
+             location.href = 'https://ericyangxd.top'
+           }
+        })();
+        `,
+		],
+	],
 	theme: "reco",
 	themeConfig: {
 		subSidebar: "auto",
@@ -375,17 +395,14 @@ module.exports = {
 		// record: "xxxx",
 		// 项目开始时间
 		// startYear: "2015",
+		// 腾讯公益
+		// noFoundPageByTencent: false,
 	},
-	// markdown: {
-	// 	lineNumbers: true,
-	// },
+	markdown: {
+		lineNumbers: true,
+		externalLinks: { target: "_blank", rel: "nofollow noopener noreferrer" },
+	},
 	plugins: [
-		[
-			"sitemap",
-			{
-				hostname: "https://ericyangxd.top",
-			},
-		],
 		[
 			"vuepress-plugin-nuggets-style-copy",
 			{
@@ -429,6 +446,12 @@ module.exports = {
 			},
 		],
 		[
+			"sitemap",
+			{
+				hostname: "https://ericyangxd.top",
+			},
+		],
+		[
 			"@vuepress-reco/vuepress-plugin-bgm-player",
 			{
 				audios: [
@@ -449,5 +472,21 @@ module.exports = {
 			},
 		],
 		["@vuepress-reco/extract-code"],
+		[
+			"seo",
+			{
+				siteTitle: (_, $site) => "木易的OT",
+				title: ($page) => $page.title,
+				description: ($page) => $page.frontmatter.description,
+				author: (_, $site) => "EricYangXD",
+				type: ($page) => "article",
+				url: (_, $site, path) => "https://ericyangxd.top" + path,
+				image: ($page, $site) => "https://ericyangxd.top/logo.png",
+				publishedAt: ($page) =>
+					$page.frontmatter.date && new Date($page.frontmatter.date),
+				modifiedAt: ($page) => $page.lastUpdated && new Date($page.lastUpdated),
+			},
+		],
+		[require("./vuepress-plugin-jsonld")],
 	],
 };
