@@ -6,9 +6,9 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@vuepress-reco/vuepress-plugin-extract-code": "^1.0.4",
-		"vuepress": "^1.9.5",
+		"vuepress": "^1.9.7",
 		"vuepress-plugin-copyright": "^1.0.2",
-		"vuepress-plugin-cursor-effects": "^1.1.2",
+		"vuepress-plugin-cursor-effects": "^1.1.4",
 		"vuepress-plugin-nuggets-style-copy": "^1.0.3"
 	},
 	"scripts": {
@@ -20,6 +20,6 @@
 		"update": "sh update.sh"
 	},
 	"dependencies": {
-		"vuepress-theme-reco": "^1.6.10"
+		"vuepress-theme-reco": "^1.6.11"
 	}
 }
