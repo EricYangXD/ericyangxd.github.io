@@ -2,7 +2,7 @@ node_modules
 
 docs/.vuepress/dist
 
-yarn.lock
+# yarn.lock
 yarn.error
 
 .DS_Store

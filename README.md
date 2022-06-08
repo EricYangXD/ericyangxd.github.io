@@ -1,2 +1,3 @@
-# ericyangxd.github.io
+# ericyangxd.top
+
 Personal Blog Repository
