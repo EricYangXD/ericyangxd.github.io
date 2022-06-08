@@ -44,7 +44,7 @@ function floatNum(arr) {
 
 ### 求连续字符串的最大长度
 
--   双指针法，时间复杂度 O(n)
+- 双指针法，时间复杂度 O(n)
 
 ```js
 function maxLen(str) {
@@ -76,7 +76,7 @@ function maxLen(str) {
 }
 ```
 
--   双循环，跳步，使时间复杂度降到 O(n)
+- 双循环，跳步，使时间复杂度降到 O(n)
 
 ```js
 function maxLen(str) {
@@ -142,7 +142,7 @@ var reverseList = function (head) {
 
 ### 删除链表倒数第 N 个节点
 
--   假设 N<=链表长度。通过快慢指针，快指针先走 n+1 步，使快慢指针之间有 N 个节点，然后两个指针一起右移直到快指针指向 null，这时慢指针的下一个节点就是要删除的节点，让 slow.next=slow.next.next 即可，中间要注意删除 head 节点的情况。
+- 假设 N<=链表长度。通过快慢指针，快指针先走 n+1 步，使快慢指针之间有 N 个节点，然后两个指针一起右移直到快指针指向 null，这时慢指针的下一个节点就是要删除的节点，让 slow.next=slow.next.next 即可，中间要注意删除 head 节点的情况。
 
 ```js
 var removeNthFromEnd = function (head, n) {
@@ -168,7 +168,7 @@ var removeNthFromEnd = function (head, n) {
 
 ### 寻找链表中点
 
--   通过快慢指针寻找链表中点：快指针每次移动 2 步，慢指针每次移动 1 步
+- 通过快慢指针寻找链表中点：快指针每次移动 2 步，慢指针每次移动 1 步
 
 ```js
 function findCenter(head) {
@@ -325,7 +325,7 @@ var mergeTwoLists = function (l1, l2) {
 
 ### 合并 K 个升序链表
 
--   递归或循环的方式两两合并即可
+- 递归或循环的方式两两合并即可
 
 ```js
 var mergeKLists = function (lists) {
@@ -404,7 +404,7 @@ function reverse(a, b) {
 
 ### 环形链表
 
--   快慢指针判断链表有没有环，有环的话两个指针肯定会相遇（套圈），无环的话会退出。
+- 快慢指针判断链表有没有环，有环的话两个指针肯定会相遇（套圈），无环的话会退出。
 
 ```js
 var hasCycle = function (head) {
@@ -422,7 +422,7 @@ var hasCycle = function (head) {
 
 ### 排序链表
 
--   TODO
+- TODO
 
 ```js
 var sortList = function (head) {
@@ -482,7 +482,7 @@ function getCenter(head) {
 
 ### 相交链表
 
--   TODO
+- TODO
 
 ```js
 var getIntersectionNode = function (headA, headB) {
@@ -519,10 +519,10 @@ var getIntersectionNode = function (headA, headB) {
 
 ### 寻找 2 个升序数组的中位数
 
--   暴力求解，先合并再计算中位数
--   双指针，都从头开始比较，谁小就向右移动谁的指针，直到第(m+n)/2 次
--   二分查找
--   类似求第 K 小的值的算法
+- 暴力求解，先合并再计算中位数
+- 双指针，都从头开始比较，谁小就向右移动谁的指针，直到第(m+n)/2 次
+- 二分查找
+- 类似求第 K 小的值的算法
 
 ```js
 // 二分 O(log(min(m,n)))
@@ -607,8 +607,8 @@ var findMedianSortedArrays = function (nums1, nums2) {
 
 ### 深度优先遍历 DOM 节点
 
--   el.childNodes:获取全部节点，包括 element 节点、注释节点、文本节点等等，返回的是：NodeList[]
--   el.children:只获取 element 节点，不获取注释节点、文本节点，返回的是：HTMLCollection[]
+- el.childNodes:获取全部节点，包括 element 节点、注释节点、文本节点等等，返回的是：NodeList[]
+- el.children:只获取 element 节点，不获取注释节点、文本节点，返回的是：HTMLCollection[]
 
 ```js
 // 递归
@@ -921,8 +921,8 @@ class LazyMan {
 2. swc 是使用 Rust 编写的高性能 TypeScript / JavaScript 转译器，类似于 Babel，有至少 10 倍以上的性能优势，也是用来将 ES6+ 转化为 ES5 ；
 3. swc 和 babel 命令可以相互替换，并且大部分的 babel 插件也已经实现。
 4. swc 与 babel 一样，将命令行工具、编译核心模块分化为两个包。
-    - `@swc/cli` 类似于 `@babel/cli`;
-    - `@swc/core` 类似于 `@babel/core`;
+   - `@swc/cli` 类似于 `@babel/cli`;
+   - `@swc/core` 类似于 `@babel/core`;
 
 ### core-js、polyfill
 
@@ -941,12 +941,12 @@ class LazyMan {
 
 1. browserslist (opens new window)用特定的语句来查询浏览器列表，如 `last 2 Chrome versions`。package.json 中也有类似语句。
 2. 它是现代前端工程化不可或缺的工具，无论是处理 JS 的 babel，还是处理 CSS 的 postcss，凡是与垫片相关的，他们背后都有 browserslist 的身影。
-    - babel，在 @babel/preset-env 中使用 core-js 作为垫片
-    - postcss 使用 autoprefixer 作为垫片
+   - babel，在 @babel/preset-env 中使用 core-js 作为垫片
+   - postcss 使用 autoprefixer 作为垫片
 3. 前端打包体积与垫片的关系：
-    - 由于低浏览器版本的存在，垫片是必不可少的
-    - 垫片越少，则打包体积越小
-    - 浏览器版本越新，则垫片越少
+   - 由于低浏览器版本的存在，垫片是必不可少的
+   - 垫片越少，则打包体积越小
+   - 浏览器版本越新，则垫片越少
 4. 原理: browserslist 根据正则解析查询语句，对浏览器版本数据库 caniuse-lite 进行查询，返回所得的浏览器版本列表。
 5. 使用以下命令手动更新 caniuse-lite 数据库：`npx browserslist@latest --update-db`。
 
@@ -995,28 +995,28 @@ lodash.get({ a: 3 }, "a");
 ### ESM 与 CommonJS 的导入导出的不同
 
 1. 在 ESM 中，导入导出有两种方式:
-    - 具名导出/导入: Named Import/Export
-    - 默认导出/导入: Default Import/Export
-    - ES6 模块化不是对象，import 会在 JavaScript 引擎静态分析，在编译时就引入模块代码，而并非在代码运行时加载，因此也不适合异步加载。
+   - 具名导出/导入: Named Import/Export
+   - 默认导出/导入: Default Import/Export
+   - ES6 模块化不是对象，import 会在 JavaScript 引擎静态分析，在编译时就引入模块代码，而并非在代码运行时加载，因此也不适合异步加载。
 2. CommonJS 中，导入导出的方法只有一种:
-    - `module.exports = xxx;`
-    - 而所谓的 exports 仅仅是 `module.exports` 的引用而已: `exports = module.exports;`
-    - 多个`module.exports.xxx`导出的值会合并成一个对象
-    - `module.exports`导出的值为默认值，会忽略`module.exports.xxx`导出的值
-    - CommonJS 一般用在服务端或者 Node 用来同步加载模块，它对于模块的依赖发生在代码运行阶段，不适合在浏览器端做异步加载。
+   - `module.exports = xxx;`
+   - 而所谓的 exports 仅仅是 `module.exports` 的引用而已: `exports = module.exports;`
+   - 多个`module.exports.xxx`导出的值会合并成一个对象
+   - `module.exports`导出的值为默认值，会忽略`module.exports.xxx`导出的值
+   - CommonJS 一般用在服务端或者 Node 用来同步加载模块，它对于模块的依赖发生在代码运行阶段，不适合在浏览器端做异步加载。
 3. exports 的转化：cjs==>ESM:
-    - 当 exports 转化时，既要转化为具名导出 `export {}`，又要转化为默认导出 `export default {}`
+   - 当 exports 转化时，既要转化为具名导出 `export {}`，又要转化为默认导出 `export default {}`
 4. module.exports 的转化：cjs==>ESM:
-    - 我们可以遍历其中的 key (通过 AST)，将 key 转化为具名导出 `Named Export`，将 module.exports 转化为默认导出 `Default Export`
+   - 我们可以遍历其中的 key (通过 AST)，将 key 转化为具名导出 `Named Export`，将 module.exports 转化为默认导出 `Default Export`
 5. ESModule 的优势：
 
-    - 死代码检测和排除。我们可以用静态分析工具检测出哪些模块没有被调用过。未被调用到的模块代码永远不会被执行，也就成为了死代码。通过静态分析可以在打包时去掉这些未曾使用过的模块，以减小打包资源体积。
-    - 模块变量类型检查。JavaScript 属于动态类型语言，不会在代码执行前检查类型错误。ES6 Module 的静态模块结构有助于确保模块之间传递的值或接口类型是正确的。
-    - 编译器优化。在 CommonJS 等动态模块系统中，无论采用哪种方式，本质上导入的都是一个对象，而 ES6 Module 支持直接导入变量，减少了引用层级，程序效率更高。
+   - 死代码检测和排除。我们可以用静态分析工具检测出哪些模块没有被调用过。未被调用到的模块代码永远不会被执行，也就成为了死代码。通过静态分析可以在打包时去掉这些未曾使用过的模块，以减小打包资源体积。
+   - 模块变量类型检查。JavaScript 属于动态类型语言，不会在代码执行前检查类型错误。ES6 Module 的静态模块结构有助于确保模块之间传递的值或接口类型是正确的。
+   - 编译器优化。在 CommonJS 等动态模块系统中，无论采用哪种方式，本质上导入的都是一个对象，而 ES6 Module 支持直接导入变量，减少了引用层级，程序效率更高。
 
 6. 二者的差异：
-    - CommonJS 模块引用后是一个值的拷贝，而 ESModule 引用后是一个值的动态映射，并且这个映射是只读的。CommonJS 模块输出的是值的拷贝，一旦输出之后，无论模块内部怎么变化，都无法影响之前的引用。ESModule 是引擎会在遇到 import 后生成一个引用链接，在脚本真正执行时才会根据这个引用链接去模块里面取值，模块内部的原始值变了 import 加载的模块也会变。
-    - CommonJS 运行时加载，ESModule 编译阶段引用。CommonJS 在引入时是加载整个模块，生成一个对象，然后再从这个生成的对象上读取方法和属性。ESModule 不是对象，而是通过 export 暴露出要输出的代码块，在 import 时使用静态命令的方法引用指定的输出代码块，并在 import 语句处执行这个要输出的代码，而不是直接加载整个模块。
+   - CommonJS 模块引用后是一个值的拷贝，而 ESModule 引用后是一个值的动态映射，并且这个映射是只读的。CommonJS 模块输出的是值的拷贝，一旦输出之后，无论模块内部怎么变化，都无法影响之前的引用。ESModule 是引擎会在遇到 import 后生成一个引用链接，在脚本真正执行时才会根据这个引用链接去模块里面取值，模块内部的原始值变了 import 加载的模块也会变。
+   - CommonJS 运行时加载，ESModule 编译阶段引用。CommonJS 在引入时是加载整个模块，生成一个对象，然后再从这个生成的对象上读取方法和属性。ESModule 不是对象，而是通过 export 暴露出要输出的代码块，在 import 时使用静态命令的方法引用指定的输出代码块，并在 import 语句处执行这个要输出的代码，而不是直接加载整个模块。
 7. CommonJS To ESM 的构建工具: `@rollup/plugin-commonjs`,`https://cdn.skypack.dev/`,`https://jspm.org/`。
 
 ### const、let 和 var
@@ -1030,6 +1030,58 @@ lodash.get({ a: 3 }, "a");
 7. let、const 只是创建过程提升，初始化过程并没有提升，所以会产生暂时性死区。var 的创建和初始化过程都提升了，所以在赋值前访问会得到 undefined。function 的创建、初始化、赋值都被提升了。
 
 ### SEO
+
+- SEO(Search Engine Optimization)，即搜索引擎优化。SEO 是随着搜索引擎的出现而来的，两者是相互促进，互利共生的关系。SEO 的存在就是为了提升网页在搜索引擎自然搜索结果中的收录数量以及排序位置而做的优化行为。而优化的目的就是为了提升网站在搜索引擎中的权重，增加对搜索引擎的友好度，使得用户在访问网站时能排在前面。
+- 分类：白帽 SEO 和黑帽 SEO。白帽 SEO，起到了改良和规范网站设计的作用，使网站对搜索引擎和用户更加友好，并且网站也能从搜索引擎中获取合理的流量，这是搜索引擎鼓励和支持的。黑帽 SEO，利用和放大搜索引擎政策缺陷来获取更多用户的访问量，这类行为大多是欺骗搜索引擎，一般搜索引擎公司是不支持与鼓励的。
+- 目的：提高网站的权重，增强搜索引擎友好度，以达到提高网站排名，增加流量曝光，改善（潜在）用户体验，促进销售的作用。
+- 具体方向：
+
+1. 对网站的标题、关键字、描述精心设置，反映网站的定位，让搜索引擎明白网站是做什么的；
+2. 网站内容优化：内容与关键字的对应，增加关键字的密度；
+3. 在网站上合理设置 Robots.txt 文件；
+4. 生成针对搜索引擎友好的网站地图 sitemap.xml；
+5. 增加外部链接，到各个网站上宣传。
+
+- 前端 SEO
+
+1. 网站结构布局优化：尽量简单、开门见山，提倡扁平化结构
+   - 控制首页链接数量：网站首页是权重最高的地方；链接不能太多也不能太少，要有实质性的链接；
+   - 扁平化的目录层次：不超过 3 层；
+   - 导航优化：尽量采用文字，图片标签必须添加“alt”和“title”属性；在每一个网页上应该加上面包屑导航；
+   - 网站的结构布局：主次关系清晰；
+   - 利用布局，把重要内容 HTML 代码放在最前
+   - 控制页面的大小，减少 http 请求，提高网站的加载速度
+2. 网页代码优化
+   - 突出重要内容---合理的设计 title、description 和 keywords：把重要的关键词放在前面，关键词不要重复出现，切记不能太长，过分堆砌关键词，每个页面也要有所不同；
+   - 语义化书写 HTML 代码，符合 W3C 标准
+   - 标签：页内链接，要加 title 属性加以说明，让访客和爬虫知道。而外部链接，链接到其他网站的，则需要加上 `rel="nofollow"` 属性, 告诉爬虫不要爬，因为一旦爬虫爬了外部链接之后，就不会再回来了
+   - 正文标题要用 h1，副标题用 h2，不可乱用 h 标签
+   - 图片应使用 "alt" 属性加以说明，设置宽高，减少重排重绘，提高加载速度
+   - 表格标题使用 caption 元素
+   - br 标签只用于文本内容换行
+   - 强调内容时使用 strong 标签
+   - 文本缩进不要使用特殊符号，应使用 css 进行设置
+   - 重要内容不要用 js 输出，须放在 html 里
+   - 尽量少使用 iframe
+   - 搜索引擎会过滤掉 `display:none` 的元素中的内容
+3. 前端网站性能优化
+   - 减少 http 请求数量，浏览器单次同时发出的请求数量是有限的，每个 http 请求都会经历 tcp 三次握手四次挥手等阶段；css sprites 雪碧图，多张图片合成一张图片，减少 http 请求数，也减少总体积；合并 css、js 文件；路由懒加载 lazyload；
+   - 控制资源文件加载优先级，css 放在 html 头部，js 放在底部或 body 后面；prefetch、preload 预加载；设置 importance 属性；async、defer 关键字异步加载；
+   - 静态资源上 cdn，尽量外链 css 和 js，保持代码整洁，利于维护；
+   - 利用缓存，浏览器缓存；
+   - 减少重排重绘：基本原理：重排是 DOM 的变化影响到了元素的几何属性（宽和高），浏览器会重新计算元素的几何属性，会使渲染树中受到影响的部分失效，浏览器会验证 DOM 树上的所有其它结点的 visibility 属性，这也是 Reflow 低效的原因。如果 Reflow 的过于频繁，CPU 使用率就会急剧上升。减少 Reflow，如果需要在 DOM 操作时添加样式，尽量使用 增加 class 属性，而不是通过 style 操作样式。
+   - 减少 dom 操作
+   - 图标使用 iconfont 替换
+   - 不使用 css 表达式，会影响效率
+   - 使用 cdn 网络缓存，加快用户访问速度，减轻源服务器压力
+   - 启用 gzip 压缩
+   - 伪静态设置
+
+- 如何分析
+  1. 使用站长工具
+  2. 使用 Lighthouse
+
+### 前端技术选型要考虑什么
 
 ### 协程
 
@@ -1063,9 +1115,9 @@ Function.prototype.apply 和 Function.prototype.call 的作用是一样的，区
 2. 不可以使用 arguments 对象，该对象在函数体内不存在。如果要用，可以用 rest 参数代替。
 3. 不可以使用 yield 命令，因此箭头函数不能用作 Generator 函数。
 4. 不可以使用 new 命令，因为：
-    - 没有自己的 this，无法调用 call，apply。
-    - 没有 prototype 属性 ，而 new 命令在执行时需要将构造函数的 prototype 赋值给新的对象的 `__proto__`。
-    - 箭头函数并没有`[[Construct]]`方法, 所以不能被用作构造函数。
+   - 没有自己的 this，无法调用 call，apply。
+   - 没有 prototype 属性 ，而 new 命令在执行时需要将构造函数的 prototype 赋值给新的对象的 `__proto__`。
+   - 箭头函数并没有`[[Construct]]`方法, 所以不能被用作构造函数。
 
 ### a.b.c.d 和 a['b']['c']['d']，哪个性能更高
 
@@ -1082,13 +1134,13 @@ Babel 是如何把 ES6 转成 ES5 呢，其大致分为三步：
 2. 对 AST 进行处理，在这个阶段可以对 ES6 代码进行相应转换，即转成 ES5 代码
 3. 根据处理后的 AST 再生成代码字符串
 
--   比如，可以使用 @babel/parser 的 parse 方法，将代码字符串解析成 AST；使用 @babel/core 的 transformFromAstSync 方法，对 AST 进行处理，将其转成 ES5 并生成相应的代码字符串；过程中，可能还需要使用 @babel/traverse 来获取依赖文件等。
+- 比如，可以使用 @babel/parser 的 parse 方法，将代码字符串解析成 AST；使用 @babel/core 的 transformFromAstSync 方法，对 AST 进行处理，将其转成 ES5 并生成相应的代码字符串；过程中，可能还需要使用 @babel/traverse 来获取依赖文件等。
 
 4. 补充说明
 
--   .vue 文件通过 webpack 的 vue-loader 分析出 script style template 再走上面的 ES6 转 ES5 流程
--   jsx 通过 babel 插件转 js 语法再走 ES6 转 ES5
--   ts 通过 tsc 结合 tsconfig.json 直接转 ES5
+- .vue 文件通过 webpack 的 vue-loader 分析出 script style template 再走上面的 ES6 转 ES5 流程
+- jsx 通过 babel 插件转 js 语法再走 ES6 转 ES5
+- ts 通过 tsc 结合 tsconfig.json 直接转 ES5
 
 ### 为什么普通 for 循环的性能远远高于 forEach 的性能
 
@@ -1133,11 +1185,11 @@ Babel 是如何把 ES6 转成 ES5 呢，其大致分为三步：
 
 1. 在 Lighthouse 中我们可以得到 FMP 值，FMP（全称 First Meaningful Paint，翻译为首次有效绘制）表示页面的主要内容开始出现在屏幕上的时间点，它是我们测量用户加载体验的主要指标。我们可以认为 FMP 的值就是首屏时间。
 2. 常见计算方式：
-    1. 用户自定义打点—最准确的方式（只有用户自己最清楚，什么样的时间才算是首屏加载完成）。缺点：侵入业务，成本高。
-    2. 粗略的计算首屏时间: loadEventEnd - fetchStart/startTime 或者 domInteractive - fetchStart/startTime
-    3. 通过计算首屏区域内的所有图片加载时间，然后取其最大值
-    4. 利用 MutationObserver 接口，监听 document 对象的节点变化，取 DOM 变化最大时间点为首屏时间，页面关闭时如果没有上报，立即上报
-        - window 监听 beforeunload 事件（当浏览器窗口关闭或者刷新时，会触发 beforeunload 事件）进行上报
+   1. 用户自定义打点—最准确的方式（只有用户自己最清楚，什么样的时间才算是首屏加载完成）。缺点：侵入业务，成本高。
+   2. 粗略的计算首屏时间: loadEventEnd - fetchStart/startTime 或者 domInteractive - fetchStart/startTime
+   3. 通过计算首屏区域内的所有图片加载时间，然后取其最大值
+   4. 利用 MutationObserver 接口，监听 document 对象的节点变化，取 DOM 变化最大时间点为首屏时间，页面关闭时如果没有上报，立即上报
+      - window 监听 beforeunload 事件（当浏览器窗口关闭或者刷新时，会触发 beforeunload 事件）进行上报
 
 ### function 的 length
 
@@ -1147,20 +1199,20 @@ Babel 是如何把 ES6 转成 ES5 呢，其大致分为三步：
 
 CDN 的核心点有两个，一个是缓存，一个是回源。“缓存”就是说我们把资源 copy 一份到 CDN 服务器上这个过程。“回源”就是说 CDN 发现自己没有这个资源（一般是缓存的数据过期了），转头向根服务器（或者它的上层服务器）去要这个资源的过程。
 
--   关于 CDN 缓存，在浏览器本地缓存失效后，浏览器会向 CDN 边缘节点发起请求。类似浏览器缓存，CDN 边缘节点也存在着一套缓存机制。CDN 边缘节点缓存策略因服务商不同而不同，但一般都会遵循 http 标准协议，通过 http 响应头中的`Cache-control: max-age`的字段来设置 CDN 边缘节点数据缓存时间。
+- 关于 CDN 缓存，在浏览器本地缓存失效后，浏览器会向 CDN 边缘节点发起请求。类似浏览器缓存，CDN 边缘节点也存在着一套缓存机制。CDN 边缘节点缓存策略因服务商不同而不同，但一般都会遵循 http 标准协议，通过 http 响应头中的`Cache-control: max-age`的字段来设置 CDN 边缘节点数据缓存时间。
 
--   当浏览器向 CDN 节点请求数据时，CDN 节点会判断缓存数据是否过期，若缓存数据并没有过期，则直接将缓存数据返回给客户端；否则 CDN 节点就会向服务器发出回源请求，从服务器拉取最新数据，更新本地缓存，并将最新数据返回给客户端。 CDN 服务商一般会提供基于文件后缀、目录多个维度来指定 CDN 缓存时间，为用户提供更精细化的缓存管理。
+- 当浏览器向 CDN 节点请求数据时，CDN 节点会判断缓存数据是否过期，若缓存数据并没有过期，则直接将缓存数据返回给客户端；否则 CDN 节点就会向服务器发出回源请求，从服务器拉取最新数据，更新本地缓存，并将最新数据返回给客户端。 CDN 服务商一般会提供基于文件后缀、目录多个维度来指定 CDN 缓存时间，为用户提供更精细化的缓存管理。
 
 1. CDN 优势
 
--   CDN 节点解决了跨运营商和跨地域访问的问题，访问延时大大降低。用户就近获取所需内容，降低网络拥塞，提高用户访问响应速度和命中率。
--   大部分请求在 CDN 边缘节点完成，CDN 起到了分流作用，减轻了源服务器的负载。
--   CDN 提供冗余，有助于保护源服务器和内容。通过 CDN 的负载均衡和分布式存储技术，可以加强网站的可靠性，相当于无形中给网站添加了一把保护伞，可以缓解或防止常见的网络攻击，例如分布式拒绝服务（DDoS）攻击。
--   同一个域名下的请求会不分青红皂白地携带 Cookie，而静态资源往往并不需要 Cookie 携带什么认证信息。把静态资源和主页面置于不同的域名下，完美地避免了不必要的 Cookie 的出现！
--   远程访问用户根据 DNS 负载均衡技术智能自动选择 Cache 服务器
+- CDN 节点解决了跨运营商和跨地域访问的问题，访问延时大大降低。用户就近获取所需内容，降低网络拥塞，提高用户访问响应速度和命中率。
+- 大部分请求在 CDN 边缘节点完成，CDN 起到了分流作用，减轻了源服务器的负载。
+- CDN 提供冗余，有助于保护源服务器和内容。通过 CDN 的负载均衡和分布式存储技术，可以加强网站的可靠性，相当于无形中给网站添加了一把保护伞，可以缓解或防止常见的网络攻击，例如分布式拒绝服务（DDoS）攻击。
+- 同一个域名下的请求会不分青红皂白地携带 Cookie，而静态资源往往并不需要 Cookie 携带什么认证信息。把静态资源和主页面置于不同的域名下，完美地避免了不必要的 Cookie 的出现！
+- 远程访问用户根据 DNS 负载均衡技术智能自动选择 Cache 服务器
 
 2. 缺点
-    - 当源服务器资源更新后，如果 CDN 节点上缓存数据还未过期，用户访问到的依旧是过期的缓存资源，这会导致用户最终访问出现偏差。因此，开发者需要手动刷新相关资源，使 CDN 缓存保持为最新的状态。
+   - 当源服务器资源更新后，如果 CDN 节点上缓存数据还未过期，用户访问到的依旧是过期的缓存资源，这会导致用户最终访问出现偏差。因此，开发者需要手动刷新相关资源，使 CDN 缓存保持为最新的状态。
 
 ### 简述 bundless 的优势与不足
 
@@ -1178,21 +1230,21 @@ CDN 的核心点有两个，一个是缓存，一个是回源。“缓存”就�
 
 semver，Semantic Versioning 语义化版本的缩写，文档可见 `https://semver.org/`，它由 `[major, minor, patch]` 三部分组成，其中：
 
--   major: 当你发了一个含有 Breaking Change 的 API
--   minor: 当你新增了一个向后兼容的功能时
--   patch: 当你修复了一个向后兼容的 Bug 时
+- major: 当你发了一个含有 Breaking Change 的 API
+- minor: 当你新增了一个向后兼容的功能时
+- patch: 当你修复了一个向后兼容的 Bug 时
 
 1. 对于 ~1.2.3 而言，它的版本号范围是 [1.2.3, 1.3.0)
 2. 对于 ^1.2.3 而言，它的版本号范围是 [1.2.3, 2.0.0)，可最大限度地在向后兼容与新特性之间做取舍
 
 ### 自动发现更新
 
--   升级版本号，最不建议的事情就是手动在 package.json 中进行修改。毕竟，你无法手动发现所有需要更新的 package。
--   可借助于 `npm outdated`，发现有待更新的 package。仍然需要手动在 package.json 更改版本号进行升级。
--   使用 `npm outdated`，还可以列出其待更新 package 的文档。`npm outdated -l`
--   推荐一个功能更强大的工具 `npm-check-updates`，比 `npm outdated` 强大百倍。
--   `npx npm-check-updates -u`，可自动将 package.json 中待更新版本号进行重写。
--   升级 `[minor]` 小版本号，有可能引起 Break Change，可仅仅升级到最新的 patch 版本。`npx npm-check-updates --target patch`
+- 升级版本号，最不建议的事情就是手动在 package.json 中进行修改。毕竟，你无法手动发现所有需要更新的 package。
+- 可借助于 `npm outdated`，发现有待更新的 package。仍然需要手动在 package.json 更改版本号进行升级。
+- 使用 `npm outdated`，还可以列出其待更新 package 的文档。`npm outdated -l`
+- 推荐一个功能更强大的工具 `npm-check-updates`，比 `npm outdated` 强大百倍。
+- `npx npm-check-updates -u`，可自动将 package.json 中待更新版本号进行重写。
+- 升级 `[minor]` 小版本号，有可能引起 Break Change，可仅仅升级到最新的 patch 版本。`npx npm-check-updates --target patch`
 
 ### 如何修复某个 npm 包的紧急 bug
 
@@ -1240,16 +1292,16 @@ npx patch-package
 1. 对于业务代码而讲，它俩区别不大，打包时 webpack、Rollup 会对代码进行模块依赖分析，与该模块是否在 dep/devDep 并无关系，只要在 node_modules 上能够找到该 Package 即可。
 
 2. 对于库 (Package) 开发而言，是有严格区分的，当在项目中安装一个依赖的 Package 时，该依赖的 dependencies 也会安装到项目中，即被下载到 node_modules 目录中。但是 devDependencies 不会。
-    - dependencies: 在生产环境中使用
-    - devDependencies: 在开发环境中使用，如 webpack/babel/eslint 等
+   - dependencies: 在生产环境中使用
+   - devDependencies: 在开发环境中使用，如 webpack/babel/eslint 等
 
 ### package-lock.json 有什么作用
 
 1. `packagelock.json / yarn.lock` 用以锁定版本号，保证开发环境与生产环境的一致性，避免出现不兼容 API 导致生产环境报错。
 
 2. lockfile 对于第三方库仍然必不可少。
-    - 第三方库的 devDependencies 必须在 lockfile 中锁定，这样 Contributor 可根据 lockfile 很容易将项目跑起来。
-    - 第三方库的 dependencies 虽然有可能存在不可控问题，但是可通过锁死 package.json 依赖或者勤加更新的方式来解决。
+   - 第三方库的 devDependencies 必须在 lockfile 中锁定，这样 Contributor 可根据 lockfile 很容易将项目跑起来。
+   - 第三方库的 dependencies 虽然有可能存在不可控问题，但是可通过锁死 package.json 依赖或者勤加更新的方式来解决。
 
 ### 简述 npm script 的生命周期
 
@@ -1261,8 +1313,8 @@ npm 会把所有下载的包，保存在用户文件夹下面。`~/.npm`或`%App
 
 npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Hash Algorithm))，然后将包与他的 sha1 值关联保存在 package-lock.json 里面，下次 npm install 时，会根据 package-lock.json 里面保存的 sha1 值去文件夹里面寻找包文件，如果找到就不用从新下载安装了。
 
--   `npm cache verify`：重新计算，磁盘文件是否与 sha1 值匹配，如果不匹配可能删除。要对现有缓存内容运行脱机验证，请使用 npm cache verify。
--   `npm cache clean --force`：删除磁盘所有缓存文件。
+- `npm cache verify`：重新计算，磁盘文件是否与 sha1 值匹配，如果不匹配可能删除。要对现有缓存内容运行脱机验证，请使用 npm cache verify。
+- `npm cache clean --force`：删除磁盘所有缓存文件。
 
 #### 一个 npm script 的生命周期
 
@@ -1272,13 +1324,13 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 
 执行 npm publish，将自动执行以下脚本:
 
--   prepublishOnly: 最重要的一个生命周期。如需要在发包之前自动做一些事情，如测试、构建等，请在 prepulishOnly 中完成。
--   prepack
--   prepare: 最常用的生命周期。`npm install` 之后自动执行，`npm publish` 之前自动执行。
--   postpack
--   publish
--   postpublish
--   发包实际上是将本地 package 中的所有资源进行打包，并上传到 npm 的一个过程。你可以通过 `npm pack` 命令查看详情
+- prepublishOnly: 最重要的一个生命周期。如需要在发包之前自动做一些事情，如测试、构建等，请在 prepulishOnly 中完成。
+- prepack
+- prepare: 最常用的生命周期。`npm install` 之后自动执行，`npm publish` 之前自动执行。
+- postpack
+- publish
+- postpublish
+- 发包实际上是将本地 package 中的所有资源进行打包，并上传到 npm 的一个过程。你可以通过 `npm pack` 命令查看详情
 
 #### npm script 钩子的风险
 
@@ -1286,12 +1338,12 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 
 #### 总结-npm run script 时发生了什么
 
--   表面上：`npm run xxx`的时候，首先会去项目的 package.json 文件里找 scripts 里找对应的 xxx，然后执行 xxx 的命令，例如启动 vue 项目 `npm run serve`的时候，实际上就是执行了`vue-cli-service serve` 这条命令。
--   实际上：`vue-cli-service`这条指令不存在操作系统中，我们在安装依赖的时候，是通过 npm i xxx 来执行的，例如 `npm i @vue/cli-service`，npm 在 安装这个依赖的时候，就会在 `node_modules/.bin/` 目录中创建好 `vue-cli-service` 为名的几个可执行文件，实际是些软链接/node 脚本。
--   从 `package-lock.json` 中可知，当我们`npm i` 整个新建的 vue 项目的时候，npm 将 `bin/vue-cli-service.js` 作为 bin 声明了。
-    所以在 `npm install` 时，npm 读到该配置后，就将该文件软链接到 `./node_modules/.bin` 目录下，而 npm 还会自动把`node_modules/.bin`加入`$PATH`，这样就可以直接作为命令运行依赖程序和开发依赖程序，不用全局安装了。如果把包安装在全局环境，那么就可以直接使用这个命令。
--   也就是说，`npm i` 的时候，npm 就帮我们把这种软连接配置好了，其实这种软连接相当于一种映射，执行`npm run xxx` 的时候，就会到 `node_modules/.bin`中找对应的映射文件，如果没找到就去全局找，然后再找到相应的 js 文件来执行。
--   为什么`node_modules/bin`中 有三个`vue-cli-service`文件? -- 在不同的系统中执行不同的脚本（跨平台执行）
+- 表面上：`npm run xxx`的时候，首先会去项目的 package.json 文件里找 scripts 里找对应的 xxx，然后执行 xxx 的命令，例如启动 vue 项目 `npm run serve`的时候，实际上就是执行了`vue-cli-service serve` 这条命令。
+- 实际上：`vue-cli-service`这条指令不存在操作系统中，我们在安装依赖的时候，是通过 npm i xxx 来执行的，例如 `npm i @vue/cli-service`，npm 在 安装这个依赖的时候，就会在 `node_modules/.bin/` 目录中创建好 `vue-cli-service` 为名的几个可执行文件，实际是些软链接/node 脚本。
+- 从 `package-lock.json` 中可知，当我们`npm i` 整个新建的 vue 项目的时候，npm 将 `bin/vue-cli-service.js` 作为 bin 声明了。
+  所以在 `npm install` 时，npm 读到该配置后，就将该文件软链接到 `./node_modules/.bin` 目录下，而 npm 还会自动把`node_modules/.bin`加入`$PATH`，这样就可以直接作为命令运行依赖程序和开发依赖程序，不用全局安装了。如果把包安装在全局环境，那么就可以直接使用这个命令。
+- 也就是说，`npm i` 的时候，npm 就帮我们把这种软连接配置好了，其实这种软连接相当于一种映射，执行`npm run xxx` 的时候，就会到 `node_modules/.bin`中找对应的映射文件，如果没找到就去全局找，然后再找到相应的 js 文件来执行。
+- 为什么`node_modules/bin`中 有三个`vue-cli-service`文件? -- 在不同的系统中执行不同的脚本（跨平台执行）
 
 1. 运行 `npm run xxx` 的时候，npm 会先在当前目录的 `node_modules/.bin` 查找要执行的程序，如果找到则运行；
 2. 没有找到则从全局的 `node_modules/.bin` 中查找，`npm i -g xxx` 就是安装到到全局目录；
@@ -1301,26 +1353,26 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 
 1. 通过 ln -s 创建一个软链接，通过 ln 可以创建一个硬链接。
 2. 区别有以下几点:
-    1. 软链接可理解为指向源文件的指针，它是单独的一个文件，仅仅只有几个字节，它拥有独立的 inode
-    2. 硬链接与源文件同时指向一个物理地址，它与源文件共享存储数据，它俩拥有相同的 inode
+   1. 软链接可理解为指向源文件的指针，它是单独的一个文件，仅仅只有几个字节，它拥有独立的 inode
+   2. 硬链接与源文件同时指向一个物理地址，它与源文件共享存储数据，它俩拥有相同的 inode
 3. pnpm 为何节省空间:
-    1. 解决了 npm/yarn 平铺 node_modules 带来的依赖项重复的问题 (doppelgangers)
-    2. 在 pnpm 中，它改变了 npm/yarn 的目录结构，采用软链接的方式，避免了 doppelgangers 问题更加节省空间。
-    3. 通过硬链接，又能使多个不同的项目复用相同依赖的存储空间。
+   1. 解决了 npm/yarn 平铺 node_modules 带来的依赖项重复的问题 (doppelgangers)
+   2. 在 pnpm 中，它改变了 npm/yarn 的目录结构，采用软链接的方式，避免了 doppelgangers 问题更加节省空间。
+   3. 通过硬链接，又能使多个不同的项目复用相同依赖的存储空间。
 
 ### 如何确保所有 npm install 的依赖都是安全的？
 
--   Audit，审计，检测你的所有依赖是否安全。`npm audit / yarn audit` 均有效。通过审计，可看出有风险的 package、依赖库的依赖链、风险原因及其解决方案。
--   通过 `npm audit fix` 可以自动修复该库的风险，原理就是升级依赖库，升级至已修复了风险的版本号。`npm audit fix`
--   `yarn audit` 无法自动修复，需要使用 `yarn upgrade` 手动更新版本号，不够智能。
--   synk 是一个高级版的 `npm audit`，可自动修复，且支持 CICD 集成与多种语言。`npx snyk`，`npx wizard`，`npx snyk wizard`
+- Audit，审计，检测你的所有依赖是否安全。`npm audit / yarn audit` 均有效。通过审计，可看出有风险的 package、依赖库的依赖链、风险原因及其解决方案。
+- 通过 `npm audit fix` 可以自动修复该库的风险，原理就是升级依赖库，升级至已修复了风险的版本号。`npm audit fix`
+- `yarn audit` 无法自动修复，需要使用 `yarn upgrade` 手动更新版本号，不够智能。
+- synk 是一个高级版的 `npm audit`，可自动修复，且支持 CICD 集成与多种语言。`npx snyk`，`npx wizard`，`npx snyk wizard`
 
 ### Long Term Cache
 
 0. 通过在服务器端/网关端对资源设置以下 Response Header，进行强缓存一年时间，称为永久缓存，即 Long Term Cache。`Cache-Control: public,max-age=31536000,immutable`
 1. 假设有两个文件: index.js 和 lib.js，且 index 依赖于 lib，由 webpack 打包后将会生成两个 chunk -- `index.aaaaaa.js`和`lib.aaaaaa.js `，假设 lib.js 文件内容发生变更，index.js 由于引用了 lib.js，可能包含其文件名，那么它的 hash 是否会发生变动？
 
--   不一定。打包后的 index.js 中引用 lib 时并不会包含 lib.aaaaaa.js，而是采用 chunkId 的形式，如果 chunkId 是固定的话(chunkIds = deterministic 时)，则不会发生变更。即在 webpack 中，通过 `optimization.chunkIds = 'deterministic'` 可设置确定的 chunkId，来增强 Long Term Cache 能力。此时打包，仅仅 lib.js 路径发生了变更 -- `lib.bbbbbb.js`。
+- 不一定。打包后的 index.js 中引用 lib 时并不会包含 lib.aaaaaa.js，而是采用 chunkId 的形式，如果 chunkId 是固定的话(chunkIds = deterministic 时)，则不会发生变更。即在 webpack 中，通过 `optimization.chunkIds = 'deterministic'` 可设置确定的 chunkId，来增强 Long Term Cache 能力。此时打包，仅仅 lib.js 路径发生了变更 -- `lib.bbbbbb.js`。
 
 ### 设计模式
 
@@ -1377,21 +1429,21 @@ Decorator：装饰类或者方法，不会修改原有的功能，只是增加�
 #### 关于堆和栈、一级缓存和二级缓存的理解
 
 1. 数据结构的堆和栈（都是逻辑结构）
-    1. 堆：先进先出的，可以被看成是一棵树，如：堆排序。
-    2. 栈：后进先出的、自顶向下。
+   1. 堆：先进先出的，可以被看成是一棵树，如：堆排序。
+   2. 栈：后进先出的、自顶向下。
 2. 内存分布上的堆和栈
-    1. 栈：局部变量的内存，函数结束后内存自动被释放，栈内存分配运算内置于处理器的指令集中，它的运行效率一般很高，但是分配的内存容量有限。
-    2. 静态存储区：全局变量、static 变量；它是由编译器自动分配和释放的，即内存在程序编译的时候就已经分配好，这块内存在程序的整个运行期间都存在，直到整个程序运行结束时才被释放。
-    3. 动态储存区：堆和栈
+   1. 栈：局部变量的内存，函数结束后内存自动被释放，栈内存分配运算内置于处理器的指令集中，它的运行效率一般很高，但是分配的内存容量有限。
+   2. 静态存储区：全局变量、static 变量；它是由编译器自动分配和释放的，即内存在程序编译的时候就已经分配好，这块内存在程序的整个运行期间都存在，直到整个程序运行结束时才被释放。
+   3. 动态储存区：堆和栈
 3. 一级缓存和二级缓存
-    1. 栈使用的是一级缓存， 他们通常都是被调用时处于存储空间中，调用完毕立即释放。栈的效率比堆的高。
-    2. 堆则是存放在二级缓存中，生命周期由虚拟机的垃圾回收算法来决定（并不是一旦成为孤儿对象就能被回收）。所以调用这些对象的速度要相对来得低一些。
+   1. 栈使用的是一级缓存， 他们通常都是被调用时处于存储空间中，调用完毕立即释放。栈的效率比堆的高。
+   2. 堆则是存放在二级缓存中，生命周期由虚拟机的垃圾回收算法来决定（并不是一旦成为孤儿对象就能被回收）。所以调用这些对象的速度要相对来得低一些。
 4. 为什么需要缓存？
-    1. cpu 运行速率很快，但内存的速度很慢，所以就需要缓存，缓存分为一级二级三级，越往下优先级越低，成本越低，容量越大。
-    2. 栈（操作系统）：由操作系统自动分配释放 ，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈。
-    3. 堆（操作系统）： 一般由程序员分配释放， 若程序员不释放，程序结束时可能由 OS 回收，分配方式倒是类似于链表。
+   1. cpu 运行速率很快，但内存的速度很慢，所以就需要缓存，缓存分为一级二级三级，越往下优先级越低，成本越低，容量越大。
+   2. 栈（操作系统）：由操作系统自动分配释放 ，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈。
+   3. 堆（操作系统）： 一般由程序员分配释放， 若程序员不释放，程序结束时可能由 OS 回收，分配方式倒是类似于链表。
 5. CPU 读写速率：
-    1. 寄存器>一级缓存>二级缓存
+   1. 寄存器>一级缓存>二级缓存
 
 #### Vue 和 React 的区别
 
@@ -1403,30 +1455,30 @@ Decorator：装饰类或者方法，不会修改原有的功能，只是增加�
 
 > 当组件实例被创建并插入 DOM 中时，其生命周期调用顺序如下：
 
--   `constructor()`
--   `static getDerivedStateFromProps()`
--   `render()`
--   `componentDidMount()`
+- `constructor()`
+- `static getDerivedStateFromProps()`
+- `render()`
+- `componentDidMount()`
 
 2. 更新阶段：
 
 > 当组件中的 props 或者 state 发生变化时就会触发更新。组件更新的生命周期调用顺序如下：
 
--   `static getDerivedStateFromProps()`
--   `shouldComponentUpdate()`
--   `render()`
--   `getSnapshotBeforeUpdate()`
--   `componentDidUpdate()`
+- `static getDerivedStateFromProps()`
+- `shouldComponentUpdate()`
+- `render()`
+- `getSnapshotBeforeUpdate()`
+- `componentDidUpdate()`
 
 3. 卸载:
 
--   `componentWillUnmount()`
+- `componentWillUnmount()`
 
 4. 废弃的钩子：
 
--   `componentWillMount`
--   `componentWillReceiveProps`
--   `componentWillUpdate`
+- `componentWillMount`
+- `componentWillReceiveProps`
+- `componentWillUpdate`
 
 #### Vue 和 React 渲染组件的方式有何区别
 
@@ -1446,11 +1498,11 @@ Decorator：装饰类或者方法，不会修改原有的功能，只是增加�
 
 #### 重绘与重排
 
--   修改字体会引起重排
+- 修改字体会引起重排
 
 #### JS 中 new 一个对象的过程
 
--   使用 Object.create
+- 使用 Object.create
 
 1. 以构造函数 Parent 的 prototype 属性为原型，创建一个新的空对象 obj：`const obj = Object.create(Parent.prototype);`
 2. 将 obj 作为 this，并传入参数，执行构造函数：`Parent.apply(obj, args);`
@@ -1464,7 +1516,7 @@ function MockNew(Parent, ...args) {
 }
 ```
 
--   不使用 Object.create
+- 不使用 Object.create
 
 1. 创建一个空对象 obj：`const obj = {};`
 2. 让 obj 继承构造函数的的原型 prototype，即将构造函数的作用域赋给新对象（因此 this 就指向了这个新对象）：`obj.proto = Parent.prototype;`
@@ -1480,8 +1532,8 @@ function MockNew(Parent, ...args) {
 }
 ```
 
--   `{}`创建空对象，原型`__proto__`指向 Object.prototype
--   `Object.create`创建空对象，原型`__proto__`指向传入的参数（构造函数或者 null）
+- `{}`创建空对象，原型`__proto__`指向 Object.prototype
+- `Object.create`创建空对象，原型`__proto__`指向传入的参数（构造函数或者 null）
 
 #### 宏任务与微任务
 
@@ -1515,13 +1567,13 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
 1. 闭包是指有权访问另一个函数作用域中变量的函数。创建闭包最常见的方式就是，在一个函数内部创建另一个函数。
 2. 闭包通常用来创建内部变量，使得 这些变量不能被外部随意修改，同时又可以通过指定的接口来操作。
 3. 优点：
-    1. 包含函数内变量的安全，实现封装，防止变量流入其他环境发生命名冲突，造成环境污染。
-    2. 在适当的时候，可以在内存中维护变量并缓存，提高执行效率。
-    3. 即可以用来传递、缓存变量，使用合理，一定程度上能提高代码执行效率。
+   1. 包含函数内变量的安全，实现封装，防止变量流入其他环境发生命名冲突，造成环境污染。
+   2. 在适当的时候，可以在内存中维护变量并缓存，提高执行效率。
+   3. 即可以用来传递、缓存变量，使用合理，一定程度上能提高代码执行效率。
 4. 缺点：
-    1. 函数拥有的外部变量的引用，在函数返回时，该变量仍处于活跃状态。
-    2. 闭包作为一个函数返回时，其执行上下文不会被销毁，仍处于执行上下文中。
-    3. 即消耗内存，使用不当容易造成内存泄漏，性能下降。
+   1. 函数拥有的外部变量的引用，在函数返回时，该变量仍处于活跃状态。
+   2. 闭包作为一个函数返回时，其执行上下文不会被销毁，仍处于执行上下文中。
+   3. 即消耗内存，使用不当容易造成内存泄漏，性能下降。
 5. 常见使用：节流防抖、IIFE（自执行函数）、柯里化实现
 
 #### commonJs 中的 require 与 ES6 中的 import 的区别
@@ -1613,35 +1665,35 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
 
 1. 无名管道(pipe)
 
--   无名管道是一种半双工的通信方式，数据只能单向流动，而且只能在具有亲缘关系的进程间使用。进程的亲缘关系通常是指父子进程关系。
-    -   速度慢，容量有限，只有父子进程能通讯
+- 无名管道是一种半双工的通信方式，数据只能单向流动，而且只能在具有亲缘关系的进程间使用。进程的亲缘关系通常是指父子进程关系。
+  - 速度慢，容量有限，只有父子进程能通讯
 
 2. 有名管道 (namedpipe)
 
--   有名管道也是半双工的通信方式，但是它允许无亲缘关系进程间的通信。
+- 有名管道也是半双工的通信方式，但是它允许无亲缘关系进程间的通信。
 
 3. 信号量(semaphore)
 
--   信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。
-    -   不能传递复杂消息，只能用来同步
+- 信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。
+  - 不能传递复杂消息，只能用来同步
 
 4. 消息队列(messagequeue)
 
--   消息队列是由消息的链表，存放在内核中并由消息队列标识符标识。消息队列克服了信号传递信息少、管道只能承载无格式字节流以及缓冲区大小受限等缺点。
-    -   容量受到系统限制，且要注意第一次读的时候，要考虑上一次没有读完数据的问题 ；信号传递信息较管道多。
+- 消息队列是由消息的链表，存放在内核中并由消息队列标识符标识。消息队列克服了信号传递信息少、管道只能承载无格式字节流以及缓冲区大小受限等缺点。
+  - 容量受到系统限制，且要注意第一次读的时候，要考虑上一次没有读完数据的问题 ；信号传递信息较管道多。
 
 5. 信号 (signal)
 
--   信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生。
+- 信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生。
 
 6. 共享内存(shared memory)
 
--   共享内存就是映射一段能被其他进程所访问的内存，这段共享内存由一个进程创建，但多个进程都可以访问。共享内存是最快的 IPC 方式，它是针对其他进程间通信方式运行效率低而专门设计的。它往往与其他通信机制，如信号量，配合使用，来实现进程间的同步和通信。
-    -   能够很容易控制容量，速度快，但要保持同步，比如一个进程在写的时候，另一个进程要注意读写的问题，相当于线程中的线程安全，当然，共享内存区同样可以用作线程间通讯，不过没这个必要，线程间本来就已经共享了同一进程内的一块内存。
+- 共享内存就是映射一段能被其他进程所访问的内存，这段共享内存由一个进程创建，但多个进程都可以访问。共享内存是最快的 IPC 方式，它是针对其他进程间通信方式运行效率低而专门设计的。它往往与其他通信机制，如信号量，配合使用，来实现进程间的同步和通信。
+  - 能够很容易控制容量，速度快，但要保持同步，比如一个进程在写的时候，另一个进程要注意读写的问题，相当于线程中的线程安全，当然，共享内存区同样可以用作线程间通讯，不过没这个必要，线程间本来就已经共享了同一进程内的一块内存。
 
 7. 套接字(socket)
 
--   套接口也是一种进程间通信机制，与其他通信机制不同的是，它可用于不同设备及其间的进程通信。
+- 套接口也是一种进程间通信机制，与其他通信机制不同的是，它可用于不同设备及其间的进程通信。
 
 ### 线程间的通信方式
 
@@ -1649,17 +1701,17 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
 
 1. 锁机制：包括互斥锁、条件变量、读写锁
 
--   互斥锁提供了以排他方式防止数据结构被并发修改的方法。
--   读写锁允许多个线程同时读共享数据，而对写操作是互斥的。
--   条件变量可以以原子的方式阻塞进程，直到某个特定条件为真为止。对条件的测试是在互斥锁的保护下进行的。条件变量始终与互斥锁一起使用。
+- 互斥锁提供了以排他方式防止数据结构被并发修改的方法。
+- 读写锁允许多个线程同时读共享数据，而对写操作是互斥的。
+- 条件变量可以以原子的方式阻塞进程，直到某个特定条件为真为止。对条件的测试是在互斥锁的保护下进行的。条件变量始终与互斥锁一起使用。
 
 2. 信号量机制(Semaphore)
 
--   包括无名线程信号量和命名线程信号量。
+- 包括无名线程信号量和命名线程信号量。
 
 3. 信号机制(Signal)
 
--   类似进程间的信号处理。线程间的通信目的主要是用于线程同步，所以线程没有像进程通信中的用于数据交换的通信机制。
+- 类似进程间的信号处理。线程间的通信目的主要是用于线程同步，所以线程没有像进程通信中的用于数据交换的通信机制。
 
 ### input 如何处理中文输入防抖
 
