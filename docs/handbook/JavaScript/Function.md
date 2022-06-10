@@ -187,8 +187,7 @@ setTimeout(() => {
 ```js
 function randomHexColor() {
 	return (
-		"#" +
-		("0000" + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6)
+		"#" + ("0000" + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6)
 	);
 }
 ```
@@ -344,6 +343,37 @@ console.log(xm.age); // 12
 xm.eat(); // xiaoming is eating
 ```
 
+### 行为委托
+
+是《你不知道的 JavaScript》系列作者 kyle 大佬推荐的一种代替继承的方式，该模式主要利用 setPrototypeOf 方法把一个对象的内置原型`[[Protytype]]`关联到另一个对象上，从而达到继承的目的。
+
+```js
+let SuperType = {
+	initSuper(name) {
+		this.name = name;
+		this.color = [1, 2, 3];
+	},
+	sayName() {
+		alert(this.name);
+	},
+};
+let SubType = {
+	initSub(age) {
+		this.age = age;
+	},
+	sayAge() {
+		alert(this.age);
+	},
+};
+Object.setPrototypeOf(SubType, SuperType);
+SubType.initSub("17");
+SubType.initSuper("gim");
+SubType.sayAge(); // 'gim'
+SubType.sayName(); // '17'
+```
+
+[行为委托](../../assets//xwwt.png "行为委托")
+
 ### sleep 函数
 
 配合 async/await 休眠几秒，然后继续执行。
@@ -364,8 +394,8 @@ const sleep = (timeoutMs) =>
 1. Array.prototype.map(callback, thisArg)，接收一个回调函数和 this，一般使用时只会用第一个参数。
 2. parseInt(string, radix)，接收一个字符串并返回指定基数的十进制整数，radix 是 2-36 之间的整数，表示被解析字符串的基数。当
 
--   radix 小于 2 或大于 36 ，或
--   第一个非空格字符不能转换为数字。
+- radix 小于 2 或大于 36 ，或
+- 第一个非空格字符不能转换为数字。
 
 时，会返回 NaN。
 
@@ -385,7 +415,7 @@ function isRunMobile() {
 
 ### URLSearchParams 快速解析 URL 中的参数，可以替代 querystring
 
--   url.searchParams 的构造函数就是 URLSearchParams，而 URLSearchParams 是一个具有可迭代器功能的 API，所以你可以 for...of 或者 entries 操作。
+- url.searchParams 的构造函数就是 URLSearchParams，而 URLSearchParams 是一个具有可迭代器功能的 API，所以你可以 for...of 或者 entries 操作。
 
 ```js
 function eazyFormateQueryUrl() {
@@ -394,7 +424,7 @@ function eazyFormateQueryUrl() {
 }
 ```
 
--   Object.fromEntries 是**还原对象**的 entries 操作。即得到原有的 object。
+- Object.fromEntries 是**还原对象**的 entries 操作。即得到原有的 object。
 
 ```js
 const ret = { name: "Eric", public: "木易的OT" };
@@ -415,9 +445,9 @@ const target2 = Object.fromEntries(arr); // 注意，这里接收的是entries�
 // target2: {name: 'Eric', public: '木易的OT'}
 ```
 
--   直接使用 URLSearchParams。
-    > 这个 API 是一个原生的构造函数，可以获取地址?后面的参数信息。也可直接传入 window.location.search 或者?后面的字符串.
--   URLSearchParams 构造函数不会解析完整 URL，但是如果字符串起始位置有 ? 的话会被去除。
+- 直接使用 URLSearchParams。
+  > 这个 API 是一个原生的构造函数，可以获取地址?后面的参数信息。也可直接传入 window.location.search 或者?后面的字符串.
+- URLSearchParams 构造函数不会解析完整 URL，但是如果字符串起始位置有 ? 的话会被去除。
 
 ```js
 const params = new URLSearchParams("?test=1&name=eric");
@@ -434,12 +464,12 @@ const search = new URLSearchParams(window.location.search);
 console.log(search.toString()); // a=1&b=2&c=3
 ```
 
--   当我们使用 fetch 原生 api 请求时，new URLSearchParams 可以作为 body 参数。
--   URLSearchParams 传入**数组**，将一个对象转换成 url 参数，通常在 ajax get 请求拼接参数时，可能很有用。
--   URLSearchParams 具有可迭代器属性的特征，因此它像 Map、Set 一样具有增删查改的特性：get/append/delete/set/has/keys/values.
--   对于 URLSearchParams 可以传**字符串**，可以是**对象或是数组**，当我们获取 URLSearchParams 的 key，直接调用 xxx.keys()或者是 xxx.values()，不过这样取出的值是一个迭代器，还需要用 Array.from 中转一下。
+- 当我们使用 fetch 原生 api 请求时，new URLSearchParams 可以作为 body 参数。
+- URLSearchParams 传入**数组**，将一个对象转换成 url 参数，通常在 ajax get 请求拼接参数时，可能很有用。
+- URLSearchParams 具有可迭代器属性的特征，因此它像 Map、Set 一样具有增删查改的特性：get/append/delete/set/has/keys/values.
+- 对于 URLSearchParams 可以传**字符串**，可以是**对象或是数组**，当我们获取 URLSearchParams 的 key，直接调用 xxx.keys()或者是 xxx.values()，不过这样取出的值是一个迭代器，还需要用 Array.from 中转一下。
 
--   对 URL 动态的添加路径
+- 对 URL 动态的添加路径
 
 ```js
 function locationByNamePath(path) {

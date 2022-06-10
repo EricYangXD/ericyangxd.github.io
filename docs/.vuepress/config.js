@@ -15,13 +15,13 @@ module.exports = {
 		},
 	},
 	head: [
-		[
-			"link",
-			{
-				rel: "icon",
-				href: "/public/favicon.ico",
-			},
-		],
+		// [
+		// 	"link",
+		// 	{
+		// 		rel: "icon",
+		// 		href: "/public/favicon.ico",
+		// 	},
+		// ],
 		[
 			"meta",
 			{
@@ -246,8 +246,20 @@ module.exports = {
 						path: "/handbook/Skill/Linux",
 					},
 					{
+						title: "Nginx",
+						path: "/handbook/Skill/Nginx",
+					},
+					{
 						title: "Emoji表情",
 						path: "/handbook/Skill/Emoji",
+					},
+					{
+						title: "微前端",
+						path: "/handbook/Skill/MicroFE",
+					},
+					{
+						title: "Windows",
+						path: "/handbook/Skill/Windows",
 					},
 					{
 						title: "Android",
