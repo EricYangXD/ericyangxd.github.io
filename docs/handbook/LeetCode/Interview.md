@@ -42,7 +42,7 @@ function floatNum(arr) {
 }
 ```
 
-### 求连续字符串的最大长度
+### 求相同连续字符串的最大长度
 
 - 双指针法，时间复杂度 O(n)
 
@@ -137,6 +137,20 @@ var reverseList = function (head) {
 	head.next.next = head;
 	head.next = null;
 	return newHead;
+};
+```
+
+### 删除链表中所有给定的某个值
+
+给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。返回删除后的链表的头节点。
+
+- 递归
+
+```js
+var deleteNode = function (head, val) {
+	if (!head) return head;
+	head.next = deleteNode(head.next, val);
+	return head.val === val ? head.next : head;
 };
 ```
 

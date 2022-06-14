@@ -8,13 +8,13 @@ date: "2022-01-17"
 
 ### B+树和 B 树的区别
 
--   B-Tree 是一种自平衡的多叉树。每个节点都存储关键字值。其左子节点的关键字值小于该节点关键字值，且右子节点的关键字值大于或等于该节点关键字值。
+- B-Tree 是一种自平衡的多叉树。每个节点都存储关键字值。其左子节点的关键字值小于该节点关键字值，且右子节点的关键字值大于或等于该节点关键字值。
 
--   B+树也是是一种自平衡的多叉树。其基本定义与 B 树相同，不同点在于数据只出现在叶子节点，所有叶子节点增加了一个链指针，方便进行范围查询。
+- B+树也是是一种自平衡的多叉树。其基本定义与 B 树相同，不同点在于数据只出现在叶子节点，所有叶子节点增加了一个链指针，方便进行范围查询。
 
--   B+树中间节点不存放数据，所以同样大小的磁盘页上可以容纳更多节点元素，访问叶子节点上关联的数据也具有更好的缓存命中率。并且数据顺序排列并且相连，所以便于区间查找和搜索。
+- B+树中间节点不存放数据，所以同样大小的磁盘页上可以容纳更多节点元素，访问叶子节点上关联的数据也具有更好的缓存命中率。并且数据顺序排列并且相连，所以便于区间查找和搜索。
 
--   B 树每一个节点都包含 key 和 value，查询效率比 B+树高。
+- B 树每一个节点都包含 key 和 value，查询效率比 B+树高。
 
 ## 算法技巧
 
@@ -130,5 +130,94 @@ const isValid = (s) => {
 
 	// 最后检查栈内还有没有元素，有说明还有未匹配则不符合
 	return !stack.length;
+};
+```
+
+### 22.括号生成
+
+- 暴力解法，生成所有可能的字符串，然后选出符合规则的
+- 回溯，提前剪枝
+
+```js
+var generateParenthesis = function (n) {
+	let res = [];
+	const dfs = (lr, rr, str) => {
+		if (str.length === 2 * n) {
+			// 递归出口
+			res.push(str);
+			return;
+		}
+		if (lr > 0) {
+			dfs(lr - 1, rr, str + "(");
+		}
+		if (rr > lr) {
+			dfs(lr, rr - 1, str + ")");
+		}
+	};
+	dfs(n, n, ""); // 递归入口
+	return res;
+};
+```
+
+### 83.删除排序链表中的重复元素 I
+
+相同值的节点只保留一个。
+
+```js
+var deleteDuplicates = function (head) {
+	if (!head) return head;
+	let cur = head;
+	while (cur.next) {
+		if (cur.val === cur.next.val) {
+			cur.next = cur.next.next;
+		} else {
+			cur = cur.next;
+		}
+	}
+	return head;
+};
+```
+
+### 82.删除排序链表中的重复元素 II
+
+有重复出现的就全部删除，只保留出现过一次的节点。
+
+- 迭代，创建一个新节点，其 next 指向 head，head 再反过来指向新节点。然后取前两个节点开始比较，若两个值相等，则向后移动第二个节点的指针直至跟前一个节点的值不相等，然后下一次循环时，更新 head，使其指向最新的节点，因为前面的节点都是重复的直接删除即可。然后在进行下一轮比较判断，直至最后。返回创建的新节点的 next 节点。
+
+```js
+var deleteDuplicates = function (head) {
+	if (!head || !head.next) return head;
+	let res = new ListNode(0, head);
+	head = res;
+	let temp;
+	while (head.next && head.next.next) {
+		if (head.next.val === head.next.next.val) {
+			temp = head.next.val;
+			while (head.next && head.next.val === temp) {
+				head.next = head.next.next;
+			}
+		} else {
+			head = head.next;
+		}
+	}
+	return res.next;
+
+	// var deleteDuplicates = function (head) {
+	//   if (!head || !head.next) return head;
+	//   let res =new ListNode(0,head);
+	//   let prev = res;
+	//   let cur = head;
+	//   while (cur) {
+	//     while (cur.next && cur.next.val === cur.val) {
+	//       cur = cur.next;
+	//     }
+	//     if (prev.next === cur) {
+	//       prev = prev.next;
+	//     } else {
+	//       prev.next = cur.next;
+	//     }
+	//     cur = cur.next;
+	//   }
+	//   return res.next
 };
 ```
