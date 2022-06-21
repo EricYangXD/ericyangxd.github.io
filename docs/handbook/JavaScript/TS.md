@@ -8,15 +8,15 @@ date: "2021-12-29"
 
 ### Omit
 
--   Omit<T,K>类型让我们可以从另一个对象类型中剔除某些属性，并创建一个新的对象类型：T：是对象类型名称，K：是剔除 T 类型中的属性名称。
+- Omit<T,K>类型让我们可以从另一个对象类型中剔除某些属性，并创建一个新的对象类型：T：是对象类型名称，K：是剔除 T 类型中的属性名称。
 
--   Q.实现一个工具类型：SomeRequired<T,K>，作用是将对象 T 内，属于 K 的 key 标记为 required，其他的保持原样。
+- Q.实现一个工具类型：SomeRequired<T,K>，作用是将对象 T 内，属于 K 的 key 标记为 required，其他的保持原样。
 
 ```ts
 type SomeRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 ```
 
--   A.先从 T 中剔除 K，得到新的对象类型；从 T 中选出 K 并标记为 Required 得到新的对象类型；合并这两个类型得到想要的类型。
+- A.先从 T 中剔除 K，得到新的对象类型；从 T 中选出 K 并标记为 Required 得到新的对象类型；合并这两个类型得到想要的类型。
 
 ```ts
 type Pick<T, K extends keyof T> = {
@@ -28,7 +28,7 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
 
 ### Required
 
--   把所有属性变成必需的 required
+- 把所有属性变成必需的 required
 
 ```ts
 # eg.源码
@@ -39,7 +39,7 @@ type Required<T> = {
 
 ### Pick
 
--   从一个复合类型中，取出几个想要的类型的组合，得到一个新类型
+- 从一个复合类型中，取出几个想要的类型的组合，得到一个新类型
 
 ```ts
 # eg.源码
@@ -51,11 +51,11 @@ type Pick<T, K extends keyof T> = {
 interface TSingleState extends Pick<TState, "name" | "age"> {};
 ```
 
--   解析：在泛型中使用 extends 并不是用来继承的，而是用来约束类型的。所以这个 K extends keyof T，应该是说 key 被约束在 T 的 key 中，不能超出这个范围，否则会报错的。
+- 解析：在泛型中使用 extends 并不是用来继承的，而是用来约束类型的。所以这个 K extends keyof T，应该是说 key 被约束在 T 的 key 中，不能超出这个范围，否则会报错的。
 
 ### Partial
 
--   Make all properties in T optional，把某个类型中的所有属性都变为可选
+- Make all properties in T optional，把某个类型中的所有属性都变为可选
 
 ```ts
 # eg.源码
@@ -66,7 +66,7 @@ type Partial<T> = {
 
 ### Readonly
 
--   变为只读
+- 变为只读
 
 ```ts
 # eg.源码
@@ -91,7 +91,7 @@ b.foo.bar = 33; // Cannot assign to 'bar' because it is a read-only property.ts(
 
 ### Record
 
--   Construct a type with a set of properties K of type T，即将 K 中的每个属性([P in K]),都转为 T 类型。
+- Construct a type with a set of properties K of type T，即将 K 中的每个属性([P in K]),都转为 T 类型。
 
 ```ts
 # eg.源码
@@ -105,7 +105,9 @@ type Person6 = Record<'name' | 'age', string>;
 
 ### Exclude<T,U>
 
-把 T 中不属于 U 的提取出来
+Exclude 和 Omit 的区别：Omit 返回的是新的类型，原理上是在 Exclude 之上进行的，Exclude 是根据自类型返回的。
+
+把 T 中不属于 U 的提取出来。当 T 中有 U 就会剔除对应的属性，如果 U 中又的属性 T 中没有，或 T 和 U 刚好一样的情况都会返回 nerver，且对象永远返回 nerver
 
 ### Extract<T,U>
 
@@ -113,13 +115,15 @@ type Person6 = Record<'name' | 'age', string>;
 
 ### NonNullable<T>
 
-提取出 T 中不是 null、undefined 的值
+提取出 T 中不是 null、undefined 的值，从 T 中排除 null 和 undefined。
 
 ### Parameters<T>
 
+用于获取 获取函数类型的参数类型。
+
 ### ReturnType<T>
 
-获取返回值的类型
+用于获取 函数 T 的返回类型。
 
 ```ts
 type ReturnType<T extends (...args: any[]) => any> = T extends (
@@ -145,15 +149,15 @@ type Mutable<T> = {
 
 ## & 交叉类型 extends
 
--   与
+- 与
 
 ## | 联合类型
 
--   或
+- 或
 
 ## declare namespace
 
--   如果代码中用到了一个 TS 无法识别的类型/变量或者引入一个第三方模块时，可以新建 同名.d.ts 文件，在里面 declare module 'xxx'；
+- 如果代码中用到了一个 TS 无法识别的类型/变量或者引入一个第三方模块时，可以新建 同名.d.ts 文件，在里面 declare module 'xxx'；
 
 ```ts
 // global.d.ts
@@ -169,7 +173,7 @@ declare enum dir {
 }
 ```
 
--   或者在 global.d.ts 中全局声明：
+- 或者在 global.d.ts 中全局声明：
 
 ```ts
 declare namespace MyPlugin {
@@ -179,7 +183,7 @@ declare namespace MyPlugin {
 }
 ```
 
--   修改已存在的全局变量声明
+- 修改已存在的全局变量声明
 
 ```ts
 declare global {
@@ -277,9 +281,9 @@ console.log(obj);
 
 为了实现上面的工具函数, 我们需要先了解以下几个语法:
 
--   keyof : 获取类型上的 key 值；
--   extends : 泛型里面的约束；
--   T[K] : 获取对象 T 相应 K 的元素类型；
+- keyof : 获取类型上的 key 值；
+- extends : 泛型里面的约束；
+- T[K] : 获取对象 T 相应 K 的元素类型；
 
 ```ts
 type Partial<T> = {
@@ -351,14 +355,14 @@ An interface can have multiple merged declarations, but a type alias for an obje
 
 1. type 可以做到，但 interface 不能做到的事情
 
--   type 可以定义 基本类型的别名，如 type myString = string
--   type 可以通过 typeof 操作符来定义，如 type myType = typeof someObj
--   type 可以声明 联合类型，如 type unionType = myType1 | myType2
--   type 可以声明 元组类型，如 type yuanzu = [myType1, myType2]
+- type 可以定义 基本类型的别名，如 type myString = string
+- type 可以通过 typeof 操作符来定义，如 type myType = typeof someObj
+- type 可以声明 联合类型，如 type unionType = myType1 | myType2
+- type 可以声明 元组类型，如 type yuanzu = [myType1, myType2]
 
 2. interface 可以做到，但是 type 不可以做到的事情
 
--   interface 可以 声明合并，即两个同名的 interface 会自动合并成二者的并集，而对于 type 的话，就会是 覆盖 的效果，始终只有最后一个 type 生效
+- interface 可以 声明合并，即两个同名的 interface 会自动合并成二者的并集，而对于 type 的话，就会是 覆盖 的效果，始终只有最后一个 type 生效
 
 3. 查找类型 + 泛型 + keyof
 
@@ -382,9 +386,9 @@ const get = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
 4. 当我们需要类型检查的时候， checker 会根据前面生成的 AST 和 symbols 生成类型检查结果。
 5. 当我们需要生成 JS 文件的时候，emitter 同样会根据前面生成的 AST 和 symbols 生成 JS 文件。
 
--   declare: 值空间声明
--   type/interface/函数类型等: 类型空间声明
--   值空间虽然不能直接和类型空间接触，但是类型空间可以作用在值空间，从而给其添加类型
+- declare: 值空间声明
+- type/interface/函数类型等: 类型空间声明
+- 值空间虽然不能直接和类型空间接触，但是类型空间可以作用在值空间，从而给其添加类型
 
 ### 类型推导 & 类型收敛
 
@@ -403,8 +407,8 @@ type A = typeof a; // A的类型是 number
 
 这个时候 T 就不再是任意类型，而是被实现接口的 shape，当然你也可以继承多个接口。「类型约束是非常常见的操作，大家一定要掌握。」
 
--   泛型要用尖括号 `<>`，而不是别的。
--   函数泛型，接口泛型和类泛型。
+- 泛型要用尖括号 `<>`，而不是别的。
+- 函数泛型，接口泛型和类泛型。
 
 ### 泛型的参数类型 - “泛型约束”
 
@@ -446,7 +450,7 @@ declare var HTMLElement: {
 };
 ```
 
--   显式泛型
+- 显式泛型
 
 ```ts
 function $<T extends HTMLElement>(id: string): T {
@@ -584,30 +588,30 @@ declare global {
 3. extends：继承基础/其他文件中的 ts 配置；
 4. compileOnSave：保存时自动编译；
 5. compilerOptions：配置编译时的设置；
-    1. incremental：增量编译；
-    2. diagnostic：打印诊断信息；
-    3. composite：工程可以被引用且可以被增量编译；
-    4. target：编译结果的版本；
-    5. module：编译的模块类型；
-    6. outFile
-    7. lib
-    8. allowJs、checkJs
-    9. outDir、rootDir
-    10. declaration、declarationDir
-    11. sourceMap、inlineSourceMap
-    12. typeRoots、types
-    13. removeComments
-    14. noEmitHelpers、importHelpers
+   1. incremental：增量编译；
+   2. diagnostic：打印诊断信息；
+   3. composite：工程可以被引用且可以被增量编译；
+   4. target：编译结果的版本；
+   5. module：编译的模块类型；
+   6. outFile
+   7. lib
+   8. allowJs、checkJs
+   9. outDir、rootDir
+   10. declaration、declarationDir
+   11. sourceMap、inlineSourceMap
+   12. typeRoots、types
+   13. removeComments
+   14. noEmitHelpers、importHelpers
 6. strict
-    1. noImplicitAny
-    2. alwaysStrict
-    3. strictNullChecks
-    4. strictBindCallApply
-    5. noImplicitThis
+   1. noImplicitAny
+   2. alwaysStrict
+   3. strictNullChecks
+   4. strictBindCallApply
+   5. noImplicitThis
 7. noUnusedLocals
-    1. noUnusedParameters
-    2. noFallthroughCasesInSwitch：switch 中防止忘记 break
-    3. noImplicitReturns：每个分支都要有返回值
+   1. noUnusedParameters
+   2. noFallthroughCasesInSwitch：switch 中防止忘记 break
+   3. noImplicitReturns：每个分支都要有返回值
 8. esModuleInterop:允许`export=`导出，有 import from 导入
 9. moduleResolution：模块解析策略，默认 node，定义查找文件时候的策略
 10. paths:[]：路径映射

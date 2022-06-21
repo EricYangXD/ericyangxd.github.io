@@ -6,11 +6,11 @@ date: "2021-12-28"
 
 ## 为什么要读源码？
 
--   废话，为了找工作呗。
+- 废话，为了找工作呗。
 
 ## 怎么读源码？
 
--   先宏观的了解整个项目的结构，然后根据由易到难的顺序一边阅读一边调试。
+- 先宏观的了解整个项目的结构，然后根据由易到难的顺序一边阅读一边调试。
 
 ## 笔记
 
@@ -23,28 +23,28 @@ date: "2021-12-28"
 主要分成 render 阶段和 commit 阶段。以 render 函数执行完为分界。
 
 1. constructor 执行：
-    1. 在 mount 阶段，首先执行的 constructClassInstance 函数，用来实例化 React 组件。
-    2. 在实例化组件之后，会调用 mountClassInstance 组件初始化。
+   1. 在 mount 阶段，首先执行的 constructClassInstance 函数，用来实例化 React 组件。
+   2. 在实例化组件之后，会调用 mountClassInstance 组件初始化。
 2. getDerivedStateFromProps 执行：
-    1. 它是从 ctor 类（类组件）上直接绑定的静态方法，传入 props、state。 返回值将和之前的 state 合并，作为新的 state，传递给组件实例使用。
+   1. 它是从 ctor 类（类组件）上直接绑定的静态方法，传入 props、state。 返回值将和之前的 state 合并，作为新的 state，传递给组件实例使用。
 3. componentWillMount 执行：
-    1. 如果存在 getDerivedStateFromProps 和 getSnapshotBeforeUpdate 就不会执行生命周期 componentWillMount。
+   1. 如果存在 getDerivedStateFromProps 和 getSnapshotBeforeUpdate 就不会执行生命周期 componentWillMount。
 4. render 函数执行
-    1. 到此为止 mountClassInstancec 函数完成，但是上面 updateClassComponent 函数， 在执行完 mountClassInstancec 后，执行了 render 渲染函数，形成了 children ， 接下来 React 调用 reconcileChildren 方法深度调和 children 。
+   1. 到此为止 mountClassInstancec 函数完成，但是上面 updateClassComponent 函数， 在执行完 mountClassInstancec 后，执行了 render 渲染函数，形成了 children ， 接下来 React 调用 reconcileChildren 方法深度调和 children 。
 5. componentDidMount 执行：
-    1. 一旦 React 调和完所有的 fiber 节点，就会到 commit 阶段，在组件初始化 commit 阶段，会调用 componentDidMount 生命周期。
-    2. componentDidMount 执行时机 和 componentDidUpdate 执行时机是相同的，都是在 commitLifeCycles 中执行，只不过一个是针对初始化，一个是针对组件再更新。
+   1. 一旦 React 调和完所有的 fiber 节点，就会到 commit 阶段，在组件初始化 commit 阶段，会调用 componentDidMount 生命周期。
+   2. componentDidMount 执行时机 和 componentDidUpdate 执行时机是相同的，都是在 commitLifeCycles 中执行，只不过一个是针对初始化，一个是针对组件再更新。
 
 #### 组件更新阶段
 
 进入 updateClassComponent 函数，当发现 current 不为 null 的情况时，说明该类组件被挂载过，那么直接按照更新逻辑来处理。
 
 1. 执行生命周期 componentWillReceiveProps：
-    1. 首先判断 getDerivedStateFromProps 生命周期是否存在，如果不存在就执行 componentWillReceiveProps 生命周期。传入该生命周期两个参数，分别是 newProps 和 nextContext 。
+   1. 首先判断 getDerivedStateFromProps 生命周期是否存在，如果不存在就执行 componentWillReceiveProps 生命周期。传入该生命周期两个参数，分别是 newProps 和 nextContext 。
 2. 执行生命周期 getDerivedStateFromProps：
-    1. 返回的值用于合并 state，生成新的 state。
+   1. 返回的值用于合并 state，生成新的 state。
 3. 执行生命周期 shouldComponentUpdate：
-    1. 传入新的 props ，新的 state ，和新的 context ，返回值决定是否继续执行 render 函数，调和子节点。这里应该注意一个问题，getDerivedStateFromProps 的返回值可以作为新的 state ，传递给 shouldComponentUpdate 。
+   1. 传入新的 props ，新的 state ，和新的 context ，返回值决定是否继续执行 render 函数，调和子节点。这里应该注意一个问题，getDerivedStateFromProps 的返回值可以作为新的 state ，传递给 shouldComponentUpdate 。
 4. 执行生命周期 componentWillUpdate：updateClassInstance 方法到此执行完毕了。
 5. 执行 render 函数：得到最新的 React element 元素。然后继续调和子节点。
 6. 执行 getSnapshotBeforeUpdate：getSnapshotBeforeUpdate 的执行也是在 commit 阶段，commit 阶段细分为 before Mutation( DOM 修改前)，Mutation ( DOM 修改)，Layout( DOM 修改后) 三个阶段，getSnapshotBeforeUpdate 发生在 before Mutation 阶段，生命周期的返回值，将作为第三个参数 \_\_reactInternalSnapshotBeforeUpdate 传递给 componentDidUpdate 。
@@ -52,13 +52,13 @@ date: "2021-12-28"
 
 其中：父组件 render/props 改变时会从 componentWillReceiveProps 开始；执行 setState 时会先 getDerivedStateFromProps，然后执行 shouldComponentUpdate 开始；forceUpdate 的时候先 getDerivedStateFromProps，然后执行 render。
 
--   Q:当 props 不变的前提下， PureComponent 组件能否阻止 componentWillReceiveProps 执行？
--   A:答案是否定的，componentWillReceiveProps 生命周期的执行，和纯组件没有关系，纯组件是在 componentWillReceiveProps 执行之后浅比较 props 是否发生变化。所以 PureComponent 下不会阻止该生命周期的执行。该生命周期执行驱动是因为父组件更新带来的 props 修改，但是只要父组件触发 render 函数，调用 React.createElement 方法，那么 props 就会被重新创建，生命周期 componentWillReceiveProps 就会执行了。所以有时即使 props 没变，该生命周期也会执行。
+- Q:当 props 不变的前提下， PureComponent 组件能否阻止 componentWillReceiveProps 执行？
+- A:答案是否定的，componentWillReceiveProps 生命周期的执行，和纯组件没有关系，纯组件是在 componentWillReceiveProps 执行之后浅比较 props 是否发生变化。所以 PureComponent 下不会阻止该生命周期的执行。该生命周期执行驱动是因为父组件更新带来的 props 修改，但是只要父组件触发 render 函数，调用 React.createElement 方法，那么 props 就会被重新创建，生命周期 componentWillReceiveProps 就会执行了。所以有时即使 props 没变，该生命周期也会执行。
 
 #### 组件销毁阶段
 
 1. 执行生命周期 componentWillUnmount：
-    1. 在一次调和更新中，如果发现元素被移除，就会打对应的 Deletion 标签 ，然后在 commit 阶段就会调用 componentWillUnmount 生命周期，接下来统一卸载组件以及 DOM 元素。发生在 commit 阶段，主要做一些收尾工作，比如清除一些可能造成内存泄漏的定时器，延时器，或者是一些事件监听器。跟 Vue 的 beforeDestroy 不一样。
+   1. 在一次调和更新中，如果发现元素被移除，就会打对应的 Deletion 标签 ，然后在 commit 阶段就会调用 componentWillUnmount 生命周期，接下来统一卸载组件以及 DOM 元素。发生在 commit 阶段，主要做一些收尾工作，比如清除一些可能造成内存泄漏的定时器，延时器，或者是一些事件监听器。跟 Vue 的 beforeDestroy 不一样。
 
 ### TODO
 
@@ -78,10 +78,10 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 
 ## hooks
 
--   简单了解一下原理啥的
--   在 class 状态中，通过一个实例化的 class，去维护组件中的各种状态；但是在 function 组件中，没有一个状态去保存这些信息，每一次函数上下文执行，所有变量，常量都重新声明，执行完毕，再被垃圾机制回收。
--   对于 class 组件，我们只需要实例化一次，实例中保存了组件的 state 等状态。对于每一次更新只需要调用 render 方法就可以。但是在 function 组件中，每一次更新都是一次新的函数执行，为了保存一些状态，执行一些副作用钩子，react-hooks 应运而生，去帮助记录组件的状态，处理一些额外的副作用。
--   对于 function 组件是什么时候执行的呢？function 组件初始化：
+- 简单了解一下原理啥的
+- 在 class 状态中，通过一个实例化的 class，去维护组件中的各种状态；但是在 function 组件中，没有一个状态去保存这些信息，每一次函数上下文执行，所有变量，常量都重新声明，执行完毕，再被垃圾机制回收。
+- 对于 class 组件，我们只需要实例化一次，实例中保存了组件的 state 等状态。对于每一次更新只需要调用 render 方法就可以。但是在 function 组件中，每一次更新都是一次新的函数执行，为了保存一些状态，执行一些副作用钩子，react-hooks 应运而生，去帮助记录组件的状态，处理一些额外的副作用。
+- 对于 function 组件是什么时候执行的呢？function 组件初始化：
 
 ```js
 // react-reconciler/src/ReactFiberBeginWork.js
@@ -95,66 +95,60 @@ renderWithHooks(
 );
 ```
 
--   对于初始化是没有 current 树的，之后完成一次组件更新后，会把当前 workInProgress 树赋值给 current 树。
--   所有的函数组件执行，都是在这里方法中，首先我们应该明白几个感念，这对于后续我们理解 useState 是很有帮助的。
+- 对于初始化是没有 current 树的，之后完成一次组件更新后，会把当前 workInProgress 树赋值给 current 树。
+- 所有的函数组件执行，都是在这里方法中，首先我们应该明白几个感念，这对于后续我们理解 useState 是很有帮助的。
 
-    1. current fiber 树: 当完成一次渲染之后，会产生一个 current 树,current 会在 commit 阶段替换成真实的 Dom 树。
-    2. workInProgress fiber 树: 即将调和渲染的 fiber 树。再一次新的组件更新过程中，会从 current 复制一份作为 workInProgress,更新完毕后，将当前的 workInProgress 树赋值给 current 树。
-    3. workInProgress.memoizedState: 在 class 组件中，memoizedState 存放 state 信息，在 function 组件中，这里可以提前透漏一下，memoizedState 在一次调和渲染过程中，以链表的形式存放 hooks 信息。
-    4. workInProgress.expirationTime: react 用不同的 expirationTime,来确定更新的优先级。
-    5. currentHook : 可以理解 current 树上的指向的当前调度的 hooks 节点。
-    6. workInProgressHook : 可以理解 workInProgress 树上指向的当前调度的 hooks 节点。
+  1. current fiber 树: 当完成一次渲染之后，会产生一个 current 树,current 会在 commit 阶段替换成真实的 Dom 树。
+  2. workInProgress fiber 树: 即将调和渲染的 fiber 树。再一次新的组件更新过程中，会从 current 复制一份作为 workInProgress,更新完毕后，将当前的 workInProgress 树赋值给 current 树。
+  3. workInProgress.memoizedState: 在 class 组件中，memoizedState 存放 state 信息，在 function 组件中，这里可以提前透漏一下，memoizedState 在一次调和渲染过程中，以链表的形式存放 hooks 信息。
+  4. workInProgress.expirationTime: react 用不同的 expirationTime,来确定更新的优先级。
+  5. currentHook : 可以理解 current 树上的指向的当前调度的 hooks 节点。
+  6. workInProgressHook : 可以理解 workInProgress 树上指向的当前调度的 hooks 节点。
 
--   renderWithHooks 函数主要作用:
+- renderWithHooks 函数主要作用:
 
-    1. 首先先置空即将调和渲染的 workInProgress 树的 memoizedState 和 updateQueue，为什么这么做，因为在接下来的函数组件执行过程中，要把新的 hooks 信息挂载到这两个属性上，然后在组件 commit 阶段，将 workInProgress 树替换成 current 树，替换真实的 DOM 元素节点。并在 current 树保存 hooks 信息。
-    2. 然后根据当前函数组件是否是第一次渲染，赋予 ReactCurrentDispatcher.current 不同的 hooks,终于和上面讲到的 ReactCurrentDispatcher 联系到一起。对于第一次渲染组件，那么用的是 HooksDispatcherOnMount hooks 对象。对于渲染后，需要更新的函数组件，则是 HooksDispatcherOnUpdate 对象，那么两个不同就是通过 current 树上是否 memoizedState（hook 信息）来判断的。如果 current 不存在，证明是第一次渲染函数组件。
-    3. 接下来，调用`Component(props, secondArg);`执行我们的函数组件，我们的函数组件在这里真正的被执行了，然后我们写的 hooks 被依次执行，把 hooks 信息依次保存到 workInProgress 树上。
-    4. 接下来，也很重要，将 ContextOnlyDispatcher 赋值给 ReactCurrentDispatcher.current，由于 js 是单线程的，也就是说我们没有在函数组件中，调用的 hooks，都是 ContextOnlyDispatcher 对象上 hooks，react-hooks 就是通过这种函数组件执行赋值不同的 hooks 对象方式，判断在 hooks 执行是否在函数组件内部，捕获并抛出异常的。
+  1. 首先先置空即将调和渲染的 workInProgress 树的 memoizedState 和 updateQueue，为什么这么做，因为在接下来的函数组件执行过程中，要把新的 hooks 信息挂载到这两个属性上，然后在组件 commit 阶段，将 workInProgress 树替换成 current 树，替换真实的 DOM 元素节点。并在 current 树保存 hooks 信息。
+  2. 然后根据当前函数组件是否是第一次渲染，赋予 ReactCurrentDispatcher.current 不同的 hooks,终于和上面讲到的 ReactCurrentDispatcher 联系到一起。对于第一次渲染组件，那么用的是 HooksDispatcherOnMount hooks 对象。对于渲染后，需要更新的函数组件，则是 HooksDispatcherOnUpdate 对象，那么两个不同就是通过 current 树上是否 memoizedState（hook 信息）来判断的。如果 current 不存在，证明是第一次渲染函数组件。
+  3. 接下来，调用`Component(props, secondArg);`执行我们的函数组件，我们的函数组件在这里真正的被执行了，然后我们写的 hooks 被依次执行，把 hooks 信息依次保存到 workInProgress 树上。
+  4. 接下来，也很重要，将 ContextOnlyDispatcher 赋值给 ReactCurrentDispatcher.current，由于 js 是单线程的，也就是说我们没有在函数组件中，调用的 hooks，都是 ContextOnlyDispatcher 对象上 hooks，react-hooks 就是通过这种函数组件执行赋值不同的 hooks 对象方式，判断在 hooks 执行是否在函数组件内部，捕获并抛出异常的。
 
--   初始化阶段 react-hooks 做的事情：在一个函数组件第一次渲染执行上下文过程中，每个 react-hooks 执行，都会调用`mountWorkInProgressHook()`产生一个 hook 对象=>`workInProgressHook`，并形成链表结构，绑定在 workInProgress 的 memoizedState 属性上，然后 react-hooks 上的状态，绑定在当前 hooks 对象的 memoizedState 属性上。对于 effect 副作用钩子，会绑定在 workInProgress.updateQueue 上，等到 commit 阶段，dom 树构建完成，再执行每个 effect 副作用钩子。
--   hook 对象中都保留了哪些信息:
+- 初始化阶段 react-hooks 做的事情：在一个函数组件第一次渲染执行上下文过程中，每个 react-hooks 执行，都会调用`mountWorkInProgressHook()`产生一个 hook 对象=>`workInProgressHook`，并形成链表结构，绑定在 workInProgress 的 memoizedState 属性上，然后 react-hooks 上的状态，绑定在当前 hooks 对象的 memoizedState 属性上。对于 effect 副作用钩子，会绑定在 workInProgress.updateQueue 上，等到 commit 阶段，dom 树构建完成，再执行每个 effect 副作用钩子。
+- hook 对象中都保留了哪些信息:
 
-    -   memoizedState： useState 中 保存 state 信息 ｜ useEffect 中 保存着 effect 对象 ｜ useMemo 中 保存的是缓存的值和 deps ｜ useRef 中保存的是 ref 对象。
-    -   baseState : usestate 和 useReducer 中 保存最新的更新队列。
-    -   baseState ： usestate 和 useReducer 中,一次更新中 ，产生的最新 state 值。
-    -   queue ：保存待更新队列 pendingQueue ，更新函数 dispatch 等信息。
-    -   next: 指向下一个 hooks 对象。
+  - memoizedState： useState 中 保存 state 信息 ｜ useEffect 中 保存着 effect 对象 ｜ useMemo 中 保存的是缓存的值和 deps ｜ useRef 中保存的是 ref 对象。
+  - baseState : usestate 和 useReducer 中 保存最新的更新队列。
+  - baseState ： usestate 和 useReducer 中,一次更新中 ，产生的最新 state 值。
+  - queue ：保存待更新队列 pendingQueue ，更新函数 dispatch 等信息。
+  - next: 指向下一个 hooks 对象。
 
--   一旦在条件语句中声明 hooks，在下一次函数组件更新，hooks 链表结构，将会被破坏，current 树的 memoizedState 缓存 hooks 信息，和当前 workInProgress 不一致，如果涉及到读取 state 等操作，就会发生异常。
--   hooks 通过什么来证明唯一性的，答案 ，通过 hooks 链表顺序。
--   在无状态组件中，useState 和 useReducer 触发函数更新的方法都是 dispatchAction,useState，可以看成一个简化版的 useReducer。
--   dispatchAction 第一个参数和第二个参数，已经被 bind 给改成 currentlyRenderingFiber 和 queue,我们传入的参数是第三个参数 action。
--   无论是类组件调用 setState,还是函数组件的 dispatchAction ，都会产生一个 update 对象，里面记录了此次更新的信息，然后将此 update 放入待更新的 pending 队列中，dispatchAction 第二步就是判断当前函数组件的 fiber 对象是否处于渲染阶段，如果处于渲染阶段，那么不需要我们在更新当前函数组件，只需要更新一下当前 update 的 expirationTime 即可。
--   如果当前 fiber 没有处于更新阶段。那么通过调用 lastRenderedReducer 获取最新的 state,和上一次的 currentState，进行浅比较，如果相等，那么就退出，这就证实了为什么 useState，两次值相等的时候，组件不渲染的原因了，这个机制和 Component 模式下的 setState 有一定的区别。
--   如果两次 state 不相等，那么调用 scheduleUpdateOnFiber 调度渲染当前 fiber，scheduleUpdateOnFiber 是 react 渲染更新的主要函数。
--   对于更新阶段，说明上一次 workInProgress 树已经赋值给了 current 树。存放 hooks 信息的 memoizedState，此时已经存在 current 树上，react 对于 hooks 的处理逻辑和 fiber 树逻辑类似。
--   对于一次函数组件更新，当再次执行 hooks 函数的时候，比如 useState(0) ，首先要从 current 的 hooks 中找到与当前 workInProgressHook 对应的 currentHooks，然后复制一份 currentHooks 给 workInProgressHook，接下来 hooks 函数执行的时候，把最新的状态更新到 workInProgressHook，保证 hooks 状态不丢失。
--   所以函数组件每次更新，每一次 react-hooks 函数执行，都需要有一个函数去做上面的操作，这个函数就是 `updateWorkInProgressHook()`=>`workInProgressHook`。
--   首先如果是第一次执行 hooks 函数，那么从 current 树上取出 memoizedState ，也就是旧的 hooks。
--   然后声明变量 nextWorkInProgressHook，这里应该值得注意，正常情况下，一次 renderWithHooks 执行，workInProgress 上的 memoizedState 会被置空，hooks 函数顺序执行，nextWorkInProgressHook 应该一直为 null，那么什么情况下 nextWorkInProgressHook 不为 null，也就是当一次 renderWithHooks 执行过程中，执行了多次函数组件 -- 实际就是判定，如果当前函数组件执行后，当前函数组件的还是处于渲染优先级，说明函数组件又有了新的更新任务，那么循坏执行函数组件。这就造成了上述的，nextWorkInProgressHook 不为 null 的情况。
--   最后复制 current 的 hooks，把它赋值给 workInProgressHook，用于更新新的一轮 hooks 状态。
+- 一旦在条件语句中声明 hooks，在下一次函数组件更新，hooks 链表结构，将会被破坏，current 树的 memoizedState 缓存 hooks 信息，和当前 workInProgress 不一致，如果涉及到读取 state 等操作，就会发生异常。
+- hooks 通过什么来证明唯一性的，答案 ，通过 hooks 链表顺序。
+- 在无状态组件中，useState 和 useReducer 触发函数更新的方法都是 dispatchAction,useState，可以看成一个简化版的 useReducer。
+- dispatchAction 第一个参数和第二个参数，已经被 bind 给改成 currentlyRenderingFiber 和 queue,我们传入的参数是第三个参数 action。
+- 无论是类组件调用 setState,还是函数组件的 dispatchAction ，都会产生一个 update 对象，里面记录了此次更新的信息，然后将此 update 放入待更新的 pending 队列中，dispatchAction 第二步就是判断当前函数组件的 fiber 对象是否处于渲染阶段，如果处于渲染阶段，那么不需要我们在更新当前函数组件，只需要更新一下当前 update 的 expirationTime 即可。
+- 如果当前 fiber 没有处于更新阶段。那么通过调用 lastRenderedReducer 获取最新的 state,和上一次的 currentState，进行浅比较，如果相等，那么就退出，这就证实了为什么 useState，两次值相等的时候，组件不渲染的原因了，这个机制和 Component 模式下的 setState 有一定的区别。
+- 如果两次 state 不相等，那么调用 scheduleUpdateOnFiber 调度渲染当前 fiber，scheduleUpdateOnFiber 是 react 渲染更新的主要函数。
+- 对于更新阶段，说明上一次 workInProgress 树已经赋值给了 current 树。存放 hooks 信息的 memoizedState，此时已经存在 current 树上，react 对于 hooks 的处理逻辑和 fiber 树逻辑类似。
+- 对于一次函数组件更新，当再次执行 hooks 函数的时候，比如 useState(0) ，首先要从 current 的 hooks 中找到与当前 workInProgressHook 对应的 currentHooks，然后复制一份 currentHooks 给 workInProgressHook，接下来 hooks 函数执行的时候，把最新的状态更新到 workInProgressHook，保证 hooks 状态不丢失。
+- 所以函数组件每次更新，每一次 react-hooks 函数执行，都需要有一个函数去做上面的操作，这个函数就是 `updateWorkInProgressHook()`=>`workInProgressHook`。
+- 首先如果是第一次执行 hooks 函数，那么从 current 树上取出 memoizedState ，也就是旧的 hooks。
+- 然后声明变量 nextWorkInProgressHook，这里应该值得注意，正常情况下，一次 renderWithHooks 执行，workInProgress 上的 memoizedState 会被置空，hooks 函数顺序执行，nextWorkInProgressHook 应该一直为 null，那么什么情况下 nextWorkInProgressHook 不为 null，也就是当一次 renderWithHooks 执行过程中，执行了多次函数组件 -- 实际就是判定，如果当前函数组件执行后，当前函数组件的还是处于渲染优先级，说明函数组件又有了新的更新任务，那么循坏执行函数组件。这就造成了上述的，nextWorkInProgressHook 不为 null 的情况。
+- 最后复制 current 的 hooks，把它赋值给 workInProgressHook，用于更新新的一轮 hooks 状态。
 
 ### 1. useState
 
--   类似 this.setState，用于函数组件中。每当 state/props 发生修改时，该函数组件都会重新渲染/执行。
-
--   每次改变 state/props 造成函数组件重新渲染/执行，从而每次渲染函数中的 state/props 都是独立的，固定的，确定的 -- 只在这一次渲染过程中存在。
-
--   对于 setState 的更新机制，究竟是同步还是异步。也就是所谓是否是批量更新，可以把握这个原则：
-
-    1. 凡是 React 可以管控的地方，他就是异步批量更新。比如事件函数，生命周期函数中，组件内部同步代码。
-    2. 凡是 React 不能管控的地方，就是同步批量更新。比如 setTimeout，setInterval，源生 DOM 事件中，包括 Promise 中都是同步批量更新。
-
--   useState，两次值相等的时候，组件不渲染。如果两次 state 不相等，那么调用 scheduleUpdateOnFiber 调度渲染当前 fiber。
--   无状态组件中 fiber 对象 memoizedState 保存当前的 hooks 形成的「链表」。因为是链表保存，所以 hooks 不能用在条件判断里。
-
--   有两个 memoizedState：
-
-    1. workInProgress / current 树上的 memoizedState 保存的是当前函数组件每个 hooks 形成的链表。
-    2. 每个 hooks 上的 memoizedState 保存了当前 hooks 信息，不同种类的 hooks 的 memoizedState 内容不同。
-
--   实现一个 useState
+- 类似 this.setState，用于函数组件中。每当 state/props 发生修改时，该函数组件都会重新渲染/执行。
+- 每次改变 state/props 造成函数组件重新渲染/执行，从而每次渲染函数中的 state/props 都是独立的，固定的，确定的 -- 只在这一次渲染过程中存在。
+- 每次调用 useState 返回的值都不是同一个对象，他们的内存地址不同！是由上一次的 prev state 与 update 进行合并得到的新的 current state。
+- 对于 setState 的更新机制，究竟是同步还是异步。也就是所谓是否是批量更新，可以把握这个原则：
+  1. 凡是 React 可以管控的地方，他就是异步批量更新。比如事件函数，生命周期函数中，组件内部同步代码。
+  2. 凡是 React 不能管控的地方，就是同步批量更新。比如 setTimeout，setInterval，源生 DOM 事件中，包括 Promise 中都是同步批量更新。
+- useState，两次值相等的时候，组件不渲染。如果两次 state 不相等，那么调用 scheduleUpdateOnFiber 调度渲染当前 fiber。
+- 无状态组件中 fiber 对象 memoizedState 保存当前的 hooks 形成的「链表」。因为是链表保存，所以 hooks 不能用在条件判断里。
+- 有两个 memoizedState：
+  1. workInProgress / current 树上的 memoizedState 保存的是当前函数组件每个 hooks 形成的链表。
+  2. 每个 hooks 上的 memoizedState 保存了当前 hooks 信息，不同种类的 hooks 的 memoizedState 内容不同。
+- 实现一个 useState
 
 1. 简易版，利用函数闭包和数组下标实现 state 和 stateSetter 一一对应
 
@@ -287,56 +281,56 @@ schedule().onClick(); // 'num: ' 2
 
 ### 2. useEffect
 
--   可以把 useEffect Hook 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
--   useEffect 的设计理念本身就比较推荐我们把依赖函数直接放在 useEffect 内部。
--   无状态组件中 fiber 对象 memoizedState 保存当前的 hooks 形成的链表。而 updateQueue 保存的是 effect 副作用钩子。
+- 可以把 useEffect Hook 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
+- useEffect 的设计理念本身就比较推荐我们把依赖函数直接放在 useEffect 内部。
+- 无状态组件中 fiber 对象 memoizedState 保存当前的 hooks 形成的链表。而 updateQueue 保存的是 effect 副作用钩子。
 
--   对于无法移动到 useEffect 内部的函数：
-    1.  尝试把函数移到组件外、
-    2.  对于纯计算，可以在 effect 之外调用它，让 effect 依赖他的返回值、
-    3.  万不得已时，将函数加入 effect 的依赖，并使用 useCallback 包裹该函数，确保他不随渲染而改变，除非函数的依赖发生变化。
--   useEffect VS useLayoutEffect：
-    1. 默认情况下，「useEffect」 将在**每轮渲染结束后异步执行**，不同于 class Component 中的 componentDidUpdate 和 componentDidMount 在渲染后同步执行，**useEffect 不会阻塞浏览器的渲染**。
-    2. useLayoutEffect 的作用几乎与 useEffect 一致，不同的是，「useLayoutEffect」 是**渲染前同步执行**的，与 componentDidUpdate 和 componentDidMount 执行机制一样，在 **DOM 更新后，在浏览器渲染这些更改之前**，立即执行。
--   effect list 可以理解为是一个存储 effectTag 副作用列表容器。它是由 fiber 节点和指针 nextEffect 构成的单链表结构，这其中还包括第一个节点 firstEffect ，和最后一个节点 lastEffect。 React 采用深度优先搜索算法，在 render 阶段遍历 fiber 树时，把每一个有副作用的 fiber 筛选出来，最后构建生成一个只带副作用的 effect list 链表。在 commit 阶段，React 拿到 effect list 数据后，通过遍历 effect list，并根据每一个 effect 节点的 effectTag 类型，执行每个 effect，从而对相应的 DOM 树执行更改。
+- 对于无法移动到 useEffect 内部的函数：
+  1.  尝试把函数移到组件外、
+  2.  对于纯计算，可以在 effect 之外调用它，让 effect 依赖他的返回值、
+  3.  万不得已时，将函数加入 effect 的依赖，并使用 useCallback 包裹该函数，确保他不随渲染而改变，除非函数的依赖发生变化。
+- useEffect VS useLayoutEffect：
+  1. 默认情况下，「useEffect」 将在**每轮渲染结束后异步执行**，不同于 class Component 中的 componentDidUpdate 和 componentDidMount 在渲染后同步执行，**useEffect 不会阻塞浏览器的渲染**。
+  2. useLayoutEffect 的作用几乎与 useEffect 一致，不同的是，「useLayoutEffect」 是**渲染前同步执行**的，与 componentDidUpdate 和 componentDidMount 执行机制一样，在 **DOM 更新后，在浏览器渲染这些更改之前**，立即执行。
+- effect list 可以理解为是一个存储 effectTag 副作用列表容器。它是由 fiber 节点和指针 nextEffect 构成的单链表结构，这其中还包括第一个节点 firstEffect ，和最后一个节点 lastEffect。 React 采用深度优先搜索算法，在 render 阶段遍历 fiber 树时，把每一个有副作用的 fiber 筛选出来，最后构建生成一个只带副作用的 effect list 链表。在 commit 阶段，React 拿到 effect list 数据后，通过遍历 effect list，并根据每一个 effect 节点的 effectTag 类型，执行每个 effect，从而对相应的 DOM 树执行更改。
 
 ### 3. useContext
 
--   如果你只是想避免层层传递一些属性，组件组合（component composition）有时候是一个比 context 更好的解决方案。
+- 如果你只是想避免层层传递一些属性，组件组合（component composition）有时候是一个比 context 更好的解决方案。
 
--   createContext 创建一个 Context 对象。当 React 渲染一个订阅了这个 Context 对象的组件，这个组件会从组件树中离自身最近的那个匹配的 Provider 中读取到当前的 context 值。
+- createContext 创建一个 Context 对象。当 React 渲染一个订阅了这个 Context 对象的组件，这个组件会从组件树中离自身最近的那个匹配的 Provider 中读取到当前的 context 值。
 
--   只有当组件所处的树中没有匹配到 Provider 时，其 defaultValue 参数才会生效。此默认值有助于在不使用 Provider 包装组件的情况下对组件进行测试。注意：将 undefined 传递给 Provider 的 value 时，消费组件的 defaultValue 不会生效。
+- 只有当组件所处的树中没有匹配到 Provider 时，其 defaultValue 参数才会生效。此默认值有助于在不使用 Provider 包装组件的情况下对组件进行测试。注意：将 undefined 传递给 Provider 的 value 时，消费组件的 defaultValue 不会生效。
 
--   每个 Context 对象都会返回一个 Provider React 组件，它允许消费组件订阅 context 的变化。
+- 每个 Context 对象都会返回一个 Provider React 组件，它允许消费组件订阅 context 的变化。
 
--   Provider 接收一个 value 属性，传递给消费组件。一个 Provider 可以和多个消费组件有对应关系。多个 Provider 也可以嵌套使用，里层的会覆盖外层的数据。
+- Provider 接收一个 value 属性，传递给消费组件。一个 Provider 可以和多个消费组件有对应关系。多个 Provider 也可以嵌套使用，里层的会覆盖外层的数据。
 
--   当 Provider 的 value 值发生变化时，它内部的所有消费组件都会重新渲染。从 Provider 到其内部 consumer 组件（包括 .contextType 和 useContext）的传播不受制于 shouldComponentUpdate 函数，因此当 consumer 组件在其祖先组件跳过更新的情况下也能更新。
+- 当 Provider 的 value 值发生变化时，它内部的所有消费组件都会重新渲染。从 Provider 到其内部 consumer 组件（包括 .contextType 和 useContext）的传播不受制于 shouldComponentUpdate 函数，因此当 consumer 组件在其祖先组件跳过更新的情况下也能更新。
 
--   通过新旧值检测来确定变化，使用了与 Object.is 相同的算法。
+- 通过新旧值检测来确定变化，使用了与 Object.is 相同的算法。
 
--   因为 context 会根据引用标识来决定何时进行渲染（本质上是 value 属性值的浅比较），所以这里可能存在一些陷阱，当 provider 的父组件进行重渲染时，可能会在 consumers 组件中触发意外的渲染。这时为了防止这种情况，可以将 value 状态提升到父节点的 state 里。
--   在 v16.3.0 之前，React 用 PropTypes 来声明 context 类型，提供者需要在 getChildContext 中返回需要提供的 context ，并且用静态属性 childContextTypes 声明需要提供的 context 数据类型。
--   在 Provider 里 value 的改变，会使引用 contextType,useContext 消费该 context 的组件重新 render ，同样会使 Consumer 的 children 函数重新执行，与前两种方式不同的是 Consumer 方式，当 context 内容改变的时候，不会让引用 Consumer 的父组件重新更新。
--   Q:如何阻止 Provider value 改变造成的 children （ demo 中的 Son ）不必要的渲染？
-    -   A:第一种就是利用 memo，pureComponent 对子组件 props 进行浅比较处理。React.memo()
-    -   A:第二种就是 React 本身对 React element 对象的缓存。React 每次执行 render 都会调用 createElement 形成新的 React element 对象，如果把 React element 缓存下来，下一次调和更新时候，就会跳过该 React element 对应 fiber 的更新。React.useMemo()
--   Q:context 与 props 和 react-redux 的对比？
-    -   解决了 props 需要每一层都手动添加 props 的缺陷。
-    -   解决了改变 value ，组件全部重新渲染的缺陷。
-    -   react-redux 就是通过 Provider 模式把 redux 中的 store 注入到组件中的。
--   Provider 特性总结：
-    1.  Provider 作为提供者传递 context ，provider 中 value 属性改变会使所有消费 context 的组件重新更新。
-    2.  Provider 可以逐层传递 context，下一层 Provider 会覆盖上一层 Provider。
+- 因为 context 会根据引用标识来决定何时进行渲染（本质上是 value 属性值的浅比较），所以这里可能存在一些陷阱，当 provider 的父组件进行重渲染时，可能会在 consumers 组件中触发意外的渲染。这时为了防止这种情况，可以将 value 状态提升到父节点的 state 里。
+- 在 v16.3.0 之前，React 用 PropTypes 来声明 context 类型，提供者需要在 getChildContext 中返回需要提供的 context ，并且用静态属性 childContextTypes 声明需要提供的 context 数据类型。
+- 在 Provider 里 value 的改变，会使引用 contextType,useContext 消费该 context 的组件重新 render ，同样会使 Consumer 的 children 函数重新执行，与前两种方式不同的是 Consumer 方式，当 context 内容改变的时候，不会让引用 Consumer 的父组件重新更新。
+- Q:如何阻止 Provider value 改变造成的 children （ demo 中的 Son ）不必要的渲染？
+  - A:第一种就是利用 memo，pureComponent 对子组件 props 进行浅比较处理。React.memo()
+  - A:第二种就是 React 本身对 React element 对象的缓存。React 每次执行 render 都会调用 createElement 形成新的 React element 对象，如果把 React element 缓存下来，下一次调和更新时候，就会跳过该 React element 对应 fiber 的更新。React.useMemo()
+- Q:context 与 props 和 react-redux 的对比？
+  - 解决了 props 需要每一层都手动添加 props 的缺陷。
+  - 解决了改变 value ，组件全部重新渲染的缺陷。
+  - react-redux 就是通过 Provider 模式把 redux 中的 store 注入到组件中的。
+- Provider 特性总结：
+  1.  Provider 作为提供者传递 context ，provider 中 value 属性改变会使所有消费 context 的组件重新更新。
+  2.  Provider 可以逐层传递 context，下一层 Provider 会覆盖上一层 Provider。
 
 ### 4. useCallback
 
--   useCallback 正确用法：在 dom 上绑定事件使用普通函数，在组件上绑定、传递事件则用 useCallback，防止“父”组件渲染后导致要传递的函数也会重新生成而导致“子”组件的渲染，可能会导致 React.memo 失效。
--   对于 useCallback 的替代方案：
-    -   「把函数移动到组件外部」
-    -   「把函数移动到 useEffect 内部」
-    -   「使用 userReducer 减少依赖」
+- useCallback 正确用法：在 dom 上绑定事件使用普通函数，在组件上绑定、传递事件则用 useCallback，防止“父”组件渲染后导致要传递的函数也会重新生成而导致“子”组件的渲染，可能会导致 React.memo 失效。
+- 对于 useCallback 的替代方案：
+  - 「把函数移动到组件外部」
+  - 「把函数移动到 useEffect 内部」
+  - 「使用 userReducer 减少依赖」
 
 ### 5. useMemo
 
@@ -344,7 +338,7 @@ schedule().onClick(); // 'num: ' 2
 
 useMemo 原理：
 
--   useMemo 会记录上一次执行 create 的返回值，并把它绑定在函数组件对应的 fiber 对象上，只要组件不销毁，缓存值就一直存在，但是 deps 中如果有一项改变，就会重新执行 create ，返回值作为新的值记录到 fiber 对象上。
+- useMemo 会记录上一次执行 create 的返回值，并把它绑定在函数组件对应的 fiber 对象上，只要组件不销毁，缓存值就一直存在，但是 deps 中如果有一项改变，就会重新执行 create ，返回值作为新的值记录到 fiber 对象上。
 
 useMemo 应用场景：
 
@@ -352,11 +346,11 @@ useMemo 应用场景：
 2. 如果组件中不期望每次 render 都重新计算一些值,可以利用 useMemo 把它缓存起来。
 3. 可以把函数和属性缓存起来，作为 PureComponent 的绑定方法，或者配合其他 Hooks 一起使用。
 
--   类似 useEffect，把“创建”函数和依赖项数组作为参数传入  useMemo，它仅会在某个依赖项改变时才重新计算 memoized 值。这种优化有助于避免在每次渲染时都进行高开销的计算。
--   记住，传入  useMemo  的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于  useEffect  的适用范畴，而不是  useMemo。
--   如果没有提供依赖项数组，useMemo  在每次渲染时都会计算新的值。
--   总结一下，useMemo 帮我们缓存了某个值，比如组件中某个数组/对象需要通过大量计算得到,而这个值依赖于某一个 state,我们希望只在依赖的 state 改变之后计算而不是任意 state 改变之后都会计算,这无疑会造成性能上的问题。
--   useMemo 可以缓存某个高开销的计算函数，React.memo 可以缓存一个不需要频繁渲染更新的组件
+- 类似 useEffect，把“创建”函数和依赖项数组作为参数传入  useMemo，它仅会在某个依赖项改变时才重新计算 memoized 值。这种优化有助于避免在每次渲染时都进行高开销的计算。
+- 记住，传入  useMemo  的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于  useEffect  的适用范畴，而不是  useMemo。
+- 如果没有提供依赖项数组，useMemo  在每次渲染时都会计算新的值。
+- 总结一下，useMemo 帮我们缓存了某个值，比如组件中某个数组/对象需要通过大量计算得到,而这个值依赖于某一个 state,我们希望只在依赖的 state 改变之后计算而不是任意 state 改变之后都会计算,这无疑会造成性能上的问题。
+- useMemo 可以缓存某个高开销的计算函数，React.memo 可以缓存一个不需要频繁渲染更新的组件
 
 简单理解： useCallback 与 useMemo 一个缓存的是函数，一个缓存的是函数的返回值。
 
@@ -370,23 +364,23 @@ useMemo 应用场景：
 
 useLayoutEffect 和 useEffect 不同的地方是采用了同步执行，那么和 useEffect 有什么区别呢？
 
--   首先 useLayoutEffect 是在 DOM 更新之后，浏览器绘制之前，这样可以方便修改 DOM，获取 DOM 信息，这样浏览器只会绘制一次，如果修改 DOM 布局放在 useEffect ，那 useEffect 执行是在浏览器绘制视图之后，接下来又改 DOM ，就可能会导致浏览器再次回流和重绘。而且由于两次绘制，视图上可能会造成闪现突兀的效果。
--   useLayoutEffect callback 中代码执行会阻塞浏览器绘制。
+- 首先 useLayoutEffect 是在 DOM 更新之后，浏览器绘制之前，这样可以方便修改 DOM，获取 DOM 信息，这样浏览器只会绘制一次，如果修改 DOM 布局放在 useEffect ，那 useEffect 执行是在浏览器绘制视图之后，接下来又改 DOM ，就可能会导致浏览器再次回流和重绘。而且由于两次绘制，视图上可能会造成闪现突兀的效果。
+- useLayoutEffect callback 中代码执行会阻塞浏览器绘制。
 
 一句话概括如何选择 useEffect 和 useLayoutEffect ：修改 DOM ，改变布局就用 useLayoutEffect ，其他情况就用 useEffect 。
 
--   Q:React.useEffect 回调函数 和 componentDidMount / componentDidUpdate 执行时机有什么区别 ？
--   A:useEffect 对 React 执行栈来看是异步执行的，而 componentDidMount / componentDidUpdate 是同步执行的，useEffect 代码不会阻塞浏览器绘制。在时机上 ，componentDidMount / componentDidUpdate 和 useLayoutEffect 更类似。
--   Q:如果在 useLayoutEffect 使用 CSS-in-JS 会造成哪里问题呢？
--   A: 1. 首先 useLayoutEffect 执行的时机 DOM 已经更新完成，布局也已经确定了，剩下的就是交给浏览器绘制就行了。
--   A: 2. 如果在 useLayoutEffect 动态生成 style 标签，那么会再次影响布局，导致浏览器再次重绘和重排。这时候应该用 useInsertionEffect。
+- Q:React.useEffect 回调函数 和 componentDidMount / componentDidUpdate 执行时机有什么区别 ？
+- A:useEffect 对 React 执行栈来看是异步执行的，而 componentDidMount / componentDidUpdate 是同步执行的，useEffect 代码不会阻塞浏览器绘制。在时机上 ，componentDidMount / componentDidUpdate 和 useLayoutEffect 更类似。
+- Q:如果在 useLayoutEffect 使用 CSS-in-JS 会造成哪里问题呢？
+- A: 1. 首先 useLayoutEffect 执行的时机 DOM 已经更新完成，布局也已经确定了，剩下的就是交给浏览器绘制就行了。
+- A: 2. 如果在 useLayoutEffect 动态生成 style 标签，那么会再次影响布局，导致浏览器再次重绘和重排。这时候应该用 useInsertionEffect。
 
 ### V18 useInsertionEffect
 
 useInsertionEffect 是在 React v18 新添加的 hooks ，它的用法和 useEffect 和 useLayoutEffect 一样。
 
--   useInsertionEffect 的执行时机要比 useLayoutEffect 提前，useLayoutEffect 执行的时候 DOM 已经更新了，但是在 useInsertionEffect 的执行的时候，DOM 还没有更新。
--   本质上 useInsertionEffect 主要是解决 CSS-in-JS 在渲染中注入样式的性能问题。这个 hooks 主要是应用于这个场景，在其他场景下 React 不期望用这个 hooks。
+- useInsertionEffect 的执行时机要比 useLayoutEffect 提前，useLayoutEffect 执行的时候 DOM 已经更新了，但是在 useInsertionEffect 的执行的时候，DOM 还没有更新。
+- 本质上 useInsertionEffect 主要是解决 CSS-in-JS 在渲染中注入样式的性能问题。这个 hooks 主要是应用于这个场景，在其他场景下 React 不期望用这个 hooks。
 
 ### 8. useRef & createRef & forwardRef
 
@@ -418,116 +412,110 @@ useRef 会在所有的 render 中保持对返回值的**唯一引用**。因为�
 
 3. 有三种应用场景：
 
-    1. 给原生 DOM 元素添加 ref：直接用 createRef 或者 useRef 创建 ref 添加引用都可以；
-    2. 给类组件添加 ref：组件内部用 createRef 创建 ref 添加引用配合 forwardRef 包裹做转发；
-    3. 给函数组件添加 ref：组件内部用 useRef 或者 createRef 配合 forwardRef 包裹做转发；
+   1. 给原生 DOM 元素添加 ref：直接用 createRef 或者 useRef 创建 ref 添加引用都可以；
+   2. 给类组件添加 ref：组件内部用 createRef 创建 ref 添加引用配合 forwardRef 包裹做转发；
+   3. 给函数组件添加 ref：组件内部用 useRef 或者 createRef 配合 forwardRef 包裹做转发；
 
 4. 类组件获取 Ref 三种方式:
-    1. Ref 属性是一个字符串：即直接在 jsx 上用`ref='xxx'`的形式。用一个字符串 ref 标记一个 DOM 元素，一个类组件(函数组件没有实例，不能被 Ref 标记)。React 在底层逻辑会判断类型，如果是 DOM 元素，会把真实 DOM 绑定在组件 this.refs (组件实例下的 refs )属性上，如果是类组件，会把子组件的实例绑定在 this.refs 上。当 ref 属性是一个字符串的时候，React 会自动绑定一个函数，用来处理 ref 逻辑。
-    2. Ref 属性是一个函数：当用一个函数来标记 Ref 的时候，将作为 callback 形式，等到真实 DOM 创建阶段，执行 callback ，获取的 DOM 元素或组件实例，将以回调函数第一个参数形式传入，可以在这个 callback 函数中接收真实 DOM 和组件实例。
-    3. Ref 属性是一个 ref 对象：真实 DOM 和组件实例就会被挂在这个 ref 对象的 current 属性上。
+   1. Ref 属性是一个字符串：即直接在 jsx 上用`ref='xxx'`的形式。用一个字符串 ref 标记一个 DOM 元素，一个类组件(函数组件没有实例，不能被 Ref 标记)。React 在底层逻辑会判断类型，如果是 DOM 元素，会把真实 DOM 绑定在组件 this.refs (组件实例下的 refs )属性上，如果是类组件，会把子组件的实例绑定在 this.refs 上。当 ref 属性是一个字符串的时候，React 会自动绑定一个函数，用来处理 ref 逻辑。
+   2. Ref 属性是一个函数：当用一个函数来标记 Ref 的时候，将作为 callback 形式，等到真实 DOM 创建阶段，执行 callback ，获取的 DOM 元素或组件实例，将以回调函数第一个参数形式传入，可以在这个 callback 函数中接收真实 DOM 和组件实例。
+   3. Ref 属性是一个 ref 对象：真实 DOM 和组件实例就会被挂在这个 ref 对象的 current 属性上。
 5. 这种 forwardref + ref 模式一定程度上打破了 React 单向数据流动的原则。当然绑定在 ref 对象上的属性，不限于组件实例或者 DOM 元素，也可以是属性值或方法。
 6. forwardref 转发 Ref 的三种应用场景：
-    1. 跨层级获取：通过标记子组件 ref ，来获取孙组件的某一 DOM 元素，或者是组件实例。
-    2. 合并转发 ref：通过 forwardRef 转发的 ref 可以传递很多内容，不仅仅是 DOM 元素或组件实例，也可以是属性值或方法。
-    3. 高阶组件转发：如果通过高阶组件包裹一个原始类组件，就会产生一个问题，如果高阶组件 HOC 没有处理 ref ，那么由于高阶组件本身会返回一个新组件，所以当使用 HOC 包装后组件的时候，标记的 ref 会指向 HOC 返回的组件，而并不是 HOC 包裹的原始类组件，为了解决这个问题，forwardRef 可以对 HOC 做一层处理。经过 forwardRef 处理后的 HOC ，就可以正常访问到 Index 组件实例了。例：
-    ```js
-    function HOC(Component) {
-    	class Wrap extends React.Component {
-    		render() {
-    			const { forwardedRef, ...otherprops } = this.props;
-    			return <Component ref={forwardedRef} {...otherprops} />;
-    		}
-    	}
-    	return React.forwardRef((props, ref) => (
-    		<Wrap forwardedRef={ref} {...props} />
-    	));
-    }
-    class Index extends React.Component {
-    	render() {
-    		return <div>hello,world</div>;
-    	}
-    }
-    const HocIndex = HOC(Index);
-    export default () => {
-    	const node = useRef(null);
-    	useEffect(() => {
-    		console.log(node.current); /* Index 组件实例  */
-    	}, []);
-    	return (
-    		<div>
-    			<HocIndex ref={node} />
-    		</div>
-    	);
-    };
-    ```
+   1. 跨层级获取：通过标记子组件 ref ，来获取孙组件的某一 DOM 元素，或者是组件实例。
+   2. 合并转发 ref：通过 forwardRef 转发的 ref 可以传递很多内容，不仅仅是 DOM 元素或组件实例，也可以是属性值或方法。
+   3. 高阶组件转发：如果通过高阶组件包裹一个原始类组件，就会产生一个问题，如果高阶组件 HOC 没有处理 ref ，那么由于高阶组件本身会返回一个新组件，所以当使用 HOC 包装后组件的时候，标记的 ref 会指向 HOC 返回的组件，而并不是 HOC 包裹的原始类组件，为了解决这个问题，forwardRef 可以对 HOC 做一层处理。经过 forwardRef 处理后的 HOC ，就可以正常访问到 Index 组件实例了。例：
+   ```js
+   function HOC(Component) {
+   	class Wrap extends React.Component {
+   		render() {
+   			const { forwardedRef, ...otherprops } = this.props;
+   			return <Component ref={forwardedRef} {...otherprops} />;
+   		}
+   	}
+   	return React.forwardRef((props, ref) => (
+   		<Wrap forwardedRef={ref} {...props} />
+   	));
+   }
+   class Index extends React.Component {
+   	render() {
+   		return <div>hello,world</div>;
+   	}
+   }
+   const HocIndex = HOC(Index);
+   export default () => {
+   	const node = useRef(null);
+   	useEffect(() => {
+   		console.log(node.current); /* Index 组件实例  */
+   	}, []);
+   	return (
+   		<div>
+   			<HocIndex ref={node} />
+   		</div>
+   	);
+   };
+   ```
 7. ref 还可以实现组件间通信。
 
-    1. 对于类组件可以通过 ref 直接获取组件实例，实现组件通信。
-    2. 函数组件 forwardRef + useImperativeHandle：例：
+   1. 对于类组件可以通过 ref 直接获取组件实例，实现组件通信。
+   2. 函数组件 forwardRef + useImperativeHandle：例：
 
-    ```js
-    // 子组件
-    function Son(props, ref) {
-    	const inputRef = useRef(null);
-    	const [inputValue, setInputValue] = useState("");
-    	useImperativeHandle(
-    		ref,
-    		() => {
-    			const handleRefs = {
-    				onFocus() {
-    					/* 声明方法用于聚焦input框 */
-    					inputRef.current.focus();
-    				},
-    				onChangeValue(value) {
-    					/* 声明方法用于改变input的值 */
-    					setInputValue(value);
-    				},
-    			};
-    			return handleRefs;
-    		},
-    		[]
-    	);
-    	return (
-    		<div>
-    			<input
-    				placeholder="请输入内容"
-    				ref={inputRef}
-    				value={inputValue}
-    			/>
-    		</div>
-    	);
-    }
+   ```js
+   // 子组件
+   function Son(props, ref) {
+   	const inputRef = useRef(null);
+   	const [inputValue, setInputValue] = useState("");
+   	useImperativeHandle(
+   		ref,
+   		() => {
+   			const handleRefs = {
+   				onFocus() {
+   					/* 声明方法用于聚焦input框 */
+   					inputRef.current.focus();
+   				},
+   				onChangeValue(value) {
+   					/* 声明方法用于改变input的值 */
+   					setInputValue(value);
+   				},
+   			};
+   			return handleRefs;
+   		},
+   		[]
+   	);
+   	return (
+   		<div>
+   			<input placeholder="请输入内容" ref={inputRef} value={inputValue} />
+   		</div>
+   	);
+   }
 
-    const ForwarSon = forwardRef(Son);
-    // 父组件
-    class Index extends React.Component {
-    	cur = null;
-    	handerClick() {
-    		const { onFocus, onChangeValue } = this.cur;
-    		onFocus(); // 让子组件的输入框获取焦点
-    		onChangeValue("let us learn React!"); // 让子组件input
-    	}
-    	render() {
-    		return (
-    			<div style={{ marginTop: "50px" }}>
-    				<ForwarSon ref={(cur) => (this.cur = cur)} />
-    				<button onClick={this.handerClick.bind(this)}>
-    					操控子组件
-    				</button>
-    			</div>
-    		);
-    	}
-    }
-    ```
+   const ForwarSon = forwardRef(Son);
+   // 父组件
+   class Index extends React.Component {
+   	cur = null;
+   	handerClick() {
+   		const { onFocus, onChangeValue } = this.cur;
+   		onFocus(); // 让子组件的输入框获取焦点
+   		onChangeValue("let us learn React!"); // 让子组件input
+   	}
+   	render() {
+   		return (
+   			<div style={{ marginTop: "50px" }}>
+   				<ForwarSon ref={(cur) => (this.cur = cur)} />
+   				<button onClick={this.handerClick.bind(this)}>操控子组件</button>
+   			</div>
+   		);
+   	}
+   }
+   ```
 
 8. useImperativeHandle 接受三个参数：
-    1. 第一个参数 ref : 接受 forWardRef 传递过来的 ref 。
-    2. 第二个参数 createHandle ：处理函数，返回值作为暴露给父组件的 ref 对象。
-    3. 第三个参数 deps :依赖项 deps，依赖项更改形成新的 ref 对象。
+   1. 第一个参数 ref : 接受 forWardRef 传递过来的 ref 。
+   2. 第二个参数 createHandle ：处理函数，返回值作为暴露给父组件的 ref 对象。
+   3. 第三个参数 deps :依赖项 deps，依赖项更改形成新的 ref 对象。
 9. 函数组件缓存数据：最常见的用途之一，某些数据更新时可能并不需要渲染组件更新视图，那么可以把这些数据放在 ref 中，useRef 可以创建出一个 ref 原始对象，只要组件没有销毁，ref 对象就一直存在，那么完全可以把一些不依赖于视图更新的数据储存到 ref 对象中。这样做的好处有两个：
-    1. 能够直接修改数据，不会造成函数组件冗余的更新作用。
-    2. useRef 保存数据，如果有 useEffect ，useMemo 引用 ref 对象中的数据，无须将 ref 对象添加成 dep 依赖项，因为 useRef 始终指向一个内存空间，所以这样一点好处是可以随时访问到变化后的值。
+   1. 能够直接修改数据，不会造成函数组件冗余的更新作用。
+   2. useRef 保存数据，如果有 useEffect ，useMemo 引用 ref 对象中的数据，无须将 ref 对象添加成 dep 依赖项，因为 useRef 始终指向一个内存空间，所以这样一点好处是可以随时访问到变化后的值。
 10. ref 执行时机和处理逻辑：
     1. 对于整个 Ref 的处理，都是在 commit 阶段发生的。之前了解过 commit 阶段会进行真正的 Dom 操作，此时 ref 就是用来获取真实的 DOM 以及组件实例的，所以需要 commit 阶段处理。
     2. 第一阶段：一次更新中，在 commit 的 mutation 阶段, 执行 commitDetachRef，commitDetachRef 会清空之前 ref 值，使其重置为 null。
@@ -538,6 +526,52 @@ useRef 会在所有的 render 中保持对返回值的**唯一引用**。因为�
 11. 卸载 ref：被卸载的 fiber 会被打成 Deletion effect tag ，然后在 commit 阶段会进行 commitDeletion 流程。对于有 ref 标记的 ClassComponent （类组件） 和 HostComponent （元素），会统一走 safelyDetachRef 流程，这个方法就是用来卸载 ref。
     1. 对于字符串 ref="dom" 和函数类型 ref={(node)=> this.node = node } 的 ref，会执行传入 null 置空 ref 。
     2. 对于 ref 对象类型，会清空 ref 对象上的 current 属性。
+
+### 9. useEvent
+
+由 V18 版本引入的。useEvent 要解决一个问题：如何同时保持函数引用不变与访问到最新状态。例：
+
+```js
+function Chat() {
+	const [text, setText] = useState("");
+	// onClick 既保持引用不变，又能在每次触发时访问到最新的 text 值。
+	// ✅ Always the same function (even if `text` changes)
+	const onClick = useEvent(() => {
+		sendMessage(text);
+	});
+
+	return <SendButton onClick={onClick} />;
+}
+```
+
+1. 一般来说，可以使用 useCallback 或者 useMemo 来对传给子组件的函数做一个性能优化，但是当依赖变化时，函数仍然会被重新创建。
+2. 一种无奈的办法是，维护一个 ref，使其值与函数依赖的 state 保持同步，在函数中访问 ref.current。因为 ref 实际上是一个全局的引用，始终指向一个固定的内存空间，所以可以随时访问到变化后的值，但是又不会引起 useCallback/useMemo 的更新，因为他们用的是浅比较，React 中浅比较的实现是以 `Object.is` 为基础，增加了对象第一层的属性与值的比较。
+3. 借助`useRef + useCallback + useLayoutEffect`三者来实现一个 useEvent 的功能：
+
+```javascript
+// (!) Approximate behavior
+function useEvent(handler) {
+	// 回调函数handler尽量不要写成异步的
+	const handlerRef = useRef(null);
+
+	// In a real implementation, this would run before layout effects
+	useLayoutEffect(() => {
+		// DOM更新后，渲染前同步执行，避免函数在一个事件循环中被直接消费时访问到旧的 Ref 值；
+		handlerRef.current = handler;
+	});
+
+	return useCallback((...args) => {
+		// In a real implementation, this would throw error if called during render
+		// TODO在渲染时若被调用，要抛出异常，这是为了避免 useEvent 函数被渲染时使用，因为这样就无法数据驱动了。
+		const fn = handlerRef.current;
+		return fn(...args);
+	}, []);
+}
+```
+
+4. 第 3 条实际上存在两个问题：
+   - 在赋值 ref 时，useLayoutEffect 时机依然不够提前，如果值变化后立即访问函数，拿到的会是旧值。
+   - 生成的函数被用在渲染时并不会给出错误提示。
 
 ### 函数组件的状态
 
@@ -615,8 +649,8 @@ export default Counter;
 1. 创建一个函数, 该函数接收一个组件作为输入除了组件, 还可以传递其他的参数.
 2. 基于该组件返回了一个不同的组件.
 
--   HOC 的优点：不会影响内层组件的状态, 降低了耦合度.
--   HOC 的缺点：1. 固定的 props 可能会被覆盖; 2. 它无法清晰地标识数据的来源.
+- HOC 的优点：不会影响内层组件的状态, 降低了耦合度.
+- HOC 的缺点：1. 固定的 props 可能会被覆盖; 2. 它无法清晰地标识数据的来源.
 
 #### Render props
 
@@ -634,12 +668,12 @@ export default Counter;
 
 解决了上面 hoc 和 render props 的缺点.
 
--   hook 可以重命名.
--   hook 会清晰地标注来源.
+- hook 可以重命名.
+- hook 会清晰地标注来源.
 
--   hook 可以让你在 return 之外使用数据.
--   hook 不会嵌套.
--   简单易懂, 对比 hoc 和 render props 两种方式, 它非常直观, 也更容易理解.
+- hook 可以让你在 return 之外使用数据.
+- hook 不会嵌套.
+- 简单易懂, 对比 hoc 和 render props 两种方式, 它非常直观, 也更容易理解.
 
 ### redux-thunk
 
@@ -676,22 +710,22 @@ function ProfilePage() {
 
 dom diff 的大概逻辑 【核心】
 
--   Tree diff
+- Tree diff
 
-    -   逐层比较
-    -   如果是 component，执行 component diff
-    -   如果是 element，执行 element diff
+  - 逐层比较
+  - 如果是 component，执行 component diff
+  - 如果是 element，执行 element diff
 
--   component diff
+- component diff
 
-    -   先看比较双方类型一不一致，不一致直接替换
-    -   类型相同则更新属性
-    -   深入组件进行递归 tree diff
+  - 先看比较双方类型一不一致，不一致直接替换
+  - 类型相同则更新属性
+  - 深入组件进行递归 tree diff
 
--   element diff
-    -   先看标签名一不一致，不一致直接替换
-    -   标签名一致比较属性
-    -   深入标签进行递归 tree diff
+- element diff
+  - 先看标签名一不一致，不一致直接替换
+  - 标签名一致比较属性
+  - 深入标签进行递归 tree diff
 
 ## fiber
 
@@ -699,22 +733,22 @@ dom diff 的大概逻辑 【核心】
 
 1. 不要尝试给函数组件 prototype 绑定属性或方法，即使绑定了也没有任何作用，因为通过源码中 React 对函数组件的调用，是采用直接执行函数的方式，而不是通过 new 的方式。
 2. 函数组件和类组件本质的区别是什么?
-    - 对于类组件来说，底层只需要实例化一次，实例中保存了组件的 state 等状态。对于每一次更新只需要调用 render 方法以及对应的生命周期就可以了。
-    - 但是在函数组件中，每一次更新都是一次新的函数执行，一次函数组件的更新，里面的变量会重新声明。
-    - 所以，为了能让函数组件可以保存一些状态，执行一些副作用钩子，React Hooks 应运而生，它可以帮助记录 React 中组件的状态，处理一些额外的副作用。
+   - 对于类组件来说，底层只需要实例化一次，实例中保存了组件的 state 等状态。对于每一次更新只需要调用 render 方法以及对应的生命周期就可以了。
+   - 但是在函数组件中，每一次更新都是一次新的函数执行，一次函数组件的更新，里面的变量会重新声明。
+   - 所以，为了能让函数组件可以保存一些状态，执行一些副作用钩子，React Hooks 应运而生，它可以帮助记录 React 中组件的状态，处理一些额外的副作用。
 3. React 一共有 5 种主流的通信方式：
-    - props 和 callback 方式
-    - ref 方式。
-    - React-redux 或 React-mobx 状态管理方式。
-    - context 上下文方式。
-    - event bus 事件总线。
+   - props 和 callback 方式
+   - ref 方式。
+   - React-redux 或 React-mobx 状态管理方式。
+   - context 上下文方式。
+   - event bus 事件总线。
 4. 不推荐 event bus 事件总线：
-    1. 需要手动绑定和解绑。
-    2. 对于小型项目还好，但是对于中大型项目，这种方式的组件通信，会造成牵一发动全身的影响，而且后期难以维护，组件之间的状态也是未知的。
-    3. 一定程度上违背了 React 数据流向原则。
+   1. 需要手动绑定和解绑。
+   2. 对于小型项目还好，但是对于中大型项目，这种方式的组件通信，会造成牵一发动全身的影响，而且后期难以维护，组件之间的状态也是未知的。
+   3. 一定程度上违背了 React 数据流向原则。
 5. 类组件如何限制 state 更新视图：
-    1. pureComponent 可以对 state 和 props 进行浅比较，如果没有发生变化，那么组件不更新。
-    2. shouldComponentUpdate 生命周期可以通过判断前后 state 变化来决定组件需不需要更新，需要更新返回 true，否则返回 false。
+   1. pureComponent 可以对 state 和 props 进行浅比较，如果没有发生变化，那么组件不更新。
+   2. shouldComponentUpdate 生命周期可以通过判断前后 state 变化来决定组件需不需要更新，需要更新返回 true，否则返回 false。
 6. React-Dom 中提供了「批量更新」方法 `unstable_batchedUpdates`，可以在 Promise、setTimeout 等中实现手动批量更新。
 7. React-Dom 提供了 `flushSync` ，flushSync 可以将回调函数中的更新任务，放在一个较高的优先级中。React 设定了很多不同优先级的更新任务。如果一次更新任务在 flushSync 回调函数内部，那么将获得一个「较高优先级」的更新。flushSync 在同步条件下，会合并之前的 setState | useState，可以理解成，如果发现了 flushSync ，就会先执行更新，如果之前有未更新的 setState ｜ useState ，就会一起合并了.
 8. React 同一级别更新优先级关系是:`flushSync 中的 setState` > `正常执行上下文中 setState` > `setTimeout/Promise等 中的 setState`。
@@ -722,9 +756,9 @@ dom diff 的大概逻辑 【核心】
 10. 类组件中的 setState 和函数组件中的 useState 有什么异同？
     1. 相同点：首先从原理角度出发，setState 和 useState 更新视图，底层都调用了 scheduleUpdateOnFiber 方法，而且事件驱动情况下都有批量更新规则。
     2. 不同点：
-        - 在不是 pureComponent 组件模式下， setState 不会浅比较两次 state 的值，只要调用 setState，在没有其他优化手段的前提下，就会执行更新。但是 useState 中的 dispatchAction 会默认比较两次 state 是否相同，然后决定是否更新组件。
-        - setState 有专门监听 state 变化的回调函数 callback，可以获取最新 state；但是在函数组件中，只能通过 useEffect 来执行 state 变化引起的副作用。
-        - setState 在底层处理逻辑上主要是和老 state 进行合并处理，而 useState 更倾向于重新赋值。
+       - 在不是 pureComponent 组件模式下， setState 不会浅比较两次 state 的值，只要调用 setState，在没有其他优化手段的前提下，就会执行更新。但是 useState 中的 dispatchAction 会默认比较两次 state 是否相同，然后决定是否更新组件。
+       - setState 有专门监听 state 变化的回调函数 callback，可以获取最新 state；但是在函数组件中，只能通过 useEffect 来执行 state 变化引起的副作用。
+       - setState 在底层处理逻辑上主要是和老 state 进行合并处理，而 useState 更倾向于重新赋值。
 11. 监听 props 变化：
     1. 类组件中，componentWillReceiveProps 可以作为监听 props 的生命周期，但是 React 已经不推荐使用 componentWillReceiveProps ，未来版本可能会被废弃，因为这个生命周期超越了 React 的可控制的范围内，可能引起多次执行等情况发生。于是出现了这个生命周期的替代方案 getDerivedStateFromProps 。
     2. 函数组件中，可以用 useEffect 来作为 props 改变后的监听函数。(不过有一点值得注意, useEffect 初始化会默认执行一次)。
@@ -762,15 +796,15 @@ css 模块化的几个重要目的，如下:
 4. 组合样式：CSS Modules 提供了一种 composes 组合方式，实现对样式的复用。比如定义 base 基础样式，然后在其他地方通过`composes:base;`的形式引用它。composes 还有一个更灵活的方法，支持动态引入别的模块下的类名。`composes:base from './style1.css'; /* base 样式在 style1.css 文件中 */`。
 5. 组件中引入 classNames 库，还可以实现更灵活的动态添加类名。
 6. CSS Modules 优点：
-    1. CSS Modules 的类名都有自己的私有域的，可以避免类名重复/覆盖，全局污染问题。
-    2. 引入 css 更加灵活，css 模块之间可以互相组合。
-    3. class 类名生成规则配置灵活，方便压缩 class 名。
+   1. CSS Modules 的类名都有自己的私有域的，可以避免类名重复/覆盖，全局污染问题。
+   2. 引入 css 更加灵活，css 模块之间可以互相组合。
+   3. class 类名生成规则配置灵活，方便压缩 class 名。
 7. CSS IN JS 本质上就是运用 js 中对象形式保存样式， 所以 js 对象的操作方法都可以灵活的用在 CSS IN JS 上。
 8. CSS IN JS 特点：
-    1. CSS IN JS 本质上放弃了 css ，变成了 css in line 形式，所以根本上解决了全局污染，样式混乱等问题。
-    2. 运用起来灵活，可以运用 js 特性，更灵活地实现样式继承，动态添加样式等场景。
-    3. 由于编译器对 js 模块化支持度更高，使得可以在项目中更快地找到 style.js 样式文件，以及快捷引入文件中的样式常量。
-    4. 无须 webpack 额外配置 css，less 等文件类型。
+   1. CSS IN JS 本质上放弃了 css ，变成了 css in line 形式，所以根本上解决了全局污染，样式混乱等问题。
+   2. 运用起来灵活，可以运用 js 特性，更灵活地实现样式继承，动态添加样式等场景。
+   3. 由于编译器对 js 模块化支持度更高，使得可以在项目中更快地找到 style.js 样式文件，以及快捷引入文件中的样式常量。
+   4. 无须 webpack 额外配置 css，less 等文件类型。
 
 ## 性能优化之 React 几种控制 render 方法
 
@@ -920,9 +954,9 @@ React.lazy 内部模拟一个 promiseA 规范场景。完全可以理解 React.l
 4. 及时清除定时器/延时器/监听器
 5. 合理使用 state，在 React 中只要触发 setState 或 useState ，如果没有渲染控制的情况下，组件就会渲染，暴露一个问题就是，如果视图更新不依赖于当前 state ，那么这次渲染也就没有意义。所以对于视图不依赖的状态，就可以考虑不放在 state 中。
 6. 建议不要在 hooks 的参数中执行函数或者 new 实例
-    1. 首先函数每次 rerender 都会执行 hooks ，那么在执行 hooks 函数的同时，也会执行函数的参数
-    2. 函数组件在初始化和更新流程中，会使用不同的 hooks 对象，还是以 useRef 为例子，在初始化阶段用的是 mountRef 函数，在更新阶段用的是 updateRef 函数，开发者眼睛看见的是 useRef，在 React 底层却悄悄的替换成了不同的函数。 更重要的是大部分的 hooks 参数都作为初始化的参数，在更新阶段压根没有用到，那么传入的参数也就没有了意义
-    3. 如果开发者真的想在 hooks 中，以函数组件执行结果或者是实例对象作为参数的话，那么应该怎么处理呢。这个很简单，可以用 useMemo 包装一下。
+   1. 首先函数每次 rerender 都会执行 hooks ，那么在执行 hooks 函数的同时，也会执行函数的参数
+   2. 函数组件在初始化和更新流程中，会使用不同的 hooks 对象，还是以 useRef 为例子，在初始化阶段用的是 mountRef 函数，在更新阶段用的是 updateRef 函数，开发者眼睛看见的是 useRef，在 React 底层却悄悄的替换成了不同的函数。 更重要的是大部分的 hooks 参数都作为初始化的参数，在更新阶段压根没有用到，那么传入的参数也就没有了意义
+   3. 如果开发者真的想在 hooks 中，以函数组件执行结果或者是实例对象作为参数的话，那么应该怎么处理呢。这个很简单，可以用 useMemo 包装一下。
 
 ## React 事件系统-合成事件
 
@@ -938,19 +972,19 @@ React 17 将事件委托放在了 root 上而不是以前的 document 上。这�
 
 1. 当点击该元素时，且处于冒泡模式时：
 
--   元素会冒泡到根节点，根节点获取事件源后，会找到对应的 Fiber，然后遍历获取节点的父节点去收集事件直到根节点 ，然后按照顺序地执行。
+- 元素会冒泡到根节点，根节点获取事件源后，会找到对应的 Fiber，然后遍历获取节点的父节点去收集事件直到根节点 ，然后按照顺序地执行。
 
 2. 当处于捕获模式时：
 
--   根节点会捕获到事件源，然后会找到对应的 Fiber，然后遍历获取节点的父节点去收集事件直到根节点 ，然后按照顺序地执行。
+- 根节点会捕获到事件源，然后会找到对应的 Fiber，然后遍历获取节点的父节点去收集事件直到根节点 ，然后按照顺序地执行。
 
 3. 流程很长，但最主要的两个方法就是 extractEvents$4 和 processDispatchQueue ，前者是收集该节点及该节点到根节点之间的事件，将它们保存在 dispatchQueue 里，然后调用 processDispatchQueue 来依次执行里面的方法。
 
 ### 合成事件和原生事件的执行顺序
 
--   原生事件：`this.childRef.current?.addEventListener("click", () => {...}, false冒泡/true捕获);`
--   合成事件：`onClick/onChange...`
--   document 原生事件：`document.addEventListener("click", (e) => {...});`
+- 原生事件：`this.childRef.current?.addEventListener("click", () => {...}, false冒泡/true捕获);`
+- 合成事件：`onClick/onChange...`
+- document 原生事件：`document.addEventListener("click", (e) => {...});`
 
 1. 按照冒泡模式来说，原生事件（子 -> 父） > 合成事件（子 -> 父） > document 原生事件。因为合成事件需要冒泡到根节点后才进行处理，而原生事件可以即时执行。版本无关。
 2. 当处于捕获模式时，V17.0.2 版本 document 原生事件 > 合成事件（父 -> 子） > 原生事件（父 -> 子），而 V16.14.0 版本 document 原生事件 > 原生事件（父 -> 子）> 合成事件（父 -> 子）。
@@ -980,8 +1014,8 @@ React 中如果想要阻止事件向上冒泡，可以用 e.stopPropagation() �
 2. 绑定事件并不是一次性绑定所有事件，比如发现了 onClick 事件，就会绑定 click 事件，比如发现 onChange 事件，会绑定 [blur，change ，focus ，keydown，keyup] 多个事件。
 3. React 事件合成的概念：React 应用中，元素绑定的事件并不是原生事件，而是 React 合成的事件，比如 onClick 是由 click 合成，onChange 是由 blur ，change ，focus 等多个事件合成。
 4. React 有一种事件插件机制，比如上述 onClick 和 onChange ，会有不同的事件插件 SimpleEventPlugin ，ChangeEventPlugin 处理。
-    - registrationNameModules 记录了 React 事件（比如 onBlur ）和与之对应的处理插件的映射，比如上述的 onClick ，就会用 SimpleEventPlugin 插件处理，onChange 就会用 ChangeEventPlugin 处理。应用于事件触发阶段，根据不同事件使用不同的插件。
-    - registrationNameDependencies 这个对象保存了 React 事件和原生事件对应关系，这就解释了为什么只写了一个 onChange ，却会有很多原生事件绑定在 document 上。在事件绑定阶段，如果发现有 React 事件，比如 onChange ，就会找到对应的原生事件数组，逐一绑定。
+   - registrationNameModules 记录了 React 事件（比如 onBlur ）和与之对应的处理插件的映射，比如上述的 onClick ，就会用 SimpleEventPlugin 插件处理，onChange 就会用 ChangeEventPlugin 处理。应用于事件触发阶段，根据不同事件使用不同的插件。
+   - registrationNameDependencies 这个对象保存了 React 事件和原生事件对应关系，这就解释了为什么只写了一个 onChange ，却会有很多原生事件绑定在 document 上。在事件绑定阶段，如果发现有 React 事件，比如 onChange ，就会找到对应的原生事件数组，逐一绑定。
 
--   Q：为什么要用不同的事件插件处理不同的 React 事件?
--   A：首先对于不同的事件，有不同的处理逻辑；对应的事件源对象也有所不同，React 的事件和事件源是自己合成的，所以对于不同事件需要不同的事件插件处理。
+- Q：为什么要用不同的事件插件处理不同的 React 事件?
+- A：首先对于不同的事件，有不同的处理逻辑；对应的事件源对象也有所不同，React 的事件和事件源是自己合成的，所以对于不同事件需要不同的事件插件处理。

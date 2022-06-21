@@ -10,17 +10,28 @@ date: "2022-01-11"
 
 ### 冒泡排序
 
--   最常见的排序之一。
+- 最常见的排序之一。
 
 ```js
-
+// 从小到大排序
+function bubbleSort(arr) {
+	if (!arr || arr.length < 2) return arr;
+	for (let i = arr.length - 1; i > 0; i--) {
+		for (let j = 0; j < i; j++) {
+			if (arr[j] > arr[j + 1]) {
+				[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+			}
+		}
+	}
+	return arr;
+}
 ```
 
 ### 快排
 
 原理：找到一个基数，把数组分成左右两部分，分别与这个基数比较大小，然后按需要的顺序交换元素的位置，重复上述步骤；
 
--   有原地排序和非原地排序的区别
+- 有原地排序和非原地排序的区别
 
 1. 原地排序
 
@@ -99,9 +110,39 @@ function insertionSort(arr) {
 	}
 	return arr;
 }
+// better
+function insertionSort(arr) {
+	if (!arr || arr.length < 2) return arr;
+	for (let i = 1; i < arr.length; i++) {
+		for (let j = i - 1; j >= 0 && arr[j] > arr[j + 1]; j--) {
+			[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+		}
+	}
+	return arr;
+}
+```
+
+### 选择排序
+
+```js
+// 从小到大排序
+function selectionSort(arr) {
+	if (!arr || arr.length < 2) return arr;
+	for (let i = 0; i < arr.length - 1; i++) {
+		let minIndex = i; // 当前下标之前的都是有序的了，假设当前下标的值是未排序的数字里面最小的
+		for (let j = i + 1; j < arr.length; j++) {
+			// 从i~n-1上找最小值下标，然后和minIndex交换
+			minIndex = arr[j] < arr[minIndex] ? j : minIndex;
+		}
+		[arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+	}
+	return arr;
+}
 ```
 
 ### 归并排序
+
+- 找到中点，把两边都排好序，然后用两个指针指向两边有序的头部，开始比较并合并
 
 ```js
 
@@ -115,8 +156,6 @@ function insertionSort(arr) {
 
 ### 睡眠排序
 
--   睡眠排序就是构造 n 个线程，让线程和排序的 n 个数对应。
-
--   例如对于[4,2,3,5,9]这样一组数字，就创建 5 个线程，每个线程睡眠 4s，2s，3s，5s，9s。这些线程睡醒之后，就把自己对应的数报出来即可。这样等所有线程都醒来，排序就结束了。
-
--   但睡眠排序由于多线程的问题，在真正实现上也有困难。
+- 睡眠排序就是构造 n 个线程，让线程和排序的 n 个数对应。
+- 例如对于`[4,2,3,5,9]`这样一组数字，就创建 5 个线程，每个线程睡眠 4s，2s，3s，5s，9s。这些线程睡醒之后，就把自己对应的数报出来即可。这样等所有线程都醒来，排序就结束了。
+- 但睡眠排序由于多线程的问题，在真正实现上也有困难。

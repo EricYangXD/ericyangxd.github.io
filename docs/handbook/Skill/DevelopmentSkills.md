@@ -32,9 +32,11 @@ const enUsername = encrypt("username");
 
 ## 代码风格检查&license 声明添加
 
--   利用 git hook
+- 利用 git hook
 
--   使用 husky<5.0，>5.0 参考[这里](https://zhuanlan.zhihu.com/p/366786798)。安装后，可以很方便的在 package.json 配置 git hook 脚本，如下：
+- 使用 husky\<5.0，>5.0 参考[这里](https://zhuanlan.zhihu.com/p/366786798)。安装后，可以很方便的在 package.json 配置 git hook 脚本，如下：
+- `lint-staged`:该工具仍允许我们使用 Husky 运行 Git hooks，但它只能在已暂存的文件上运行。
+-
 
 1. package.json
 
@@ -149,7 +151,8 @@ const source =
 
 // 检查是否有license并自动加上
 function updateLicense() {
-	gulp.src(source)
+	gulp
+		.src(source)
 		.pipe(licenser(LICENSE_TEMPLATE))
 		.pipe(gulp.dest((file) => file.base));
 }
@@ -161,7 +164,7 @@ updateLicense();
 
 ```json
 {
-	"printWidth": 80,
+	"printWidth": 120,
 	"tabWidth": 2,
 	"useTabs": false,
 	"semi": true,
@@ -202,7 +205,7 @@ module.exports = {
 
 ## npx husky install
 
--   fix-sls-offline.js 文件用于判断修复 serverless 离线 bug？？？
+- fix-sls-offline.js 文件用于判断修复 serverless 离线 bug？？？
 
 ```js
 const fs = require("fs");
@@ -237,8 +240,8 @@ if (data.includes(INJECT_FIX_STRING)) {
 }
 ```
 
--   原理：
--   在安装 husky 的时候，husky 会根据 package.json 里的配置，在.git/hooks 目录生成所有的 hook 脚本（如果你已经自定义了一个 hook 脚本，husky 不会覆盖它）
+- 原理：
+- 在安装 husky 的时候，husky 会根据 package.json 里的配置，在.git/hooks 目录生成所有的 hook 脚本（如果你已经自定义了一个 hook 脚本，husky 不会覆盖它）
 
 1. husky 使用了自定义的安装过程：node lib/installer/bin install（在 node_modules/husky/package.json 里）。执行的时会在项目的.git/hooks 目录生成所有 hook 的脚本
 

@@ -882,9 +882,9 @@ add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent
 
 X-Frame-Options 有三个可能的值：
 
-- X-Frame-Options: deny
-- X-Frame-Options: sameorigin
-- X-Frame-Options: allow-from https://example.com/
+- `X-Frame-Options: deny`
+- `X-Frame-Options: sameorigin`
+- `X-Frame-Options: allow-from https://example.com/`
   换一句话说，如果设置为 deny，不光在别人的网站 frame 嵌入时会无法加载，在同域名页面中同样会无法加载。另一方面，如果设置为 sameorigin，那么页面就可以在同域名页面的 frame 中嵌套。
 - deny
   - 表示该页面不允许在 frame 中展示，即便是在相同域名的页面中嵌套也不允许。
@@ -904,8 +904,8 @@ X-Frame-Options 有三个可能的值：
 
 - 注意事项：
 
-1. window.postMessage()方法，向【B 域】发消息，应用 window.frames[0].postMessage() 这样 iframe 内的【B 域】才可以接到;
-2. 同理，【B 域】向 【A 域】发消息时应用，window.parent.postMessage()
+1. window.postMessage()方法，向【B 域】发消息，应用 `window.frames[0].postMessage()` 这样 iframe 内的【B 域】才可以接到;
+2. 同理，【B 域】向 【A 域】发消息时应用，`window.parent.postMessage()`;
 3. 【A 域】的逻辑一定要在 iframe 加载完成后进行;
 
 ## localStorage
@@ -956,8 +956,7 @@ function sieOfLS() {
 }
 ```
 
-- WHATWG 超文本应用程序技术工作组 的 localstorage 协议定了 localStorage 的方法，属性等等，并没有明确规定其存储空间。也就导致各个浏览器的最大限制不一样。
-  其并不是 ES 的标准。
+- WHATWG 超文本应用程序技术工作组的 localstorage 协议定了 localStorage 的方法，属性等等，并没有明确规定其存储空间。也就导致各个浏览器的最大限制不一样。其并不是 ES 的标准。
 - html 页面的 utf-8 编码`<meta charset="UTF-8">`和 localStorage 的存储没有半毛钱的关系。
 
 ## blob、dataUrl、ArrayBuffer

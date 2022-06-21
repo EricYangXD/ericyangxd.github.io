@@ -12,6 +12,7 @@ cd docs/.vuepress/dist
 # 拷贝目录和文件
 cp -r ../../../.github ./
 cp -r ../../../CNAME ./
+cp -r ../../../demos ./
 
 git init
 git add -A

@@ -543,21 +543,79 @@ function sendA() {
 
 ### localStorage
 
-localStorage 仅允许你访问一个 Document 源（origin）的对象 Storage；存储的数据将保存在浏览器会话中。如果 A 打开的 B 页面和 A 是不同源，则无法访问同一 Storage。
+- localStorage 仅允许你访问一个 Document 源（origin）的对象 Storage；存储的数据将保存在浏览器会话中。如果 A 打开的 B 页面和 A 是不同源，则无法访问同一 localStorage。
+- 无论数据存储在 localStorage 还是 sessionStorage ，它们都特定于页面的协议。localStorage 类似 sessionStorage，但其区别在于：存储在 localStorage 的数据可以长期保留，没有过期时间设置；而当页面会话结束——也就是说，当页面被关闭时，存储在 sessionStorage 的数据会被清除 。
+- 可以通过挂载 iframe 给 localStorage 扩容。通过 postMessage 通信。
+- 存储在 sessionStorage 或 localStorage 中的数据特定于页面的协议。也就是说 http://example.com 与 https://example.com 的 sessionStorage 相互隔离。
+- 被存储的键值对总是以 UTF-16 DOMString 的格式所存储，其使用两个字节来表示一个字符。对于对象、整数 key 值会自动转换成字符串形式。
 
-可以通过挂载 iframe 给 localStorage 扩容。
+### sessionStorage
+
+1. 页面会话在浏览器打开期间一直保持，并且重新加载或恢复页面仍会保持原来的页面会话。
+2. 在新标签或窗口打开一个页面时会「复制」顶级浏览会话的上下文作为新会话的上下文，这点和 session cookies 的运行方式不同。彼此之间是独立的，不会相互影响。
+3. 打开多个相同的 URL 的 Tabs 页面，会创建各自的 sessionStorage。也就是说彼此之间是独立的，不会相互影响。
+4. 关闭对应浏览器标签或窗口，会清除对应的 sessionStorage。
+
+- sessionStorage 顾名思义是针对一个 session 的数据存储，生命周期为当前窗口，一旦窗口关闭，那么存储的数据将被清空。最后还有一个很主要的区别同一浏览器的相同域名和端口的不同页面间可以共享相同的 localStorage，但是不同页面间无法共享 sessionStorage 的信息。
+- 比如：打开了两个百度首页 A 和 B，在 A 的 localStorage 中添加删除或修改某个 key/value，在 B 中也能同步看到 localStorage 中数据的变化。而对于这两个页面的 sessionStorage，修改 A 的 sessionStorage 并不会同步到 B 页面。
+- 通信方法：不同 tab 之间可以借用 localStorage 的改变来主动修改 sessionStorage，这里要用到一个监听事件 `storage`，用于监听 localStorage 的变化，然后同步更新 sessionStorage。PS:在 A 页面修改 localStorage，B 页面可以监听 storage 事件监听到；在 A 页面修改 sessionStorage，B 页面是无法监听到变化的。
+
+```js
+window.addEventListener("storage", function (event) {
+	// event.key:确认修改的locaStorage变化key，event.newValue:修改后的值，event.url:url，event.type:'storage'
+	if (event.key == "token") {
+		sessionStorage.setItem("token", event.newValue);
+	}
+});
+```
+
+- 通过`window.open(strUrl, strWindowName, [strWindowFeatures])`打开一个新的同源 tab 时，新的 tab 页会复制一份 sessionStorage。
+
+```js
+(function () {
+	// 判断当前页面是否存在sessionStorage
+	if (!sessionStorage.length) {
+		// 这个调用能触发目标事件，从而达到共享数据的目的（若不存在则加上一个localStorage Item，key=getSessionStorageData）
+		localStorage.setItem("getSessionStorageData", Date.now());
+	}
+
+	// 该事件是核心，增加window监听事件
+	window.addEventListener("storage", function (event) {
+		// 已存在的标签页会收到这个事件，如果监听到的事件key是getSessionStorageData
+		if (event.key == "getSessionStorageData") {
+			// 再新增一个localStorage Item，key=sessionStorageData，value就是当前的sessionStorage
+			localStorage.setItem(
+				"sessionStorage",
+				JSON.stringify(window.sessionStorage)
+			);
+			// 删除localStorage中key=sessionStorageData的item，同时写入和删除，不留下localSorage的记录。
+			localStorage.removeItem("sessionStorage");
+		}
+		if (event.key == "sessionStorageData" && !sessionStorage.length) {
+			// 新开启的标签页会收到这个事件，把sessionStorageData的资料parse出来
+			const data = JSON.parse(event.newValue);
+			//  赋值到当前页面的sessionStorage中
+			for (key in data) {
+				window.sessionStorage.setItem(key, data[key]);
+			}
+		}
+		// ===== 加下面这段 =====
+		if (event.key === "logout") {
+			// 接收到logout事件，进行sessionStorage的清除和页面reload
+			window.sessionStorage.clear();
+			window.location.clear();
+		}
+	});
+})();
+```
 
 ### WebSocket
 
 基于服务端的页面通信方式，服务器可以主动向客户端推送信息，客户端也可以主动向服务器发送信息，是真正的双向平等对话，属于服务器推送技术的一种。
 
-<!-- TODO -->
+[参考 wsServer demo](../../../demos/nodejs/wsServer.js)
 
-```js
-// A.html
-
-// B.html
-```
+[参考 wsClient demo](../../../demos/nodejs/wsClient.js)
 
 ### SharedWorker
 
@@ -1423,3 +1481,76 @@ native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通�
 2. 由 JavaScript 端引用。直接与 JavaScript 一起执行。
    - 优点：JavaScript 端可以确定 JSBridge 的存在，直接调用即可；
    - 缺点：如果 JSBridge 的实现方式有更改，JSBridge 需要兼容多版本的 Native Bridge 或者 Native Bridge 兼容多版本的 JSBridge。
+
+## 判断 iframe 加载完成
+
+```js
+var iframe = document.createElement("iframe");
+iframe.src = "https://ericyangxd.top";
+if (iframe.attachEvent) {
+	iframe.attachEvent("onload", function () {
+		alert("Local iframe is now loaded.");
+	});
+} else {
+	iframe.onload = function () {
+		alert("Local iframe is now loaded.");
+	};
+}
+document.body.appendChild(iframe);
+```
+
+## 页面加载时触发的事件及顺序
+
+### 3 个事件
+
+readystatechange 和 DOMContentLoaded 是通过 document 监听的；load 事件是 window 的事件。
+
+### document.onreadystatechange 事件
+
+对应的`document.readyState`属性描述了文档的加载状态，在整个加载过程中`document.readyState`会不断变化，每次变化都会触发`readystatechange`事件。readyState 的值变化：
+
+1. loading（正在加载）：document 仍在加载。
+2. interactive（可交互）：文档已被解析，"正在加载"状态结束，DOM 元素可以被访问，可以操作 DOM，对应 DOMContentLoaded 事件，但是诸如图像，样式表和框架之类的子资源仍在加载。
+3. complete（完成）：文档和所有子资源已完成加载。表示 load 状态的事件即将被触发。对应 load 事件。
+
+### document.DOMContentLoaded 事件
+
+### window.onload 事件
+
+此时页面加载完毕，正常展示，可以操作。
+
+### window.onbeforeunload 事件
+
+当窗口即将被卸载（关闭）时，会触发该事件。此时页面文档依然可见，且该事件的默认动作可以被取消。尽量避免使用`window.onunload`事件。区别在于 onbeforeunload 在 onunload 之前执行，它还可以阻止 onunload 的执行。
+
+```js
+window.addEventListener("beforeunload", (event) => {
+	// Cancel the event as stated by the standard.
+	event.preventDefault();
+	// Chrome requires returnValue to be set.
+	event.returnValue = "";
+});
+```
+
+### 代码示例
+
+```js
+document.onreadystatechange = function () {
+	console.log(document.readyState);
+};
+
+document.addEventListener("DOMContentLoaded", (event) => {
+	console.log("DOMContentLoaded"); // 译者注："DOM完全加载以及解析"
+});
+
+window.addEventListener("load", (event) => {
+	console.log("load");
+});
+
+// 打印结果如下：
+// loading  打印不出来
+// interactivate
+// DOMContentLoaded
+// complete
+// load
+```

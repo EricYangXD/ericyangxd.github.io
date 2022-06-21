@@ -904,3 +904,59 @@ function deepClone(obj, hash = new WeakMap()) {
 	return res;
 }
 ```
+
+### React 浅比较
+
+React 中浅比较的实现是以 `Object.is` 为基础，增加了对象第一层的属性与值的比较。
+
+```typescript
+// objectIs
+function is(x: any, y: any) {
+	return (
+		(x === y && (x !== 0 || 1 / x === 1 / y)) || (x !== x && y !== y) // eslint-disable-line no-self-compare
+	);
+}
+
+const objectIs: (x: any, y: any) => boolean =
+	typeof Object.is === "function" ? Object.is : is;
+
+// hasOwnProperty
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+
+// shallowEqual
+function shallowEqual(objA: mixed, objB: mixed): boolean {
+	if (is(objA, objB)) {
+		return true;
+	}
+
+	if (
+		typeof objA !== "object" ||
+		objA === null ||
+		typeof objB !== "object" ||
+		objB === null
+	) {
+		return false;
+	}
+
+	const keysA = Object.keys(objA);
+	const keysB = Object.keys(objB);
+
+	if (keysA.length !== keysB.length) {
+		return false;
+	}
+
+	// Test for A's keys different from B.
+	for (let i = 0; i < keysA.length; i++) {
+		if (
+			!hasOwnProperty.call(objB, keysA[i]) ||
+			!is(objA[keysA[i]], objB[keysA[i]])
+		) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+export default shallowEqual;
+```

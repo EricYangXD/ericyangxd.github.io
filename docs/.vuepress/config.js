@@ -375,6 +375,15 @@ module.exports = {
 					},
 				],
 			},
+			{
+				title: "股海沉浮",
+				children: [
+					{
+						title: "通达信指标收集",
+						path: "/handbook/Stock/TDX",
+					},
+				],
+			},
 		],
 		author: "EricYangXD",
 		huawei: true,

@@ -925,6 +925,24 @@ class LazyMan {
 }
 ```
 
+### 求数组某个范围上的最大值
+
+1. 遍历，记录最大值并返回
+2. 递归，一分为二，找每个区间上的最大值，最后返回最大的那个，实例：
+
+```js
+function process(arr, l, r) {
+	if (l === r) return arr[l]; // 只有一个数时直接返回
+	let mid = l + ((r - l) >> 1); // 位运算比除法快
+	let lMax = process(arr, l, mid);
+	let rMax = process(arr, mid + 1, r);
+	return Math.max(lMax, rMax);
+}
+function getMax(arr) {
+	return process(arr, 0, arr.length - 1);
+}
+```
+
 ## 山月前端工程化
 
 厘清几个概念
