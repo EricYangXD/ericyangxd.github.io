@@ -151,12 +151,8 @@ module.exports = {
 			},
 			{
 				title: "JavaScript",
-				path: "/handbook/JavaScript/FrontEnd",
+				path: "/handbook/JavaScript/FrontEnd1",
 				children: [
-					{
-						title: "APIs",
-						path: "/handbook/JavaScript/Api",
-					},
 					{
 						title: "前端开发技巧(1)",
 						path: "/handbook/JavaScript/FrontEnd1",
@@ -164,6 +160,10 @@ module.exports = {
 					{
 						title: "前端开发技巧(2)",
 						path: "/handbook/JavaScript/FrontEnd2",
+					},
+					{
+						title: "APIs",
+						path: "/handbook/JavaScript/Api",
 					},
 					{
 						title: "手写Promise",

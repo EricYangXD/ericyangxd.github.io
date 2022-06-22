@@ -589,3 +589,136 @@ async function test() {
 	console.log(aa, bb, cc);
 }
 ```
+
+### Promise 构造函数是同步还是异步执行
+
+Promise 构造函数是同步执行，而`.then`、`.catch` 等都是异步（还有 process.nextTick 等等），而且放到了微队列中，`async/await` 中，`await` 前面的是同步，`await` 后面的是异步，写法上是这样，但是其实是语法糖，最后还是会转为 `Promise.then` 的形式。`.then`的 cb 被放入了微任务队列，产生了异步执行。如果 resolve 被同步使用，实质上 resolve 仍然是同步的。
+
+### 模拟实现 Promise.finally
+
+```javascript
+Promise.prototype.finally = function (callback) {
+	let P = this.constructor;
+	return this.then(
+		(value) => P.resolve(callback()).then(() => value),
+		(reason) =>
+			P.resolve(callback()).then(() => {
+				throw reason;
+			})
+	);
+};
+```
+
+### Promise.all 原理实现
+
+- Promise.all 方法将多个 Promise 实例包装成一个新的 Promise 实例（p），可以接受一个数组`[p1,p2,p3]`作为参数，此时数组中不一定都是 Promise 对象，如果不是的话，就会调用 Promise.resolve 将其转化为 Promise 对象之后再进行处理。（当然 Promise.all 方法的参数也可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例）。
+- 使用 Promise.all 生成的 Promise 对象（p）的状态是由数组中的 Promise 对象（p1,p2,p3）决定的：
+
+  1. 如果所有的 Promise 对象（p1,p2,p3）都变成 fullfilled 状态的话，生成的 Promise 对象（p）也会变成 fullfilled 状态，p1,p2,p3 三个 Promise 对象产生的结果会组成一个数组返回给传递给 p 的回调函数；
+  2. 如果 p1,p2,p3 中有一个 Promise 对象变为 rejected 状态的话，p 也会变成 rejected 状态，第一个被 rejected 的对象的返回值会传递给 p 的回调函数。
+
+- Promise.all 方法生成的 Promise 对象也会有一个 catch 方法来捕获错误处理，但是如果作为参数的 Promise 实例自身定义了 catch 方法，那么它被 rejected 时并不会触发 Promise.all 的 catch 方法，而是会执行自己的 catch 方法，并且返回一个状态为 fullfilled 的 Promise 对象（catch 方法也是返回一个新的 Promise 实例），Promise.all 生成的对象会接受这个 Promise 对象，不会返回 rejected 状态。
+
+```js
+function promiseAll(promises) {
+	return new Promise(function (resolve, reject) {
+		if (!Array.isArray(promises)) {
+			return reject(new TypeError("argument must be anarray"));
+		}
+		var countNum = 0;
+		var promiseNum = promises.length;
+		var resolvedvalue = new Array(promiseNum);
+		for (let i = 0; i < promiseNum; i++) {
+			(function (i) {
+				Promise.resolve(promises[i]).then(
+					function (value) {
+						countNum++;
+						resolvedvalue[i] = value;
+						if (countNum === promiseNum) {
+							return resolve(resolvedvalue);
+						}
+					},
+					function (reason) {
+						return reject(reason);
+					}
+				);
+			})(i);
+		}
+	});
+}
+var p1 = Promise.resolve(1),
+	p2 = Promise.resolve(2),
+	p3 = Promise.resolve(3);
+promiseAll([p1, p2, p3]).then(function (value) {
+	console.log(value);
+});
+```
+
+### Promise.race
+
+Promise.race 方法也是将多个 Promise 实例包装成一个新的 Promise 实例。接收参数的规则同 Promise.all，但是只要有一个实例率先改变状态，Promise.race 实例的状态就跟着改变。
+
+```js
+const _race = (ps) => {
+	return new Promise((resolve, reject) => {
+		ps.forEach((item) => {
+			Promise.resolve(item).then(resolve, reject);
+		});
+	});
+};
+```
+
+## 如何取消 Promise
+
+理论上来说 Promise 一旦新建就会立即执行，不可中途取消。但我们可以自己模拟，只不过是利用 reject 来实现中断的效果，实际上可能还是会执行，但是只要返回 rejected 我们就认为中断了即可。
+
+### 借助 Promise.reject
+
+```js
+function getPromise(callback) {
+	let _resolve, _reject;
+	const promise = new Promise((res, rej) => {
+		_resolve = res;
+		_reject = rej;
+		callback && callback(res, rej);
+	});
+	return {
+		promise,
+		abort: () => {
+			_reject({ message: "promise aborted" });
+		},
+	};
+}
+
+function runCallback(resolve, reject) {
+	setTimeout(() => {
+		resolve(12345);
+	}, 5000);
+}
+const { promise, abort } = getPromise(runCallback);
+promise.then(/*...*/).catch(/*...*/);
+abort();
+```
+
+### 借助 Promise.race
+
+`Promise.race(iterable)`方法返回一个 promise，一旦迭代器中的某个 promise 解决或拒绝，返回的 promise 就会解决或拒绝。
+
+```js
+function getPromiseWithAbort(p) {
+	let obj = {};
+	let p1 = new Promise((resolve, reject) => {
+		obj.abort = reject;
+	});
+	obj.promise = Promise.race([p, p1]);
+	return obj;
+}
+const promise = new Promise((resolve, reject) => {
+	setTimeout(() => {
+		resolve(12345);
+	}, 5000);
+});
+const promiseObj = getPromiseWithAbort(promise);
+promiseObj.promise.then(/*...*/).catch(/*...*/);
+obj.abort("取消执行");
+```

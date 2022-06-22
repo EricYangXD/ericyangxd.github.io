@@ -169,3 +169,87 @@ export interface CancelRequestSource {
 	[index: string]: () => void;
 }
 ```
+
+## 取消请求
+
+### 取消 axios
+
+从 v0.22.0 开始，Axios 支持以 fetch API 方式—— AbortController 取消请求：
+
+```js
+const controller = new AbortController();
+
+axios
+	.get("/foo/bar", {
+		signal: controller.signal,
+	})
+	.then(function (response) {
+		//...
+	});
+// 取消请求
+controller.abort();
+```
+
+您还可以使用 cancel token 取消一个请求。此 API 从 v0.22.0 开始已被弃用，不应在新项目中使用。「可以使用同一个 cancel token 或 signal 取消多个请求」。
+
+```js
+// 创建取消令牌的生成器对象
+const CancelToken = axios.CancelToken;
+// 获取令牌对象
+const source = CancelToke.source();
+axios.get("/url/123", {
+	cancelToken: source.token,
+});
+// 2秒后取消请求
+setTimeout(() => {
+	source.cancel();
+}, 2000);
+```
+
+### 取消 XMLHttpRequest
+
+如果该请求已被发出，XMLHttpRequest.abort() 方法将终止该请求。当一个请求被终止，它的 readyState 将被置为 XMLHttpRequest.UNSENT (0)，并且请求的 status 置为 0。
+
+```js
+var xhr = new XMLHttpRequest(),
+	method = "GET",
+	url = "https://developer.mozilla.org/";
+xhr.open(method, url, true);
+
+xhr.send();
+
+if (OH_NOES_WE_NEED_TO_CANCEL_RIGHT_NOW_OR_ELSE) {
+	xhr.abort();
+}
+```
+
+### 取消 fetch
+
+`fetch API` 中已经集成了`AbortSignal`，使用时需要将 controller 中的信号对象作为 signal 参数传递给 fetch，当调用`controller.abort()`后，fetch 的 promise 会变为`Abort Error DOMException reject`。catch 方法中的 error 变为：「DOMException: The user aborted a request.」
+
+```js
+const controller = new AbortController();
+const signal = controller.signal;
+
+fetch("https://baidu.com/", {
+	signal,
+})
+	.then(() => {})
+	.catch((err) => {
+		console.log(err); // DOMException: The user aborted a request.
+		if (err.name === "") {
+			// 中止信号
+		} else {
+			// 其他错误
+		}
+	});
+
+// 监听abort事件
+signal.addEventListener("abort", () => {
+	console.log("中断信号发出");
+});
+
+// 控制器发出中断信号
+controller.abort();
+console.log("是否中断：", signal.aborted);
+```
