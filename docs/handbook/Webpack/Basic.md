@@ -4,6 +4,58 @@ author: EricYangXD
 date: "2022-02-10"
 ---
 
+## Webpack5
+
+Webpack 是目前最热门的前端工程化「模块打包工具」，它设计的初衷是「解决前端模块化问题」，让我们实现如何「高效的地管理和维护项目中的每一个资源」，目前最新版本 Webpack5，功能也变得越来越强大，但它依旧不忘初心，始终没有改变它是一个前端打包工具的初衷，它所做的事情就是：「分析项目结构，找到并加载所依赖的资源模块，把一些不被浏览器支持的特性（如 Sass，TypeScript，ES6+、JSX 等）转换和打包成浏览器兼容的格式来使用」。
+
+### 资源模块
+
+资源模块(asset module) 是一种模块类型，它允许在 js 代码中引入其它资源文件（字体，图片、样式等），以前只能通过 loader 加载器来实现，而 Webpack5 中通过 asset module 轻松实现。
+
+Webpack5 实现了 4 种新的模块类型，通过 Rule 的 type 属性设置：
+
+1. asset/resource  输出一个单独的文件并导出 URL。之前通过使用  file-loader  实现。
+2. asset/inline  导出一个资源的 data URI。之前通过使用  url-loader  实现。
+3. asset/source  导出资源的源代码。之前通过使用  raw-loader  实现。
+4. asset  在导出一个 dataURI 和发送一个单独的文件之间自动选择。之前通过使用  url-loader，并且配置资源体积限制实现。
+
+- 如果设置成 asset/inline，则会把图片对应的 dataURI（base64 编码）写入到打包后的 js 文件中，这样的好处是减少页面的 http 请求数量，加快页面渲染速度。
+- 如果设置成 asset，则会根据图片的大小在 asset/inline 和 asset/resource 中自动选择
+- 默认大于 8KB 导出单独文件，小于等于 8KB 导出 dataURI（可通过 Rule 的 parser.dataUrlCondition.maxSize 去设置，单位是:Byte 字节）
+
+### loader 和 plugin
+
+Loader 是用来解决资源文件的加载和编译问题，它只在模块加载环节工作。
+
+而 Plugin 就是用来处理 loader 工作以外的自动化工作：用来增加 Webpack 在项目自动化构建方面的能力，能作用于 Webpack 工作流程的方方面面，正是有了 Plugin，让 Webpack 几乎无所不能。
+
+### 插件 (Plugin)
+
+- 自动生成所需的 html 文件
+- 实现打包前清除 dist 输出目录的内容
+- 拷贝不需要打包的资源文件到输出目录
+- 压缩 webpack 打包后的输出文件
+- 自动化部署
+
+1. `html-webpack-plugin`：生成 html 文件并自动引入打包后的 js 文件。要生成多少个 html 文件就 new 多少个 Plugin。
+2. `clean-webpack-plugin`：实现在打包前先清除之前生成的文件。webpack 5.20.0 以上版本只需要设置 output.clean 为 true 就行。
+3. `copy-webpack-plugin`：在实际开发中还有很多不需要经过 webpack 构建的文件（如：favicon.ico、robots.txt 等），这些文件最终都需要部署到服务器，所以也需要放到最终的输出目录，可以通过该插件来实现复制，避免手动操作。
+
+### 加载器（Loader）
+
+webpack 使用加载器的顺序是从后往前调用。
+
+1. `css-loader`：处理项目中的样式文件，`css-loader`默认支持`*.module.css`格式的样式文件实现模块化，也就是说如果你的文件采用该命名方式，哪不配置`modules:true`，也能实现 css 模块化。
+2. `style-loader`：把 css 代码写入页面 style 标签。
+3. `css模块（css module）`：`css-loader`默认支持`*.module.css`格式的样式文件实现模块化。
+4. `postcss-loader`：配合 `autoprefixer` 与 `browserslist` 自动添加浏览器内核前缀，从而实现样式兼容写法。
+   - 先安装加载器与依赖:`npm install postcss-loader autoprefixer`
+   - 配置 browserslist（可在`package.json`或`.browserslistrc`中配置）:`{"browserslist": ["last 2 versions","> 1%","not IE 11"]}`
+   - webpack 配置:`options.postcssOptions.plugins=['autoprefixer']`
+   - 然后正常编写样式代码即可，打包时会自动加上前缀
+5. `sass-loader`：sass 加载器，该加载器依赖 sass 模块，所以需要一并安装：`npm install sass-loader sass`，并对`.scss`文件使用该 loader 即可。
+6. `babel-loader`：使用 Babel 对 ES6+的新特性的代码进行转换，一般转换成 ES5 代码。先要安装 babel-loader，它需要依赖@babel/core：`npm install babel-loader @babel/core @babel/preset-env`。`@babel/preset-env`是用来解决浏览器兼容问题的预设，能根据当前的运行环境，自动确定你需要的 plugins 和 polyfills，强力推荐。对 js 文件设置`use:{loader:'babel-loader',options:{presets:['@babel/preset-env']}}`即可。
+
 ## 详解 webpack 中的 hash、chunkhash、contenthash 区别
 
 > hash 一般是结合 CDN 缓存来使用，通过 webpack 构建之后，生成对应文件名自动带上对应的 MD5 值。如果文件内容改变的话，那么对应文件哈希值也会改变，对应的 HTML 引用的 URL 地址也会改变，触发 CDN 服务器从源服务器上拉取对应数据，进而更新本地缓存。但是在实际使用的时候，这几种 hash 计算还是有一定区别。
@@ -48,7 +100,27 @@ module.exports = {
 		rules: [
 			{
 				test: /\.css$/,
-				use: [MiniCssExtractPlugin.loader, "css-loader"],
+				use: [MiniCssExtractPlugin.loader, "css-loader"], // 单个loader时可以直接 -> loader:'css-loader'
+				// use: ['style-loader', "css-loader"], // 先使用css-loader，再使用style-loader
+				// 更多配置的时候使用对象的形式，简单配置的直接使用字符串即可
+				// use: [
+				// 	"style-loader",
+				// 	{
+				// 		loader: "css-loader",
+				// 		options: {
+				// 			modules: true,
+				// 		},
+				// 	},
+				// ],
+			},
+			{
+				test: /\.png$/,
+				use: ["url-loader"], // webpack4
+				// webpack5
+				// type:'asset/resource', // 取代url-loader
+				// generator: {
+				// 	 filename: "img/[name]-[hash][ext]",// 设置输出的文件名和保存的路径
+				// },
 			},
 		],
 	},
@@ -109,11 +181,11 @@ module: {
 
 2. 如对一个 JS 文件配置了 eslint、typescript、babel 等 loader，他将有可能执行五次编译，被五次解析为 AST：
 
--   acorn: 用以依赖分析，解析为 acorn 的 AST
--   eslint-parser: 用以 lint，解析为 espree 的 AST
--   typescript: 用以 ts，解析为 typescript 的 AST
--   babel: 用以转化为低版本，解析为 @babel/parser 的 AST
--   terser: 用以压缩混淆，解析为 acorn 的 AST
+- acorn: 用以依赖分析，解析为 acorn 的 AST
+- eslint-parser: 用以 lint，解析为 espree 的 AST
+- typescript: 用以 ts，解析为 typescript 的 AST
+- babel: 用以转化为低版本，解析为 @babel/parser 的 AST
+- terser: 用以压缩混淆，解析为 acorn 的 AST
 
 而当开启了持久化缓存功能，最耗时的 AST 解析将能够从磁盘的缓存中获取，再次编译时无需再次进行解析 AST。
 
@@ -144,6 +216,9 @@ module.exports = {
 ### 多进程: thread-loader
 
 1. thread-loader 为官方推荐的开启多进程的 loader，可对 babel 解析 AST 时开启多线程处理，提升编译的性能。
+2. 把这个 loader 放置在其他 loader 之前，放置在这个 loader 之后的 loader 就会在一个单独的 worker 池(worker pool)中运行。
+3. 每个 worker 都是一个单独的有 600ms 限制的 node.js 进程。同时跨进程的数据交换也会被限制。
+4. 可以在 options 中配置 workers：即产生的 worker 的数量，默认是 cpu 的核心数；workerParallelJobs：一个 worker 进程中并行执行工作的数量，默认为 20；poolTimeout：闲置时定时删除 worker 进程，默认为 500ms；等参数。
 
 ```js
 module.exports = {
@@ -180,9 +255,9 @@ compiler.hooks.done.tapAsync("webpack-bundle-analyzer", (stats) => {});
 
 在查看页面中，有三个体积选项：
 
--   stat: 每个模块的原始体积
--   parsed: 每个模块经 webpack 打包处理之后的体积，比如 terser 等做了压缩，便会体现在上边
--   gzip: 经 gzip 压缩后的体积
+- stat: 每个模块的原始体积
+- parsed: 每个模块经 webpack 打包处理之后的体积，比如 terser 等做了压缩，便会体现在上边
+- gzip: 经 gzip 压缩后的体积
 
 ```js
 // ANALYZE=true npm run build 设置环境变量
@@ -224,24 +299,24 @@ React(Vue) 运行时代码不容易变更，且每个组件都会依赖它，可
 
 1. 问：那如果一个模块被用了多次 (2 次以上)，但是该模块体积过大(1MB)，每个页面都会加载它(但是无必要，因为不是每个页面都依赖它)，导致性能变差，此时如何分包？
 
--   答：如果一个模块虽是公共模块，但是该模块体积过大，可直接 import() 引入，异步加载，单独分包，比如 echarts 等
+- 答：如果一个模块虽是公共模块，但是该模块体积过大，可直接 import() 引入，异步加载，单独分包，比如 echarts 等
 
 2. 问：如果公共模块数量多，导致 vendor.js 体积过大(1MB)，每个页面都会加载它，导致性能变差，此时如何分包
 
 答：有以下两个思路
 
--   思路一: 可对 vendor.js 改变策略，比如被引用了十次以上，被当做公共模块抽离成 verdor-A.js，五次的抽离为 vendor-B.js，两次的抽离为 vendor-C.js
--   思路二: 控制 vendor.js 的体积，当大于 100KB 时，再次进行分包，多分几个 vendor-XXX.js，但每个 vendor.js 都不超过 100KB
+- 思路一: 可对 vendor.js 改变策略，比如被引用了十次以上，被当做公共模块抽离成 verdor-A.js，五次的抽离为 vendor-B.js，两次的抽离为 vendor-C.js
+- 思路二: 控制 vendor.js 的体积，当大于 100KB 时，再次进行分包，多分几个 vendor-XXX.js，但每个 vendor.js 都不超过 100KB
 
 #### 使用 webpack 分包
 
--   在 webpack 中可以使用 SplitChunksPlugin (opens new window)进行分包，它需要满足三个条件:
+- 在 webpack 中可以使用 SplitChunksPlugin (opens new window)进行分包，它需要满足三个条件:
 
 1. minChunks: 一个模块是否最少被 minChunks 个 chunk 所引用
 2. maxInitialRequests/maxAsyncRequests: 最多只能有 maxInitialRequests/maxAsyncRequests 个 chunk 需要同时加载 (如一个 Chunk 依赖 VendorChunk 才可正常工作，此时同时加载 chunk 数为 2)
 3. minSize/maxSize: chunk 的体积必须介于 (minSize, maxSize) 之间
 
--   以下是 next.js 的默认配置，可视作最佳实践: 源码位置: [next/build/webpack-config.ts](https://github.com/vercel/next.js/blob/v12.0.5-canary.10/packages/next/build/webpack-config.ts#L728)
+- 以下是 next.js 的默认配置，可视作最佳实践: 源码位置: [next/build/webpack-config.ts](https://github.com/vercel/next.js/blob/v12.0.5-canary.10/packages/next/build/webpack-config.ts#L728)
 
 ```js
 {
@@ -395,7 +470,7 @@ CSS 代码压缩使用`css-minimizer-webpack-plugin`，效果包括压缩、去�
 
 #### JS 代码压缩
 
--   JS 代码压缩使用`terser-webpack-plugin`或者 uglify，实现打包后 JS 代码的压缩；
+- JS 代码压缩使用`terser-webpack-plugin`或者 uglify，实现打包后 JS 代码的压缩；
 
 ```js
 const TerserPlugin = require('terser-webpack-plugin')
@@ -417,7 +492,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
 #### tree-shaking
 
-tree-shaking 简单说作用就是：只打包用到的代码，没用到的代码不打包，而 webpack5 默认开启 tree-shaking，当打包的 mode 为 production 时，自动开启 tree-shaking 进行优化
+tree-shaking 简单说作用就是：只打包用到的代码，没用到的代码不打包，而 webpack5 默认开启 tree-shaking，当打包的 mode 为 production 时，自动开启 tree-shaking 进行优化。
 
 #### source-map 类型
 
@@ -538,66 +613,65 @@ config.plugin("html").tap((args) => {
 #### 首屏优化之代码分割-splitChunks 拆包优化
 
 1. Bundle Splitting: 这个过程提供了一种优化构建的方法，允许 webpack 为单个应用程序生成多个 bundle 文件。因此，可以将每个 bundle 文件与影响其他文件的更改进行分离，从而减少重新发布并由此被客户端重新下载的代码量，并且运用浏览器「缓存」。
-    - 拆分的越小，文件越多，可能会有更多 Webpack 的辅助代码，也会带来更少的合并压缩。但是，通过数据分析，文件拆分越多，性能会更好。
+   - 拆分的越小，文件越多，可能会有更多 Webpack 的辅助代码，也会带来更少的合并压缩。但是，通过数据分析，文件拆分越多，性能会更好。
 2. Code Splitting: 代码分离指将代码分成不同的包/块，然后可以「按需加载」，而不是加载包含所有内容的单个包。一般配合路由懒加载。通过 Webpack4 的 import()语法。
 
--   webpack 默认配置下会把所有的依赖和插件都打包到 vendors.js 中，有些可能是 app.js 。所以，对于大量引入第三方依赖的项目，这个文件会非常的大。而对于在特定页面中才会使用的插件也会造成性能浪费。这时拆分和异步就显得尤为重要了。
--   包的大小本地打包完成时可以看到，若想更仔细的分析可以通过插件 `webpack-bundle-analyzer`；
--
+- webpack 默认配置下会把所有的依赖和插件都打包到 vendors.js 中，有些可能是 app.js 。所以，对于大量引入第三方依赖的项目，这个文件会非常的大。而对于在特定页面中才会使用的插件也会造成性能浪费。这时拆分和异步就显得尤为重要了。
+- 包的大小本地打包完成时可以看到，若想更仔细的分析可以通过插件 `webpack-bundle-analyzer`；
 
 ```js
 splitChunks: {
-    chunks: "async",// 哪些chunks需要进行优化，async-按需引入的模块将会被用于优化，initial-被直接引入的模块将会被用于优化，all-全部都会被用于优化。
-    minSize: 30000,// 打包优化完生成的新chunk大小要> 30000字节，否则不生成新chunk。
-    minChunks: 1,// 共享该module的最小chunk数
-    maxAsyncRequests: 5,// 最多有N个异步加载请求该module
-    maxInitialRequests: 3,// 一个入口文件可以并行加载的最大文件数量
-    automaticNameDelimiter: '~',// 名字中间的间隔符
-    name: true,// chunk的名字，true-自动生成，false-由 id 决定，string-缓存组最终会打包成一个 chunk，名称就是该 string。
-    cacheGroups:{// 要切割成的每一个新chunk就是一个cache group。
-      styles: {
-          name: 'style',
-          test: m => m.constructor.name === 'CssModule',// 用来决定提取哪些module，可以接受字符串，正则表达式，或者函数，函数的一个参数为module，第二个参数为引用这个module的chunk(数组)。
-          chunks: 'all',
-          enforce: true,
-          priority: 40,
-      },
-      emcommon: {
-          name: 'emcommon',
-          test: module => {
-              const regs = [/@ant-design/, /@em/, /@bytedesign/];
-              return regs.some(reg => reg.test(module.context));
-          },
-          chunks: 'all',
-          enforce: true,
-          priority: 30,// 优先级一样的话，size大的优先被选择。
-      },
-      byteedu: {
-          name: 'byteedu',
-          test: module => {
-              const regs = [
-                  /@ax/,
-                  /@bridge/,
-                  /axios/,
-                  /lodash/,
-                  /@byted-edu/,
-                  /codemirror/,
-                  /@syl-editor/,
-                  /prosemirror/,
-              ];
-              return regs.some(reg => reg.test(module.context));
-          },
-          chunks: 'all',
-          enforce: true,
-          priority: 20,
-      },
-      default: {
-          minChunks: 2,
-          priority: 1,
-          chunks: 'all',
-          reuseExistingChunk: true,// 当module未变时，是否可以使用之前的chunk。
-      },
+  chunks: "async",// 哪些chunks需要进行优化，async-按需引入的模块将会被用于优化，initial-被直接引入的模块将会被用于优化，all-全部都会被用于优化。
+  minSize: 30000,// 打包优化完生成的新chunk大小要> 30000字节，否则不生成新chunk。
+  minChunks: 1,// 共享该module的最小chunk数
+  maxAsyncRequests: 5,// 最多有N个异步加载请求该module
+  maxInitialRequests: 3,// 一个入口文件可以并行加载的最大文件数量
+  automaticNameDelimiter: '~',// 名字中间的间隔符
+  name: true,// chunk的名字，true-自动生成，false-由 id 决定，string-缓存组最终会打包成一个 chunk，名称就是该 string。
+  cacheGroups:{// 要切割成的每一个新chunk就是一个cache group。
+    styles: {
+      name: 'style',
+      test: m => m.constructor.name === 'CssModule',// 用来决定提取哪些module，可以接受字符串，正则表达式，或者函数，函数的一个参数为module，第二个参数为引用这个module的chunk(数组)。
+      chunks: 'all',
+      enforce: true,
+      priority: 40,
     },
+    emcommon: {
+      name: 'emcommon',
+      test: module => {
+          const regs = [/@ant-design/, /@em/, /@bytedesign/];
+          return regs.some(reg => reg.test(module.context));
+      },
+      chunks: 'all',
+      enforce: true,
+      priority: 30,// 优先级一样的话，size大的优先被选择。
+    },
+    byteedu: {
+      name: 'byteedu',
+      test: module => {
+        const regs = [
+            /@ax/,
+            /@bridge/,
+            /axios/,
+            /lodash/,
+            /@byted-edu/,
+            /codemirror/,
+            /@syl-editor/,
+            /prosemirror/,
+        ];
+        return regs.some(reg => reg.test(module.context));
+      },
+      chunks: 'all',
+      enforce: true,
+      priority: 20,
+    },
+    default: {
+      minChunks: 2,
+      priority: 1,
+      chunks: 'all',
+      reuseExistingChunk: true,// 当module未变时，是否可以使用之前的chunk。
+    },
+  },
 };
 ```
 
@@ -631,4 +705,55 @@ apply(compiler) {
     );
   });
 }
+```
+
+## webpack-dev-server
+
+通过**devServer**能在本地开发环境创建一个服务器，该服务器基于**express**，它能实现当项目中的代码发生改变的时，除了打包编译外，还可以帮助我们自动刷新浏览器从而实现实时展示效果。
+
+1. 安装：`npm install webpack-dev-server`
+2. 安装后只需要在 webpack.config.js 配置文件中设置 devSever 属性即可，可以设置成一个空对象，因为 devServer 能实现零配置启动。
+3. 零配置启动服务器，默认端口为 8080：`npx webpack-dev-server`或`npx webpack server`
+4. 服务器启动后，devServer 会监听着项目文件的变化，当文件有修改时自动重新打包编译，并采用 HMR 热替换或自动刷新浏览器方式更新页面效果。但与 watch 模式不同，webpack 为了让效率更快，这些打包操作并没生成具体的文件到磁盘中，而是在内存中完成的，所以我们并不会在实际的目录中看到打包后的文件效果。
+5. 配置参数
+   - static：指定静态资源目录（默认是 public 文件夹） 一般用来存放一些不经过 webpack 打包的静态资源文件（如：favicon.ico）
+   - port: 指定服务器端口（默认：8080）
+   - hot: 是热模块替换启用（默认：true）
+   - open: 是否自动打开浏览器（默认：false）
+   - historyApiFallback: 是否支持 history 路由（默认：false），可以设置访问页不存在时的默认跳转路径。
+   - host：默认情况下，只有本机才能访问 devServer 服务器，通过设置 host 为 0.0.0.0 让局域网其它设备也能访问
+   - compress: 启动 gzip 服务器压缩
+   - proxy: 服务器代理（一般用于解决 ajax 跨域问题），基于 http-proxy-middleware 的代理服务器
+   - 默认情况下，代理时会保留主机头的来源（请求头中的 Origin 字段为`http://localhost:8090`），有的接口服务器可能会对 Origin 字符进行限制，我们可以将 changeOrigin 设置为 true 以覆盖此行为，设置后 Origin 字段就被覆盖为`http://127.0.0.1:8081`。
+
+```js
+// webpack.config.js
+module.exports = {
+	//...
+	devServer: {
+		// 4.x版本写法
+		contentBase: path.resolve("./public"),
+		// 5.x版本写法
+		static: path.resolve("./public"),
+		port: 8090,
+		hot: true,
+		open: true,
+		// historyApiFallback: true,
+		historyApiFallback: {
+			rewrites: "./404.html",
+		},
+		host: "0.0.0.0",
+		compress: true,
+		proxy: {
+			"/api/search": {
+				target: "http://127.0.0.1:8081", // target表示代理的服务器url
+				pathRewrite: {
+					// pathRewrite表示路径重写，key表示一个正则，value表示别名
+					"^/api": "/api", // 即用 '/api'表示'http://localhost:8081/api'
+				},
+				changeOrigin: true,
+			},
+		},
+	},
+};
 ```

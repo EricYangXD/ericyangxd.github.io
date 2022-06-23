@@ -1,2 +1,2 @@
-const { a, b, sum } = require("./hello");
-console.log(a, b, sum);
+const { a, b, sum, propA, propB, propC } = require("./hello");
+console.log(a, b, sum, propA, propB, propC);

@@ -6,9 +6,9 @@ date: "2021-12-29"
 
 ## 原型、继承、原型链
 
--   [参考](https://juejin.cn/post/6844903837623386126)
+- [参考](https://juejin.cn/post/6844903837623386126)
 
--   ![原型关系图](../../assets/proto.png "原型关系图")
+- ![原型关系图](../../assets/proto.png "原型关系图")
 
 ECMAScript 中\-所有\-函数的参数都是按值传递的。也就是说，把函数外部的值复制给函数内部的参数，就和把值从一个变量复制到另一个变量一样。
 
@@ -19,7 +19,9 @@ ECMAScript 中\-所有\-函数的参数都是按值传递的。也就是说，�
 ### ES5/ES6 的继承除了写法以外还有什么区别
 
 1. ES6 子类可以直接通过 `__proto__` 寻址到父类:`Sub.__proto__ === Super`。而通过 ES5 的方式:`Sub.__proto__ === Function.prototype`。
-2. ES5 和 ES6 子类 this 生成顺序不同。ES5 的继承先生成了子类实例，再调用父类的构造函数修饰子类实例，ES6 的继承先生成父类实例，再调用子类的构造函数修饰父类实例。这个差别使得 ES6 可以继承 js 内置对象。
+2. ES5 和 ES6 子类 this 生成顺序不同。
+   - ES5 的继承先生成了子类实例，再调用父类的构造函数修饰子类实例，
+   - ES6 的继承先生成父类实例，再调用子类的构造函数修饰父类实例。这个差别使得 ES6 可以继承 js 内置对象。
 3. class 声明不会提升，如同 let、const，会造成暂时性死区。
 4. class 声明内部会启用严格模式。
 5. class 的所有方法（包括静态方法和实例方法）都是不可枚举的。
@@ -29,9 +31,9 @@ ECMAScript 中\-所有\-函数的参数都是按值传递的。也就是说，�
 
 ## 类型转换
 
--   依赖 valueOf,toString,ToPrimitive
--   真值表如下:
--   ![JS类型转换真值表](../../assets/js-true-value.png "JS类型转换真值表")
+- 依赖 valueOf,toString,ToPrimitive
+- 真值表如下:
+- ![JS类型转换真值表](../../assets/js-true-value.png "JS类型转换真值表")
 
 ## 静态作用域与动态作用域
 
@@ -54,9 +56,9 @@ const ext = file.name.substring(file.name.lastIndexOf(".") + 1);
 3. 利用 file-type
 
 4. 利用 vscode 插件 hexdump for VSCode 以十六进制的形式查看二进制文件--同一种类型的文件，他们的头信息是完全相同的
-    > 1. 在获取文件对象后，我们可以通过 FileReader API 来读取文件的内容;
-    > 2. 然后将结果转为 Unicode 编码，再转为十六进制;
-    > 3. **没有必要将整个文件转为十六进制，我们只需要截取文件的前几个字节，然后将截取后的文件转为十六进制，再进行比对就可以**;
+   > 1. 在获取文件对象后，我们可以通过 FileReader API 来读取文件的内容;
+   > 2. 然后将结果转为 Unicode 编码，再转为十六进制;
+   > 3. **没有必要将整个文件转为十六进制，我们只需要截取文件的前几个字节，然后将截取后的文件转为十六进制，再进行比对就可以**;
 
 ```html
 <input id="file" type="file" />
@@ -72,9 +74,7 @@ const ext = file.name.substring(file.name.lastIndexOf(".") + 1);
 	});
 	// 判断是否为图片
 	async function isImage(file) {
-		return (
-			(await isGif(file)) || (await isPng(file)) || (await isJpg(file))
-		);
+		return (await isGif(file)) || (await isPng(file)) || (await isJpg(file));
 	}
 	// 判断是否为 jpg 格式
 	async function isJpg(file) {
@@ -112,7 +112,7 @@ const ext = file.name.substring(file.name.lastIndexOf(".") + 1);
 
 ## .env 文件原理解析
 
--   一句话总结 dotenv 库的原理。用 fs.readFileSync 读取 .env 文件，并解析文件为键值对形式的对象，将最终结果对象遍历赋值到 process.env 上。
+- 一句话总结 dotenv 库的原理。用 fs.readFileSync 读取 .env 文件，并解析文件为键值对形式的对象，将最终结果对象遍历赋值到 process.env 上。
 
 > Dotenv 是一个零依赖模块，可将 .env 文件中的环境变量加载到 process.env 中
 > 如果需要使用变量，则配合如下扩展包使用 —— dotenv-expand
@@ -126,11 +126,11 @@ const ext = file.name.substring(file.name.lastIndexOf(".") + 1);
 
 ## open 的原理
 
--   用法：--open 或者 --no-open
--   地址[open](https://github.com/sindresorhus/open)
+- 用法：--open 或者 --no-open
+- 地址[open](https://github.com/sindresorhus/open)
 
--   一句话概括 open 原理则是：针对不同的系统，使用 Node.js 的子进程 child_process 模块的 spawn 方法，调用系统的命令打开浏览器.
--   对应的系统命令简单形式则是：
+- 一句话概括 open 原理则是：针对不同的系统，使用 Node.js 的子进程 child_process 模块的 spawn 方法，调用系统的命令打开浏览器.
+- 对应的系统命令简单形式则是：
 
 ```bash
 # mac
@@ -145,8 +145,8 @@ xdg-open https://ericyangxd.top/
 
 ### 使用 Canvas
 
--   原理：使用 Canvas 绘制好图片，利用 canvas.toDataURL()转换为 base64 格式，然后给顶层的#root 设置 background-image 即可，注意调整样式。
-    示例代码：
+- 原理：使用 Canvas 绘制好图片，利用 canvas.toDataURL()转换为 base64 格式，然后给顶层的#root 设置 background-image 即可，注意调整样式。
+  示例代码：
 
 ```js
 var canvas = document.getElementById("canvas");
@@ -178,7 +178,7 @@ if (canvas.getContext) {
 
 ### 透明图片覆盖
 
--   太 low 了，不用
+- 太 low 了，不用
 
 ## 一个 function
 
@@ -197,15 +197,15 @@ f`Hello ${a}!`;
 
 ### 对应类型
 
--   JS 7(8) 种基本类型对应的是：undefined, null, object, boolean, string, number, symbol(, bigint)。
--   那么 7 种语言类型应该对应的什么？作者回复:
-    -   List 和 Record
-    -   Set
-    -   Completion Record
-    -   Reference
-    -   Property Descriptor
-    -   Lexical Environment 和 Environment Record
-    -   Data Block
+- JS 7(8) 种基本类型对应的是：undefined, null, object, boolean, string, number, symbol(, bigint)。
+- 那么 7 种语言类型应该对应的什么？作者回复:
+  - List 和 Record
+  - Set
+  - Completion Record
+  - Reference
+  - Property Descriptor
+  - Lexical Environment 和 Environment Record
+  - Data Block
 
 ### 类型检测
 
@@ -240,7 +240,7 @@ xhr.onreadystatechange = function (e) {
 xhr.send();
 ```
 
--   然后可以对这个文件进行解析啥的`formatHtml(xhr.responseText)`，适用于抓到别人的网页之后，解析一下 body 放到自己的页面里。
+- 然后可以对这个文件进行解析啥的`formatHtml(xhr.responseText)`，适用于抓到别人的网页之后，解析一下 body 放到自己的页面里。
 
 ### 移除 a 标签的默认跳转行为
 
@@ -257,7 +257,7 @@ $(ele).attr("target", "");
 
 ### 通过 Canvas 做 web 身份识别
 
--   原理：通过 Canvas 生成指纹，做识别。
+- 原理：通过 Canvas 生成指纹，做识别。
 
 ```js
 // PHP 中，bin2hex() 函数把 ASCII 字符的字符串转换为十六进制值。字符串可通过使用 pack() 函数再转换回去
@@ -346,8 +346,8 @@ function getHighestPriorityLane(lanes) {
 2. 在 JavaScript 中，有两个东西可以被执行并存在执行结果（Result），包括语句和表达式。
 3. 表达式的值，在 ECMAScript 的规范中，称为“引用”。
 4. 在进一步的删除操作之前，JavaScript 需要检测这个 Result 的类型：
-    1. 如果它是值，则按照传统的 JavaScript 的约定返回 true；
-    2. 如果它是一个引用，那么对该引用进行分析，以决定如何操作。
+   1. 如果它是值，则按照传统的 JavaScript 的约定返回 true；
+   2. 如果它是一个引用，那么对该引用进行分析，以决定如何操作。
 5. ECMAScript 约定：任何表达式计算的结果（Result）要么是一个值，要么是一个引用。
 6. “delete x”归根到底，是在删除一个表达式的、引用类型的结果（Result），而不是在删除 x 表达式，或者这个删除表达式的值（Value）。
 7. delete 运算符尝试删除值数据时，会返回 true，用于表示没有错误（Error）。
@@ -364,24 +364,24 @@ function getHighestPriorityLane(lanes) {
 
 严格意义上讲，JavaScript 只有变量和常量两种标识符，六条声明语句:
 
--   `let x …` : 声明变量 x。不可在赋值之前读。
--   `const x …` : 声明常量 x。不可写。
--   `var x …` : 声明变量 x。在赋值之前可读取到 undefined 值。
--   `function x …` : 声明变量 x。该变量指向一个函数。
--   `class x …` : 声明变量 x。该变量指向一个类（该类的作用域内部是处理严格模式的）。
--   `import …` : 导入标识符并作为常量（可以有多种声明标识符的模式和方法）。
+- `let x …` : 声明变量 x。不可在赋值之前读。
+- `const x …` : 声明常量 x。不可写。
+- `var x …` : 声明变量 x。在赋值之前可读取到 undefined 值。
+- `function x …` : 声明变量 x。该变量指向一个函数。
+- `class x …` : 声明变量 x。该变量指向一个类（该类的作用域内部是处理严格模式的）。
+- `import …` : 导入标识符并作为常量（可以有多种声明标识符的模式和方法）。
 
 > NOTE：6 种声明语句中的函数是按 varDecls 的规则声明的；类的内部是处于严格模式中，它的名字是按 let 来处理的，而 import 导入的名字则是按 const 的规则来处理的。所以，所有的声明本质上只有三种处理模式：var 变量声明、let 变量声明和 const 常量声明。
 
 除了这六个语句之外，还有两个语句有潜在的声明标识符的能力，不过它们并不是严格意义上的声明语句（声明只是它们的语法效果）。这两个语句是指：
 
--   `for (var|let|const x …) …` : for 语句有多种语法来声明一个或多个标识符，用作循环变量。
--   `try … catch (x) …` : catch 子句可以声明一个或多个标识符，用作异常对象变量。
+- `for (var|let|const x …) …` : for 语句有多种语法来声明一个或多个标识符，用作循环变量。
+- `try … catch (x) …` : catch 子句可以声明一个或多个标识符，用作异常对象变量。
 
 一个简单论断，所有的“声明”：
 
--   都意味着 JavaScript 将可以通过“静态”语法分析发现那些声明的标识符；
--   标识符对应的变量 / 常量“一定”会在用户代码执行前就已经被创建在作用域中。
+- 都意味着 JavaScript 将可以通过“静态”语法分析发现那些声明的标识符；
+- 标识符对应的变量 / 常量“一定”会在用户代码执行前就已经被创建在作用域中。
 
 回到 ECMAScript 6 之前：JavaScript 是允许访问还没有绑定值的 var 所声明的标识符的。这种标识符后来统一约定称为“变量声明（varDelcs）”，而“let/const”则称为“词法声明（lexicalDecls）”。JavaScript 环境在创建一个“变量名（varName in varDecls）”后，会为它初始化绑定一个 undefined 值，而”词法名字（lexicalNames）”在创建之后就没有这项待遇，所以它们在缺省情况下就是“还没有绑定值”的标识符。
 
@@ -440,13 +440,13 @@ export default <expression
 并不是所有的循环语句都有自己的块级作用域，例如 while 和 do..while 语句就没有。而且，也不是所有 for 语句都有块级作用域。在 JavaScript 中，有且仅有：
 `for (let/const ...) ...`这个语法有自己的块级作用域。当然，这也包括相同设计的`for await`和`for .. of/in ..`。PS:不包括 var 声明，因为 var 会变量提升。
 
--   所有“var 声明”和函数声明的标识符都登记为 varNames，使用“变量作用域”管理；
--   其它情况下的标识符 / 变量声明，都作为 lexicalNames 登记，使用“词法作用域”管理。
+- 所有“var 声明”和函数声明的标识符都登记为 varNames，使用“变量作用域”管理；
+- 其它情况下的标识符 / 变量声明，都作为 lexicalNames 登记，使用“词法作用域”管理。
 
 循环语句（对于支持“let/const”的 for 语句来说）“通常情况下”只支持一个块级作用域。
 
 for 语句中使用“let/const”这种块级作用域声明所需要付出的代价：在语法上只需要两个“块级作用域”，而实际运行时却需要为其中的第二个块级作用域（for 循环体）创建无数个副本。这种 for 循环并不比使用函数递归节省开销。因为每一次函数调用其实都会创建一个新的闭包——也就是函数的作用域的一个副本。
 
--   在 es6 中，其实 for 只要写大括号就代表着块级作用域。所以只要写大括号，不管用 let 还是 var，一定是会创建相应循环数量的块级作用域的。
--   如果不用大括号，在 for 中使用了 let，也会创建相应循环数量的块级作用域。
--   也就是说，可以提高性能的唯一情况只有（符合业务逻辑的情况下），循环体是单行语句就不使用大括号且 for 中使用 var。
+- 在 es6 中，其实 for 只要写大括号就代表着块级作用域。所以只要写大括号，不管用 let 还是 var，一定是会创建相应循环数量的块级作用域的。
+- 如果不用大括号，在 for 中使用了 let，也会创建相应循环数量的块级作用域。
+- 也就是说，可以提高性能的唯一情况只有（符合业务逻辑的情况下），循环体是单行语句就不使用大括号且 for 中使用 var。

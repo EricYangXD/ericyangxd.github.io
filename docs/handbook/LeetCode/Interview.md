@@ -962,12 +962,63 @@ function getMax(arr) {
 2. polyfill 意指当浏览器不支持某一最新 API 时，它将帮你实现，中文叫做垫片。
 3. core-js 包含了所有 ES6+ 的 polyfill，并集成在 babel/swc 等编译工具之中。
 4. @babel/plugin-transform-runtime - 重利用 Babel helper 方法的 babel 插件，避免全局补丁污染
-5. @babel/polyfill - 等同于 `core-js/stable` 和 `regenerator-runtime/runtime` ，已废弃
+5. @babel/polyfill - 等同于 `core-js/stable` 和 `regenerator-runtime/runtime` ，**已废弃**
 6. @babel/preset-env - 按需编译和按需打补丁
 
 ### @babel/preset-env、@babel/polyfill
 
-1. 使用 `@babel/preset-env` 或者 `@babel/polyfill` 进行配置 core-js，以实现 polyfill。
+1. 使用 `@babel/preset-env`(推荐) 或者 `@babel/polyfill`(废弃) 进行配置 core-js，以实现 polyfill。
+
+```js
+rules: [
+	{
+		test: /\.js$/,
+		use: {
+			loader: "babel-loader",
+			options: {
+				presets: [
+					// 使用数组
+					[
+						"@babel/preset-env",
+						{
+							// 数组的第二项为env选项 示例
+							// 指定市场份额超过0.25%的浏览器（不推荐，会导致对IE6的支持）
+							// targets:指定目标环境（String | Object | Array），不指定时会根据browserlist配置（.browserlistrc或package.json）去兼容目标环境
+							targets:"> 0.25%, not dead",
+							// 推荐写法：兼容所有浏览器最后两个版本
+							targets:"last 2 versions"
+							// 对象写法
+							targets:{
+									// 指定浏览器版本
+									"chrome": "58",
+									"ie":"11",
+									"edge":"last 2 versions",
+									"firefox":"> 5%",
+
+									// 指定nodejs版本, current为当前运行的node版本
+									"node":"current"
+							},
+							// spec : 启用更符合规范的转换，但速度会更慢，默认为 false
+							// loose：是否启动松散模式（默认：false），
+							// modules：将 ES Modules 转换为其他模块规范，adm | umd | systemjs | commonjs | cjs | false（默认）
+							// debug：是否启用debug模式，默认 false
+							// useBuiltIns：配置@babel/preset-env如何处理polyfills，有三个值：
+							// 1. entry:根据配置的浏览器兼容，引入浏览器不兼容的 polyfill。需要在入口文件手动添加 import '@babel/polyfill'，会自动根据 browserslist 替换成浏览器不兼容的所有 polyfill
+							// 2. usage:会根据配置的浏览器兼容，以及你代码中用到的 API 来进行 polyfill，实现了按需添加，好处就是最终打包的文件会比较小
+							// 3. false（默认）:此时不对 polyfill 做操作。如果引入 @babel/polyfill，则无视配置的浏览器兼容，引入所有的 polyfill
+							// corejs:指定corejs版本（默认:2.0），目前使用core-js@2或core-js@3版本，需要手动安装
+						},
+					],
+				],
+			},
+		},
+	},
+];
+```
+
+### @babel/preset-react、@babel/preset-typescript
+
+[官网](https://www.babeljs.cn/docs/)
 
 ### browserslist 的意义
 
@@ -1024,7 +1075,14 @@ lodash.get({ a: 3 }, "a");
 </script>
 ```
 
-### ESM 与 CommonJS 的导入导出的不同
+### JavaScript 的模块化
+
+为什么会有多种种模块化规范，JavaScript 官方迟迟没有给出解法，所以社区实现了很多不同的模块化规范，按照出现的时间前后有 CommonJS、AMD、CMD、UMD。最后才是 JavaScript 官方在 ES6 提出的 ES Module。众所周知，早期的 JavaScript 是没有模块的概念，引用第三方包时都是把变量直接绑定在全局环境下。以 axios 为例，以 script 标签引入 axios 时，实际是在 window 对象上绑定了一个 axios 属性。这种全局引入的方式会导致两个问题，变量污染和依赖混乱。所以需要使用“模块化”来对不同代码进行「隔离」。
+
+- 变量污染：所有脚本都在全局上下文中绑定变量，如果出现重名时，后面的变量就会覆盖前面的
+- 依赖混乱：当多个脚本有相互依赖时，彼此之间的关系不明朗
+
+### ESModule 与 CommonJS 的导入导出的不同
 
 1. 在 ESM 中，导入导出有两种方式:
    - 具名导出/导入: Named Import/Export
@@ -1047,9 +1105,125 @@ lodash.get({ a: 3 }, "a");
    - 编译器优化。在 CommonJS 等动态模块系统中，无论采用哪种方式，本质上导入的都是一个对象，而 ES6 Module 支持直接导入变量，减少了引用层级，程序效率更高。
 
 6. 二者的差异：
-   - CommonJS 模块引用后是一个值的拷贝，而 ESModule 引用后是一个值的动态映射，并且这个映射是只读的。CommonJS 模块输出的是值的拷贝，一旦输出之后，无论模块内部怎么变化，都无法影响之前的引用。ESModule 是引擎会在遇到 import 后生成一个引用链接，在脚本真正执行时才会根据这个引用链接去模块里面取值，模块内部的原始值变了 import 加载的模块也会变。
-   - CommonJS 运行时加载，ESModule 编译阶段引用。CommonJS 在引入时是加载整个模块，生成一个对象，然后再从这个生成的对象上读取方法和属性。ESModule 不是对象，而是通过 export 暴露出要输出的代码块，在 import 时使用静态命令的方法引用指定的输出代码块，并在 import 语句处执行这个要输出的代码，而不是直接加载整个模块。
+   - 1. CommonJS 模块引用后是一个值的拷贝，简单来说就是把导出值复制一份，放到一块新的内存中，每次直接在新的内存中取值，所以对变量修改没有办法同步。
+   - 1. ESModule 引用后是一个值的动态映射，指向同一块内存，并且这个映射是只读的。
+   - 2. CommonJS 模块输出的是值的拷贝，一旦输出之后，无论模块内部怎么变化，都无法影响之前的引用。
+   - 2. ESModule 是引擎会在遇到 import 后生成一个引用链接，在脚本真正执行时才会根据这个引用链接去模块里面取值，模块内部的原始值变了 import 加载的模块也会变。模块实际导出的是这块内存的地址，每当用到时根据地址找到对应的内存空间，这样就实现了所谓的“动态绑定”。
+   - 3. CommonJS 运行时加载。
+   - 3. ESModule 编译阶段引用。
+   - 4. CommonJS 在引入时是加载整个模块，生成一个对象，然后再从这个生成的对象上读取方法和属性。
+   - 4. ESModule 不是对象，而是通过 export 暴露出要输出的代码块，在 import 时使用静态命令的方法引用指定的输出代码块，并在 import 语句处执行这个要输出的代码，而不是直接加载整个模块。
 7. CommonJS To ESM 的构建工具: `@rollup/plugin-commonjs`,`https://cdn.skypack.dev/`,`https://jspm.org/`。
+
+### ESModule 导入导出
+
+1. 普通导入、导出：使用 export 导出可以写成一个对象合集，也可以是一个单独的变量，需要和 import 导入的变量名字一一对应；
+2. 默认导入、导出：使用`export default`语法可以实现默认导出，可以是一个函数、一个对象，或者仅一个常量。默认的意思是，使用 import 导入时可以使用任意名称；
+3. 混合导入、导出：默认导入导出不会影响普通导入导出，并且可以同时使用；
+4. 全部导入：使用'\*'、'as'等关键字；实际可以理解为：默认导出的属性名就叫'default'，只不过省略了。
+5. 重命名导入：可以避免命名冲突；
+6. 重定向导出：很有用；
+
+```js
+export * from "./a.mjs"; // 第一种
+export { propA, propB, propC } from "./a.mjs"; // 第二种
+export { propA as renameA, propB as renameB, propC as renameC } from "./a.mjs"; //第三种
+```
+
+7. 只运行模块：`import './a.mjs'`，相当于直接运行这个文件里的代码。
+
+### ESModule 循环引入
+
+import 语句有提升的效果。
+
+ES module 会根据 import 关系构建一棵依赖树，遍历到树的叶子模块后，然后根据依赖关系，反向找到父模块，将 export/import 指向同一地址。
+
+和 CommonJS 一样，发生循环引用时并不会导致死循环，但两者的处理方式大有不同。
+
+ES module 导出的是一个索引——内存地址，没有办法和 CommonJS 一样通过缓存处理。它依赖的是**模块地图**和**模块记录**，模块地图在下面会解释，而模块记录是好比每个模块的“身份证”，记录着一些关键信息——这个模块导出值的的内存地址，加载状态，在其他模块导入时，会做一个“连接”——根据模块记录，把导入的变量指向同一块内存，这样就是实现了动态绑定。
+
+在代码执行前，首先要进行预处理，这一步会根据 import 和 export 来构建模块地图（Module Map），它类似于一颗树，树中的每一个'节点'就是一个模块记录，这个记录上会标注导出变量的内存地址，将导入的变量和导出的变量连接，即把他们指向同一块内存地址。不过此时这些内存都是空的，也就是看到的'uninitialized'。
+
+循环引用要解决的无非是两个问题，保证不进入死循环以及输出什么值。ES Module 处理循环使用一张模块间的依赖地图来解决死循环/循环引用问题，标记进入过的模块为'获取中 Fetching'，所以循环引用时不会再次进入；使用模块记录，标注要去哪块内存中取值，将导入导出做链接，解决了要输出什么值。
+
+### CommonJS 中 exports 和 module.exports 的区别
+
+1. 所谓的 exports 仅仅是 `module.exports` 的引用而已: `exports = module.exports;`，但是使用的时候还是有些区别；
+2. 当绑定一个属性时，两者相同
+
+```js
+exports.propA = "A";
+module.exports.propB = "B";
+```
+
+3. 不能直接赋值给`exports`，也就是不能直接使用`exports = {};`这种语法
+
+```js
+// 失败
+exports = { propA: "A" };
+// 成功
+module.exports = { propB: "B" };
+```
+
+4. 虽然两者指向同一块内存，但最后被导出的是 `module.exports`，所以不能直接赋值给 exports。同样的道理，只要最后直接给 `module.exports` 赋值了，之前绑定的属性都会被覆盖掉。
+
+```js
+exports.propA = "A";
+module.exports.propB = "B";
+module.exports = { propD: "D" };
+module.exports = { propC: "C" }; // propC会覆盖propD
+```
+
+用上面的例子所示，先是绑定了两个属性 propA 和 propB，接着给 `module.exports` 赋值，最后能成功导出的只有 propC。
+
+### CommonJS 如何处理循环引入和多次引入
+
+1. 循环引入
+
+先看示例：执行`node index.js`，会输出什么：
+
+```js
+//index.js
+var a = require("./a");
+console.log("入口模块引用a模块：", a);
+
+// a.js
+exports.a = "原始值-a模块内变量";
+var b = require("./b");
+console.log("a模块引用b模块：", b);
+exports.a = "修改值-a模块内变量";
+
+// b.js
+exports.b = "原始值-b模块内变量";
+var a = require("./a");
+console.log("b模块引用a模块：", a);
+exports.b = "修改值-b模块内变量";
+
+// 输出
+// b模块引用a模块：{a: '原始值-a模块内变量'}
+// a模块引用b模块：{b: '修改值-b模块内变量'}
+// 入口模块引用a模块：{a: '修改值-a模块内变量'}
+```
+
+这种 AB 模块间的互相引用，本应是个死循环，但是实际并没有，因为 CommonJS 做了特殊处理——**模块缓存**。
+
+循环引用无非是要解决两个问题，怎么避免死循环以及输出的值是什么。CommonJS 通过模块缓存来解决：**每一个模块都先加入缓存再执行，每次遇到 require 都先检查缓存，这样就不会出现死循环；借助缓存，输出的值也很简单就能找到了**。
+
+2. 多次引入
+
+同样由于缓存，一个模块**不会被多次执行**。当第二次引用这个模块时，如果发现已经有缓存，则直接读取，而不会再去执行一次。
+
+3. 路径解析规则
+
+为什么我们导入时直接简单写一个'react'就正确找到包的位置？每个模块都是一个 module 对象，module 下面有 paths 属性。
+
+首先把路径作一个简单分类：内置的核心模块、本地的文件模块和第三方模块。
+
+- 对于核心模块，node 将其已经编译成二进制代码，直接书写标识符 fs、http 就可以引入使用；
+- 对于自己写的文件模块，需要用'./'、'../'开头，require 会将这种相对路径转化为真实路径，找到模块；
+- 对于第三方模块，也就是使用 npm 下载的包，就会用到 paths 这个变量，会依次查找当前路径下的 node_modules 文件夹，如果没有，则在父级目录查找 node_modules，一直到根目录下，找到为止。如果没找到那就会报模块没找到或没安装。
+
+在 node_modules 下找到对应包后，会以 package.json 文件下的 main 字段为准，找到包的入口，如果没有 main 字段，则查找 index.js/index.json/index.node 做入口。
 
 ### const、let 和 var
 
@@ -1696,7 +1870,7 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
     4. JS 报错统计（埋点、上报、统计）用 sentry；sentry 是一个基于 Django 构建的现代化的实时事件日志监控、记录和聚合平台，主要用于快速的发现故障。sentry 支持自动收集和手动收集两种错误收集方法。我们能成功监控到 vue 中的错误、异常，但是还不能捕捉到异步操作、接口请求中的错误，比如接口返回 404、500 等信息，此时我们可以通过`Sentry.caputureException()`进行主动上报。
 24. 鉴权
 25. hmr 热更新原理
-26. mixin,vue router 的原理
+26. mixin，vue router 的原理
 27. vue 双向绑定原理
 28. es6 的新特性
 
@@ -1902,3 +2076,126 @@ es6 中新增了箭头函数，而箭头函数最大的特色就是没有自己�
 5. 前后端协议采用二进制方式进行交互或者协议采用签名机制
 6. 人机验证，验证码，短信验证码，滑动图片形式，12306 形式
 7. 网络服务商流量清洗（参考 DDoS）
+
+## 路由拦截
+
+## 提高 webpack 打包速度
+
+1. 在尽可能少的模块上应用 loader
+2. Plugin 尽可能精简并可靠
+3. resolve 参数的合理配置
+4. 使用 DllPlugin 提高打包速度
+   - 第三方模块单独打包，生成打包结果
+   - 使用 library 暴露为全局变量
+   - 借助 dll 插件来生成 manifest 映射文件，从 dll 文件夹里面拿到打包后的模块（借助 dllReference 插件）就不用重复打包了
+   - 中间进行了很多分析的过程，最后决定要不要再去分析 node_modules 内容
+5. 去除冗余引用
+6. 多进程打包:利用 node 的多进程，利用多个 cpu 进行项目打包（thread-loader，parallel-webpack，happypack）
+7. 合理使用 SourceMap
+8. 结合 stats.json 文件分析打包结果;分析 bundle 包,打包后的 bundle 文件生成一个分析文件:`"analyse": "webpack --config ./webpack.config.js --profile --json>states.json"`
+9. webpack-analyzer
+10. 开发环境无用插件需要剔除
+
+### 相关 webpack 插件和 loader 等
+
+四步：分析打包速度，分析打包体积，优化打包速度，优化打包体积。
+
+1. 进行优化的第一步需要知道我们的构建到底慢在那里。通过 `speed-measure-webpack-plugin` 测量你的 webpack 构建期间各个阶段花费的时间。使用插件的 wrap()方法将 webpack 配置 module.exports 包起来，打包完成后控制台会输出各个 loader 的打包耗时，可根据耗时进一步优化打包速度;
+2. 体积分析：1.依赖的第三方模块文件大小；2.业务里面的组件代码大小。安装插件`webpack-bundle-analyzer`，打包后可以很清晰直观的看出各个模块的体积占比。
+3. 代码分割:`CommonsChunkPlugin`;
+4. 使用 `HashedModuleIdsPlugin` 来保持模块引用的 `module_id` 不变;
+5. `hard-source-webpack-plugin`该插件的作用是为打包后的模块提供缓存，且缓存到本地硬盘上。默认的缓存路径是：`node_modules/.cache/hard-source`。
+6. 使用高版本的 webpack 和 node.js，优化一下代码语法：
+   - `for of 替代 forEach`
+   - `Map和Set 替代Object`
+   - `includes 替代 indexOf()`
+   - `默认使用更快的md4 hash算法 替代 md5算法，md4较md5速度更快`
+   - `webpack AST 可以直接从loader传递给AST，从而减少解析时间`
+   - `使用字符串方法替代正则表达式`
+7. 多进程/多实例构建（资源并行解析）:在 webpack 构建过程中，我们需要使用 Loader 对 js，css，图片，字体等文件做转换操作，并且转换的文件数据量也是非常大的，且这些转换操作不能并发处理文件，而是需要一个个文件进行处理，我们需要的是将这部分任务分解到多个子进程中去并行处理，子进程处理完成后把结果发送到主进程中，从而减少总的构建时间。
+   - thread-loader（官方推出）
+   - parallel-webpack
+   - HappyPack
+8. 多进程/多实例进行代码压缩（并行压缩）:在代码构建完成之后输出之前有个代码压缩阶段，这个阶段也可以进行并行压缩来达到优化构建速度的目的。
+   - `webpack-parallel-uglify-plugin`
+   - `uglifyjs-webpack-plugin`
+   - `terser-webpack-plugin`**(webpack4.0 推荐使用，支持压缩 es6 代码)**
+9. 通过分包提升打包速度:可以使用`html-webpack-externals-plugin`分离基础包，分离之后以 CDN 的方式引入所需要的资源文件，缺点就是一个基础库必须指定一个 CDN，实际项目开发中可能会引用到多个基础库，还有一些业务包，这样会打出很多个 script 标签。
+10. 进一步分包，采用预编译资源模块：采用 webpack 官方内置的插件`DLLPlugin`进行分包，`DLLPlugin`可以将项目中涉及到的例如 react、react-router 等组件和框架库打包成一个文件，同时生成`manifest.json`文件。`manifest.json`是对分离出来的包进行一个描述，实际项目就可以引用`manifest.json`，引用之后就会关联 `DLLPlugin` 分离出来的包,这个文件是用来让  `DLLReferencePlugin`  映射到相关的依赖上去。
+11. 通过缓存提升二次打包速度:
+    - `babel-loader `开启缓存:`cacheDirectory=true`
+    - `terser-webpack-plugin` 开启缓存:`new TerserPlugin({cache: true,})`
+    - 使用`cache-loader`或者 `hard-source-webpack-plugin`
+12. 打包体积优化
+    1. 图片压缩:使用 Node 库的 imagemin，配置`image-webpack-loader`对图片优化，改插件构建时会识别图片资源，对图片资源进行优化，借助 pngquant（一款 PNG 的压缩器）压缩图片
+    2. 擦除无用到的 css:插件`purgecss-webpack-plugin`
+    3. 动态 Polyfill：由于 Polyfill 是非必须的，对一些不支持 es6 新语法的浏览器才需要加载 polyfill，为了百分之 3.几的用户让所有用户去加载 Polyfill 是很没有必要的；我们可以通过 polyfill-service，只给用户返回需要的 polyfill。每次用户打开一个页面，浏览器端会请求 polyfill-service，polyfill-service 会识别用户 User Agent，下发不同的 polyfill。如何使用动态 Polyfill service，通过[官方](https://polyfill.io)提供的服务，自建 polyfill 服务。
+
+## ES6 继承
+
+参考「ES5/ES6 的继承除了写法以外还有什么区别」
+
+## 路由跳转
+
+`history.replaceState();`
+
+## 作用域链
+
+参考「V8」
+
+## keep-alive 原理
+
+## 购物车提交订单数据怎么传
+
+1. 商品添加至购物车是不需要登录的，但是需要把 skuId 和数量传给后端，查询是否有库存，然后返回给前端，并把购物车信息存在 cookie (或者 sessionStorage) 里。
+2. 选择购物车内的商品购买，提交订单，这时候需要用户登录了。
+3. 用户登录后获取用户 cookie (或者 sessionStorage)内购物车信息，以及登录信息，更新数据库或 redis 中的购物车表（购物车表，一个 skuId 对应购物车一条记录）。
+4. 用户勾选购物车内商品，生成预览订单（重新获取商品的最新情况比如库存、商品价格等），具体金额由后端计算并返回给前端（前端计算的值仅供参考）。
+5. 提交并生成订单唤起支付组件或跳到支付页面，然后删除购物车已购买的商品，预减库存，同步更新 cookie (或者 sessionStorage)内购物车信息。
+
+一般会先从购物车或者商品详情页到确认订单页面。根据确认订单页面的数据格式从购物车组织数据（通常最后是搞成一个 json 对象或者跟后端约定拼成字符串），然后存在 localstorage 里面（做的都是移动端），然后直接跳页面，去确认订单页面遍历渲染那个数据对象就好了。前端这些只是给用户看的，后台在付钱的时候还会再算一遍订单金额，再拆单的。所以就算用户改了支付信息，他还是要付那些钱的。
+
+例：淘宝购物车 post 方法更新购物车的 payload：
+
+```json
+{
+	"_input_charset": "utf-8",
+	"tk": "f88fe5116a335",
+	"_tb_token_": "f88fe5116a335",
+	"data": [
+		{
+			"shopId": "s_3910391259",
+			"comboId": 0,
+			"shopActId": 0,
+			"cart": [
+				{
+					"quantity": 43,
+					"cartId": "4117652227290",
+					"skuId": "4811854276366",
+					"itemId": "644712582517"
+				}
+			],
+			"operate": ["4117652227290"],
+			"type": "update"
+		}
+	],
+	"shop_id": 0,
+	"t": 1656004343910,
+	"type": "update",
+	"ct": "e5798e786c8a9627ee23ada7a462673c",
+	"page": 1,
+	"_thwlang": "zh_CN"
+}
+```
+
+## jsbridge 通信失败怎么处理
+
+## h5 怎么调用 native 的方法
+
+## 页面多图片加载优化
+
+## 移动端 h5 适配问题
+
+## 工作经历
+
+## 个人优势

@@ -4,6 +4,42 @@ author: EricYangXD
 date: "2021-12-29"
 ---
 
+## TypeScript
+
+### 是什么
+
+TS 是 JS 的超集，
+
+### 要解决什么问题
+
+1. 为 JavaScript 提供可选的类型系统
+   - 类型系统能够提高代码的质量和可维护性，尤其是大型团队协作开发大型项目时；
+   - 类型有利于代码的重构，它有利于编译器在编译时而不是运行时捕获错误；
+   - 类型是出色的文档形式之一；
+2. 兼容当前以及未来的 JavaScript 特性
+
+## 基本类型
+
+### boolean
+
+boolean 其实也是联合类型：`type boolean = true | false;`。
+
+### 联合类型
+
+1. boolean 其实也是联合类型。
+2. 条件类型对 any 做了特殊处理，如果左边是 any，那么直接把 trueType 和 falseType 合并成联合类型返回。
+3. 当条件类型左边是 never 时，直接返回 never。
+
+```ts
+type Test<T> = T extends true ? 1 : 2;
+type res = Test<any>;
+// type res = 1 | 2
+```
+
+### 分布式条件类型
+
+当条件类型的左边是类型参数时，会有 distributive 的性质，也就是把联合类型的每个类型单独传入求值，把每个的结果合并成联合类型，这叫做分布式条件类型。
+
 ## 官方提供的工具类型
 
 ### Omit
@@ -499,7 +535,7 @@ const api = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
 
 #### 找到某个包的定义/声明
 
-TypeScript 没有找到某个包的定义/声明时，你可以通过 `npm install @types/xxx` 安装相关声明;或者自己定义一份.d.ts 文件，并将 xxx 声明为 declare module。（安装 @types 和 自己 declare module）就是 TypeScript 官方提出的， 你可以选择适合你的方案。我的推荐是尽量使用 @types 下的声明，实在没有，再使用第二种方法。
+TypeScript 没有找到某个包的定义/声明时，你可以通过 `npm install @types/xxx` 安装相关声明文件；或者自己定义一份.d.ts 文件，并将 xxx 声明为 declare module。（安装 @types 和 自己 declare module）就是 TypeScript 官方提出的， 你可以选择适合你的方案。我的推荐是尽量使用 @types 下的声明，实在没有，再使用第二种方法。
 
 #### 包类型定义的查找
 

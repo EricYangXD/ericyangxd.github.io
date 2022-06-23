@@ -466,7 +466,7 @@ module.exports = {
             target: 'http://127.0.0.1:8081', // target表示代理的服务器url
             pathRewrite: {
               // pathRewrite表示路径重写，key表示一个正则，value表示别名
-              '^/api': '/api', // 即用 '/api'表示'http://localhost:3000/api'
+              '^/api/search': '/api', // 即用'/api'表示'http://localhost:8081/api'
             },
           },
           ...
@@ -478,7 +478,7 @@ module.exports = {
             'https://www.baidu.com/fileProcess', // target表示代理的服务器url
           pathRewrite: {
             // pathRewrite表示路径重写，key表示一个正则，value表示别名
-            '^/fileProcess': '/', // 即用 '/api'表示'http://localhost:3000/api'
+            '^/fileProcess': '/',
           },
         },
         ...
@@ -491,16 +491,16 @@ module.exports = {
 
 ## TypeScript
 
--   "vue-class-component"
--   "vue-property-decorator"
--   "vuex"
--   "vuex-module-decorators"
--   "vue-router"
--   "vue"
+- "vue-class-component"
+- "vue-property-decorator"
+- "vuex"
+- "vuex-module-decorators"
+- "vue-router"
+- "vue"
 
 ## webpack plugin
 
--   写个插件把打包后的文件中的环境配置替换为对应的环境变量
+- 写个插件把打包后的文件中的环境配置替换为对应的环境变量
 
 ```js
 class CustomHtmlPlugin {
@@ -522,10 +522,7 @@ class CustomHtmlPlugin {
 							if (typeof value !== "string") {
 								value = JSON.stringify(value);
 							}
-							html = html.replace(
-								new RegExp("{{" + key + "}}", "g"),
-								value
-							);
+							html = html.replace(new RegExp("{{" + key + "}}", "g"), value);
 						});
 						data.html = html;
 						resolve(data);
@@ -539,7 +536,7 @@ class CustomHtmlPlugin {
 module.exports = CustomHtmlPlugin;
 ```
 
--   使用的时候：
+- 使用的时候：
 
 ```js
 new CustomHTMLPlugin({
@@ -563,10 +560,7 @@ const registerRoutes = () => {
 			.replace(/^\//, "")
 			.replace(/\/(\w)/, ($0, $1) => $1.toUpperCase());
 		// 通过require去读取.vue文件内容
-		const component = require(`./views${filePath.replace(
-			/^\./,
-			""
-		)}`).default;
+		const component = require(`./views${filePath.replace(/^\./, "")}`).default;
 
 		return {
 			path,
