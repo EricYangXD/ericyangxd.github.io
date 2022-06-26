@@ -399,11 +399,41 @@ UI 触发的 click 事件是异步的，每个 listener 是一个 macrotask；�
 
 每一步（1-5）执行完了之后，都会执行所有 next tick queue 以及 microtask queue 的回调。
 
+### Node.js 的运行机制
+
+1. V8 引擎解析 JavaScript 脚本。
+2. 解析后的代码，调用 Node API。
+3. libuv 库负责 Node API 的执行。它将不同的任务分配给不同的线程，形成一个 Event Loop（事件循环），以异步的方式将任务的执行结果返回给 V8 引擎。
+4. V8 引擎再将结果返回给用户。
+
 ### nodejs 中的 event loop
 
+Node 中的 Event Loop 和浏览器中的是完全不相同的东西。Node.js 采用 V8 作为 js 的解析引擎，而 I/O 处理方面使用了自己设计的 libuv，libuv 是一个基于事件驱动的跨平台抽象层，封装了不同操作系统一些底层特性，对外提供统一的 API，事件循环机制也是它里面的实现。
+
+libuv 引擎中的事件循环分为 6 个阶段，它们会按照顺序反复运行。每当进入某一个阶段的时候，都会从对应的回调队列中取出函数去执行。当队列为空或者执行的回调函数数量到达系统设定的阈值，就会进入下一阶段。如下：
+
+外部输入数据-->轮询阶段(poll)-->检查阶段(check)-->关闭事件回调阶段(close callback)-->定时器检测阶段(timer)-->I/O 事件回调阶段(I/O callbacks)-->闲置阶段(idle, prepare)-->轮询阶段（按照该顺序反复运行）...
+
 1. 先执行同步代码；
-2. 执行微任务：process.nextTick 优先级最高；
+2. 执行微任务：process.nextTick 优先级最高，这个函数其实是独立于 Event Loop 之外的，它有一个自己的队列，当每个阶段完成后，如果存在 nextTick 队列，就会清空队列中的所有回调函数，并且优先于其他 microtask 执行；
 3. 按顺序执行 6 个类型的宏任务，每个任务开始之前都要先执行当前的微任务；
+
+- timers 阶段：这个阶段执行 timer（setTimeout、setInterval）的回调
+  1. timers 阶段会执行 setTimeout 和 setInterval 回调，并且是由 poll 阶段控制的。 同样，在 Node 中定时器指定的时间也不是准确时间，只能是尽快执行。
+- I/O callbacks 阶段：处理一些上一轮循环中的少数未执行的 I/O 回调
+- idle, prepare 阶段：仅 node 内部使用
+- poll 阶段：获取新的 I/O 事件, 适当的条件下 node 将阻塞在这里
+  1. 回到 timer 阶段执行回调
+  2. 执行 I/O 回调
+- check 阶段：执行 setImmediate() 的回调
+  1.  setImmediate()的回调会被加入 check 队列中，check 阶段的执行顺序在 poll 阶段之后。
+- close callbacks 阶段：执行 socket 的 close 事件回调
+
+### Node 与浏览器的 Event Loop 差异
+
+浏览器环境下，microtask 的任务队列是每个 macrotask 执行完之后执行。而在 Node.js 中，microtask 会在事件循环的各个阶段之间执行，也就是一个阶段执行完毕，就会去执行 microtask 队列的任务。
+
+node 版本更新到 11 之后，Event Loop 运行原理发生了变化，一旦执行一个阶段里的一个宏任务(setTimeout,setInterval 和 setImmediate)就立刻执行微任务队列，这点就跟浏览器端一致。
 
 ### nodejs 开启「多进程」
 
@@ -574,7 +604,7 @@ async function test() {
 
 上面的代码，会依次去等待 fetch 执行，如果实际上这三个 fetch 调用的结果不相关的话，可以改为并发模式：
 
-1. 使用 Promise.all 或者 Promise.allSettled;
+1. 使用 Promise.all 或 Promise.allSettled；
 2. 改为 for 循环或者如下模式：
 
 ```javascript
@@ -610,6 +640,8 @@ Promise.prototype.finally = function (callback) {
 ```
 
 ### Promise.all 原理实现
+
+输入的所有 promise 都 fulfilled 时，返回一个依次包含返回结果的数组；如果有任意一个 promise 变为 rejected，那么就返回这个 rejected 作为结果。
 
 - Promise.all 方法将多个 Promise 实例包装成一个新的 Promise 实例（p），可以接受一个数组`[p1,p2,p3]`作为参数，此时数组中不一定都是 Promise 对象，如果不是的话，就会调用 Promise.resolve 将其转化为 Promise 对象之后再进行处理。（当然 Promise.all 方法的参数也可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例）。
 - 使用 Promise.all 生成的 Promise 对象（p）的状态是由数组中的 Promise 对象（p1,p2,p3）决定的：
@@ -656,7 +688,7 @@ promiseAll([p1, p2, p3]).then(function (value) {
 
 ### Promise.race
 
-Promise.race 方法也是将多个 Promise 实例包装成一个新的 Promise 实例。接收参数的规则同 Promise.all，但是只要有一个实例率先改变状态，Promise.race 实例的状态就跟着改变。
+Promise.race 方法也是将多个 Promise 实例包装成一个新的 Promise 实例。接收参数的规则同 Promise.all，但是只要有一个实例率先改变状态（fulfilled 或 rejected），Promise.race 实例的状态就跟着改变，采用第一个 promise 的值作为它的值，从而异步地解析或拒绝（一旦堆栈为空）。
 
 ```js
 const _race = (ps) => {
@@ -667,6 +699,14 @@ const _race = (ps) => {
 	});
 };
 ```
+
+### Promise.any
+
+实验性质。接收一个 Promise 可迭代对象，只要其中的一个 promise 成功，就返回那个已经成功的 promise 。如果可迭代对象中没有一个 promise 成功（即所有的 promises 都失败/拒绝），就返回一个失败的 promise 和 AggregateError 类型的实例，它是 Error 的一个子类，用于把单一的错误集合在一起。本质上，这个方法和 Promise.all() 是相反的。
+
+### Promise.allSettled
+
+返回一个在所有给定的 promise 都已经 fulfilled 或 rejected 后的 promise，并带有一个对象数组，每个对象表示对应的 promise 结果;
 
 ## 如何取消 Promise
 

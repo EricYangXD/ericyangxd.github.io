@@ -372,10 +372,10 @@ useMemo 应用场景：
 
 useLayoutEffect 和 useEffect 不同的地方是采用了同步执行，那么和 useEffect 有什么区别呢？
 
-- 首先 useLayoutEffect 是在 DOM 更新之后，浏览器绘制之前，这样可以方便修改 DOM，获取 DOM 信息，这样浏览器只会绘制一次，如果修改 DOM 布局放在 useEffect ，那 useEffect 执行是在浏览器绘制视图之后，接下来又改 DOM ，就可能会导致浏览器再次回流和重绘。而且由于两次绘制，视图上可能会造成闪现突兀的效果。
+- 首先 useLayoutEffect 是在 DOM 更新之后，浏览器绘制之前，这样可以方便修改 DOM，获取 DOM 信息，这样浏览器只会绘制一次，如果修改 DOM 布局放在 useEffect ，那 useEffect 执行是在浏览器绘制视图之后，接下来又改 DOM，就可能会导致浏览器再次回流和重绘。而且由于两次绘制，视图上可能会造成闪现突兀的效果。
 - useLayoutEffect callback 中代码执行会阻塞浏览器绘制。
 
-一句话概括如何选择 useEffect 和 useLayoutEffect ：修改 DOM ，改变布局就用 useLayoutEffect ，其他情况就用 useEffect 。
+一句话概括如何选择 useEffect 和 useLayoutEffect：修改 DOM ，改变布局就用 useLayoutEffect，其他情况就用 useEffect 。
 
 - Q:React.useEffect 回调函数 和 componentDidMount / componentDidUpdate 执行时机有什么区别 ？
 - A:useEffect 对 React 执行栈来看是异步执行的，而 componentDidMount / componentDidUpdate 是同步执行的，useEffect 代码不会阻塞浏览器绘制。在时机上 ，componentDidMount / componentDidUpdate 和 useLayoutEffect 更类似。
@@ -899,7 +899,7 @@ Suspense 在执行内部可以通过 try{}catch{} 方式捕获异常，这个异
 
 ### 动态加载（懒加载）
 
-现在的 Suspense 配合 React.lazy 可以实现动态加载功能。
+React 利用 `React.lazy`与`import()`实现了渲染时的动态加载 ，并利用`Suspense`来处理异步加载资源时页面应该如何显示的问题。
 
 这样很利于代码分割，不会让初始化的时候加载大量的文件。
 
@@ -907,7 +907,83 @@ Suspense 在执行内部可以通过 try{}catch{} 方式捕获异常，这个异
 
 原理：
 
-React.lazy 内部模拟一个 promiseA 规范场景。完全可以理解 React.lazy 用 Promise 模拟了一个请求数据的过程，但是请求的结果不是数据，而是一个动态的组件。下一次渲染就直接渲染这个组件，所以是 React.lazy 利用 Suspense 接收 Promise ，执行 Promise ，然后再渲染这个特性做到动态加载的。
+- React.lazy 内部模拟一个 promiseA 规范场景。完全可以理解 React.lazy 用 Promise 模拟了一个请求数据的过程，但是请求的结果不是数据，而是一个动态的组件。下一次渲染就直接渲染这个组件，所以是 React.lazy 利用 Suspense 接收 Promise ，执行 Promise ，然后再渲染这个特性做到动态加载的。
+
+1. `import()` 原理:由 TS39 提出的一种动态加载模块的规范实现，其返回是一个 promise。当 Webpack 解析到该 import()语法时，会自动进行代码分割。
+
+```js
+function import(url) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    const tempGlobal = "__tempModuleLoadingVariable" + Math.random().toString(32).substring(2);
+    script.type = "module";
+    script.textContent = `import * as m from "${url}"; window.${tempGlobal} = m;`;
+
+    script.onload = () => {
+      resolve(window[tempGlobal]);
+      delete window[tempGlobal];
+      script.remove();
+    };
+
+    script.onerror = () => {
+      reject(new Error("Failed to load module script with URL " + url));
+      delete window[tempGlobal];
+      script.remove();
+    };
+
+    document.documentElement.appendChild(script);
+  });
+}
+```
+
+2. `React.lazy` 原理:对于最初 `React.lazy()` 所返回的 `LazyComponent` 对象，其 `_status` 默认是 `-1`，所以首次渲染时，会进入 `readLazyComponentType` 函数中的 `default` 的逻辑，这里才会真正异步执行 `import(url)`操作，由于并未等待，随后会检查模块是否 `Resolved`，如果已经`Resolved`了（已经加载完毕）则直接返回`moduleObject.default`（动态加载的模块的默认导出），否则将通过 `throw` 将 `thenable` 抛出到上层。
+
+```javascript
+export function lazy<T, R>(ctor: () => Thenable<T, R>): LazyComponent<T> {
+	let lazyType = {
+		$$typeof: REACT_LAZY_TYPE,
+		_ctor: ctor,
+		// React uses these fields to store the result.
+		_status: -1,
+		_result: null,
+	};
+
+	return lazyType;
+}
+```
+
+3. `Suspense` 原理:接上一步，React 捕获到异常之后，会判断异常是不是一个 thenable，如果是则会找到 SuspenseComponent ，如果 thenable 处于 pending 状态，则会将其 children 都渲染成 fallback 的值，一旦 thenable 被 resolve 则 SuspenseComponent 的子组件会重新渲染一次。
+
+```js
+class Suspense extends React.Component {
+	state = {
+		promise: null,
+	};
+
+	componentDidCatch(err) {
+		// 判断 err 是否是 thenable
+		if (
+			err !== null &&
+			typeof err === "object" &&
+			typeof err.then === "function"
+		) {
+			this.setState({ promise: err }, () => {
+				err.then(() => {
+					this.setState({
+						promise: null,
+					});
+				});
+			});
+		}
+	}
+
+	render() {
+		const { fallback, children } = this.props;
+		const { promise } = this.state;
+		return <>{promise ? fallback : children}</>;
+	}
+}
+```
 
 ### 渲染错误边界
 
@@ -972,11 +1048,17 @@ React.lazy 内部模拟一个 promiseA 规范场景。完全可以理解 React.l
 
 ## React 事件系统-合成事件
 
+目的：
+
+1. 创建一个兼容全浏览器的事件系统，以此抹平不同浏览器的差异。
+2. v17 之前 React 事件都是绑定在 document 上，v17 之后 React 把事件绑定在应用对应的容器 container 上，将事件绑定在同一容器统一管理，防止很多事件直接绑定在原生的 DOM 元素上。造成一些不可控的情况。由于不是绑定在真实的 DOM 上，所以 React 需要模拟一套事件流：事件捕获-> 事件源 -> 事件冒泡，也包括重写一下事件源对象 event。
+3. 最后，这种事件系统，大部分处理逻辑都在底层处理了，这对后期的 ssr 和跨端支持度很高。
+
 SyntheticEvent 实例将被传递给你的事件处理函数，它是浏览器的原生事件的跨浏览器包装器。除兼容所有浏览器外，它还拥有和浏览器原生事件相同的接口，包括 stopPropagation() 和 preventDefault()。如果因为某些原因，当你需要使用浏览器的底层事件时，只需要使用 nativeEvent 属性来获取即可。合成事件与浏览器的原生事件不同，也不会直接映射到原生事件。
 
 ### 注册
 
-React 17 将事件委托放在了 root 上而不是以前的 document 上。这个是一个垫脚石的功能，这样做有一个原因是：当同个项目里，有多个 React 根节点时（也可能是 React 多版本共存），避免可能的一些操作（如阻止冒泡）会影响到其他 React 节点的正常工作。
+React 17 将事件委托放在了应用对应的容器 root 上而不是以前的 document 上。这个是一个垫脚石的功能，这样做有一个原因是：当同个项目里，有多个 React 根节点时（也可能是 React 多版本共存），避免可能的一些操作（如阻止冒泡）会影响到其他 React 节点的正常工作。
 
 当 ReactDOM.render 时，将会在创建根节点 Fiber 时（createRootImpl），对所有可监听的事件进行注册（listenToAllSupportedEvents）。
 
@@ -1001,33 +1083,246 @@ React 17 将事件委托放在了 root 上而不是以前的 document 上。这�
 1. 按照冒泡模式来说，原生事件（子 -> 父） > 合成事件（子 -> 父） > document 原生事件。因为合成事件需要冒泡到根节点后才进行处理，而原生事件可以即时执行。版本无关。
 2. 当处于捕获模式时，V17.0.2 版本 document 原生事件 > 合成事件（父 -> 子） > 原生事件（父 -> 子），而 V16.14.0 版本 document 原生事件 > 原生事件（父 -> 子）> 合成事件（父 -> 子）。
 3. V17 之前，合成事件和原生事件的执行顺序与冒泡/捕获模式无关，原生事件恒早于合成事件；
-4. V17 版本后，合成事件和原生事件的执行顺序与冒泡/捕获模式相关，冒泡模式，原生事件早于合成事件，捕获模式，合成事件早于原生事件。
+4. V17 版本后，合成事件和原生事件的执行顺序与冒泡/捕获模式相关：冒泡模式-原生事件早于合成事件；捕获模式-合成事件早于原生事件。
 5. 原因：V17 版本前的捕获模式，只「是模拟的」，实质还是当事件冒泡到 document 时才开始处理，通过遍历该元素以及元素父节点直到根节点，模拟捕获和冒泡处理方式，获取对应模式下的事件函数，然后调用它们。而 V17 后，捕获事件将会启用捕获模式的监听。
 
 ### 独特的事件处理
 
 #### 冒泡阶段和捕获阶段
 
-1. 冒泡阶段：开发者正常给 React 绑定的事件比如 onClick，onChange，默认会在模拟冒泡阶段执行。
-2. 捕获阶段：如果想要在捕获阶段执行可以将事件后面加上 Capture 后缀，比如 onClickCapture，onChangeCapture。
+1. 冒泡阶段：开发者正常给 React 绑定的事件比如 `onClick`，`onChange`，默认会在模拟冒泡阶段执行。
+2. 捕获阶段：如果想要在捕获阶段执行可以将事件后面加上 Capture 后缀，比如 `onClickCapture`，`onChangeCapture`。
 
 #### 阻止冒泡
 
-React 中如果想要阻止事件向上冒泡，可以用 e.stopPropagation() 。
+React 中如果想要阻止事件向上冒泡，可以用 `e.stopPropagation()`。
 
 #### 阻止默认行为
 
-1. 原生事件： e.preventDefault() 和 return false 可以用来阻止事件默认行为，由于在 React 中给元素的事件并不是真正的事件处理函数。所以导致 return false 方法在 React 应用中完全失去了作用。
-2. React 事件 在 React 应用中，可以用 e.preventDefault() 阻止事件默认行为，这个方法并非是原生事件的 preventDefault ，由于 React 事件源 e 也是独立组建的，所以 preventDefault 也是单独处理的。
+1. 原生事件：`e.preventDefault()` 和 `return false`可以用来阻止事件默认行为，由于在 React 中给元素的事件并不是真正的事件处理函数。所以导致 `return false` 方法在 React 应用中完全失去了作用。
+2. React 事件：在 React 应用中，可以用 `e.preventDefault()` 阻止事件默认行为，这个方法并非是原生事件的 `preventDefault`，由于 React 事件源 e 也是独立组建的，所以 `preventDefault` 也是单独处理的。
+
+### React 事件系统
+
+可分为三个部分：
+
+1. 第一个部分是事件合成系统，初始化会注册不同的事件插件。
+2. 第二个就是在一次渲染过程中，对事件标签中事件的收集，向 container 注册事件。
+3. 第三个就是一次用户交互，事件触发，到事件执行一系列过程。
 
 ### 合成事件总结
 
 1. React 的事件不是绑定在元素上的，而是统一绑定在顶部容器上，在 v17 之前是绑定在 document 上的，在 v17 改成了 app 容器上。这样更利于一个 html 下存在多个应用（微前端）。
-2. 绑定事件并不是一次性绑定所有事件，比如发现了 onClick 事件，就会绑定 click 事件，比如发现 onChange 事件，会绑定 [blur，change ，focus ，keydown，keyup] 多个事件。
-3. React 事件合成的概念：React 应用中，元素绑定的事件并不是原生事件，而是 React 合成的事件，比如 onClick 是由 click 合成，onChange 是由 blur ，change ，focus 等多个事件合成。
-4. React 有一种事件插件机制，比如上述 onClick 和 onChange ，会有不同的事件插件 SimpleEventPlugin ，ChangeEventPlugin 处理。
-   - registrationNameModules 记录了 React 事件（比如 onBlur ）和与之对应的处理插件的映射，比如上述的 onClick ，就会用 SimpleEventPlugin 插件处理，onChange 就会用 ChangeEventPlugin 处理。应用于事件触发阶段，根据不同事件使用不同的插件。
-   - registrationNameDependencies 这个对象保存了 React 事件和原生事件对应关系，这就解释了为什么只写了一个 onChange ，却会有很多原生事件绑定在 document 上。在事件绑定阶段，如果发现有 React 事件，比如 onChange ，就会找到对应的原生事件数组，逐一绑定。
+2. 绑定事件并不是一次性绑定所有事件，比如发现了 `onClick` 事件，就会绑定 click 事件，比如发现 `onChange` 事件，会绑定 `[blur, change, focus, keydown, keyup]` 多个事件。
+3. React 事件合成的概念：React 应用中，元素绑定的事件并不是原生事件，而是 React 合成的事件，比如 `onClick` 是由 click 合成，`onChange` 是由 `blur, change, focus` 等多个事件合成。
+4. React 有一种事件插件机制，比如上述 `onClick` 和 `onChange` ，会有不同的事件插件 `SimpleEventPlugin`、`ChangeEventPlugin` 处理。
+   - `registrationNameModules` 记录了 React 事件（比如 `onBlur` ）和与之对应的处理插件的映射，比如上述的 `onClick` ，就会用 `SimpleEventPlugin` `插件处理，onChange` 就会用 `ChangeEventPlugin` 处理。应用于事件触发阶段，根据不同事件使用不同的插件。
+   - `registrationNameDependencies` 这个对象保存了 React 事件和原生事件对应关系，这就解释了为什么只写了一个 `onChange` ，却会有很多原生事件绑定在 document 上。在事件绑定阶段，如果发现有 React 事件，比如 `onChange` ，就会找到对应的原生事件数组，逐一绑定。
+
+```js
+const registrationNameModules = {
+	onBlur: SimpleEventPlugin,
+	onClick: SimpleEventPlugin,
+	onClickCapture: SimpleEventPlugin,
+	onChange: ChangeEventPlugin,
+	onChangeCapture: ChangeEventPlugin,
+	onMouseEnter: EnterLeaveEventPlugin,
+	onMouseLeave: EnterLeaveEventPlugin,
+	// ...
+};
+const registrationNameDependencies = {
+	onBlur: ["blur"],
+	onClick: ["click"],
+	onClickCapture: ["click"],
+	onChange: [
+		"blur",
+		"change",
+		"click",
+		"focus",
+		"input",
+		"keydown",
+		"keyup",
+		"selectionchange",
+	],
+	onMouseEnter: ["mouseout", "mouseover"],
+	onMouseLeave: ["mouseout", "mouseover"],
+	// ...
+};
+```
 
 - Q：为什么要用不同的事件插件处理不同的 React 事件?
 - A：首先对于不同的事件，有不同的处理逻辑；对应的事件源对象也有所不同，React 的事件和事件源是自己合成的，所以对于不同事件需要不同的事件插件处理。
+
+### 事件绑定
+
+所谓事件绑定，就是在 React 处理 props 时候，如果遇到事件比如 `onClick`，就会通过 `addEventListener` 注册原生事件。
+
+1. 给 jsx 中的 DOM 元素通过`onChange` 和 `onClick`绑定事件 `handleClick`和`handleChange` 事件；
+2. 最后 `onChange` 和 `onClick` 会保存在对应 DOM 元素类型 fiber 对象（ `hostComponent` ）的 `memoizedProps` 属性上；
+3. 然后 React 根据事件注册事件监听器。`diffProperties` 函数在 `diff props` 如果发现是合成事件( `onClick` ) 就会调用 `legacyListenToEvent` 函数。注册事件监听器。
+4. `legacyListenToEvent`函数中会从`registrationNameDependencies`中根据 `onClick` 获取 `onClick` 依赖的事件数组，然后循环并`addEventListener` 绑定事件监听器。
+5. **绑定在 document 的事件，是 React 统一的事件处理函数 dispatchEvent ，React 需要一个统一流程去代理事件逻辑，包括 React 批量更新等逻辑。**
+6. 只要是 React 事件触发，首先执行的就是 `dispatchEvent` ，那么`dispatchEvent` 是如何知道是什么事件触发的呢？实际在注册的时候，就已经通过 bind ，把参数绑定给 `dispatchEvent` 了。如下：
+
+```js
+const listener = dispatchEvent.bind(null, "click", eventSystemFlags, document);
+/* TODO: 重要, 这里进行真正的事件绑定。*/
+document.addEventListener("click", listener, false);
+```
+
+### 事件触发
+
+点击按钮，触发点击事件，那么在 React 系统中，整个流程会是这个样子的：
+
+1. 批量更新。首先执行 dispatchEvent ，dispatchEvent 执行会传入真实的事件源 button 元素本身。通过元素可以找到 button 对应的 fiber ，fiber 和原生 DOM 之间是如何建立起联系的呢？React 在初始化真实 DOM 的时候，用一个随机的 key internalInstanceKey 指针指向了当前 DOM 对应的 fiber 对象，fiber 对象用 stateNode 指向了当前的 DOM 元素。
+2. 合成事件源。接下来会通过 onClick 找到对应的处理插件 SimpleEventPlugin ，合成新的事件源 e ，里面包含了 preventDefault 和 stopPropagation 等方法。
+3. 形成事件执行队列。在第一步通过原生 DOM 获取到对应的 fiber ，接着会从这个 fiber 向上遍历，遇到元素类型 fiber ，就会收集事件，用一个数组收集事件：
+   - 如果遇到捕获阶段事件 onClickCapture ，就会 unshift 放在数组前面。以此模拟事件捕获阶段。
+   - 如果遇到冒泡阶段事件 onClick ，就会 push 到数组后面，模拟事件冒泡阶段。
+   - 一直收集到最顶端 app ，形成执行队列，在接下来阶段，依次执行队列里面的函数。
+4. React 如何模拟阻止事件冒泡：调用执行`e.stopPropagation();`之后，那么事件源里将有状态证明此次事件已经停止冒泡，那么下次遍历的时候`runEventsInBatch()`，`event.isPropagationStopped()` 就会返回 true ，直接跳出循环。
+
+## 调度 Scheduler 与时间片 Reconciler
+
+### 异步调度
+
+首先对比一下 vue 框架，vue 有 template 模版收集依赖的过程，轻松构建响应式，使得在一次更新中，vue 能够迅速响应，找到需要更新的范围，然后以组件粒度更新组件，渲染视图。但是在 React 中，一次更新 React 无法知道此次更新的波及范围，所以 React 选择从根节点开始 diff ，查找不同，更新这些不同。导致在一次更新中，可能需要递归遍历大量的虚拟 DOM ，造成占用 js 线程，使得浏览器没有时间去做一些动画效果，伴随项目越来越大，项目会越来越卡。
+
+### 时间分片
+
+React 如何让浏览器控制 React 更新呢，首先浏览器每次执行一次事件循环（一帧）都会做如下事情：处理事件，执行 js ，调用 requestAnimationFrames ，布局 Layout ，绘制 Paint ，在一帧执行后，如果没有其他事件，那么浏览器会进入休息时间，那么有的一些不是特别紧急 React 更新，就可以执行了-可以利用 requestIdleCallback。
+
+React 为了防止 requestIdleCallback 中的任务由于浏览器没有空闲时间而卡死，所以设置了 5 个优先级/超时等级：
+
+1. Immediate -1 需要立刻执行。
+2. UserBlocking 250ms 超时时间 250ms，一般指的是用户交互。
+3. Normal 5000ms 超时时间 5s，不需要直观立即变化的任务，比如网络请求。
+4. Low 10000ms 超时时间 10s，肯定要执行的任务，但是可以放在最后处理。
+5. Idle 一些没有必要的任务，可能不会执行。
+
+React 的异步更新任务就是通过类似 requestIdleCallback 去向浏览器做一帧一帧请求，等到浏览器有空余时间，去执行 React 的异步更新任务，这样保证页面的流畅。
+
+为了兼容每个浏览器，React 需要自己实现一个 requestIdleCallback ，那么就要具备两个条件：
+
+1. 实现的这个 requestIdleCallback ，可以主动让出主线程，让浏览器去渲染视图。
+2. 一次事件循环只执行一次，因为执行一个以后，还会请求下一次的时间片。
+
+能够满足上述条件的，就只有「宏任务」，宏任务是在下次事件循环中执行，不会阻塞浏览器更新。而且「浏览器一次只会执行一个宏任务」。
+
+1. `setTimeout(fn, 0)` 可以满足创建宏任务，让出主线程，为什么 React 没选择用它实现 Scheduler 呢？原因是递归执行 setTimeout(fn, 0) 时，最后间隔时间会变成 4 毫秒左右，而不是最初的 1 毫秒。所以 React 优先选择的并不是 setTimeout 实现方案。
+2. `MessageChannel`接口允许开发者创建一个新的消息通道，并通过它的两个 MessagePort 属性发送数据。
+   - 在一次更新中，React 会调用 requestHostCallback ，把更新任务赋值给 scheduledHostCallback ，然后 port2 向 port1 发起 postMessage 消息通知。
+   - port1 会通过 onmessage ，接受来自 port2 消息，然后执行更新任务 scheduledHostCallback ，然后置空 scheduledHostCallback ，借此达到异步执行目的。
+
+### 异步调度原理
+
+React 发生一次更新，会统一走 `ensureRootIsScheduled（调度应用）`。
+
+- 对于正常更新会走 `performSyncWorkOnRoot` 逻辑，最后会走 `workLoopSync()` 。
+- 对于低优先级的异步更新会走 `performConcurrentWorkOnRoot` 逻辑，最后会走 `workLoopConcurrent()` 。
+
+#### scheduleCallback
+
+无论是正常更新任务 `workLoopSync` 还是低优先级的任务 `workLoopConcurrent` ，都是由调度器 `scheduleCallback` 统一调度的:
+
+- 对于正常更新任务:`scheduleCallback(Immediate,workLoopSync);`
+- 对于异步任务:`scheduleCallback(priorityLevel,workLoopConcurrent);`// 根据 `expirationTime` 计算得到上文提到的 5 个优先级/超时等级并传入
+- taskQueue，里面存的都是过期的任务，依据任务的过期时间( `expirationTime` ) 排序，需要在调度的 workLoop 中循环执行完这些任务。通过 `expirationTime` 排序
+- timerQueue 里面存的都是没有过期的任务，依据任务的开始时间( `startTime` )排序，在调度 workLoop 中 会用 `advanceTimers` 检查任务是否过期，如果过期了，放入 `taskQueue` 队列。通过开始时间排序
+
+`scheduleCallback` 流程如下。
+
+- 创建一个新的任务 newTask。
+- 通过任务的开始时间( `startTime` ) 和 当前时间( `currentTime` ) 比较:当 `startTime` > `currentTime`, 说明未过期, 存到 `timerQueue`,当 `startTime` <= `currentTime`, 说明已过期, 存到 `taskQueue`。
+- 如果任务过期，并且没有调度中的任务，那么调度 `requestHostCallback`。本质上调度的是 `flushWork`。
+- 如果任务没有过期，用 `requestHostTimeout` 延时执行 `handleTimeout`。
+
+1. `requestHostTimeout`: 通过 `setTimeout` 来延时执行 `handleTimeout`，`cancelHostTimeout` 用于清除当前的延时器。
+2. `handleTimeout`:延时指定时间后，调用的 `handleTimeout` 函数， `handleTimeout` 会把任务重新放在 `requestHostCallback` 调度。通过 `advanceTimers` 将 `timeQueue` 中过期的任务转移到 `taskQueue` 中。然后调用 `requestHostCallback` 调度过期的任务。
+3. `advanceTimers`: 如果任务已经过期，那么将 `timerQueue` 中的过期任务，放入 `taskQueue`。
+4. 第一件是 React 的更新任务最后都是放在 `taskQueue` 中的。
+5. 第二件是 `requestHostCallback` ，放入 `MessageChannel` 中的回调函数是`flushWork`。
+6. `flushWork`: 如果有延时任务执行的话，那么会先暂停延时任务，然后调用 workLoop ，去真正执行超时的更新任务。
+7. `workloop`: 这个 workLoop 是调度中的 workLoop，不要把它和调和中的 workLoop 弄混淆了。workLoop 会依次更新过期任务队列中的任务。到此为止，完成整个调度过程。
+8. shouldYield 中止 workloop: 在 fiber 的异步更新任务 workLoopConcurrent 中，每一个 fiber 的 workloop 都会调用 shouldYield 判断是否有超时更新的任务，如果有，那么停止 workLoop。
+
+[调度流程图](../../assets/scheduler.png)
+[调和 + 异步调度 流程总图](../../assets/reconciler.png)
+
+## 调和与 fiber
+
+### 什么是 fiber
+
+fiber 诞生在 Reactv16 版本，整个 React 团队花费两年时间重构 fiber 架构，目的就是解决大型 React 应用卡顿；fiber 在 React 中是最小粒度的执行单元，无论 React 还是 Vue ，在遍历更新每一个节点的时候都不是用的真实 DOM ，都是采用虚拟 DOM ，所以可以理解成 fiber 就是 React 的虚拟 DOM 。
+
+### 为什么要用 fiber
+
+在 Reactv15 以及之前的版本，React 对于虚拟 DOM 是采用递归方式遍历更新的，比如一次更新，就会从应用根部递归更新，递归一旦开始，中途无法中断，随着项目越来越复杂，层级越来越深，导致更新的时间越来越长，给前端交互上的体验就是卡顿。
+
+Reactv16 为了解决卡顿问题引入了 fiber，为什么它能解决卡顿？更新 fiber 的过程叫做 Reconciler（调和器），每一个 fiber 都可以作为一个执行单元来处理，所以每一个 fiber 可以根据自身的过期时间 expirationTime（ v17 版本叫做优先级 lane ）来判断是否还有空间时间执行更新，如果没有时间更新，就要把主动权交给浏览器去渲染，做一些动画，重排（ reflow ），重绘 repaints 之类的事情，这样就能给用户感觉不是很卡。然后等浏览器空余时间，在通过 scheduler （调度器），再次恢复执行单元上来，这样就能本质上中断了渲染，提高了用户体验。
+
+### element,fiber,dom 三种什么关系？
+
+- element 是 React 视图层在代码层级上的表象，也就是开发者写的 jsx 语法，写的元素结构，都会被创建成 element 对象的形式。上面保存了 props ， children 等信息。
+- DOM 是元素在浏览器上给用户直观的表象。
+- fiber 可以说是是 element 和真实 DOM 之间的交流枢纽站，一方面每一个类型 element 都会有一个与之对应的 fiber 类型，element 变化引起更新流程都是通过 fiber 层面做一次调和改变，然后对于元素，形成新的 DOM 做视图渲染。
+- 每一个 fiber 是通过 return ， child ，sibling 三个属性建立起联系的。
+  - return： 指向父级 Fiber 节点。
+  - child： 指向子 Fiber 节点。
+  - sibling：指向兄弟 fiber 节点。
+
+### Fiber 更新机制
+
+#### 初始化
+
+1. 第一步：创建 fiberRoot 和 rootFiber。第一次挂载的过程中，会将 fiberRoot 和 rootFiber 建立起关联。
+   - fiberRoot：首次构建应用， 创建一个 fiberRoot ，作为整个 React 应用的根基。
+   - rootFiber： 如下通过 ReactDOM.render 渲染出来的，如上 Index 可以作为一个 rootFiber。一个 React 应用可以有多 ReactDOM.render 创建的 rootFiber ，但是只能有一个 fiberRoot（应用根节点）。`ReactDOM.render(<Index/>, document.getElementById('app'));`
+2. 第二步：workInProgress 和 current。开始到正式渲染阶段，会进入 beginwork 流程。回到 rootFiber 的渲染流程，首先会复用当前 current 树（ rootFiber ）的 alternate 作为 workInProgress ，如果没有 alternate （初始化的 rootFiber 是没有 alternate ），那么会创建一个 fiber 作为 workInProgress 。会用 alternate 将新创建的 workInProgress 与 current 树建立起关联。这个关联过程只有初始化第一次创建 alternate 时候进行。
+   - workInProgress 是：正在内存中构建的 Fiber 树称为 workInProgress Fiber 树。在一次更新中，所有的更新都是发生在 workInProgress 树上。在一次更新之后，workInProgress 树上的状态是最新的状态，那么它将变成 current 树用于渲染视图。
+   - current：正在视图层渲染的树叫做 current 树。
+3. 第三步：深度调和子节点，渲染视图。在新创建的 alternate 上，完成整个 fiber 树的遍历，包括 fiber 的创建。最后会以 workInProgress 作为最新的渲染树，fiberRoot 的 current 指针指向 workInProgress 使其变为 current Fiber 树。到此完成初始化流程。
+
+#### 更新
+
+首先会走如上的逻辑，重新创建一棵 workInProgresss 树，复用当前 current 树上的 alternate ，作为新的 workInProgress ，由于初始化 rootfiber 有 alternate ，所以对于剩余的子节点，React 还需要创建一份，和 current 树上的 fiber 建立起 alternate 关联。渲染完毕后，workInProgresss 再次变成 current 树。
+
+- 双缓存：canvas 绘制动画的时候，如果上一帧计算量比较大，导致清除上一帧画面到绘制当前帧画面之间有较长间隙，就会出现白屏。为了解决这个问题，canvas 在内存中绘制当前动画，绘制完毕后直接用当前帧替换上一帧画面，由于省去了两帧替换间的计算时间，不会出现从白屏到出现画面的闪烁情况。这种在内存中构建并直接替换的技术叫做双缓存。
+- 双缓冲树：React 用 workInProgress 树(内存中构建的树) 和 current (渲染树) 来实现更新逻辑。双缓存一个在内存中构建，一个渲染视图，两棵树用 alternate 指针相互指向，在下一次渲染的时候，直接复用缓存树做为下一次渲染树，上一次的渲染树又作为缓存树，这样可以防止只用一棵树更新状态的丢失的情况，又加快了 DOM 节点的替换与更新。
+
+### 两大阶段：render 和 commit
+
+先 render 阶段：
+
+1. 每一个 fiber 可以看作一个执行的单元，在调和过程中，每一个发生更新的 fiber 都会作为一次 workInProgress 。那么 workLoop 就是执行每一个单元的调度器，如果渲染没有被中断，那么 workLoop 会遍历一遍 fiber 树。 performUnitOfWork 包括两个阶段 beginWork 和 completeUnitOfWork 。
+   - beginWork：是向下调和的过程。就是由 fiberRoot 按照 child 指针逐层向下调和，期间会执行函数组件，实例类组件，diff 调和子节点，打不同 effectTag。
+   - completeUnitOfWork：是向上归并的过程，如果有兄弟节点，会返回 sibling 兄弟，没有返回 return 父级，一直返回到 fiebrRoot ，期间可以形成 effectList，对于初始化流程会创建 DOM ，对于 DOM 元素进行事件收集，处理 style，className 等。
+2. 总结 beginWork 作用如下：
+   - 对于组件，执行部分生命周期，执行 render ，得到最新的 children 。
+   - 向下遍历调和 children ，复用 oldFiber ( diff 算法)，diff 流程在第十二章已经讲过了。
+   - 打不同的副作用标签 effectTag ，比如类组件的生命周期，或者元素的增加，删除，更新。
+3. 调和子节点 reconcileChildren：初始化子代 fiber - mountChildFibers；更新流程，diff children 将在这里进行 - reconcileChildFibers。
+4. 向上归并 completeUnitOfWork：
+   - 首先 completeUnitOfWork 会将 effectTag 的 Fiber 节点会被保存在一条被称为 effectList 的单向链表中。在 commit 阶段，将不再需要遍历每一个 fiber ，只需要执行更新 effectList 就可以了。
+   - completeWork 阶段对于组件处理 context；对于元素标签初始化，会创建真实 DOM，将子孙 DOM 节点插入刚生成的 DOM 节点中；会触发 diffProperties 处理 props，比如事件收集，style，className 处理。
+
+然后 commit 阶段：
+
+1. 一方面是对一些生命周期和副作用钩子的处理，比如 componentDidMount，函数组件的 useEffect、useLayoutEffect；
+2. 另一方面就是在一次更新中，添加节点（ Placement ），更新节点（ Update ），删除节点（ Deletion ），还有就是一些细节的处理，比如 ref 的处理。
+3. commit 细分可以分为：
+   - Before mutation 阶段（执行 DOM 操作前）；
+   - mutation 阶段（执行 DOM 操作）；
+   - layout 阶段（执行 DOM 操作后）；
+4. Before mutation 阶段做的事主要有以下内容：
+   - 因为 Before mutation 还没修改真实的 DOM ，是获取 DOM 快照的最佳时期，如果是类组件有 getSnapshotBeforeUpdate ，那么会执行这个生命周期。
+   - 会异步调用 useEffect ，在生命周期讲到 useEffect 是采用异步调用的模式，其目的就是防止同步执行时阻塞浏览器做视图渲染。
+5. mutation 阶段做的事情有：
+   - 置空 ref。
+   - 对新增元素，更新元素，删除元素。进行真实的 DOM 操作。
+6. Layout 阶段 DOM 已经更新完毕，Layout 做的事情有：
+   - commitLayoutEffectOnFiber 对于类组件，会执行生命周期，setState 的 callback，对于函数组件会执行 useLayoutEffect 钩子。
+   - 如果有 ref ，会重新赋值 ref 。
+7. 对 commit 阶段做一个总结，主要做的事就是执行 effectList，更新 DOM，执行生命周期，获取 ref 等操作。
+
+[调和 + 异步调度 流程总图](../../assets//sche_rcon.png)

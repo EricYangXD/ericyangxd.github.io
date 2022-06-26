@@ -9,18 +9,18 @@ date: "2022-01-13"
 ### git rebase
 
 1. git rebase oem-develop
-    - 切换到自己的 feature 分支后，执行此命令实现变基
+   - 切换到自己的 feature 分支后，执行此命令实现变基
 2. git push --force-with-lease origin feature/xx
-    - 强制把本地 rebase 之后的分支推送到远端
+   - 强制把本地 rebase 之后的分支推送到远端
 
 ### git reset
 
 强制回退，可能会把别人的代码也干掉
 
 1. git reset --hard HEAD^SHA256
-    - 硬回退，不保留 stash
+   - 硬回退，不保留 stash
 2. git reset --soft HEAD^/SHA256
-    - 软回退，保留 stash
+   - 软回退，保留 stash
 
 reset 之后再提交代码时需要强制提交-f
 
@@ -59,11 +59,11 @@ tag 对应某次 commit， 是一个点，是不可移动的。branch 对应一�
 
 示例：
 
--   新增 tag `git tag -a v1.0.0 -m "my version v1.0.0"`
+- 新增 tag `git tag -a v1.0.0 -m "my version v1.0.0"`
 
--   查看 tag `git show v1.0.0`
+- 查看 tag `git show v1.0.0`
 
--   推送远端 `git push origin v1.0.0`
+- 推送远端 `git push origin v1.0.0`
 
 PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名。因此 commit 的能力 tag 均可以使用，比如`git reset`，`git revert [pre-tag]`
 
@@ -72,13 +72,13 @@ PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名�
 1. git stash save "commit msg"
 2. git stash apply SHA256/stash@{number}
 3. git stash pop
-    - 默认最近一次 stash
+   - 默认最近一次 stash
 4. git stash list
 5. git stash drop SHA256/stash@{number}
 6. 误操作 git stash drop 之后想恢复
-    - git fsck --lost-found 可以得到 SHA256 列表
-    - git show SHA256 可以查看详细信息
-    - git stash apply SHA256 应用
+   - git fsck --lost-found 可以得到 SHA256 列表
+   - git show SHA256 可以查看详细信息
+   - git stash apply SHA256 应用
 
 ### git bisect
 
@@ -102,11 +102,11 @@ PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名�
 7. 发生代码冲突后，放弃合并，回到操作前的样子：`git cherry-pick --abort`
 8. 发生代码冲突后，退出 Cherry pick，但是不回到操作前的样子：`git cherry-pick --quit`
 
--   Cherry pick 也支持转移另一个代码库的提交，方法是先将该库加为远程仓库。
-    1. 添加了一个远程仓库 target：`git remote add target git://gitUrl`
-    2. 远程代码抓取到本地：`git fetch target`
-    3. 检查一下要从远程仓库转移的提交，获取它的哈希值：`git log target/master`
-    4. 使用 git cherry-pick 命令转移提交：`git cherry-pick <commitHash>`
+- Cherry pick 也支持转移另一个代码库的提交，方法是先将该库加为远程仓库。
+  1. 添加了一个远程仓库 target：`git remote add target git://gitUrl`
+  2. 远程代码抓取到本地：`git fetch target`
+  3. 检查一下要从远程仓库转移的提交，获取它的哈希值：`git log target/master`
+  4. 使用 git cherry-pick 命令转移提交：`git cherry-pick <commitHash>`
 
 ## 修改 Git commit msg
 
@@ -232,20 +232,20 @@ eg.
 
 1. git config --global alias.ps push - 把 push 设为 ps；
 2. 手动编辑全局配置文件：
-    - `nano ~/.gitconfig`
-    - 写入对应的别名对，例：`co = checkout pl = pull`等并保存退出，
-    - 执行`source ~/.gitconfig`使改动生效
+   - `nano ~/.gitconfig`
+   - 写入对应的别名对，例：`co = checkout pl = pull`等并保存退出，
+   - 执行`source ~/.gitconfig`使改动生效
 
 ### git hooks 原理
 
 1. git 允许在各种操作之前添加一些 hook 脚本，如未正常运行则 git 操作不通过。最出名的还是以下两个：
-    - precommit
-    - prepush
+   - precommit
+   - prepush
 2. hook 脚本置于目录 ~/.git/hooks 中，以「可执行文件」的形式存在。查看命令：`ls -lah .git/hooks`。
 3. git hooks 可使用 core.hooksPath 自定义脚本位置。
 4. husky 即通过自定义 core.hooksPath 并将 npm scripts 写入其中的方式来实现此功能。
-    - 在`~/.husky` 目录下手动创建 hook 脚本。如：`vim .husky/pre-commit`
-    - 在 hook 脚本中做一些操作，如：在 pre-commit 中进行代码风格校验：`npm run lint && npm run test`
+   - 在`~/.husky` 目录下手动创建 hook 脚本。如：`vim .husky/pre-commit`
+   - 在 hook 脚本中做一些操作，如：在 pre-commit 中进行代码风格校验：`npm run lint && npm run test`
 
 ### git 设置识别文件名大小写
 
@@ -268,3 +268,12 @@ eg.
 3. 文件的内容则是 git 使用压缩算法把原本的内容压缩之后的结果（二进制 blob 文件）
 4. git commit 存储的是：打包前存储的是全新文件，打包后使用了类似差异备份的方式进行存储
 5. 当.git/objects 目录下对象过多时会自动触发资源回收，或者 git push 到远端服务器时，也可通过`git gc`手动触发
+
+## 开启 ssr 之后无法从 GitHub 下载项目
+
+打开 SSR 的「HTTP 代理设置」，查看端口，勾选「HTTP 代理设置」。然后在 zsh 执行如下命令：
+
+```bash
+git config --global http.proxy http://127.0.0.1:port
+git config --global https.proxy http://127.0.0.1:port
+```

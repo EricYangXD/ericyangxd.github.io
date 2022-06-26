@@ -1482,23 +1482,6 @@ native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通�
    - 优点：JavaScript 端可以确定 JSBridge 的存在，直接调用即可；
    - 缺点：如果 JSBridge 的实现方式有更改，JSBridge 需要兼容多版本的 Native Bridge 或者 Native Bridge 兼容多版本的 JSBridge。
 
-## 判断 iframe 加载完成
-
-```js
-var iframe = document.createElement("iframe");
-iframe.src = "https://ericyangxd.top";
-if (iframe.attachEvent) {
-	iframe.attachEvent("onload", function () {
-		alert("Local iframe is now loaded.");
-	});
-} else {
-	iframe.onload = function () {
-		alert("Local iframe is now loaded.");
-	};
-}
-document.body.appendChild(iframe);
-```
-
 ## 页面加载时触发的事件及顺序
 
 ### 3 个事件
