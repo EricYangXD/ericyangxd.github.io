@@ -8,9 +8,9 @@ date: "2021-12-28"
 
 ### Vue3.0
 
--   如图：[生命周期](../../assets/lifecycle.svg)
+- 如图：[生命周期](../../assets/lifecycle.svg)
 
--   生命周期钩子
+- 生命周期钩子
 
 0. `Vue.createApp(options).mount(el)`；
 1. `init events & lifecycle`；
@@ -31,7 +31,7 @@ date: "2021-12-28"
 16. 被`keep-alive`包裹的组件的生命周期：activated 和 deactivated，激活和未激活；
 17. activated：初次渲染，先 created，然后 activated；之后切换时，只会触发 deactivated（先，要隐藏的） 和 activated（后，要激活的）；
 
--   Vue3 Composition API 生命周期的变化：
+- Vue3 Composition API 生命周期的变化：
 
 1. 用 setup 代替了 beforeCreate 和 created；
 2. 使用 Hooks 函数的形式，如 mounted 改为 onMounted()；
@@ -40,9 +40,9 @@ date: "2021-12-28"
 
 1. h，即 createElement，是 Render 函数的核心。
 2. h 有 3 个参数，分别是：
-    1. 要渲染的元素或组件，可以是一个 html 标签、组件选项或一个函数（不常用），该参数为必填项。
-    2. 对应属性的数据对象，比如组件的 props、元素的 class、绑定的事件、slot、自定义指令等。
-    3. 子节点，可选，String 或 Array，它同样是一个 h。
+   1. 要渲染的元素或组件，可以是一个 html 标签、组件选项或一个函数（不常用），该参数为必填项。
+   2. 对应属性的数据对象，比如组件的 props、元素的 class、绑定的事件、slot、自定义指令等。
+   3. 子节点，可选，String 或 Array，它同样是一个 h。
 3. Functional Render：Vue.js 提供了一个 functional 的布尔值选项，设置为 true 可以使组件无状态和无实例，也就是没有 data 和 this 上下文。这样用 Render 函数返回虚拟节点可以更容易渲染，因为函数化组件（Functional Render）只是一个函数，渲染开销要小很多。
 
 ### 什么时候操作 dom 更合适
@@ -65,15 +65,15 @@ tree diff 的优化：时间复杂度 O(n)：
 2. tag 不同则删掉重建，不再去比较内部的细节；
 3. 子节点通过 key 区分唯一性；
 
--   Vue2
+- Vue2
 
 1. 双端相互 比较
 
--   Vue3
+- Vue3
 
 1. 最长递增子序列
 
--   React
+- React
 
 1. 仅右移
 
@@ -97,7 +97,8 @@ tree diff 的优化：时间复杂度 O(n)：
 1. `props`/`$emit`&`$on`、`@on`
 2. `$refs`
 3. `$parent`&`$children`
-4. 派发与广播——自行实现`dispatch` 和 `broadcast`方法:
+4. `.sync`修饰符
+5. 派发与广播——自行实现`dispatch` 和 `broadcast`方法:
 
 ```js
 function broadcast(componentName, eventName, params) {
@@ -165,11 +166,11 @@ export default {
 1. Vuex/Pinia: 最主要的目的是跨组件通信、全局数据维护、多人协同开发。
 2. EventBus: 使用一个 Vue 实例做载体，通过实例上的`$on`/`$emit`进行通信。
 3. 大而全：自定义 findComponent 方法：
-    - 由一个组件，向上找到最近的指定组件；
-    - 由一个组件，向上找到所有的指定组件；
-    - 由一个组件，向下找到最近的指定组件；
-    - 由一个组件，向下找到所有指定的组件；
-    - 由一个组件，找到指定组件的兄弟组件。
+   - 由一个组件，向上找到最近的指定组件；
+   - 由一个组件，向上找到所有的指定组件；
+   - 由一个组件，向下找到最近的指定组件；
+   - 由一个组件，向下找到所有指定的组件；
+   - 由一个组件，找到指定组件的兄弟组件。
 
 5 个函数的原理，都是通过递归、遍历，找到指定组件的 name 选项匹配的组件实例并返回。
 
@@ -309,9 +310,9 @@ const notification = Instance.$children[0];
 
 Vue 采用数据劫持结合发布者-订阅者模式的方式，通过 Object.defineProperty/Proxy 来劫持各个属性的 setter、getter，访问数据时添加订阅者到依赖收集器里，在数据变动时通过依赖收集器通知订阅者，触发订阅者的监听回调，去完成数据的更新和页面的渲染等工作。
 
--   Observer 负责将数据转换成 getter/setter 形式；
--   Dep 负责管理数据的依赖列表，是一个发布订阅模式，上游对接 Observer，下游对接 Watcher；
--   Watcher 是实际上的数据依赖，负责将数据的变化转发到外界(渲染、回调)；
+- Observer 负责将数据转换成 getter/setter 形式；
+- Dep 负责管理数据的依赖列表，是一个发布订阅模式，上游对接 Observer，下游对接 Watcher；
+- Watcher 是实际上的数据依赖，负责将数据的变化转发到外界(渲染、回调)；
 
 1. 首先 Vue 将 data 初始化为一个 Observer，并通过 Object.defineProperty/Proxy ，循环遍历「对象」的所有属性，为对象中的每个属性设置 getter、setter，以达到拦截访问和设置的目的，如果属性值依旧为对象，则递归为属性值上的每个 key 设置 getter、setter；
 2. 对于 data 中的每个值，都对应一个独立的依赖收集器 Dep；
@@ -319,10 +320,17 @@ Vue 采用数据劫持结合发布者-订阅者模式的方式，通过 Object.d
 4. 在 getter 中，即访问数据时（obj.key)进行依赖收集，在依赖收集器 dep 中添加相关的监听 watcher；
 5. 在 data 值发生变更时，触发 setter，判断是否真的发生了变化，然后会去触发依赖收集器中的所有监听的更新 dep.notify()，来触发 Watcher.update；
 6. 对「数组」，增强数组的那 7 个可以更改自身的原型方法，然后拦截对这些方法的操作；「'push','pop','shift','unshift','splice','sort','reverse'」：
-    1. 添加新数据时进行响应式处理，然后由 dep 通知 watcher 去更新；
-    2. 删除数据时，也要由 dep 通知 watcher 去更新
+   1. 添加新数据时进行响应式处理，然后由 dep 通知 watcher 去更新；
+   2. 删除数据时，也要由 dep 通知 watcher 去更新
 
--   Object.defineProperty 只对初始对象里的属性有监听作用，而对新增的属性无效。这也是为什么 Vue2 中对象新增属性的修改需要使用 Vue.$set 来设值的原因。
+- Object.defineProperty 只对初始对象里的属性有监听作用，而对新增的属性无效。这也是为什么 Vue2 中对象新增属性的修改需要使用 Vue.$set 来设值的原因。
+
+### Object.defineProperty 的不足之处
+
+1. 对普通对象的监听需要遍历每一个属性
+2. 无法监听数组的变动
+3. 无法监听 Map/Set 数据结构的变动
+4. 无法对对象新增/删除的属性进行监听
 
 ### Vue 数据双向绑定原理
 
@@ -334,3 +342,41 @@ Vue 接收一个模板和 data 参数。
 2. 将模板加载到内存中，递归模板中的元素，检测到元素有 v-开头的命令或者双大括号的指令，就会从 data 中取对应的值去修改模板内容，这个时候就将该 dom 元素添加到了该属性的 dep 数组中。这就实现了数据驱动视图。
 3. 在处理 v-model 指令的时候，为该 dom 添加 input 事件（或 change），输入时就去修改对应的属性的值，实现了页面驱动数据。
 4. 将模板与数据进行绑定后，将模板添加到真实 dom 树中。
+
+### v-model 语法糖模拟
+
+1. 原生 dom:`<input v-bind:value="test" v-on:input="test=$event.target.value">`==`<input v-model="test">`
+2. 自定义组件:
+   - 父组件：`<son v-model="num" @input="val=>num=val" />`
+   - 子组件：`$emit('input',888)`
+
+input 元素本身有个 input 事件，这是 HTML5 新增加的，类似 onchange ，每当输入框内容发生变化，就会触发 input 事件，把最新的 value 值传给传递给 val ,完成双向数据绑定的效果 。
+
+注意: 不是所有能进行双向绑定的元素都有 input 事件。
+
+### .sync 修饰符
+
+.sync 修饰符可以实现子组件与父组件的双向绑定，并且可以实现子组件同步修改父组件的值。
+
+```html
+// 正常父传子：
+<son :a="num" :b="num2"></son>
+
+// 加上sync之后父传子：
+<son :a.sync="num" .b.sync="num2"></son>
+
+// 它等价于
+<son
+	:a="num"
+	@update:a="val=>num=val"
+	:b="num2"
+	@update:b="val=>num2=val"
+></son>
+
+//
+相当于多了一个事件监听，事件名是update:a，回调函数中，会把接收到的值赋值给属性绑定的数据项中。
+```
+
+这里面的传值与接收与正常的父向子传值没有区别，唯一的区别在于往回传值的时候$emit 所调用的事件名必须是 update:属性名，事件名写错不会报错，但是也不会有任何的改变，这点需要多注意。
+
+另外需要特别注意的是: v-model 一个组件中只能用一次；.sync 则可以有多个。

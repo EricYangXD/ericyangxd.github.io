@@ -408,13 +408,13 @@ interface MutableRefObject<T> {
 }
 ```
 
-1. 作用一：多次渲染之间的纽带
+1. 作用一：**多次渲染之间的纽带**
 
 useRef 会在所有的 render 中保持对返回值的**唯一引用**。因为所有对 ref 的赋值和取值拿到的都是最终的状态，并不会因为不同的 render 中存在不同的隔离。
 
 **修改 useRef 返回的值并不会引起 react 进行重新渲染执行函数**，可以配合 useEffect 查询页面是首次渲染还是更新。而且 useRef 类似于 react 中的全局变量并不存在不同次 render 中的 state/props 的作用域隔离机制。这就是 useRef 和 useState 这两个 hook 主要的区别。
 
-2. 作用二：获取 DOM 元素
+2. 作用二：**获取 DOM 元素**
 
 配合 React.forwardRef，可以做 refs 转发。「forwardRef」 的初衷就是解决 ref 不能「跨层级捕获和传递」的问题。 forwardRef 接受了父级元素标记的 ref 信息，并把它转发下去，使得子组件可以通过 props 来接受到上一层级或者是更上层级的 ref，那么如果在子组件里使用了 props.ref，则可以在它的父级组件中通过这个 ref 获得子组件的实例。
 

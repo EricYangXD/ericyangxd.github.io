@@ -25,8 +25,8 @@ scroll-behavior: smooth;
 
 scroll-behavior 为一个滚动框指定滚动行为，其他任何的滚动，例如那些由于用户行为而产生的滚动，不受这个属性的影响。在根元素中指定这个属性时，它反而适用于视窗。
 
--   auto：滚动框立即滚动。
--   smooth：比 auto 更「平稳」顺滑流畅滚动。
+- auto：滚动框立即滚动。
+- smooth：比 auto 更「平稳」顺滑流畅滚动。
 
 ## 限制文字显示行数
 
@@ -44,7 +44,7 @@ line-height: 25px;
 
 1. text-overflow: ellipsis
 
--   配合块级元素
+- 配合块级元素
 
 ```css
 overflow: hidden;
@@ -54,21 +54,21 @@ white-space: nowrap;
 
 ## Sticky
 
--   粘性定位可以被认为是相对定位和固定定位的混合。元素在跨越特定阈值前为相对定位，之后为固定定位。
+- 粘性定位可以被认为是相对定位和固定定位的混合。元素在跨越特定阈值前为相对定位，之后为固定定位。
 
--   用法：父级容器要有 height，overflow: scroll/auto/visible **要能滚动！**; 子元素 position: sticky;基于 top, right, bottom, 和 left 的值进行偏移。**跟 position 无关！**
+- 用法：父级容器要有 height，overflow: scroll/auto/visible **要能滚动！**; 子元素 position: sticky;基于 top, right, bottom, 和 left 的值进行偏移。**跟 position 无关！**
 
--   须指定 top, right, bottom 或 left 四个阈值其中之一，才可使粘性定位生效。否则其行为与相对定位 position:relative 相同。
+- 须指定 top, right, bottom 或 left 四个阈值其中之一，才可使粘性定位生效。否则其行为与相对定位 position:relative 相同。
 
--   MDN: 元素根据正常文档流进行定位，然后相对它的最近滚动祖先（nearest scrolling ancestor）和 containing block (最近块级祖先 nearest block-level ancestor)，包括 table-related 元素，基于 top, right, bottom, 和 left 的值进行偏移。偏移值不会影响任何其他元素的位置。
+- MDN: 元素根据正常文档流进行定位，然后相对它的最近滚动祖先（nearest scrolling ancestor）和 containing block (最近块级祖先 nearest block-level ancestor)，包括 table-related 元素，基于 top, right, bottom, 和 left 的值进行偏移。偏移值不会影响任何其他元素的位置。
 
--   该值总是创建一个新的层叠上下文（stacking context）。注意，一个 sticky 元素会“固定”在离它最近的一个拥有“滚动机制”的祖先上（当该祖先的 overflow 是 hidden, scroll, auto, 或 overlay 时），即便这个祖先不是最近的真实可滚动祖先。这有效地抑制了任何“sticky”行为。
+- 该值总是创建一个新的层叠上下文（stacking context）。注意，一个 sticky 元素会“固定”在离它最近的一个拥有“滚动机制”的祖先上（当该祖先的 overflow 是 hidden, scroll, auto, 或 overlay 时），即便这个祖先不是最近的真实可滚动祖先。这有效地抑制了任何“sticky”行为。
 
 ## getComputedStyle()
 
--   Window.getComputedStyle(获取计算样式的 Element,要匹配的伪元素的字符串)方法返回一个对象，该对象在应用活动样式表并解析这些值可能包含的任何基本计算后报告元素的所有 CSS 属性的值。
+- Window.getComputedStyle(获取计算样式的 Element,要匹配的伪元素的字符串)方法返回一个对象，该对象在应用活动样式表并解析这些值可能包含的任何基本计算后报告元素的所有 CSS 属性的值。
 
--   CSS 属性的值: initial, computed, resolved, specified, used, and actual values.即初始、计算、解析、指定、使用和实际值。
+- CSS 属性的值: initial, computed, resolved, specified, used, and actual values.即初始、计算、解析、指定、使用和实际值。
 
 ```css
 let elem1 = document.getElementById("elemId");
@@ -81,15 +81,15 @@ let style = window.getComputedStyle(elem1, null);
 
 ## clear
 
--   MDN: clear CSS 属性指定一个元素是否必须移动(清除浮动后)到在它之前的浮动元素下面。clear 属性适用于浮动和非浮动元素。
+- MDN: clear CSS 属性指定一个元素是否必须移动(清除浮动后)到在它之前的浮动元素下面。clear 属性适用于浮动和非浮动元素。
 
--   MDN: 当应用于非浮动块时，它将非浮动块的边框边界移动到所有相关浮动元素外边界的下方。这个非浮动块的垂直外边距会折叠。
+- MDN: 当应用于非浮动块时，它将非浮动块的边框边界移动到所有相关浮动元素外边界的下方。这个非浮动块的垂直外边距会折叠。
 
--   MDN: 另一方面，两个浮动元素的垂直外边距将不会折叠。当应用于浮动元素时，它将元素的外边界移动到所有相关的浮动元素外边框边界的下方。这会影响后面浮动元素的布局，后面的浮动元素的位置无法高于它之前的元素。
+- MDN: 另一方面，两个浮动元素的垂直外边距将不会折叠。当应用于浮动元素时，它将元素的外边界移动到所有相关的浮动元素外边框边界的下方。这会影响后面浮动元素的布局，后面的浮动元素的位置无法高于它之前的元素。
 
--   MDN: 要被清除的相关浮动元素指的是在相同块级格式化上下文中的前置浮动。
+- MDN: 要被清除的相关浮动元素指的是在相同块级格式化上下文中的前置浮动。
 
--   MDN: 注意：如果一个元素里只有浮动元素，那它的高度会是 0。如果你想要它自适应即包含所有浮动元素，那你需要清除它的子元素。一种方法叫做 clearfix，即 clear 一个不浮动的 ::after 伪元素。
+- MDN: 注意：如果一个元素里只有浮动元素，那它的高度会是 0。如果你想要它自适应即包含所有浮动元素，那你需要清除它的子元素。一种方法叫做 clearfix，即 clear 一个不浮动的 ::after 伪元素。
 
 ```css
 #container::after {
@@ -103,11 +103,11 @@ let style = window.getComputedStyle(elem1, null);
 
 使用 CSS 预处理器，提供 CSS 缺失的样式层复用机制、减少冗余代码，提高样式代码的可维护性。大大提高了我们的开发效率。
 
--   SCSS 是 Sass 3 引入新的语法，其语法完全兼容 CSS3，并且继承了 Sass 的强大功能。Sass 和 SCSS 其实是同一种东西，我们平时都称之为 Sass，两者之间不同之处有以下两点：
+- SCSS 是 Sass 3 引入新的语法，其语法完全兼容 CSS3，并且继承了 Sass 的强大功能。Sass 和 SCSS 其实是同一种东西，我们平时都称之为 Sass，两者之间不同之处有以下两点：
 
--   文件扩展名不同，Sass 是以“.sass”后缀为扩展名，而 SCSS 是以“.scss”后缀为扩展名
+- 文件扩展名不同，Sass 是以“.sass”后缀为扩展名，而 SCSS 是以“.scss”后缀为扩展名
 
--   语法书写方式不同，Sass 是以严格的缩进式语法规则来书写，不带大括号({})和分号(;)，而 SCSS 的语法书写和我们的 CSS 语法书写方式非常类似。
+- 语法书写方式不同，Sass 是以严格的缩进式语法规则来书写，不带大括号({})和分号(;)，而 SCSS 的语法书写和我们的 CSS 语法书写方式非常类似。
 
 ```scss
 # index.scss  定义变量并导出
@@ -125,10 +125,10 @@ console.log('styles', styles.primaryColor);
 
 ## 查看 UI 轮廓 outline
 
--   这里没有使用 border 的原因是 border 会增加元素的大小但是 outline 不会；
--   通过这个技巧不仅能帮助我们在开发中迅速了解元素所在的位置，还能帮助我们方便地查看任意网站的布局；
--   所有浏览器都支持 outline 属性;outline （轮廓）是绘制于元素周围的一条线，位于边框边缘的外围，可起到突出元素的作用;
--   轮廓线不会占据空间，也不一定是矩形（比如 2D 转换等）。
+- 这里没有使用 border 的原因是 border 会增加元素的大小但是 outline 不会；
+- 通过这个技巧不仅能帮助我们在开发中迅速了解元素所在的位置，还能帮助我们方便地查看任意网站的布局；
+- 所有浏览器都支持 outline 属性;outline （轮廓）是绘制于元素周围的一条线，位于边框边缘的外围，可起到突出元素的作用;
+- 轮廓线不会占据空间，也不一定是矩形（比如 2D 转换等）。
 
 ```css
 html * {
@@ -138,7 +138,7 @@ html * {
 
 ## 提高长列表加载性能
 
--   content-visibility 属性有三个可选值:
+- content-visibility 属性有三个可选值:
 
 1. visible: 默认值。对布局和呈现不会产生什么影响。
 2. hidden: 元素跳过其内容的呈现。用户代理功能（例如，在页面中查找，按 Tab 键顺序导航等）不可访问已跳过的内容，也不能选择或聚焦。类似于对其内容设置了 display: none 属性。
@@ -198,19 +198,19 @@ html * {
 2.  transform-origin 属性可以使用一个，两个或三个值来指定，其中每个值都表示一个偏移量。 没有明确定义的偏移将重置为其对应的初始值。
 3.  如果定义了两个或更多值并且没有值的关键字，或者唯一使用的关键字是 center，则第一个值表示水平偏移量，第二个值表示垂直偏移量。
 
--   一个值：
-    -   必须是`<length>`，`<percentage>`，或 left, center, right, top, bottom 关键字中的一个。
--   两个值：
-    -   其中一个必须是`<length>`，`<percentage>`，或 left, center, right 关键字中的一个。
-    -   另一个必须是`<length>`，`<percentage>`，或 top, center, bottom 关键字中的一个。
--   三个值：
-    -   前两个值和只有两个值时的用法相同。
-    -   第三个值必须是`<length>`。它始终代表 Z 轴偏移量。
+- 一个值：
+  - 必须是`<length>`，`<percentage>`，或 left, center, right, top, bottom 关键字中的一个。
+- 两个值：
+  - 其中一个必须是`<length>`，`<percentage>`，或 left, center, right 关键字中的一个。
+  - 另一个必须是`<length>`，`<percentage>`，或 top, center, bottom 关键字中的一个。
+- 三个值：
+  - 前两个值和只有两个值时的用法相同。
+  - 第三个值必须是`<length>`。它始终代表 Z 轴偏移量。
 
 ## 修改图片「颜色」-- drop-shadow
 
--   背景色变化时突出图片，或者修改某个 icon 的背景色以实现变色（UI 垃圾！）。
--   drop-shadow 可用于 png 图片变色。
+- 背景色变化时突出图片，或者修改某个 icon 的背景色以实现变色（UI 垃圾！）。
+- drop-shadow 可用于 png 图片变色。
 
 ```css
 img {
@@ -221,7 +221,7 @@ img {
 }
 ```
 
--   通过 img 引入的 svg 如何改颜色?例如：`<img src="img/success.svg">`。
+- 通过 img 引入的 svg 如何改颜色?例如：`<img src="img/success.svg">`。
 
 1. 通过 drop-shadow，把原始的 img 移到窗口/移出视线之外
 
@@ -253,13 +253,13 @@ img {
 
 ## font
 
--   至少包含 font-size 和 font-family;
--   可以按顺序设置如下属性：font-style、font-variant、font-weight、font-size/line-height、font-family、font-stretch;
--   特殊值：caption、icon、menu、message-box、small-caption、status-bar;
+- 至少包含 font-size 和 font-family;
+- 可以按顺序设置如下属性：font-style、font-variant、font-weight、font-size/line-height、font-family、font-stretch;
+- 特殊值：caption、icon、menu、message-box、small-caption、status-bar;
 
 ## 绘制三角形
 
--   普通三角形
+- 普通三角形
 
 ```css
 div {
@@ -270,11 +270,11 @@ div {
 }
 ```
 
--   绘制带边框的三角形：通过::after 伪元素绘制一个稍大的三角形，然后左移即可。
+- 绘制带边框的三角形：通过::after 伪元素绘制一个稍大的三角形，然后左移即可。
 
--   绘制其它角度的三角形：其实它们都是基于之前绘制的三角形而来的。
-    -   如果想绘制右直角三角，则将左 border 设置为 0；
-    -   如果想绘制左直角三角，将右 border 设置为 0 即可（其它情况同理）。
+- 绘制其它角度的三角形：其实它们都是基于之前绘制的三角形而来的。
+  - 如果想绘制右直角三角，则将左 border 设置为 0；
+  - 如果想绘制左直角三角，将右 border 设置为 0 即可（其它情况同理）。
 
 ```css
 div {
@@ -286,12 +286,12 @@ div {
 }
 ```
 
--   给 border 边框 再加边框 有一个属性可以用：
-    -   轮廓: outline: 1px solid black;
+- 给 border 边框 再加边框 有一个属性可以用：
+  - 轮廓: outline: 1px solid black;
 
 ## 水平垂直居中
 
--   ![水平垂直居中](../../assets/spczjz.jpg "水平垂直居中")
+- ![水平垂直居中](../../assets/spczjz.jpg "水平垂直居中")
 
 ## CSS 伪类与伪元素
 
@@ -309,33 +309,33 @@ css 有一系列的伪元素，如:before，:after，:first-line，:first-letter
 
 1. 字符串，字符串作为伪元素的内容添加到主元素中
 
--   注意：字符串中若有 html 字符串，添加到主元素后不会进行 html 转义，也不会转化为真正的 html 内容显示，而是会原样输出
+- 注意：字符串中若有 html 字符串，添加到主元素后不会进行 html 转义，也不会转化为真正的 html 内容显示，而是会原样输出
 
 2. attr(attr_name), 伪元素的内容跟主元素的某个属性值进行关联，及其内容为主元素的某指定属性的值
 
--   好处：可以通过 js 动态改变主元素的指定属性值，这时伪元素的内容也会跟着改变，可以实现某些特殊效果，如图片加载失败用一段文字替换。
+- 好处：可以通过 js 动态改变主元素的指定属性值，这时伪元素的内容也会跟着改变，可以实现某些特殊效果，如图片加载失败用一段文字替换。
 
 3. url()/uri(), 引用外部资源，例如图片；
 
 4. counter(), 调用计数器，可以不使用列表元素实现序号问题。
 
--   伪元素不属于文档，所以 js 无法操作它
+- 伪元素不属于文档，所以 js 无法操作它
 
--   伪元素属于主元素的一部分，因此点击伪元素触发的是主元素的 click 事件
+- 伪元素属于主元素的一部分，因此点击伪元素触发的是主元素的 click 事件
 
--   对于「块级元素才能有:before, :after」--其实是不妥的，大部分行级元素也可以设置伪元素，但是像 img 可替换元素，因为其外观和尺寸有外部资源决定，那么如果外部资源正确加载，就会替换掉其内部内容，这时伪元素也会被替换掉，但是当外部资源加载失败时，设置的伪元素是可以起作用的。
+- 对于「块级元素才能有:before, :after」--其实是不妥的，大部分行级元素也可以设置伪元素，但是像 img 可替换元素，因为其外观和尺寸有外部资源决定，那么如果外部资源正确加载，就会替换掉其内部内容，这时伪元素也会被替换掉，但是当外部资源加载失败时，设置的伪元素是可以起作用的。
 
--   基于伪元素的特点可以知道其优缺点，也引用别人文章的话：
+- 基于伪元素的特点可以知道其优缺点，也引用别人文章的话：
 
 1. 优点
 
--   减少 dom 节点数
--   让 css 帮助解决部分 js 问题，让问题变得简单
+- 减少 dom 节点数
+- 让 css 帮助解决部分 js 问题，让问题变得简单
 
 2. 缺点
 
--   不利于 SEO
--   无法审查元素，不利于调试
+- 不利于 SEO
+- 无法审查元素，不利于调试
 
 #### :before 和:after 常见使用场景
 
@@ -366,8 +366,8 @@ css 有一系列的伪元素，如:before，:after，:first-line，:first-letter
 
 2. 利用 attr()来实现某些动态功能
 
--   `<img>`是一个替换元素，其外观和尺寸是由外部资源来决定的，当外部图片资源加载失败时其会显示破裂图片和 alt 文字，尺寸仅由其自身内容决定。这时`<img>`元素可以使用伪元素:before 和:after，因为其元素内容没有被替换；
--   利用 attr()来获取图片 alt 属性值作为伪元素:after 的 content 内容来替换 img 的内容，并运用适当的样式从而完成：图片加载成功时显示正常的图片，加载失败时显示图片破裂效果的样式.
+- `<img>`是一个替换元素，其外观和尺寸是由外部资源来决定的，当外部图片资源加载失败时其会显示破裂图片和 alt 文字，尺寸仅由其自身内容决定。这时`<img>`元素可以使用伪元素:before 和:after，因为其元素内容没有被替换；
+- 利用 attr()来获取图片 alt 属性值作为伪元素:after 的 content 内容来替换 img 的内容，并运用适当的样式从而完成：图片加载成功时显示正常的图片，加载失败时显示图片破裂效果的样式.
 
 ```css
    img{
@@ -403,7 +403,7 @@ css 有一系列的伪元素，如:before，:after，:first-line，:first-letter
 
 3. 与 counter()结合实现序号问题，而不用使用列表元素。
 
--   具体还要结合 css 的 counter-increment 和 counter-reset 属性的用法 。
+- 具体还要结合 css 的 counter-increment 和 counter-reset 属性的用法 。
 
 ```css
 body {
@@ -417,8 +417,8 @@ h2::before {
 
 4. 特效使用
 
--   利用这两个伪元素，可以实现各种效果，如放大镜、叉叉、箭头、三角符等
--   eg. blockquote 引用段添加巨大的引号作为背景:
+- 利用这两个伪元素，可以实现各种效果，如放大镜、叉叉、箭头、三角符等
+- eg. blockquote 引用段添加巨大的引号作为背景:
 
 ```css
 blockquote::before {
@@ -440,7 +440,7 @@ blockquote::before {
 
 注意：按照规范，应该使用双冒号（::）而不是单个冒号（:），以便区分伪类和伪元素。但是，由于旧版本的 W3C 规范并未对此进行特别区分，因此目前绝大多数的浏览器都同时支持使用这两种方式来表示伪元素。
 
--   标准伪元素索引:
+- 标准伪元素索引:
 
 ```css
 ::after (:after)
@@ -459,7 +459,7 @@ blockquote::before {
 
 CSS 伪类 是添加到选择器的关键字，指定要选择的元素的特殊状态。
 
--   标准伪类索引：
+- 标准伪类索引：
 
 ```css
 :active
@@ -546,8 +546,8 @@ console.log(style.primaryColor); // #F40
 
 ## styled-components
 
--   用于生成并返回一个带样式的组件，既可以生成原生的 HTMLelement，也可以接受自定义组件，如：antd 的 Form、Modal 等组件 -- styled(Modal)\`...\`
--   通过 `${(props) => props.theme.colorXXX};` 来共享全局定义的 createGlobalStyle\`...\`全局样式，props 可以接收 styled 组件中的参数，例如：
+- 用于生成并返回一个带样式的组件，既可以生成原生的 HTMLelement，也可以接受自定义组件，如：antd 的 Form、Modal 等组件 -- styled(Modal)\`...\`
+- 通过 `${(props) => props.theme.colorXXX};` 来共享全局定义的 createGlobalStyle\`...\`全局样式，props 可以接收 styled 组件中的参数，例如：
 
 ```tsx
 const Button = styled.button`
@@ -570,7 +570,7 @@ render(
 );
 ```
 
--   也可以直接传参数，通过尖括号`<{xxx}>`的形式，本质还是通过 props 传参，例如：
+- 也可以直接传参数，通过尖括号`<{xxx}>`的形式，本质还是通过 props 传参，例如：
 
 ```tsx
 const StyledLoader = styled.div<{ fullScreen?: boolean }>`
@@ -590,12 +590,12 @@ const StyledLoader = styled.div<{ fullScreen?: boolean }>`
 `;
 ```
 
--   `<ThemeProvider theme={theme}>` 通过 styled-components 提供的 **ThemeProvider** 共享 theme 变量
--   通过类似` const Input = styled.input.attrs({ type: "checkbox" })``; `可以为生成的带样式的组件添加属性，如：id, className, type 等等
--   还可以传函数` const Thing = styled.div.attrs((/* props */) => ({ tabIndex: 0 }))``; `
--   **不要在函数组件内部创建 styled 组件！性能会很差！！可以放在外面创建！！！**
+- `<ThemeProvider theme={theme}>` 通过 styled-components 提供的 **ThemeProvider** 共享 theme 变量
+- 通过类似` const Input = styled.input.attrs({ type: "checkbox" })``; `可以为生成的带样式的组件添加属性，如：id, className, type 等等
+- 还可以传函数` const Thing = styled.div.attrs((/* props */) => ({ tabIndex: 0 }))``; `
+- **不要在函数组件内部创建 styled 组件！性能会很差！！可以放在外面创建！！！**
 
--   添加背景图片
+- 添加背景图片
 
 ```tsx
 import HeaderImg from 'assets/images/header.png';
@@ -607,7 +607,7 @@ background-image: url(${HeaderImg}) no-repeat; // fixed bottom
 
 ## 加载动画
 
--   使用`styled-components`的组件
+- 使用`styled-components`的组件
 
 ```js
 import styled, { keyframes } from "styled-components";
@@ -636,16 +636,16 @@ const LoaderWrap = styled.div`
 
 ### 选择器
 
--   id 选择器(#myid)
--   类选择器(.myclass)
--   属性选择器(`a[rel="external"]`)
--   伪类选择器(`a:hover, li:nth-child`)
--   伪元素选择器(`a::before, li:after`)
--   标签选择器(`div, h1 ,p`)
--   相邻选择器（`h1 + p`）
--   子选择器(`ul > li`)
--   后代选择器(`li a`)
--   通配符选择器(`*`)
+- id 选择器(#myid)
+- 类选择器(.myclass)
+- 属性选择器(`a[rel="external"]`)
+- 伪类选择器(`a:hover, li:nth-child`)
+- 伪元素选择器(`a::before, li:after`)
+- 标签选择器(`div, h1 ,p`)
+- 相邻选择器（`h1 + p`）
+- 子选择器(`ul > li`)
+- 后代选择器(`li a`)
+- 通配符选择器(`*`)
 
 ### 优先级
 
@@ -662,7 +662,7 @@ const LoaderWrap = styled.div`
 
 ## BFC
 
--   BFC 全称为块级格式化上下文 (Block Formatting Context) 。
+- BFC 全称为块级格式化上下文 (Block Formatting Context) 。
 
 触发 BFC 的条件：dpof
 
@@ -699,10 +699,70 @@ href 表示超文本引用，用在 link 和 a 等元素上，href 是引用和�
 
 > 两者都是外部引用 CSS 的方式，但是存在一定的区别：
 
--   区别 1：link 是 XHTML 标签，除了加载 CSS 外，还可以定义 RSS 等其他事务；@import 属于 CSS 范畴，只能加载 CSS。
--   区别 2：link 引用 CSS 时，在页面载入时同时加载；@import 需要页面网页完全载入以后加载。
--   区别 3：link 是 XHTML 标签，无兼容问题；@import 是在 CSS2.1 提出的，低版本的浏览器不支持。
--   区别 4：link 支持使用 Javascript 控制 DOM 去改变样式；而@import 不支持。
+- 区别 1：link 是 XHTML 标签，除了加载 CSS 外，还可以定义 RSS 等其他事务；@import 属于 CSS 范畴，只能加载 CSS。
+- 区别 2：link 引用 CSS 时，在页面载入时同时加载；@import 需要页面网页完全载入以后加载。
+- 区别 3：link 是 XHTML 标签，无兼容问题；@import 是在 CSS2.1 提出的，低版本的浏览器不支持。
+- 区别 4：link 支持使用 Javascript 控制 DOM 去改变样式；而@import 不支持。
+
+## 画三角形
+
+```html
+<style>
+	/* 纯三角形 */
+	.triangle {
+		position: relative;
+		width: 0;
+		height: 0;
+		border-width: 0 50px 50px;
+		border-style: solid;
+		border-color: transparent transparent red;
+	}
+	/* 利用伪元素，画三角形的边 */
+	.triangle::after {
+		content: "";
+		position: absolute;
+		top: 1px;
+		left: -48px;
+		border-width: 0 48px 48px;
+		border-style: solid;
+		border-color: transparent transparent black;
+	}
+</style>
+<div class="triangle"></div>
+```
+
+## 画正方形
+
+```html
+<style>
+	/* 1 */
+	.square {
+		position: relative;
+		padding: 50%;
+	}
+	.c {
+		position: absolute;
+		background: yellowgreen;
+		/* transform: translate3d(-50%, -50%, 0); */
+		left: 0;
+		top: 0;
+		width: 200px;
+		height: 200px;
+	}
+
+	/* 2 */
+	.square {
+		background-color: green;
+		border: 1px solid black;
+		width: 100px;
+		height: 0;
+		padding-bottom: 100px;
+	}
+</style>
+<div class="square">
+	<div class="c"></div>
+</div>
+```
 
 ## 加一个边框
 
@@ -768,11 +828,11 @@ background-clip: padding-box; // 使用paddingbox
 
 ## nth-child & nth-of-type
 
--   nth-child
+- nth-child
 
 按照个数来算。
 
--   nth-of-type
+- nth-of-type
 
 按照类型来计算，如果是 class 那么碰到不同类型的，单独一类，符合条件的选中。
 
@@ -898,8 +958,8 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 ```html
 <h1>HTML/CSS tooltip</h1>
 <p>
-	Hover <span class="tooltip" data-tooltip="Tooltip Content">Here</span> to
-	see the tooltip.
+	Hover <span class="tooltip" data-tooltip="Tooltip Content">Here</span> to see
+	the tooltip.
 </p>
 <p>
 	You can also hover
@@ -1007,13 +1067,13 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 比如：1 和 9 宽度是不一样的。
 
--   font-variant-numeric: CSS 属性控制数字，分数和序号标记的替代字形的使用；
--   tabular-nums: 启用表格数字显示。使数字等宽，易于像表格那样对齐。等同于 OpenType 特性 tnum。
--   也可以通过 font-feature-settings: "tnum";来实现相同的功能，兼容性更好。
+- font-variant-numeric: CSS 属性控制数字，分数和序号标记的替代字形的使用；
+- tabular-nums: 启用表格数字显示。使数字等宽，易于像表格那样对齐。等同于 OpenType 特性 tnum。
+- 也可以通过 font-feature-settings: "tnum";来实现相同的功能，兼容性更好。
 
 ### font-variant
 
--   `font-variant:small-caps;` 可以实现把段落设置为小型大写字母字体，这意味着所有的小写字母均会被转换为大写，但是所有使用小型大写字体的字母与其余文本相比，其字体尺寸更小。
+- `font-variant:small-caps;` 可以实现把段落设置为小型大写字母字体，这意味着所有的小写字母均会被转换为大写，但是所有使用小型大写字体的字母与其余文本相比，其字体尺寸更小。
 
 ### offsetWidth、clientWidth、scrollWidth、scrollTop 的区别
 
@@ -1128,9 +1188,7 @@ React 给我们提供了一个语法`:global`。它生效范围内的样式会�
 }
 /* SCSS或SASS中，还可以使用嵌套语法： */
 :global {
-	.ant-picker-calendar-full
-		.ant-picker-panel
-		.ant-picker-calendar-date-today {
+	.ant-picker-calendar-full .ant-picker-panel .ant-picker-calendar-date-today {
 		border-color: purple;
 	}
 }
@@ -1142,14 +1200,14 @@ React 给我们提供了一个语法`:global`。它生效范围内的样式会�
 
 Vue 中也有类似的样式隔离功能，使用 Scoped 标记 CSS 部分，使用也很简单 👇：
 
-```vue
+```html
 <div class="myWrapper">
-  <Calendar />
+	<Calendar />
 </div>
 <style scoped>
-.myWrapper {
-	border: 5px solid black;
-}
+	.myWrapper {
+		border: 5px solid black;
+	}
 </style>
 ```
 
@@ -1356,3 +1414,283 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
 2. 继承： `display: none`和`opacity: 0`：是非继承属性，子孙节点消失由于元素从渲染树消失造成，通过修改子孙节点属性无法显示。 `visibility: hidden`：是继承属性，子孙节点消失由于继承了 hidden，通过设置`visibility: visible;`可以让子孙节点显式。
 3. 性能： `display: none` : 修改元素会造成文档回流，读屏器不会读取`display: none`元素内容，性能消耗较大；`visibility:hidden`: 修改元素只会造成本元素的重绘，性能消耗较少，读屏器读取`visibility: hidden`元素内容；`opacity: 0` ：修改元素会造成重绘，性能消耗较少。
 4. 株连性： 如果祖先元素遭遇某祸害，则其子孙孙无一例外也要遭殃，比如：` opacity:0`和`display:none`，若父节点元素应用了`opacity:0`和`display:none`，无论其子孙元素如何挣扎都不会再出现在大众视野； 而若父节点元素应用`visibility:hidden`，子孙元素应用`visibility:visible`，那么其就会毫无意外的显现出来。
+
+### max-width 和 min-width
+
+`max-width` 会覆盖`width`设置，但 `min-width`设置会覆盖 `max-width`。
+
+## 1px 解决方案
+
+### 1.伪元素 + CSS3 缩放
+
+```css
+// 通过伪元素实现 0.5px border
+.border::after {
+    content: "";
+    box-sizing: border-box; // 为了与原元素等大
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 200%;
+    height: 200%;
+    border: 1px solid gray;
+    transform: scale(0.5);
+    transform-origin: 0 0;
+}
+
+// 通过伪元素实现 0.5px 细线
+.line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 1px;
+    background: #b3b4b8;
+    transform: scale(0.5);
+    transform-origin: 0 0;
+}
+
+// dpr适配可以这样写
+@media (-webkit-min-device-pixel-ratio: 2)  {
+    .line::after {
+    	...
+     	height: 1px;
+        transform: scale(0.5);
+        transform-origin: 0 0;
+    }
+}
+@media (-webkit-min-device-pixel-ratio: 3)  {
+    .line::after {
+        ...
+     	height: 1px;
+        transform: scale(0.333);
+        transform-origin: 0 0;
+    }
+}
+```
+
+#### 为什么要先放大 200% 再缩小 0.5？
+
+为了只缩放 border 1px 的粗细，而保证 border 的大小不变。如果直接 scale(0.5) 的话 border 整体大小也会变成二分之一，所以先放大 200%（放大的时候 border 的粗细是不会被放大的）再缩放，就能保持原大小不变了。
+
+#### 为什么采用缩放的方式，就可以解决手机对小数点处理的兼容性问题？
+
+首先代码中处理的是 1px ，避免了直接操作小数像素的问题；当 dpr=2 时，换算成物理像素为 2px，此时去缩放 scale(0.5)、当 dpr=3 时，换算成物理像素为 3px，此时缩放 scale(0.3) 后，手机均会默认使用最小物理像素 1px 来渲染。按照 CSS3 transform 的 scale 定义，边框可以任意细，理论上可以实现任意细的缩放效果。
+
+- 该方案的优点在于，针对老项目使用缩放的形式可以快速实现 1px 的效果。
+- 需要注意的是，我们是在 1px 的基础上进行缩放！
+- 如果项目中使用了 rem 单位的话，此处的 1px 是不能用 rem 单位的，否则根据 rem 换算后再进行缩放，会使得边框变得更细。
+- 如果项目中使用了 postcss-pxtorem 插件进行编译的话，记得不要对 1px 进行编译。参考配置
+
+```css
+.ignore {
+	border: 1px solid; // ignored
+	border-width: 2px; // ignored
+}
+```
+
+- Px or PX is ignored by postcss-pxtorem but still accepted by browsers。
+
+### 2.动态 Viewport + REM 方式
+
+参考了阿里早期开源的一个移动端适配解决方案 flexible ，本文进行了一些改进。该方案不仅解决了移动端适配的问题，同时也较好的解决了 1px 的问题。
+
+#### 视口
+
+就是浏览器上(或者是一个 APP 中的 webview )用来显示网页的那部分区域，但 viewport 又不局限于浏览器可视区域的大小，它可能比浏览器的可视区域要大，也可能比浏览器的可视区域要小。我们一般最常用的是 layout viewport (浏览器默认的 viewport)。默认宽度大于浏览器可视区域的宽度，所以浏览器默认会出现横向滚动条。
+
+`const clientWidth = document.documentElement.clientWidth || document.body.clientWidth`
+
+#### 通过 meta 标签设置 viewport
+
+如果不设置 meta 标签的话，由于 viewport 默认宽度是大于浏览器可视区域的，所以需要通过设置 viewport 的宽度等于屏幕宽 width=device-width 来避免出现横向滚动条。
+
+```html
+<meta
+	name="viewport"
+	content="
+    width=device-width,  // 设置viewport的宽等于屏幕宽
+    initial-scale=1.0,  // 初始缩放为1
+    maximum-scale=1.0, 
+    user-scalable=no,  // 不允许用户手动缩放
+    viewport-fit=cover // 缩放以填充满屏幕
+    "
+/>
+```
+
+- name 设置元数据的名称，content 设置元数据的值。name 属性值为 viewport 时，表示设置有关视口初始大小的提示，仅供移动端使用
+- 同时设置 width=device-width,initial-scale=1.0 是为了兼容 iOS 和 IE 浏览器
+
+#### 关于页面缩放
+
+`initial-scale` 缩放值越大，当前 viewport 的宽度就会越小，反之亦然。
+
+- 比如屏幕宽度是 320px 的话，如果我们设置 `initial-scale=2` ，此时 viewport 的宽度会变为只有 160px 了。这也好理解，放大了一倍嘛，就是原来 1px 的东西变成 2px 了，但是并不是把原来的 320px 变为 640px ，而是在实际宽度不变的情况下，1px 变得跟原来的 2px 的长度一样了。
+
+所以缩放页面的时候，实际上改变了 CSS 像素的大小，而数量不变。所以原来需要 320px 才能填满的宽度现在只需要 160px 就做到了。
+
+- CSS 像素的定义是，不考虑缩放情况下，1 个 CSS 像素等于 1 个设备独立像素。页面放大 200% 时，CSS 像素个数不变，大小变为二倍，相当于一个 CSS 像素在横纵向上会覆盖两个设备独立像素。浏览器窗口可容纳的设备独立像素数量是不变的，所以可视区域内 CSS 像素数量变少。
+
+#### Flexible 适配方案及问题
+
+Flexible 的大致实现思路是，首先根据 dpr 来动态修改 meta 标签中 viewport 中的 initial-scale 的值，以此来动态改变 viewport 的大小；然后页面上统一使用 rem 来布局，viewport 宽度变化会动态影响 html 中的 font-size 值，以此来实现适配。
+
+- Q:为什么不直接引用 flexible 库来进行移动端适配呢？
+- A:因为 lib-flexible 这个库目前基本被弃用
+
+简单实现：
+
+```html
+<head>
+	<meta
+		name="viewport"
+		content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,viewport-fit=cover"
+	/>
+	<script type="text/javascript">
+		// 动态设置 viewport 的 initial-scale
+		var viewport = document.querySelector("meta[name=viewport]");
+		var dpr = window.devicePixelRatio || 1;
+		var scale = 1 / dpr;
+		viewport.setAttribute(
+			"content",
+			"width=device-width," +
+				"initial-scale=" +
+				scale +
+				", maximum-scale=" +
+				scale +
+				", minimum-scale=" +
+				scale +
+				", user-scalable=no"
+		);
+		// 计算 rem font-size
+		var clientWidth =
+			document.documentElement.clientWidth || document.body.clientWidth;
+		clientWidth > 750 && (clientWidth = 750);
+		var ft = (clientWidth / 7.5).toFixed(2); // 以750设计稿为例
+		document.documentElement.style.fontSize = ft + "px";
+	</script>
+</head>
+```
+
+- Q:为什么页面缩放比例 initial-scale 设置为 1 / dpr ？
+- A:通过设置页面缩放比例为 1/dpr，可将 viewport 的宽度扩大 dpr 倍。还是以 iPhone6 手机为例，不进行页面缩放时 viewport 宽度 375px、dpr=2。由于 dpr 的存在使得一个 CSS 像素需要两个物理像素来渲染。当设置 initial-scale = 1 / dpr = 0.5 时，获取到的 viewport 宽度 clientWidth = 750px ，被扩大了 dpr 倍，就正好是设备物理像素的宽度。简单推导一下就是，当 scale=0.5 时，由于 viewport 内可容纳的 CSS 像素数量的增多，相当于一个设备独立像素在横纵向上会覆盖两个 CSS 像素，此时我们写的 1px 其实正好是一个物理像素的大小，并且可以较好的画出 1px 的边框，从而提高显示精度，从此我们就可以愉快地直接写 1px 啦！同时这个方案也较好的解决了只使用 rem 进行布局时，出现计算后的各种 0.5px、0.55px 等问题。
+
+```js
+CSS像素个数 =  设备独立像素个数 /  scale   = （ 物理像素个数 / dpr ）/ scale
+scale = 1 / dpr
+// 所以
+CSS像素个数 = 物理像素个数
+```
+
+### vw 适配方案
+
+TODO
+
+### 总结
+
+移动端适配主要就分为两方面，一方面要适配不同机型的屏幕尺寸，一方面是对细节像素的处理过程。如果你在项目中直接写了 1px ，由于 dpr 的存在展示导致渲染偏粗，其实是不符合设计稿的要求。
+
+如果你使用了 rem 布局计算出了对应的小数值，不同手机又有明显的兼容性问题。此时老项目的话整体修改 viewport 成本过高，可以采用第一种实现方案进行 1px 的处理；新项目的话可以采用动态设置 viewport 的方式，一键解决所有适配问题。
+
+## CSS 新特性
+
+### 1. @property
+
+`@property`可以用来自定义一个 CSS 属性，然后使用。
+
+```html
+<style>
+	/* 自定义属性 */
+	@property --t {
+		syntax: "<integer>";
+		inherits: false;
+		initial-value: 0;
+	}
+	@counter-style stop {
+		system: cyclic;
+		symbols: "Go~";
+		range: infinite 0;
+	}
+	html,
+	body {
+		margin: 0;
+		height: 100%;
+		display: grid;
+		place-content: center;
+	}
+	count-downqq {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: Consolas, Monaco, monospace;
+		font-size: 120px;
+	}
+	count-downqq::after {
+		--t: 5;
+		--dur: 1;
+		counter-reset: time var(--t);
+		content: counter(time, stop);
+		animation: count calc(var(--t) * var(--dur) * 1s) steps(var(--t)) forwards, shark
+				calc(var(--dur) * 1s) calc(var(--dur) * 0.8s) calc(var(--t));
+	}
+	count-downqq:active::after {
+		animation: none;
+	}
+
+	@keyframes count {
+		to {
+			--t: 0;
+		}
+	}
+
+	@keyframes shark {
+		0% {
+			opacity: 1;
+			transform: scale(1);
+		}
+
+		20% {
+			opacity: 0;
+			transform: scale(0.4);
+		}
+	}
+
+	@keyframes shark {
+		0% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		20% {
+			opacity: 0;
+			transform: translateY(100px);
+		}
+
+		21% {
+			opacity: 0;
+			transform: translateY(-100px);
+		}
+	}
+
+	@keyframes shark {
+		0% {
+			opacity: 1;
+			transform: scale(1);
+		}
+
+		20% {
+			opacity: 0;
+			transform: scale(0.4);
+		}
+
+		21% {
+			opacity: 0;
+			transform: scale(5);
+		}
+	}
+</style>
+
+/* 自定义标签，然后再style中使用自定义的属性--t */
+<count-downqq style="--t: 5"></count-downqq>
+```

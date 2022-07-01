@@ -160,6 +160,38 @@ const isValid = (s) => {
 };
 ```
 
+### 3.无重复字符的最长子串
+
+```js
+/**
+ * @param {string} s
+ * @return {number}
+ */
+var lengthOfLongestSubstring = function (str) {
+	if (!str) return 0;
+	if (str.length === 1) return 1;
+
+	const set = new Set(); // 哈希集合，记录每个字符是否出现过
+	const strLen = str.length;
+	let maxLen = 0,
+		rk = -1; // 右指针，初始值为 -1，相当于我们在字符串的左边界的左侧，还没有开始移动
+
+	for (let i = 0; i < strLen; i++) {
+		if (i != 0) {
+			set.delete(str[i - 1]); // 左指针向右移动一格，移除一个字符，滑动窗口
+		}
+
+		while (rk < strLen - 1 && !set.has(str[rk + 1])) {
+			set.add(str[rk + 1]); // 不断地移动右指针，直到出现重复的字符或rk指针移动到最后一个字符
+			rk++;
+		}
+
+		maxLen = Math.max(maxLen, rk - i + 1); // 取最大长度
+	}
+	return maxLen;
+};
+```
+
 ### 22.括号生成
 
 - 暴力解法，生成所有可能的字符串，然后选出符合规则的

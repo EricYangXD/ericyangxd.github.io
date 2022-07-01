@@ -1384,9 +1384,20 @@ HTML `<picture>` 元素通过包含零或多个 `<source>` 元素和一个 `<img
 
 JSBridge 是一种 webview 侧和 native 侧进行通信的手段，webview 可以通过 jsb 调用 native 的能力，native 也可以通过 jsb 在 webview 上执行一些逻辑。
 
+JSBridge 简单来讲，主要是 给 JavaScript 提供调用 Native 功能的接口，让混合开发中的『前端部分』可以方便地使用地址位置、摄像头甚至支付等 Native 功能。
+
 ### JSBridge 的实现方式 1
 
 在比较流行的 JSBridge 中，主要是通过拦截 URL 请求来达到 native 端和 webview 端相互通信的效果的。以比较火的 WebviewJavascriptBridge 为例，来解析一下它的实现方式。
+
+拦截 URL SCHEME 的主要流程是：h5 端通过某种方式（例如 iframe.src）发送 URL Scheme 请求，之后 Native 拦截到请求并根据 URL SCHEME（包括所带的参数）进行相关操作。
+
+缺陷：
+
+- 使用 iframe.src 发送 URL SCHEME 会有 url 长度的隐患。
+- 创建请求，需要一定的耗时，比注入 API 的方式调用同样的功能，耗时会较长。
+
+有些方案为了规避 url 长度隐患的缺陷，在 iOS 上采用了使用 Ajax 发送同域请求的方式，并将参数放到 head 或 body 里。这样，虽然规避了 url 长度的隐患，但是 WKWebView 并不支持这样的方式。
 
 #### 1.在 native 端和 webview 端注册 Bridge
 
@@ -1436,7 +1447,9 @@ iOS 中有两种 webview，一种是 UIWebview，另一种是 WKWebview，这里
 
 #### 5.native 调用 webview 能力
 
-native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通过触发 iframe 的 src 触发执行的了，因为 Native 可以自己主动调用 JS 侧的方法。其具体过程如图：[native 调用 webview 能力](../../assets/jsb2.jpeg)
+native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通过触发 iframe 的 src 触发执行的了，因为 Native 可以自己主动调用 JS 侧的方法。毕竟不管是 iOS 的 UIWebView 还是 WKWebView，还是 Android 的 WebView 组件，都以子组件的形式存在于 View/Activity 中，直接调用相应的 API 即可。其具体过程如图：[native 调用 webview 能力](../../assets/jsb2.jpeg)
+
+Native 调用 JavaScript，其实就是执行拼接 JavaScript 字符串，从外部调用 JavaScript 中的方法，因此 JavaScript 的方法必须在全局的 window 上。
 
 1. native 侧调用 callHandler 方法，并在 responseCallback 上添加 callbackId: responseCallback
 2. native 侧主动调用\_handleMessageFromObjC 方法，在 webview 中执行对应的逻辑
@@ -1444,25 +1457,33 @@ native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通�
 4. native 端拦截到 url 变化，调用 webview 的逻辑获取到 message，拿到 responseId，并执行对应的 callback 函数
 
 - Q:为什么选择 iframe.src 不选择 locaiton.href ？因为如果通过 location.href 连续调用 Native，很容易丢失一些调用。
+- 对于 Android，在 Kitkat（4.4）之前并没有提供 iOS 类似的调用方式，只能用 loadUrl 一段 JavaScript 代码，来实现：`webView.loadUrl("javascript:" + javaScriptString);`
+- Kitkat 之后的版本，也可以用 `evaluateJavascript` 方法实现：`webView.evaluateJavascript(javaScriptString, new ValueCallback<String>() {..}`
+- 但是使用 loadUrl 的方式，并不能获取 JavaScript 执行后的结果。
 
 ### JSBridge 的实现方式 2
 
 1. DSBridge
-2. 借助 WebView.addJavascriptInterface 实现 H5 与 Native 通信
-3. 通过 prompt 实现 H5 与 Native 的通信
+2. 借助 WebView.addJavascriptInterface 实现 H5 与 Native 通信。在安卓 4.2 之前，Android 注入 JavaScript 对象的接口是 `addJavascriptInterface`，但是这个接口有漏洞，可以被不法分子利用，危害用户的安全，因此在安卓 4.2 中引入新的接口 `@JavascriptInterface`，替代这个接口，解决安全问题。
+   - 声明一个 class：`JavaScriptInterface`，有 postMessage 等方法
+   - 在 onCreate 方法中生成一个实例`final JavaScriptInterface myJavaScriptInterface = new JavaScriptInterface(this)`
+   - `Webview.getSettings().setJavaScriptEnabled(true);`
+   - `Webview.addJavascriptInterface(myJavaScriptInterface, "nativeBridge");`
+   - h5 调用：`window.nativeBridge.postMessage(message);`
+3. 通过 prompt 实现 H5 与 Native 的通信（安卓 4.2 之前很多方案都采用拦截 prompt 的方式来实现）
 
 ### JSBridge 注入失败怎么处理
 
-- 一
+- 方法一
 
-1. 在返回至 H5 页面是 点击调用 window.location.reload()方法
-2. app 去抓取 reload()方法
-3. 调用 app 的 reload 方法（销毁原有 webView 创建新的 webView 注入 JsBridge）
+1. 再返回至 H5 页面时点击调用 window.location.reload()方法
+2. app 端去抓取 reload()方法
+3. 调用 app 的 reload 方法（销毁原有 webView ，创建新的 webView 注入 JsBridge）
 
-- 二
+- 方法二
 
 1. jsBridge 提供 reload 方法（做的事件就是 reload 整个 webView，即上面说的 ios 自刷新的功能）
-2. 在返回至 H5 页面是 点击调用 jsBridge.reload()方法
+2. 在返回至 H5 页面时 点击调用 jsBridge.reload()方法
 
 ### 总结
 
@@ -1481,6 +1502,57 @@ native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通�
 2. 由 JavaScript 端引用。直接与 JavaScript 一起执行。
    - 优点：JavaScript 端可以确定 JSBridge 的存在，直接调用即可；
    - 缺点：如果 JSBridge 的实现方式有更改，JSBridge 需要兼容多版本的 Native Bridge 或者 Native Bridge 兼容多版本的 JSBridge。
+
+### 二者互相调用
+
+1. Android 调用 JS：
+
+H5 将 JSBridge 绑定在 window 上，Native 通过原生方法调用这个对象上的 H5 接收方法。因为原生可以直接拿到 webview 实例。
+
+- `webview.loadUrl("javascript:function()")`：android4.4 及以下的版本，通过 webview.loadUrl("javascript:alert('hello world')"")，可以在 android 平台将 js 代码注入到 html 页面，loadUrl 方法可以直接调用 js 中定义的函数，也可以把 android 本地的 assets 目录下的 js 文件以字符串的形式注入到 html 页面中，但是这个注入时机一定要等到 html 页面加载完毕才能做，即在 WebViewClient.onPageFinished 的回调函数中调用，这样就相当于在 html 页面中直接引用了 js 资源文件。对于客户端来说，java 调用 js 本质上是一个拼接 js 字符串的过程，但是调用 loadUrl 不能直接获取 js 函数的返回值。
+- `webview.evaluateJavaScript("javascript:JSBridge.onFinish(port,jsonObj);")`：可以获取 js 函数的返回值，该方法只有在 android4.4 及以上的版本才可以使用。其他用法和 loadUrl 一致。
+
+1. JS 调用 Android：
+
+- 对象映射:`通过webview.addJavascriptInterface(new JSObject(),'javaObject')，这样可以js代码中可以直接调用javaObject对象，从而实现JS调用Java的功能`，即原生将 WebViewJavascriptBridge 绑定在 window 上，H5 直接调用这个对象中的原生接收方法。
+- URL 拦截:`在html页面通过iframe.src、window.open、documention.location或者href，这四种方法都可以在html页面中打开一个连接，从而会触发Java中的WebViewClient.shouldOverrideUrlLoading方法`
+- JS 方法拦截:`在JS中调用alert、console、prompt、confirm等方法就会触发WebChromeClient的onJsAlert、onConsoleMessage、onJsPrompt、onJsConfirm方法的回调。`
+
+推荐：
+
+1. JavaScript 调用 Native 推荐使用 注入 API 的方式（iOS6 忽略，Android 4.2 以下使用 WebViewClient 的 onJsPrompt 方式）。
+2. Native 调用 JavaScript 则直接执行拼接好的 JavaScript 代码即可。
+
+- 知识点：在 Android 平台上要实现 Native 和 JS 的通信主要通过 WebViewClient 和 WebChromeClient 两个类来实现。
+
+1. WebViewClient 的作用是帮助 WebView 处理各种通知、事件请求，其主要的方法有：onLoadResource、onPageStart、onPageFinished、onReceiveError、shouldOverrideUrlLoading 等；
+2. WebChromeClient 处理 JS 页面的事件响应，比如网页中的对话框、网页图标、网站标题、网页的加载进度等事件，对应的响应方法有 onJsAlert、onJsConfirm、onJsConsole、onProgressChanged、onReceiveIcon、onReceiveTitle 等。
+
+### JSBridge 如何引用
+
+1. 由 Native 端进行注入:注入方式和 Native 调用 JavaScript 类似，直接执行桥的全部代码。
+   - 优点：桥的版本很容易与 Native 保持一致，Native 端不用对不同版本的 JSBridge 进行兼容。
+   - 缺点：注入时机不确定，需要实现注入失败后重试的机制，保证注入的成功率，同时 JavaScript 端在调用接口时，需要优先判断 JSBridge 是否已经注入成功。
+2. 由 JavaScript 端引用:直接与 JavaScript 一起执行。
+   - 优点：JavaScript 端可以确定 JSBridge 的存在，直接调用即可。
+   - 缺点：如果桥的实现方式有更改，JSBridge 需要兼容多版本的 Native Bridge 或者 Native Bridge 兼容多版本的 JSBridge。
+
+- Q:如果在还没有注入 jsbridge API 之前调用了其中的方法怎么处理？
+- A:参考微信 wxjsbrige，`document.addeventlistener("wxjsbrigeReady", todo);`
+- 向目标派发（自定义）事件：`window.dispatchEvent(new Event('customEvent'));`同步调用事件处理程序。
+- 接收派发的事件：`window.addEventListener('customEvent',(e)=>{console.log('e',e.type);},false);`
+- 另一种创建自定义事件的方法：`var evt = document.createEvent("HTMLEvents");evt.initEvent("alert", false, false);dom.dispatchEvent(evt);`
+- 自定义事件的删除：`removeEventListener`、`detachEvent`
+
+1. 另一种使用方式：JsBridge 框架的使用主要分为：
+   - 在 H5 页面加载完毕注入一个本地的 js 文件；
+   - Java 代码中注册 BridgeHandler，用来处理 JS 发送过来的消息；
+   - 在本地注入的 js 文件中定义\_handleMessageFromNative，用来接收 java 传递过来的消息；
+   - 因为客户端注入 js 是异步的，所以需要在 js 文件中注册 Event 监听器，成功后通知 H5。
+
+### 存在的问题
+
+JSBridge 的改进建议，由于 webview 调用 js 方法的时候必须在主线程才能生效，所以偶然会出现 java 调用 js 失败。另外，Js 调用 Java 偶尔也会失败，因为 iframe 机制不能保证每次都能触发 shouldOverrideUrlLoading 回调。
 
 ## 页面加载时触发的事件及顺序
 
