@@ -414,6 +414,17 @@ const get = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
 
 4. 多个同名 interface 发生合并时，同名属性的类型必须一致，否则报错，而其中同名函数（函数重载）的顺序是：1.后声明的 interface 中的先于早声明的；2.同个 interface 中按声明的先后排列；3.如果某个重载的参数类型是字符串字面量，那么该重载的优先级最高；
 
+### interface 和 class 的区别
+
+1. 在 OOP 语言中，接口（Interfaces）是一个很重要的概念，它是对行为的抽象，而具体如何行动需要由类（classes）去实现（implement）。
+2. TypeScript 中的接口是一个非常灵活的概念，除了可用于对类的一部分行为进行抽象以外，也常用于对「对象的形状（Shape）」进行描述。接口不仅可以定义对象, 还可以定义函数。
+3. TypeScript 除了实现了所有 ES6 中的 class 的功能以外，还添加了一些新的用法。
+4. Typescript 中声明 class，实际上，除了会创建一个类之外，同时也会创建一个同名的 interface（同名的 interface 只包含其中的实例属性和实例方法）。所以 class 既可以当作类来使用，也可以当作 interface 来使用。
+5. 实现（implements）是面向对象中的一个重要概念。一般来讲，一个类只能继承自另一个类，有时候不同类之间可以有一些共有的特性，这时候就可以把特性提取成接口（interfaces），用 implements 关键字来实现。这个特性大大提高了面向对象的灵活性。
+6. 一个类可以实现多个接口。
+7. 接口也可以继承类，其实就是继承 4 中创建的同名 interface。
+8. 有时候，一个函数还可以有自己的属性和方法。
+
 ## TypeScript 编译器是如何工作的？
 
 1. TypeScript 文本首先会被 scanner 解析为 token 流。这个过程比较简单，就是单纯地按照分隔符去分割文本即可。

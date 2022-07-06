@@ -641,7 +641,7 @@ Promise.prototype.finally = function (callback) {
 
 ### Promise.all 原理实现
 
-输入的所有 promise 都 fulfilled 时，返回一个依次包含返回结果的数组；如果有任意一个 promise 变为 rejected，那么就返回这个 rejected 作为结果。
+输入的所有 Promise 都 fulfilled 时，返回一个依次包含返回结果的数组；如果有任意一个 Promise 变为 rejected，那么就返回这个 rejected 作为结果。
 
 - Promise.all 方法将多个 Promise 实例包装成一个新的 Promise 实例（p），可以接受一个数组`[p1,p2,p3]`作为参数，此时数组中不一定都是 Promise 对象，如果不是的话，就会调用 Promise.resolve 将其转化为 Promise 对象之后再进行处理。（当然 Promise.all 方法的参数也可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例）。
 - 使用 Promise.all 生成的 Promise 对象（p）的状态是由数组中的 Promise 对象（p1,p2,p3）决定的：
@@ -655,7 +655,7 @@ Promise.prototype.finally = function (callback) {
 function promiseAll(promises) {
 	return new Promise(function (resolve, reject) {
 		if (!Array.isArray(promises)) {
-			return reject(new TypeError("argument must be anarray"));
+			return reject(new TypeError("argument must be an array!"));
 		}
 		var countNum = 0;
 		var promiseNum = promises.length;
@@ -688,7 +688,7 @@ promiseAll([p1, p2, p3]).then(function (value) {
 
 ### Promise.race
 
-Promise.race 方法也是将多个 Promise 实例包装成一个新的 Promise 实例。接收参数的规则同 Promise.all，但是只要有一个实例率先改变状态（fulfilled 或 rejected），Promise.race 实例的状态就跟着改变，采用第一个 promise 的值作为它的值，从而异步地解析或拒绝（一旦堆栈为空）。
+`Promise.race` 方法也是将多个 Promise 实例包装成一个新的 Promise 实例。接收参数的规则同 `Promise.all`，但是只要有一个实例率先改变状态（fulfilled 或 rejected），`Promise.race` 实例的状态就跟着改变，采用第一个 Promise 的值作为它的值，从而异步地解析或拒绝（一旦堆栈为空）。
 
 ```js
 const _race = (ps) => {

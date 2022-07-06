@@ -2,24 +2,43 @@
 title: Git有用的命令 & VSCode插件
 author: EricYangXD
 date: "2022-01-13"
+meta:
+  - name: keywords
+    content: Git,git,rebase,merge,revert,stash
 ---
 
 ## Git 命令
 
 ### git rebase
 
-1. git rebase oem-develop
+> 不要对在你的仓库外有副本的分支执行变基。
+
+与 merge 会保留修改内容的历史记录不同，rebase 是在原有提交的基础上将差异内容反映进去。
+
+1. `git rebase oem-develop`
    - 切换到自己的 feature 分支后，执行此命令实现变基
-2. git push --force-with-lease origin feature/xx
+   - 解决冲突后的提交不是使用 commit 命令，而是执行 rebase 命令指定 `git rebase --continue` 选项。
+   - 若要取消 rebase，指定 `--abort` 选项。
+2. `git push --force-with-lease origin feature/xx`
    - 强制把本地 rebase 之后的分支推送到远端
+3. 变基操作的实质是丢弃一些现有的提交，然后相应地新建一些内容一样但实际上不同的提交。
+4. 撤销提交的不同:如果使用 merge 进行合并，可以使用 revert 命令对 merge 的内容进行撤销操作（参考 revert），而使用 rebase 则不行（已经没有 merge commit 了），而需要使用 rebase -i 对提交进行重新编辑。
+5. 使用 `git rebase -i <branch>` 可以进入交互式模式，可以对「某一范围内的提交」进行重新编辑。
+6. 默认情况下，直接使用 `git rebase -i` 命令的操作对象为自最后一次从 origin 仓库拉取或者向 origin 推送之后的所有提交。
+7. 删除提交：如果想删除某个提交，使用 `git rebase -i` 后直接在编辑器中删除那一行 commit 即可
+8. 拆分提交：如果想把某个 commit 拆分成多个 commit，可以使用 edit 作为 action，edit 表示 使用该提交，但是先在这一步停一下，等我重新编辑完再进行下一步。
+9. 合并提交：
+   - 首先找到起始 commit 的 前一个例如：aaa，rebase 会显示当前分支从这个 comimt 之后的所有 commit。
+   - 执行 `git rebase -i 865b2ac`，会自动唤出编辑器，假如想把后三个提交合并到第一个中去，这里需要用到 squash，该 action 表示 使用该提交，但是把它与前一提交合并，所以只需把后三个的 action 改为 squash 即可。
+   - 保存之后，会唤出编辑器提示基于历史的提交信息创建一个新的提交信息，也就是需要用户编辑一下合并之后的 commit 信息，更改提示信息并保存即可。
 
 ### git reset
 
 强制回退，可能会把别人的代码也干掉
 
-1. git reset --hard HEAD^SHA256
+1. `git reset --hard HEAD^SHA256`
    - 硬回退，不保留 stash
-2. git reset --soft HEAD^/SHA256
+2. `git reset --soft HEAD^/SHA256`
    - 软回退，保留 stash
 
 reset 之后再提交代码时需要强制提交-f
@@ -32,7 +51,7 @@ reset 之后再提交代码时需要强制提交-f
 
 原理是在当前提交后面，新增一条提交，抵消掉上一次提交导致的所有变化。它不会改变过去的提交历史，也不会影响后续的提交，所以是安全的，首选的，没有任何丢失代码风险的。
 
-1. git revert commitId1 [commitid2 commitId3 ...]
+1. `git revert commitId1 [commitid2 commitId3 ...]`
 
 ### git tag
 
@@ -257,7 +276,7 @@ eg.
 
 ### 强制禁用 Fast-Forward
 
-`git merge --no-ff`会生成一个新的 commit
+`git merge --no-ff`会生成一个新的 commit。如果没有禁止 ff，那么有时候： 假如`learn-merge` 分支的历史记录包含 `master` 分支所有的历史记录，当我们要把`learn-merge`合并到`master`上时，这个合并是非常简单的。只需要通过把 `master` 分支的 HEAD 位置移动到 `learn-merge` 的最新 commit 上，Git 就会合并。fast-forward 模式下是不可能出现冲突的。**此时，即 Fast-Forward 时，没有产生新的 commit！！！**
 
 ### git 是如何存储信息的
 

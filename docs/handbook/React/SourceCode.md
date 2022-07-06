@@ -101,7 +101,7 @@ renderWithHooks(
   1. current fiber 树: 当完成一次渲染之后，会产生一个 current 树,current 会在 commit 阶段替换成真实的 Dom 树。
   2. workInProgress fiber 树: 即将调和渲染的 fiber 树。再一次新的组件更新过程中，会从 current 复制一份作为 workInProgress,更新完毕后，将当前的 workInProgress 树赋值给 current 树。
   3. workInProgress.memoizedState: 在 class 组件中，memoizedState 存放 state 信息，在 function 组件中，这里可以提前透漏一下，memoizedState 在一次调和渲染过程中，以链表的形式存放 hooks 信息。
-  4. workInProgress.expirationTime: react 用不同的 expirationTime,来确定更新的优先级。
+  4. workInProgress.expirationTime: react 用不同的 expirationTime，来确定更新的优先级。
   5. currentHook : 可以理解 current 树上的指向的当前调度的 hooks 节点。
   6. workInProgressHook : 可以理解 workInProgress 树上指向的当前调度的 hooks 节点。
 

@@ -9,7 +9,7 @@ date: "2021-12-29"
 ```js
 module.exports = {
   mode: 'development',
-  devtool: 'cheap-module-eval-source-map',
+  devtool: 'eval-cheap-module-source-map',
   entry: { // 多入口
     main: path.join(process.cwd(), 'src/app'),
     app: path.join(process.cwd(), 'apps/app'),
@@ -120,12 +120,19 @@ module.exports = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new HtmlWebpackPlugin({ // 有几个入口就pei'ji'bian
+    new HtmlWebpackPlugin({ // 有几个入口就配几遍
       inject: true,
       chunks: ['main'], // 配置打包后的chunk名
       favicon: path.join(process.cwd(), 'public/favicon.png'), // 配置浏览器图标
       template: joinRootPath('src/index.development.html'), // 配置index.html
-      filename: 'index.html',
+      filename: 'main.html',
+    }),
+    new HtmlWebpackPlugin({ // 有几个入口就配几遍
+      inject: true,
+      chunks: ['app'], // 配置打包后的chunk名
+      favicon: path.join(process.cwd(), 'public/favicon.png'), // 配置浏览器图标
+      template: joinRootPath('src/index.development.html'), // 配置index.html
+      filename: 'app.html',
     }),
     new webpack.DefinePlugin({
       'process.env': {

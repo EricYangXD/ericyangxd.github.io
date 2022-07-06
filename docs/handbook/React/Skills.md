@@ -12,19 +12,19 @@ date: "2021-12-29"
 
 ## 快速启动项目
 
--   参考[这里 webpack](https://github.com/EricYangXD/LearnReact)
--   参考[这里 vite](https://github.com/EricYangXD/vite-pro)
--   修改默认启动端口：`"start": "cross-env PORT=8090 react-scripts start",`
+- 参考[这里 webpack](https://github.com/EricYangXD/LearnReact)
+- 参考[这里 vite](https://github.com/EricYangXD/vite-pro)
+- 修改默认启动端口：`"start": "cross-env PORT=8090 react-scripts start",`
 
 ## key
 
--   Q:为什么要有 key？
+- Q:为什么要有 key？
 
--   A:diff 的时候可以直接对比 key，复用一些未更新的 node，提高效率。。。
+- A:diff 的时候可以直接对比 key，复用一些未更新的 node，提高效率。。。
 
--   我遇到的场景：页面左侧是菜单，右侧是菜单对应的 table，当菜单 menuItem 变了那么对应的 tableContent 也要展示出来，而 tableContent 变了时要保存，如果未保存就去切换菜单，那么需要给出提示，点击保存/取消之后才能切换。
+- 我遇到的场景：页面左侧是菜单，右侧是菜单对应的 table，当菜单 menuItem 变了那么对应的 tableContent 也要展示出来，而 tableContent 变了时要保存，如果未保存就去切换菜单，那么需要给出提示，点击保存/取消之后才能切换。
 
--   问题来了：右侧 table 单独抽成一个组件（因为别的地方也要用），然后抛出 contentChanged，content 等字段给左侧/全局，用于切换角色时判断 table 内容有无变化，而 table 的初始值是不一定相同的，那么我需要这个 table 组件自己去维护自己的状态，比如初始化的时候 contentChanged=false，content=接口返回的数据/[]，而这个 table 组件又需要接收 menuItem 来获取对应的数据，这时，如果不给 table 组件加一个 key={menuItem}的话，那么我切换左侧 menuItem 之后，组件抛出来的 content 就不会被重新初始化，那么我此时去保存这个 tableContent 就会出现 bug——明明 table 里是空的，而保存之后 table 里反而有了数据，这数据还是上一个 menuItem 对应的数据。而解决这个 bug 只需要给 table 组件加个 key，让它跟 menuItem 绑定，menuItem 改变时 table 组件会销毁重新创建，那么 content 自然也会跟着初始化。
+- 问题来了：右侧 table 单独抽成一个组件（因为别的地方也要用），然后抛出 contentChanged，content 等字段给左侧/全局，用于切换角色时判断 table 内容有无变化，而 table 的初始值是不一定相同的，那么我需要这个 table 组件自己去维护自己的状态，比如初始化的时候 contentChanged=false，content=接口返回的数据/[]，而这个 table 组件又需要接收 menuItem 来获取对应的数据，这时，如果不给 table 组件加一个 key={menuItem}的话，那么我切换左侧 menuItem 之后，组件抛出来的 content 就不会被重新初始化，那么我此时去保存这个 tableContent 就会出现 bug——明明 table 里是空的，而保存之后 table 里反而有了数据，这数据还是上一个 menuItem 对应的数据。而解决这个 bug 只需要给 table 组件加个 key，让它跟 menuItem 绑定，menuItem 改变时 table 组件会销毁重新创建，那么 content 自然也会跟着初始化。
 
 ## React diff 原理, 如何从 O(n^3) 变成 O(n)
 
@@ -44,7 +44,7 @@ date: "2021-12-29"
 
 ## How to get the previous props or state?
 
--   example:
+- example:
 
 ```js
 // 1st.
@@ -82,7 +82,7 @@ useEffect(() => {
 
 ## 生命周期
 
--   虽说已经不太提倡用这玩意了，but 还是挺有用的：组件的生命周期，指的是一个 React 组件从挂载，更新，销毁过程中会执行的生命钩子函数。
+- 虽说已经不太提倡用这玩意了，but 还是挺有用的：组件的生命周期，指的是一个 React 组件从挂载，更新，销毁过程中会执行的生命钩子函数。
 
 ```js
 class Clock extends React.Component {
@@ -116,35 +116,35 @@ class Clock extends React.Component {
 }
 ```
 
--   constructor，顾名思义，组件的构造函数。一般会在这里进行 state 的初始化，事件的绑定等等
+- constructor，顾名思义，组件的构造函数。一般会在这里进行 state 的初始化，事件的绑定等等
 
--   componentWillMount，是当组件在进行挂载操作前，执行的函数，一般紧跟着 constructor 函数后执行
+- componentWillMount，是当组件在进行挂载操作前，执行的函数，一般紧跟着 constructor 函数后执行
 
--   componentDidMount，是当组件挂载在 dom 节点后执行。一般会在这里执行一些异步数据的拉取等动作
+- componentDidMount，是当组件挂载在 dom 节点后执行。一般会在这里执行一些异步数据的拉取等动作
 
--   shouldComponentUpdate，返回 false 时，组件将不会进行更新，可用于渲染优化
+- shouldComponentUpdate，返回 false 时，组件将不会进行更新，可用于渲染优化
 
--   componentWillReceiveProps，当组件收到新的 props 时会执行的函数，传入的参数就是 nextProps ，你可以在这里根据新的 props 来执行一些相关的操作，例如某些功能初始化等
+- componentWillReceiveProps，当组件收到新的 props 时会执行的函数，传入的参数就是 nextProps ，你可以在这里根据新的 props 来执行一些相关的操作，例如某些功能初始化等
 
--   componentWillUpdate，当组件在进行更新之前，会执行的函数
+- componentWillUpdate，当组件在进行更新之前，会执行的函数
 
--   componentDidUpdate，当组件完成更新时，会执行的函数，传入两个参数是 prevProps 、prevState
+- componentDidUpdate，当组件完成更新时，会执行的函数，传入两个参数是 prevProps 、prevState
 
--   componentWillUnmount，当组件准备销毁时执行。在这里一般可以执行一些回收的工作，例如 clearInterval(this.timer) 这种对定时器的回收操作
+- componentWillUnmount，当组件准备销毁时执行。在这里一般可以执行一些回收的工作，例如 clearInterval(this.timer) 这种对定时器的回收操作
 
--   官方 16.3/16.4 版本[生命周期图](https://projects.wojtekmaj.pl/react-lifecycle-methods-diagram/)
+- 官方 16.3/16.4 版本[生命周期图](https://projects.wojtekmaj.pl/react-lifecycle-methods-diagram/)
 
--   简单易懂版
+- 简单易懂版
 
 ![img](../../assets/react-lifecycle.png "React生命周期")
 
--   当首次挂载组件时，按顺序执行 getDefaultProps、getInitialState、componentWillMount、render 和 componentDidMount。
--   当卸载组件时，执行 componentWillUnmount。
--   当重新挂载组件时，此时按顺序执行 getInitialState、componentWillMount、render 和 componentDidMount，但并不执行 getDefaultProps。
--   当再次渲染组件时，组件接受到更新状态，此时按顺序执行 componentWillReceiveProps、shouldComponentUpdate、componentWillUpdate、render 和 componentDidUpdate。
--   当使用 ES6 classes 构建 React 组件时，static defaultProps = {} 其实就是调用内部的 getDefaultProps 方法，constructor 中的 this.state = {} 其实就是调用内部的 getInitialState 方法。
+- 当首次挂载组件时，按顺序执行 getDefaultProps、getInitialState、componentWillMount、render 和 componentDidMount。
+- 当卸载组件时，执行 componentWillUnmount。
+- 当重新挂载组件时，此时按顺序执行 getInitialState、componentWillMount、render 和 componentDidMount，但并不执行 getDefaultProps。
+- 当再次渲染组件时，组件接受到更新状态，此时按顺序执行 componentWillReceiveProps、shouldComponentUpdate、componentWillUpdate、render 和 componentDidUpdate。
+- 当使用 ES6 classes 构建 React 组件时，static defaultProps = {} 其实就是调用内部的 getDefaultProps 方法，constructor 中的 this.state = {} 其实就是调用内部的 getInitialState 方法。
 
--   补充&更新
+- 补充&更新
 
 1. getDerivedStateFromProps(nextProps, prevState)
    代替 componentWillReceiveProps()。
@@ -170,38 +170,38 @@ getSnapshotBeforeUpdate 会在最终的 render 之前被调用，也就是说在
 
 1. 阶段一：MOUNTING
 
--   mountComponent 负责管理生命周期中的 getInitialState、componentWillMount、render 和 componentDidMount。
--   由于 getDefaultProps 是通过构造函数进行管理的，所以也是整个生命周期中最先开始执行的。而 mountComponent 只能望洋兴叹，无法调用到 getDefaultProps。这就解释了为何 getDefault-Props 只执行一次。
--   在 componentWillMount 中调用 setState 方法，是不会触发 re-render 的，而是会进行 state 合并，因此 componentWillMount 中的 this.state 并不是最新的，在 render 中才可以获取更新后的 this.state。
+- mountComponent 负责管理生命周期中的 getInitialState、componentWillMount、render 和 componentDidMount。
+- 由于 getDefaultProps 是通过构造函数进行管理的，所以也是整个生命周期中最先开始执行的。而 mountComponent 只能望洋兴叹，无法调用到 getDefaultProps。这就解释了为何 getDefault-Props 只执行一次。
+- 在 componentWillMount 中调用 setState 方法，是不会触发 re-render 的，而是会进行 state 合并，因此 componentWillMount 中的 this.state 并不是最新的，在 render 中才可以获取更新后的 this.state。
 
 2. 阶段二：RECEIVE_PROPS
 
--   updateComponent 负责管理生命周期中的 componentWillReceiveProps、shouldComponent-Update、componentWillUpdate、render 和 componentDidUpdate。
--   在 componentWillReceiveProps 中调用 setState，是不会触发 re-render 的，而是会进行 state 合并。且在 componentWillReceiveProps、shouldComponentUpdate 和 componentWillUpdate 中也还是无法获取到更新后的 this.state，即此时访问的 this.state 仍然是未更新的数据，因此只有在 render 和 componentDidUpdate 中才能获取到更新后的 this.state。
--   调用 shouldComponentUpdate 判断是否需要进行组件更新，如果存在 componentWillUpdate，则执行。
--   禁止在 shouldComponentUpdate 和 componentWillUpdate 中调用 setState，这会造成循环调用，直至耗光浏览器内存后崩溃。
+- updateComponent 负责管理生命周期中的 componentWillReceiveProps、shouldComponent-Update、componentWillUpdate、render 和 componentDidUpdate。
+- 在 componentWillReceiveProps 中调用 setState，是不会触发 re-render 的，而是会进行 state 合并。且在 componentWillReceiveProps、shouldComponentUpdate 和 componentWillUpdate 中也还是无法获取到更新后的 this.state，即此时访问的 this.state 仍然是未更新的数据，因此只有在 render 和 componentDidUpdate 中才能获取到更新后的 this.state。
+- 调用 shouldComponentUpdate 判断是否需要进行组件更新，如果存在 componentWillUpdate，则执行。
+- 禁止在 shouldComponentUpdate 和 componentWillUpdate 中调用 setState，这会造成循环调用，直至耗光浏览器内存后崩溃。
 
 3. 阶段三：UNMOUNTING
 
--   unmountComponent 负责管理生命周期中的 componentWillUnmount。
--   如果存在 componentWillUnmount，则执行并重置所有相关参数、更新队列以及更新状态，如果此时在 componentWillUnmount 中调用 setState，是不会触发 re-render 的，这是因为所有更新队列和更新状态都被重置为 null，并清除了公共类，完成了组件卸载操作。
+- unmountComponent 负责管理生命周期中的 componentWillUnmount。
+- 如果存在 componentWillUnmount，则执行并重置所有相关参数、更新队列以及更新状态，如果此时在 componentWillUnmount 中调用 setState，是不会触发 re-render 的，这是因为所有更新队列和更新状态都被重置为 null，并清除了公共类，完成了组件卸载操作。
 
 ## React Router
 
--   路由包括：react-router-dom
+- 路由包括：react-router-dom
 
--   react-router-dom 导出的组件：
--   HashRouter 和 BrowserRouter 根容器
--   Switch 精准匹配
--   Route 路由规则
--   Link 声明式跳转
--   NavLink 声明式跳转 + 样式
--   Redirect 重定向
--   withRouter 高阶组件，将组件变成路由组件
+- react-router-dom 导出的组件：
+- HashRouter 和 BrowserRouter 根容器
+- Switch 精准匹配
+- Route 路由规则
+- Link 声明式跳转
+- NavLink 声明式跳转 + 样式
+- Redirect 重定向
+- withRouter 高阶组件，将组件变成路由组件
 
 ## constate 轻量级状态管理库
 
--   basic usage
+- basic usage
 
 ```js
 import React, { useState } from "react";
@@ -267,11 +267,11 @@ const Parent = () => {
 }
 ```
 
--   Anonymous functions will always get a new reference on every render. 匿名函数总是会在每次渲染时获得新的引用.
--   This means that onChange property will change every time Parent renders. To prevent that, we need to memoize it with useCallback. 这意味着每次 Parent 渲染时 onChange 属性都会改变。为了防止这种情况，我们需要使用 useCallback 记住它。
--   React does not care whether “props changed” - it will render child components unconditionally just because the parent rendered!React 并不关心“props 是否改变”——它会无条件地渲染子组件，因为父组件渲染了！
--   If you don’t want a component to re-render when its parent renders, wrap it with memo. After that, the component indeed will only re-render when its props change.如果您不希望组件在其父级渲染时重新渲染，请使用 memo 包装它。之后，该组件确实只会在其 props 更改时重新渲染。
--   有时使用 useCallback 来对函数做一个缓存，但是由于对 state 的依赖，导致这个缓存并不生效/效果不及预期，那么需要停止对这个 state 的依赖，此时可以使用 functional state update--函数状态更新？例如：
+- Anonymous functions will always get a new reference on every render. 匿名函数总是会在每次渲染时获得新的引用.
+- This means that onChange property will change every time Parent renders. To prevent that, we need to memoize it with useCallback. 这意味着每次 Parent 渲染时 onChange 属性都会改变。为了防止这种情况，我们需要使用 useCallback 记住它。
+- React does not care whether “props changed” - it will render child components unconditionally just because the parent rendered!React 并不关心“props 是否改变”——它会无条件地渲染子组件，因为父组件渲染了！
+- If you don’t want a component to re-render when its parent renders, wrap it with memo. After that, the component indeed will only re-render when its props change.如果您不希望组件在其父级渲染时重新渲染，请使用 memo 包装它。之后，该组件确实只会在其 props 更改时重新渲染。
+- 有时使用 useCallback 来对函数做一个缓存，但是由于对 state 的依赖，导致这个缓存并不生效/效果不及预期，那么需要停止对这个 state 的依赖，此时可以使用 functional state update--函数状态更新？例如：
 
 ```js
 // 失效：items更新会导致所有的list item都重新渲染
@@ -308,31 +308,31 @@ const onChange = useCallback((id, value) => {
 
 ## setState()是异步还是同步？
 
--   0. **setState 只在合成事件和钩子函数中是“异步”的，在原生事件、自定义 DOM 事件、setInterval、 setTimeout、promise.then 中都是同步的。**
--   1. 不在 React 上线文中触发的 setState，都是同步更新的。
--   2. setState 的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形成了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的 callback 拿到更新后的结果。
--   3. setState 的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和 setTimeout 中因为是同步执行的，所以不会批量更新，在“异步”中如果对同一个值进行多次 setState，setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。**当 setState 传入的参数是函数的时候，就不会合并了**。
--   4. useEffect hooks 中，useState 都是异步的。
+- 0. **setState 只在合成事件和钩子函数中是“异步”的，在原生事件、自定义 DOM 事件、setInterval、 setTimeout、promise.then 中都是同步的。**
+- 1. 不在 React 上线文中触发的 setState，都是同步更新的。
+- 2. setState 的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形成了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的 callback 拿到更新后的结果。
+- 3. setState 的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和 setTimeout 中因为是同步执行的，所以不会批量更新，在“异步”中如果对同一个值进行多次 setState，setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。**当 setState 传入的参数是函数的时候，就不会合并了**。
+- 4. useEffect hooks 中，useState 都是异步的。
 
--   所以严格说是同步的代码, 毕竟都在一个 eventloop 里, 只不过 setstate 里的参数/回调被延迟执行到下面代码执行完才执行。
+- 所以严格说是同步的代码, 毕竟都在一个 eventloop 里, 只不过 setstate 里的参数/回调被延迟执行到下面代码执行完才执行。
 
--   在 setState 中, 会根据一个 isBatchingUpdates 判断是直接更新还是稍后更新, 它的默认值是 false. 但是 React 在调用事件处理函数之前会先调用 batchedUpdates 这个函数, batchedUpdates 函数 会将 isBatchingUpdates 设置为 true. 因此, 由 react 控制的事件处理过程, 就变成了异步(批量更新).
+- 在 setState 中, 会根据一个 isBatchingUpdates 判断是直接更新还是稍后更新, 它的默认值是 false. 但是 React 在调用事件处理函数之前会先调用 batchedUpdates 这个函数, batchedUpdates 函数 会将 isBatchingUpdates 设置为 true. 因此, 由 react 控制的事件处理过程, 就变成了异步(批量更新).
 
 ## 3 ways to cause an infinite loop in React
 
--   Updating the state inside the render. 比如：在 class 的 render()函数 或 函数组件的 return 之外。Fix: 使用 useEffect 包裹。
--   Infinite loop in useEffect. 比如：更新的 state 被放到依赖数组里。Fix: 使用 setSate(prev=>prev+1),即使用一个函数接收 prevState，然后进行更新。
--   Incorrectly set event handlers. 比如：新手常犯错误：onClick 事件应该接收一个闭包函数，而不是直接传入函数执行后的结果。
+- Updating the state inside the render. 比如：在 class 的 render()函数 或 函数组件的 return 之外。Fix: 使用 useEffect 包裹。
+- Infinite loop in useEffect. 比如：更新的 state 被放到依赖数组里。Fix: 使用 setSate(prev=>prev+1),即使用一个函数接收 prevState，然后进行更新。
+- Incorrectly set event handlers. 比如：新手常犯错误：onClick 事件应该接收一个闭包函数，而不是直接传入函数执行后的结果。
 
 ## 合成事件
 
--   react 中的事件是合成事件，会统一绑定在最外层；为什么是合成事件？--因为用了虚拟 DOM。
+- react 中的事件是合成事件，会统一绑定在最外层；为什么是合成事件？--因为用了虚拟 DOM。
 
--   Virtual DOM 在内存中是以对象的形式存在的，如果想要在这些对象上添加事件，就会非常简单。
+- Virtual DOM 在内存中是以对象的形式存在的，如果想要在这些对象上添加事件，就会非常简单。
 
--   React 基于 Virtual DOM 实现了一个 SyntheticEvent （合成事件）层，我们所定义的事件处理器会接收到一个 SyntheticEvent 对象的实例，它完全符合 W3C 标准，不会存在任何 IE 标准的兼容性问题。并且与原生的浏览器事件一样拥有同样的接口，同样支持事件的冒泡机制，我们可以使用 stopPropagation() 和 preventDefault() 来中断它。所有事件都自动绑定到最外层上。如果需要访问原生事件对象，可以使用 nativeEvent 属性。
+- React 基于 Virtual DOM 实现了一个 SyntheticEvent （合成事件）层，我们所定义的事件处理器会接收到一个 SyntheticEvent 对象的实例，它完全符合 W3C 标准，不会存在任何 IE 标准的兼容性问题。并且与原生的浏览器事件一样拥有同样的接口，同样支持事件的冒泡机制，我们可以使用 stopPropagation() 和 preventDefault() 来中断它。所有事件都自动绑定到最外层上。如果需要访问原生事件对象，可以使用 nativeEvent 属性。
 
--   例如：对于 a 标签要取消他的默认跳转行为时，在原生 html 中：return false；在 React 中要：e.preventDefault()；
+- 例如：对于 a 标签要取消他的默认跳转行为时，在原生 html 中：return false；在 React 中要：e.preventDefault()；
 
 ## 获取屏幕宽度的 hook
 
@@ -359,23 +359,23 @@ export default useWindowWidth;
 
 ## useLayoutEffect
 
--   useLayoutEffect 与 useEffect 使用方式是完全一致的，useLayoutEffect 的区别在于它会在所有的 「DOM 变更之后，浏览器渲染之前」「同步」调用 effect。
--   可以使用它来读取 DOM 布局并同步触发重渲染。在浏览器执行绘制之前， useLayoutEffect 内部的更新计划将被同步刷新。
--   通常对于一些通过 JS 计算的布局，如果你想减少 useEffect 带来的「页面抖动」,你可以考虑使用 useLayoutEffect 来代替它。
--   需要注意 useLayoutEffect 与 componentDidMount、componentDidUpdate 的调用阶段是一样的。
--   useLayoutEffect 内部的更新计划将会在浏览器执行下一次绘制前被同步执行。
--   本质上还是 useLayoutEffect 的实现是基于 micro ，而 Effect 是基于 macro ，所以 useLayoutEffect 会在页面更新前去执行。
--   如果你使用服务端渲染，请记住，无论 useLayoutEffect 还是 useEffect 都无法在 Javascript 代码加载完成之前执行。这就是为什么在服务端渲染组件中引入 useLayoutEffect 代码时会触发 React 告警。要解决这个问题，需要将代码逻辑移至 useEffect 中（如果首次渲染不需要这段逻辑的情况下），或是将该组件延迟到客户端渲染完成后再显示（如果直到 useLayoutEffect 执行之前 HTML 都显示错乱的情况下）。
--   与 useEffect 的区别之一：与 componentDidMount、componentDidUpdate 不同的是，传给 useEffect 的函数会在浏览器完成布局与绘制之后，在一个延迟事件中被调用。虽然 useEffect 会在浏览器绘制后延迟执行，但会保证在任何新的渲染前执行。在开始新的更新前，React 总会先清除上一轮渲染的 effect。
+- useLayoutEffect 与 useEffect 使用方式是完全一致的，useLayoutEffect 的区别在于它会在所有的 「DOM 变更之后，浏览器渲染之前」「同步」调用 effect。
+- 可以使用它来读取 DOM 布局并同步触发重渲染。在浏览器执行绘制之前， useLayoutEffect 内部的更新计划将被同步刷新。
+- 通常对于一些通过 JS 计算的布局，如果你想减少 useEffect 带来的「页面抖动」,你可以考虑使用 useLayoutEffect 来代替它。
+- 需要注意 useLayoutEffect 与 componentDidMount、componentDidUpdate 的调用阶段是一样的。
+- useLayoutEffect 内部的更新计划将会在浏览器执行下一次绘制前被同步执行。
+- 本质上还是 useLayoutEffect 的实现是基于 micro ，而 Effect 是基于 macro ，所以 useLayoutEffect 会在页面更新前去执行。
+- 如果你使用服务端渲染，请记住，无论 useLayoutEffect 还是 useEffect 都无法在 Javascript 代码加载完成之前执行。这就是为什么在服务端渲染组件中引入 useLayoutEffect 代码时会触发 React 告警。要解决这个问题，需要将代码逻辑移至 useEffect 中（如果首次渲染不需要这段逻辑的情况下），或是将该组件延迟到客户端渲染完成后再显示（如果直到 useLayoutEffect 执行之前 HTML 都显示错乱的情况下）。
+- 与 useEffect 的区别之一：与 componentDidMount、componentDidUpdate 不同的是，传给 useEffect 的函数会在浏览器完成布局与绘制之后，在一个延迟事件中被调用。虽然 useEffect 会在浏览器绘制后延迟执行，但会保证在任何新的渲染前执行。在开始新的更新前，React 总会先清除上一轮渲染的 effect。
 
 ## useDebugValue
 
 useDebugValue 可用于在 React 开发者工具中显示自定义 hook 的标签，它接受两个参数:
 
--   value 为我们要重点关注的变量，该参数表示在 DevTools 中显示的 hook 标志。
--   fn 表明如何格式化变量 value , 该函数只有在 Hook 被检查时才会被调用。它接受 debug 值作为参数，并且会返回一个格式化的显示值。
+- value 为我们要重点关注的变量，该参数表示在 DevTools 中显示的 hook 标志。
+- fn 表明如何格式化变量 value , 该函数只有在 Hook 被检查时才会被调用。它接受 debug 值作为参数，并且会返回一个格式化的显示值。
 
--   useDebugValue 应该在自定义 hook 中使用，如果直接在组件内使用是无效的。
+- useDebugValue 应该在自定义 hook 中使用，如果直接在组件内使用是无效的。
 
 当我们自定义一些 Hook 时，可以通过 useDebugValue 配合 React DevTools 快速定位我们自己定义的 Hook。
 
@@ -398,7 +398,7 @@ function App() {
 
 ## React 常用方法及周边
 
--   [React 总结](../../assets/react-zj.jpg)
+- [React 总结](../../assets/react-zj.jpg)
 
 ## React.createRef
 
@@ -426,8 +426,8 @@ class MyComponent extends React.Component {
 
 `React.forwardRef` 会创建一个 React 组件，这个组件能够将其接收到的 ref 属性转发到其组件树下的另一个组件中。这种技术并不常见，但在以下两种场景中特别有用：
 
--   转发 refs 到 DOM 组件
--   在高阶组件中转发 refs
+- 转发 refs 到 DOM 组件
+- 在高阶组件中转发 refs
 
 `React.forwardRef` 接受渲染函数作为参数。React 将使用 props 和 ref 作为参数来调用此函数。此函数应返回 React 节点。
 
@@ -715,9 +715,9 @@ A：使用环境变量，将当前环境、CDN、CDN_HOST、Version 等注入环
 
 ## React 里面的事件机制
 
--   在组件挂载的阶段, 根据组件生命的 react 事件, 给 document 添加事件 addEventListener, 并添加统一的事件处理函数 dispatchEvent.
--   将所有的事件和事件类型以及 react 组件进行关联, 将这个关系保存在一个 map 里. 当事件触发的时候, 首先生成合成事件, 根据组件 id 和事件类型找到对应的事件函数, 模拟捕获流程, 然后依次触发对应的函数.
--   如果原生事件使用 stopPropagation 阻止了冒泡, 那么合成事件也就被阻止了.
+- 在组件挂载的阶段, 根据组件生命的 react 事件, 给 document 添加事件 addEventListener, 并添加统一的事件处理函数 dispatchEvent.
+- 将所有的事件和事件类型以及 react 组件进行关联, 将这个关系保存在一个 map 里. 当事件触发的时候, 首先生成合成事件, 根据组件 id 和事件类型找到对应的事件函数, 模拟捕获流程, 然后依次触发对应的函数.
+- 如果原生事件使用 stopPropagation 阻止了冒泡, 那么合成事件也就被阻止了.
 
 ### React 事件机制跟原生事件有什么区别
 
@@ -728,22 +728,23 @@ A：使用环境变量，将当前环境、CDN、CDN_HOST、Version 等注入环
 
 React Fiber 使用了 2 个核心解决思想:
 
--   让渲染有优先级
--   可中断
+- 让渲染有优先级
+- 可中断
 
-React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和阶段(可中断)与 Commit 阶段(不可中断). 一次更新过程会分为很多个分片完成, 所以可能一个任务还没有执行完, 就被另一个优先级更高的更新过程打断, 这时候低优先级的工作就完全作废, 然后等待机会重头到来.
+React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和阶段(可中断)与 Commit 阶段(不可中断)。 一次更新过程会分为很多个分片完成， 所以可能一个任务还没有执行完， 就被另一个优先级更高的更新过程打断， 这时候低优先级的工作就完全作废， 然后等待机会重头再来。
 
-调度的过程: 首先 React 会根据任务的优先级去分配各自的过期时间 expriationTime. requestIdleCallback 在每一帧的多余时间(黄色的区域)调用. 调用 channel.port1.onmessage, 先去判断当前时间是否小于下一帧时间, 如果小于则代表我们有空余时间去执行任务, 如果大于就去执行过期任务, 如果任务没过期. 这个任务就被丢到下一帧执行了. 由于 requestIdleCallback 的兼容性问题, react 自己实现了一个 requestIdleCallback.
+调度的过程: 首先 React 会根据任务的优先级去分配各自的过期时间 expriationTime。 requestIdleCallback 在每一帧的多余时间(黄色的区域)调用。 调用 channel.port1.onmessage， 先去判断当前时间是否小于下一帧时间， 如果小于则代表我们有空余时间去执行任务， 如果大于就去执行过期任务， 如果任务没过期。 这个任务就被丢到下一帧执行了。 由于 requestIdleCallback 的兼容性问题, react 自己实现了一个 requestIdleCallback。
 
 ### 如何决定每次更新的数量
 
--   在 React15 中，每次更新时，都是从根组件或 setState 后的组件开始，更新整个子树，我们唯一能做的是，在某个节点中使用 SCU 断开某一部分的更新，或者是优化 SCU 的比较效率。
+- 在 React15 中，每次更新时，都是从根组件或 setState 后的组件开始，更新整个子树，我们唯一能做的是，在某个节点中使用 SCU 断开某一部分的更新，或者是优化 SCU 的比较效率。
 
--   React16 则是需要将虚拟 DOM 转换为 Fiber 节点，首先它规定一个时间段内，然后在这个时间段能转换多少个 FiberNode，就更新多少个。
+- React16 则是需要将虚拟 DOM 转换为 Fiber 节点，首先它规定一个时间段，然后在这个时间段能转换多少个 FiberNode，就更新多少个。
 
-我们需要将我们的更新逻辑分成两个阶段，第一个阶段是将虚拟 DOM 转换成 Fiber, Fiber 转换成组件实例或真实 DOM（不插入 DOM 树，插入 DOM 树会 reflow）。Fiber 转换成后两者明显会耗时，需要计算还剩下多少时间。并且转换实例需要调用一些钩子，如 componentWillMount, 如果是重复利用已有的实例，这时就是调用 componentWillReceiveProps, shouldComponentUpdate, componentWillUpdate,这时也会耗时。
+- 我们需要将我们的更新逻辑分成两个阶段，第一个阶段是将虚拟 DOM 转换成 Fiber， Fiber 转换成组件实例或真实 DOM（不插入 DOM 树，插入 DOM 树会 reflow）。
+- Fiber 转换成后两者明显会耗时，需要计算还剩下多少时间。并且转换实例需要调用一些钩子，如 componentWillMount， 如果是重复利用已有的实例，这时就是调用 componentWillReceiveProps、shouldComponentUpdate、componentWillUpdate，这时也会耗时。
 
-如何调度时间才能保证流畅：requestIdleCallback（闲时调用）
+- 如何调度时间才能保证流畅：requestIdleCallback（闲时调用）。
 
 ## React 事件中为什么要绑定 this 或者要用箭头函数?
 

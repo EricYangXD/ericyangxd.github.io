@@ -97,7 +97,7 @@ tree diff 的优化：时间复杂度 O(n)：
 1. `props`/`$emit`&`$on`、`@on`
 2. `$refs`
 3. `$parent`&`$children`
-4. `.sync`修饰符
+4. `.sync`修饰符配合`v-bind:update:`
 5. 派发与广播——自行实现`dispatch` 和 `broadcast`方法:
 
 ```js
@@ -164,7 +164,7 @@ export default {
 #### 通用方式
 
 1. Vuex/Pinia: 最主要的目的是跨组件通信、全局数据维护、多人协同开发。
-2. EventBus: 使用一个 Vue 实例做载体，通过实例上的`$on`/`$emit`进行通信。
+2. EventBus: 使用一个 Vue 实例做载体，通过实例上的`$on`/`$emit`进行通信。(Vue3 中不能用了，可以用 tiny-emtter 代替)
 3. 大而全：自定义 findComponent 方法：
    - 由一个组件，向上找到最近的指定组件；
    - 由一个组件，向上找到所有的指定组件；
@@ -363,7 +363,7 @@ input 元素本身有个 input 事件，这是 HTML5 新增加的，类似 oncha
 <son :a="num" :b="num2"></son>
 
 // 加上sync之后父传子：
-<son :a.sync="num" .b.sync="num2"></son>
+<son :a.sync="num" :b.sync="num2"></son>
 
 // 它等价于
 <son
@@ -377,6 +377,7 @@ input 元素本身有个 input 事件，这是 HTML5 新增加的，类似 oncha
 相当于多了一个事件监听，事件名是update:a，回调函数中，会把接收到的值赋值给属性绑定的数据项中。
 ```
 
-这里面的传值与接收与正常的父向子传值没有区别，唯一的区别在于往回传值的时候$emit 所调用的事件名必须是 update:属性名，事件名写错不会报错，但是也不会有任何的改变，这点需要多注意。
+1. 这里面的传值与接收与正常的父向子传值没有区别，唯一的区别在于往回传值的时候$emit 所调用的事件名必须是 @update:属性名，事件名写错不会报错，但是也不会有任何的改变，这点需要多注意。
 
-另外需要特别注意的是: v-model 一个组件中只能用一次；.sync 则可以有多个。
+2. 除了写法不同，另外需要特别注意的是: v-model 一个组件中只能用一次；.sync 则可以有多个。
+3. .sync 和 v-model 都是语法糖，都可以实现父子组件中的数据双向通信。

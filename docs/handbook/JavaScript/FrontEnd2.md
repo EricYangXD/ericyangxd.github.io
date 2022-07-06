@@ -68,7 +68,7 @@ const debounceFetcher = React.useMemo(() => {
 
 在发送真正的请求之前，浏览器会先发送一个 Preflight 请求，也就是我们常说的预检请求，它的方法为 OPTIONS。当预检请求到达服务端时，服务端是不会真正执行这个请求的逻辑的，只会在这个请求上返回一些 HTTP Header，以此来告诉客户端是不是要发送真正的请求。
 
-**一旦浏览器把请求判定为 简单请求，浏览器就不会发送预检了。**
+**一旦浏览器把请求判定为「简单请求」，浏览器就不会发送预检请求了。**
 
 浏览器判定请求是否为简单请求要同时满足以下四个条件：
 
@@ -1044,6 +1044,13 @@ token 中可以存储用户信息、登录信息、有效期、使用限制等�
 
 <link rel="prefetch" href="other.js" as="script" />
 ```
+
+与 prefetch 指令相比，preload 指令有许多不同之处：
+
+- preload chunk 会在父 chunk 加载时，以并行方式开始加载。prefetch chunk 会在父 chunk 加载结束后开始加载。
+- preload chunk 具有中等优先级，并立即下载。prefetch chunk 在浏览器闲置时下载。
+- preload chunk 会在父 chunk 中立即请求，用于当下时刻。prefetch chunk 会用于未来的某个时刻。
+- 浏览器支持程度不同。
 
 ### dns-prefetch 和 preconnect
 

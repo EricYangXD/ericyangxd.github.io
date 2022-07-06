@@ -41,6 +41,9 @@ Loader 是用来解决资源文件的加载和编译问题，它只在模块加�
 2. `clean-webpack-plugin`：实现在打包前先清除之前生成的文件。webpack 5.20.0 以上版本只需要设置 output.clean 为 true 就行。
 3. `copy-webpack-plugin`：在实际开发中还有很多不需要经过 webpack 构建的文件（如：favicon.ico、robots.txt 等），这些文件最终都需要部署到服务器，所以也需要放到最终的输出目录，可以通过该插件来实现复制，避免手动操作。
 
+- Q:webpack 和 webpack 插件似乎“知道”应该生成哪些文件?
+- A:答案是，webpack 通过 manifest，可以追踪所有模块到输出 bundle 之间的映射。通过 `WebpackManifestPlugin` 插件，可以将 manifest 数据提取为一个 json 文件以供使用。
+
 ### 加载器（Loader）
 
 webpack 使用加载器的顺序是从后往前调用。
@@ -496,14 +499,40 @@ tree-shaking 简单说作用就是：只打包用到的代码，没用到的代�
 
 #### source-map 类型
 
-source-map 的作用是：方便你报错的时候能定位到错误代码的位置。它的体积不容小觑，所以对于不同环境设置不同的类型是很有必要的。
+- source-map 的作用是：方便你报错的时候能定位到错误代码的位置。它的体积不容小觑，所以对于不同环境设置不同的类型是很有必要的。
+
+- 使用 `SourceMapDevToolPlugin` 进行更细粒度的配置。查看 `source-map-loader` 来处理已有的 source map。
+- 配置 devtool 来控制 source map。
 
 1. 开发环境: `devtool: 'eval-cheap-module-source-map'`, 开发环境的时候我们需要能精准定位错误代码的位置
 2. 生产环境: `devtool: 'nosources-source-map'`, 生产环境，我们想开启 source-map，但是又不想体积太大，那么可以换一种类型
+3. 验证 devtool 名称时，我们期望使用某种模式，注意不要混淆 devtool 字符串的顺序，模式是：`[inline-|hidden-|eval-][nosources-][cheap-[module-]]source-map`
+
+```js
+module.exports = [
+	"(none)", // 生产包不配置devtool时，不生成 source map。性能最佳。build和rebuild速度都是最快的。具有最高性能的生产构建的推荐选择。缺点就是生产出了问题没法直接定位调试。
+	"eval", // 具有最高性能的开发构建的推荐选择。
+	"eval-cheap-source-map", // 开发构建的权衡选择。
+	"eval-cheap-module-source-map", // 开发构建的权衡选择。
+	"eval-source-map", // 使用高质量 SourceMap 进行开发构建的推荐选择。
+	"source-map", // 具有高质量 SourceMap 的生产构建的推荐选择。
+	"cheap-source-map", // 没有列映射(column mapping)的 source map，忽略 loader source map。
+	"cheap-module-source-map", // 没有列映射(column mapping)的 source map，将 loader source map 简化为每行一个映射(mapping)。
+	"inline-cheap-source-map", // 类似 cheap-source-map，但是 source map 转换为 DataUrl 后添加到 bundle 中。
+	"inline-cheap-module-source-map", // 类似 cheap-module-source-map，但是 source map 转换为 DataUrl 添加到 bundle 中。
+	"inline-source-map", // 发布单个文件时的可能选择
+	"hidden-source-map", // 没有参考。仅将 SourceMap 用于错误报告目的时的可能选择。用于错误上报。
+	"nosources-source-map", // 不包括源代码
+];
+```
 
 #### 打包体积分析
 
 使用`webpack-bundle-analyzer`插件可以审查打包后的体积分布，进而进行相应的体积优化
+
+#### 打包速度分析
+
+使用`speed-measure-webpack-plugin`插件可以审查打包后的体积分布，进而进行相应的体积优化
 
 ### 用户体验优化
 
@@ -717,7 +746,31 @@ apply(compiler) {
 }
 ```
 
-## webpack-dev-server
+## 开发工具
+
+在每次编译代码时，手动运行 `npm run build` 会显得很麻烦。webpack 提供几种可选方式，帮助你在代码发生变化后自动编译代码：
+
+1. `webpack's Watch Mode`
+2. `webpack-dev-server`
+3. `webpack-dev-middleware`
+
+多数场景中，你可能需要使用 `webpack-dev-server`。
+
+### 使用 watch mode(观察模式)
+
+可以指示 webpack "watch" 依赖图中所有文件的更改。如果其中一个文件被更新，代码将被重新编译，所以你不必再去手动运行整个构建。唯一的缺点是，为了看到修改后的实际效果，你需要手动刷新浏览器。
+
+```json
+{
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"watch": "webpack --watch",
+		"build": "webpack"
+	}
+}
+```
+
+### webpack-dev-server
 
 通过**devServer**能在本地开发环境创建一个服务器，该服务器基于**express**，它能实现当项目中的代码发生改变的时，除了打包编译外，还可以帮助我们自动刷新浏览器从而实现实时展示效果。
 
@@ -736,9 +789,37 @@ apply(compiler) {
    - proxy: 服务器代理（一般用于解决 ajax 跨域问题），基于 http-proxy-middleware 的代理服务器
    - 默认情况下，代理时会保留主机头的来源（请求头中的 Origin 字段为`http://localhost:8090`），有的接口服务器可能会对 Origin 字符进行限制，我们可以将 changeOrigin 设置为 true 以覆盖此行为，设置后 Origin 字段就被覆盖为`http://127.0.0.1:8081`。
 
+- `webpack-dev-server` 在编译之后不会写入到任何输出文件。而是将 bundle 文件保留在内存中，然后将它们 serve 到 server 中，就好像它们是挂载在 server 根路径上的真实文件一样。如果你的页面希望在其他不同路径中找到 bundle 文件，则可以通过 dev server 配置中的 devMiddleware.publicPath 选项进行修改。
+- `webpack-dev-server` 会从 `output.path` 中定义的目录中的 bundle 文件提供服务，即文件将可以通过 `http://[devServer.host]:[devServer.port]/[output.publicPath]/[output.filename]` 进行访问。
+
 ```js
 // webpack.config.js
 module.exports = {
+	mode: "development",
+	entry: {
+		index: "./src/index.js",
+		print: "./src/print.js",
+		index: {
+			import: "./src/index.js",
+			dependOn: "shared", // 配置 dependOn option 选项，这样可以在多个 chunk 之间共享模块
+		},
+		another: {
+			import: "./src/another-module.js",
+			dependOn: "shared",
+		},
+		shared: "lodash",
+	},
+	plugins: [
+		new HtmlWebpackPlugin({
+			title: "Development",
+		}),
+	],
+	output: {
+		filename: "[name].bundle.js",
+		path: path.resolve(__dirname, "dist"),
+		clean: true, // 在每次构建前清理 /dist 文件夹，这样只会生成用到的文件。
+	},
+	devtool: "inline-source-map",
 	//...
 	devServer: {
 		// 4.x版本写法
@@ -765,5 +846,85 @@ module.exports = {
 			},
 		},
 	},
+	optimization: {
+		runtimeChunk: "single", // 单个 HTML 页面有多个入口时，可以防止webpack在运行时创建同一模块的两个实例，同时减少为给定页面加载模块所需的 HTTP 请求数。
+		splitChunks: {
+			chunks: "all", // 将公共的依赖模块提取到已有的入口 chunk 中，或者提取到一个新生成的 chunk。
+			// 将第三方库(library)（例如 lodash 或 react）提取到单独的 vendor chunk 文件中，是比较推荐的做法，这是因为，它们很少像本地的源代码那样频繁修改。因此通过实现以上步骤，利用 client 的长效缓存机制，命中缓存来消除请求，并减少向 server 获取资源，同时还能保证 client 代码和 server 代码版本一致。
+			cacheGroups: {
+				vendor: {
+					test: /[\\/]node_modules[\\/]/,
+					name: "vendors",
+					chunks: "all",
+				},
+			},
+		},
+	},
 };
 ```
+
+### 使用 webpack-dev-middleware
+
+`webpack-dev-middleware` 是一个封装器(wrapper)，它可以把 webpack 处理过的文件发送到一个 server。`webpack-dev-server` 在内部使用了它，然而它也可以作为一个单独的 package 来使用，以便根据需求进行更多自定义设置。
+
+需要调整 webpack 配置文件，配置`output.publicPath='/'`，在 server 脚本使用 publicPath，以确保文件资源能够正确地 serve 在 `http://localhost:3000` 下。然后在根目录添加 server.js 文件，然后添加一个 npm script，以使我们更方便地运行 server：`"server": "node server.js"`。
+
+```js
+const express = require("express");
+const webpack = require("webpack");
+const webpackDevMiddleware = require("webpack-dev-middleware");
+
+const app = express();
+const config = require("./webpack.config.js");
+const compiler = webpack(config);
+
+// 告知 express 使用 webpack-dev-middleware，
+// 以及将 webpack.config.js 配置文件作为基础配置。
+app.use(
+	webpackDevMiddleware(compiler, {
+		publicPath: config.output.publicPath,
+	})
+);
+
+// 将文件 serve 到 port 3000。
+app.listen(3000, function () {
+	console.log("Example app listening on port 3000!\n");
+});
+```
+
+## 多页应用和单页应用
+
+1. 多页 MPA：指一个应用中有多个页面，页面跳转时是整页刷新。在多页面应用程序中，server 会拉取一个新的 HTML 文档给你的客户端。页面重新加载此新文档，并且资源被重新下载。由于入口起点数量的增多，多页应用能够复用多个入口起点之间的大量代码/模块（需要自行配置：例如使用 `optimization.splitChunks` 为页面间共享的应用程序代码创建 bundle）。
+2. 所谓基于 webpack 实现多页面应用，简单来将就是基于多个 entry，将 js 代码分为多个 entry 入口文件。
+
+```js
+module.exports = {
+	// 1.此时仅仅是根据这三条配置打成了三个chunk包：pageOne.js/pageTwo.js/pageThree.js
+	entry: {
+		pageOne: "./src/pageOne/index.js",
+		pageTwo: "./src/pageTwo/index.js",
+		pageThree: "./src/pageThree/index.js",
+	},
+	// 2.还要配合htmlWebpackPlugin，把上面的三个chunk分别生成到对应的html文件里，才算是实现多入口。要生成几个html就调几遍。
+	// 缺点是：如果只改动了其中一个chunk，其他chunk也要重新打包。
+	plugins: [
+		new htmlWebpackPlugin({
+			filename: "pageOne.html",
+			chunks: ["pageOne"],
+			template: path.resolve(__dirname, "../public/index.html"),
+		}),
+		new htmlWebpackPlugin({
+			filename: "pageTwo.html",
+			chunks: ["pageTwo"],
+			template: path.resolve(__dirname, "../public/index.html"),
+		}),
+		new htmlWebpackPlugin({
+			filename: "pageThree.html",
+			chunks: ["pageThree"],
+			template: path.resolve(__dirname, "../public/index.html"),
+		}),
+	],
+};
+```
+
+3. 单页 SPA：指只有一个主页面的应用，浏览器一开始要加载所有必须的 html, js, css。所有的页面内容都包含在这个所谓的主页面中。但在写的时候，还是会分开写（页面片段），然后在交互的时候由路由程序动态载入，单页面的页面跳转，仅刷新局部资源。
