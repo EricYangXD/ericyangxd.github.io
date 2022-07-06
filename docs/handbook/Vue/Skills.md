@@ -576,3 +576,53 @@ const registerRoutes = () => {
 ## 查看 Vue 默认 webpack 配置
 
 在使用 vue-cli-service 新建的项目中：`vue-cli-service inspect > output.js`
+
+## Vue 自定义指令
+
+注册一个自定义指令有全局注册与局部注册:
+
+- 全局注册主要是通过 Vue.directive 方法进行注册
+  - `Vue.directive`第一个参数是指令的名字（不需要写上 v-前缀），第二个参数可以是对象数据，也可以是一个指令函数
+- 局部注册通过在组件 options 选项中设置 directive 属性
+- 自定义指令也像组件那样存在钩子函数：
+  - bind：只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置
+  - inserted：被绑定元素插入父节点时调用 (仅保证父节点存在，但不一定已被插入文档中)
+  - update：所在组件的 VNode 更新时调用，但是可能发生在其子 VNode 更新之前。指令的值可能发生了改变，也可能没有。但是你可以通过比较更新前后的值来忽略不必要的模板更新
+  - componentUpdated：指令所在组件的 VNode 及其子 VNode 全部更新后调用
+  - unbind：只调用一次，指令与元素解绑时调用
+- 所有的钩子函数的参数都有以下：
+  - el：指令所绑定的元素，可以用来直接操作 DOM
+  - binding：一个对象，包含以下 property：name,value,oldValue,expression,arg,modifiers
+  - vnode：Vue 编译生成的虚拟节点
+  - oldVnode：上一个虚拟节点，仅在 update 和 componentUpdated 钩子中可用
+- 应用场景:
+  - 表单防止重复提交
+  - 图片懒加载
+  - 一键 Copy 的功能
+  - 接口鉴权
+  - 拖拽指令
+  - 页面水印
+
+```js
+// 1.设置v-throttle自定义指令
+Vue.directive('throttle', {
+  bind: (el, binding) => {
+    let throttleTime = binding.value; // 节流时间
+    if (!throttleTime) { // 用户若不设置节流时间，则默认2s
+      throttleTime = 2000;
+    }
+    let cbFun;
+    el.addEventListener('click', event => {
+      if (!cbFun) { // 第一次执行
+        cbFun = setTimeout(() => {
+          cbFun = null;
+        }, throttleTime);
+      } else {
+        event && event.stopImmediatePropagation();
+      }
+    }, true);
+  },
+});
+// 2.为button标签设置v-throttle自定义指令
+<button @click="sayHello" v-throttle>提交</button>
+```

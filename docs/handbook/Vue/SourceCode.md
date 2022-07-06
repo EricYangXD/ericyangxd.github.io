@@ -381,3 +381,33 @@ input 元素本身有个 input 事件，这是 HTML5 新增加的，类似 oncha
 
 2. 除了写法不同，另外需要特别注意的是: v-model 一个组件中只能用一次；.sync 则可以有多个。
 3. .sync 和 v-model 都是语法糖，都可以实现父子组件中的数据双向通信。
+
+## Vue 项目本地开发完成后部署到服务器后报 404 是什么原因呢？
+
+### 为什么只有 history 模式下会出现这个问题？
+
+可能是 Nginx 配置有问题，比如当我们在地址栏输入 `www.website.com` 时，这时会打开我们 dist 目录下的 `index.html` 文件，然后我们在跳转路由进入到 `www.website.com/login`，此时在 `www.website.com/login` 页执行刷新操作，`nginx location` 如果没有相关的配置，那么就会出现 404 的情况。
+
+产生问题的**本质是因为我们的路由是通过 JS 来执行视图切换的**。当我们进入到子路由时刷新页面，web 容器没有相对应的页面此时会出现 404。
+
+所以我们只需要**配置将任意页面都重定向到 index.html，把路由交由前端处理**。
+
+```sh
+server {
+  listen  80;
+  server_name  www.website.com;
+
+  location / {
+    index  /data/dist/index.html;
+    try_files $uri $uri/ /index.html;
+  }
+}
+```
+
+另外，为了避免这种情况，应该在 Vue 应用里面覆盖所有的路由情况，然后在给出一个 404 页面。
+
+### 为什么 hash 模式下没有问题？
+
+router hash 模式它的特点在于：hash 虽然出现在 URL 中，但不会被包括在 HTTP 请求中，对服务端完全没有影响，因此改变 hash 不会重新加载页面。
+
+hash 模式下，仅 hash 符号之前的内容会被包含在请求中，如 `website.com/#/login` 只有 `website.com` 会被包含在请求中 ，因此对于服务端来说，即使没有配置 location，也不会返回 404 错误。

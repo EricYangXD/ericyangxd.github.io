@@ -2215,6 +2215,28 @@ Vue 的渲染是从 render 阶段开始的，但 keep-alive 的渲染是在 patc
    - 因为`import()`异步懒加载，第一次获取不到 `element.components.default.name`，所以不能再 `beforeEach` 做，不然第一次访问的界面不缓存第二次才会缓存
    - `afterEach` 就不一样了，这时候可以获取到 `element.components.default.name` 了
 
+#### 缓存后如何获取数据
+
+1. beforeRouteEnter：每次组件渲染的时候，都会执行 beforeRouteEnter
+
+```js
+beforeRouteEnter(to, from, next){
+    next(vm=>{
+        console.log(vm)
+        // 每次进入路由执行
+        vm.getData()  // 获取数据
+    })
+},
+```
+
+2. activated：在 keep-alive 缓存的组件被激活的时候，都会执行 actived 钩子
+
+```js
+activated(){
+   this.getData() // 获取数据
+},
+```
+
 ## 购物车提交订单数据怎么传
 
 1. 商品添加至购物车是不需要登录的，但是需要把 skuId 和数量传给后端，查询是否有库存，然后返回给前端，并把购物车信息存在 cookie (或者 sessionStorage) 里。

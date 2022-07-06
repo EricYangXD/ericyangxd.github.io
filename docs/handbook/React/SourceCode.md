@@ -714,7 +714,7 @@ function ProfilePage() {
 
 使用 react-lodable，实现组件的异步加载。专门用于 React 组件的按需加载。
 
-## Diff 算法
+## React Diff 算法
 
 dom diff 的大概逻辑 【核心】
 
