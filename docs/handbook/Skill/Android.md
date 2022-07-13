@@ -20,3 +20,24 @@ date: "2022-02-09"
 4. 安装 商店 Google Play Store。
 
 可以从此处[www.apkmirror.com](https://www.apkmirror.com)下载所需的 APK 及对应版本。
+
+## 运行安卓项目
+
+Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
+
+- 1. app moudle
+
+为什么找不到呢，估计是 IDE 抽风 先记录下:
+
+1. 剪切一下 settings.gradle 下的 include ‘:app’，
+2. 然后 Sync Project with gradle files，
+3. 再然后，粘贴回去 include ‘:app’,
+4. 再 build 一下就可以了.
+
+- 2. project moudle
+
+1. 去项目根目录找到.idea 文件夹
+2. 找到.idea 后删除
+3. 重启 AS 就可以了
+
+- 3. Android Studio > sidebar 控制显示隐藏：通过 view -> tool windows -> 控制

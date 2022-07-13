@@ -1134,6 +1134,27 @@ writing-mode: vertical-lr;
 place-items: center stretch;
 ```
 
+### 保持宽高比
+
+对于需要保持高宽比的图，应该用 `padding-top` 实现：
+
+```css
+.mod_banner {
+	position: relative;
+	/* 使用padding-top 实现宽高比为 100:750 的图片区域 */
+	padding-top: percentage(100/750);
+	height: 0;
+	overflow: hidden;
+	img {
+		width: 100%;
+		height: auto;
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+}
+```
+
 ## 如何覆盖组件库的样式
 
 在开发中，经常需要修改第三方组件库的样式，比如 ant-design 和 elementUI，一般有这么几种做法：
@@ -1424,49 +1445,49 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
 ### 1.伪元素 + CSS3 缩放
 
 ```css
-// 通过伪元素实现 0.5px border
+/* // 通过伪元素实现 0.5px border */
 .border::after {
-    content: "";
-    box-sizing: border-box; // 为了与原元素等大
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 200%;
-    height: 200%;
-    border: 1px solid gray;
-    transform: scale(0.5);
-    transform-origin: 0 0;
+	content: "";
+	box-sizing: border-box; /* // 为了与原元素等大 */
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 200%;
+	height: 200%;
+	border: 1px solid gray;
+	transform: scale(0.5);
+	transform-origin: 0 0;
 }
 
-// 通过伪元素实现 0.5px 细线
+/* // 通过伪元素实现 0.5px 细线 */
 .line::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 200%;
-    height: 1px;
-    background: #b3b4b8;
-    transform: scale(0.5);
-    transform-origin: 0 0;
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 200%;
+	height: 1px;
+	background: #b3b4b8;
+	transform: scale(0.5);
+	transform-origin: 0 0;
 }
 
-// dpr适配可以这样写
-@media (-webkit-min-device-pixel-ratio: 2)  {
-    .line::after {
-    	...
-     	height: 1px;
-        transform: scale(0.5);
-        transform-origin: 0 0;
-    }
+/* // dpr适配可以这样写 */
+@media (-webkit-min-device-pixel-ratio: 2) {
+	.line::after {
+		/* ... */
+		height: 1px;
+		transform: scale(0.5);
+		transform-origin: 0 0;
+	}
 }
-@media (-webkit-min-device-pixel-ratio: 3)  {
-    .line::after {
-        ...
-     	height: 1px;
-        transform: scale(0.333);
-        transform-origin: 0 0;
-    }
+@media (-webkit-min-device-pixel-ratio: 3) {
+	.line::after {
+		/* ... */
+		height: 1px;
+		transform: scale(0.333);
+		transform-origin: 0 0;
+	}
 }
 ```
 
@@ -1491,6 +1512,33 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
 ```
 
 - Px or PX is ignored by postcss-pxtorem but still accepted by browsers。
+
+### 1.5 另一种写法
+
+1 物理像素线（也就是普通屏幕下 1px ，高清屏幕下 0.5px 的情况）采用 transform 属性 scale 实现
+
+```css
+.mod_grid {
+	position: relative;
+	&::after {
+		/* 实现1物理像素的下边框线 */
+		content: "";
+		position: absolute;
+		z-index: 1;
+		pointer-events: none;
+		background-color: #ddd;
+		height: 1px;
+		left: 0;
+		right: 0;
+		top: 0;
+		@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+			-webkit-transform: scaleY(0.5);
+			-webkit-transform-origin: 50% 0%;
+		}
+	}
+	...;
+}
+```
 
 ### 2.动态 Viewport + REM 方式
 
@@ -1583,15 +1631,98 @@ scale = 1 / dpr
 CSS像素个数 = 物理像素个数
 ```
 
+### 审查设计稿
+
+- 设计稿的审查流程一般都比较固定，我们可以将其整理成为团队内通用的审查清单：
+
+1. 确定设计稿的开发友好性（是否有还原成本高或无法还原的地方）
+2. 确定一些特殊的元素是否有合理的边界处理（如文案超出外层容器的边界怎么办）
+3. 确定页面的框架结构（Layout）
+4. 确定跨页面可复用的组件（Site Component）
+5. 确定当前页面可复用的组件（Page Component）
+
+- 依据目标设备的分辨率，制定一套合适的样式断点，并为不同的断点定制必要的 CSS 样式。 移动端优先的页面，可使用 min-width 查询参数从小到大来定义断点。
+  断点名称 断点描述）：
+
+1. mobile 移动设备断点，视窗宽度 ≤ 768 px
+2. tablet 平板电脑设备断点，视窗宽度 ≥ 769 px
+3. desktop 桌面电脑断点，视窗宽度 ≥ 1024 px
+4. widescreen 宽屏电脑断点，视窗宽度 ≥ 1216 px
+5. fullhd 高清宽屏电脑断点，视窗宽度 ≥ 1408 px
+
+- 友情提醒：桌面版 Chrome 支持的字体大小默认不能小于 12PX，可通过 「chrome://settings/ 显示高级设置－网络内容－自定义字体－最小字号（滑到最小）」设置后再到模拟器里体验 DEMO。
+
 ### vw 适配方案
 
-TODO
+vw 是视口单位，视口单位中的“视口”，在桌面端指的是浏览器的可视区域；在移动端指的就是 Viewport 中的 Layout Viewport（布局适口）。
+
+vw 与视口单位的转换关系：
+
+| 单位 | 解释                       |
+| ---- | -------------------------- |
+| vw   | 1vw = 视口宽度的 1%        |
+| vh   | 1vh = 视口高度的 1%        |
+| vmin | 选取 vw 和 vh 中最小的那个 |
+| vmax | 选取 vw 和 vh 中最大的那个 |
+
+1. 移动端适配做法：针对不同的机型，我们只要算出 ui 设计稿尺寸（一般为 1080px）与视口尺寸（假设为 375px）的比例关系，然后用 vw 尺寸去代替 px 尺寸就好了。
+
+```
+k = 1vw = 1080px / 375px = 2.88
+
+y(vw) = 设计稿的尺寸x（px）/ k
+```
+
+2. 在实际开发过程当中我们可以利用`postcss-px-to-viewport`插件来帮我们完成这项计算工作。
+3. PostCSS 是使用 js 插件转换 css 的工具，你可以把它可以理解成为一个平台，里包含了许多对 css 进行处理的插件。它本身只是负责把 css 代码解析成抽象语法树结构（Abstract Syntax Tree，AST），我理解就是使用 js 对象树来描述 css，然后就可以通过修改 js 对象的方式来修改 css，达到对 css 优化和调整的目的。
+
+```js
+// 1. 安装插件: npm install postcss-px-to-viewport
+// 2. 在webpack中引入插件，并对插件进行一些配置
+
+const PxtoVw = require('postcss-px-to-viewport')
+
+module.exports = {
+  css: {
+     loaderOptions: {
+        postcss: {
+       	    plugins: [
+               new PxtoVw({
+                  unitToConvert: 'px', // 需要转换的单位，默认为"px"；
+                  viewportWidth: 1080, // 设计稿的视口宽度，进行比例换算
+                  unitPrecision: 2, // 单位转换后保留的小数位数
+                  propList: ['*'], // 要进行转换的属性列表,*表示匹配所有,!表示不转换
+                  viewportUnit: 'vw', // 转换后的视口单位
+                  fontViewportUnit: 'vw', // 转换后字体使用的视口单位
+                  selectorBlackList: [], // 不进行转换的css选择器，继续使用原有单位
+                  minPixelValue: 1, // 设置最小的转换数值
+                  mediaQuery: false, // 设置媒体查询里的单位是否需要转换单位
+                  replace: true // 是否直接更换属性值，而不添加备用属性
+                  exclude: [/node_modules/] // 忽略某些文件夹下的文件  由于引用了game/vui的toast组件，需要对其进行vm转换适配
+              })
+            ]
+         }
+      }
+   }
+}
+```
+
+4. 插件配置好以后，webpack 打包项目时就会把 css 中的 px 尺寸按照约定好的比例关系转换为 vw 尺寸，实现移动端适配，vw 和 rem 是目前主流的移动端适配方案，兼容性不错。
+5. 利用 Sass 函数将设计稿元素尺寸的像素单位转换为 vw 单位
+
+```scss
+// iPhone 6尺寸作为设计稿基准
+$vw_base: 375;
+@function vw($px) {
+	@return ($px / $vm_base) * 100vw;
+}
+```
 
 ### 总结
 
-移动端适配主要就分为两方面，一方面要适配不同机型的屏幕尺寸，一方面是对细节像素的处理过程。如果你在项目中直接写了 1px ，由于 dpr 的存在展示导致渲染偏粗，其实是不符合设计稿的要求。
+1. 移动端适配主要就分为两方面，一方面要适配不同机型的屏幕尺寸，一方面是对细节像素的处理过程。如果你在项目中直接写了 1px ，由于 dpr 的存在展示导致渲染偏粗，其实是不符合设计稿的要求。
 
-如果你使用了 rem 布局计算出了对应的小数值，不同手机又有明显的兼容性问题。此时老项目的话整体修改 viewport 成本过高，可以采用第一种实现方案进行 1px 的处理；新项目的话可以采用动态设置 viewport 的方式，一键解决所有适配问题。
+2. 如果你使用了 rem 布局计算出了对应的小数值，不同手机又有明显的兼容性问题。此时老项目的话整体修改 viewport 成本过高，可以采用第一种实现方案进行 1px 的处理；新项目的话可以采用动态设置 viewport 的方式，一键解决所有适配问题。
 
 ## CSS 新特性
 

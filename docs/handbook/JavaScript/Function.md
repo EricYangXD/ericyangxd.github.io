@@ -737,9 +737,7 @@ const fetchHR = (url: string) => {
 
 ### 尾递归优化
 
-核心是把递归变成 while 循环，这样就不会产生堆栈。
-
-JS 目前还没有做到自动尾递归优化，但可以通过自定义函数 TCO 模拟实现，下面放出这个函数的实现：
+核心是把递归变成 while 循环，这样就不会产生堆栈。JS 目前还没有做到自动尾递归优化，但可以通过自定义函数 TCO 模拟实现，下面放出这个函数的实现：
 
 ```js
 function tco(f) {
@@ -776,9 +774,33 @@ function getType(obj) {
 
 ### 浅拷贝
 
-1. 数组浅拷贝：Array.from()/Object.assign()/...扩展运算符/arr.slice()/arr.concat()/等；
-2. 数组「深」拷贝：JSON.parse(JSON.stringify(arr));不能拷贝函数。
-3. 自己实现浅拷贝：
+只复制指向某个对象的指针。
+
+1. 数组浅拷贝：`Array.from()/Object.assign()/...扩展运算符/arr.slice()/arr.concat()`/等；只拷贝第一层属性的值，如果有嵌套对象/数组，那么只会拷贝引用。
+2. 对象（非数组）浅拷贝：`Object.assign({}, oldObj)`对于第二层的对象拷贝的是引用，修改新对象会同时影响老对象。
+
+```js
+var outObj = {
+	inObj: { a: 1, b: 2 },
+	inObj1: 1,
+	inObj2: "qwe",
+};
+var newObj = Object.assign({}, outObj);
+newObj.inObj.a = 2;
+newObj.inObj1 = 2;
+newObj.inObj2 = "ZXc";
+
+console.log(outObj);
+// inObj: {a: 2, b: 2}
+// inObj1: 1
+// inObj2: "qwe"
+console.log(newObj);
+// inObj: {a: 2, b: 2}
+// inObj1: 2
+// inObj2: "ZXc"
+```
+
+1. 自己实现浅拷贝：
 
 ```js
 // 需要判断obj是数组还是对象
@@ -790,7 +812,11 @@ for (let key in obj) {
 }
 ```
 
-4. 手动实现深拷贝：
+### 深拷贝
+
+1. 「深」拷贝：`JSON.parse(JSON.stringify(arr));`--不能拷贝函数会丢失 undefined 的属性。
+
+2. 手动实现深拷贝：
 
 ```js
 // 极简版
