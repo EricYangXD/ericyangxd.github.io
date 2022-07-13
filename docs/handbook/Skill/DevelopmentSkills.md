@@ -332,13 +332,17 @@ Debugger 打断点的方式除了直接在对应代码行单击的普通断点�
 
 1. 官方`curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash`命令不好使
 2. 使用 gitee，执行并重新打开 zsh 即可
-   `cd ~/ git clone https://gitee.com/Annlix/nvm-sh_nvm.git .nvm`
+   - `cd ~/ git clone https://gitee.com/Annlix/nvm-sh_nvm.git .nvm`如果仓库没了或者很慢，可以在 Gitee 搜一下别的替换即可
+   - 复制之后在命令行原地执行：`export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")" [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"`
+   - `nvm install version`
+   - `nvm use version`
+   - `nvm uninstall version`
+   - `nvm ls`
+   - `nvm ls-remote`
 
 ### yrm/nrm
 
-管理 registry 源地址。
-
-`npm i yrm -g`
+管理 registry 源地址：`npm i yrm -g`，推荐 yrm
 
 ### pm2
 
@@ -357,9 +361,7 @@ nodemon 是 node 的一个调试工具。当我们修改了后台 node 服务器
 
 ### ni
 
-自动依赖安装，不用管 npm/yarn/pnpm.
-
-`npm i ni -g`
+自动依赖安装，不用管 `npm/yarn/pnpm`， `npm i ni -g`
 
 ### npm ERR! code EINTEGRITY 解决方案
 
@@ -367,7 +369,7 @@ nodemon 是 node 的一个调试工具。当我们修改了后台 node 服务器
 1. 可以删除 package-lock.json；
 2. 可以选择执行下面的操作：
 
-```bash
+```sh
 npm cache verify
 // 清理npm缓存
 npm cache clean
@@ -391,7 +393,7 @@ chrome://net-export/
 
 ### zsh 打印本机公网 ip
 
-```zsh
+```sh
 #!/bin/bash
 
 ip=$(curl -s http://myip.ipip.net)
