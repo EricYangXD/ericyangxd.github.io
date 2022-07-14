@@ -162,6 +162,10 @@ module.exports = {
 						path: "/handbook/JavaScript/FrontEnd2",
 					},
 					{
+						title: "前端开发技巧(3)",
+						path: "/handbook/JavaScript/FrontEnd3",
+					},
+					{
 						title: "APIs",
 						path: "/handbook/JavaScript/Api",
 					},
@@ -264,6 +268,10 @@ module.exports = {
 					{
 						title: "Android",
 						path: "/handbook/Skill/Android",
+					},
+					{
+						title: "VSCode",
+						path: "/handbook/Skill/VSCode",
 					},
 					{
 						title: "问题记录",
@@ -376,6 +384,15 @@ module.exports = {
 				],
 			},
 			{
+				title: "Office软件",
+				children: [
+					{
+						title: "MS Word",
+						path: "/handbook/Office/Word",
+					},
+				],
+			},
+			{
 				title: "股海沉浮",
 				children: [
 					{
@@ -472,26 +489,26 @@ module.exports = {
 				hostname: "https://ericyangxd.top",
 			},
 		],
-		[
-			"@vuepress-reco/vuepress-plugin-bgm-player",
-			{
-				audios: [
-					{
-						name: "LOSER",
-						artist: "莫扎特：C大调奏鸣曲",
-						url: "http://m10.music.126.net/20220608011844/3d5dd623edcf774853e955a55db8c7c0/ymusic/535b/0e5e/0608/d19fc3fe829430610ce61b58d95fecba.mp3",
-						cover:
-							"https://p1.music.126.net/qTSIZ27qiFvRoKj-P30BiA==/109951165895951287.jpg?param=200y200",
-					},
-				],
-				// 是否默认缩小
-				autoShrink: true,
-				// 缩小时缩为哪种模式
-				shrinkMode: "float",
-				// 悬浮窗样式
-				floatStyle: { bottom: "10px", "z-index": "999999" },
-			},
-		],
+		// [
+		// 	"@vuepress-reco/vuepress-plugin-bgm-player",
+		// 	{
+		// 		audios: [
+		// 			{
+		// 				name: "LOSER",
+		// 				artist: "莫扎特：C大调奏鸣曲",
+		// 				url: "http://m10.music.126.net/20220608011844/3d5dd623edcf774853e955a55db8c7c0/ymusic/535b/0e5e/0608/d19fc3fe829430610ce61b58d95fecba.mp3",
+		// 				cover:
+		// 					"https://p1.music.126.net/qTSIZ27qiFvRoKj-P30BiA==/109951165895951287.jpg?param=200y200",
+		// 			},
+		// 		],
+		// 		// 是否默认缩小
+		// 		autoShrink: true,
+		// 		// 缩小时缩为哪种模式
+		// 		shrinkMode: "float",
+		// 		// 悬浮窗样式
+		// 		floatStyle: { bottom: "10px", "z-index": "999999" },
+		// 	},
+		// ],
 		["@vuepress-reco/extract-code"],
 		[
 			"seo",

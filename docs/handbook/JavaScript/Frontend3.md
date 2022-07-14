@@ -105,3 +105,23 @@ fetch(url, {
 	keepalive: true,
 });
 ```
+
+## undefined
+
+不要再直接写 undefined，因为可以局部也起一个叫 undefined 的变量并给它赋值，如果此时用到了 undefined，那么可能出现 bug。示例如下：
+
+```js
+function test(value) {
+	let undefined = "hello world";
+	if (value === undefined) {
+		return `value is undefined`;
+	}
+	return `value is not undefined`;
+}
+let value;
+test(value); // 'value is not undefined'
+```
+
+推荐的做法：使用`void 0`或`void(0)`代替`undefined`。
+
+void 运算符是对给定的表达式进行求值，然后返回 undefined 。而且， void 是不能重新定义的，不然会报语法错误，这样也保证了用 void 来代替 undefined 的不会出现被重定义而造成的 bug。

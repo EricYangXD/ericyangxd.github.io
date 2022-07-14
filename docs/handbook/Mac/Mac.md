@@ -187,3 +187,11 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 `codesign --remove-signature /Applications/ShadowsocksX-NG-R8.app`
 
 否则重启之后 app 会打不开，更新订阅成功的通知不出现也是因为签名对不上。
+
+### 如何在 Mac 上的触摸栏中删除 Siri 图标
+
+显然，这仅适用于具有触摸栏屏幕的 Mac 硬件：
+
+1. 转到  苹果菜单，然后选择“系统偏好设置”，然后转到“键盘”
+2. 在“键盘”选项卡下，选择“自定义控制条”(注意此处未称为“触摸栏”)
+3. 自定义触摸栏以删除 Siri：光标可以移动到 touchbar 上，把不需要的 Siri 拖出去即可
