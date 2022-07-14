@@ -332,8 +332,24 @@ Debugger 打断点的方式除了直接在对应代码行单击的普通断点�
 
 1. 官方`curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash`命令不好使
 2. 使用 gitee，执行并重新打开 zsh 即可
+
    - `cd ~/ git clone https://gitee.com/Annlix/nvm-sh_nvm.git .nvm`如果仓库没了或者很慢，可以在 Gitee 搜一下别的替换即可
-   - 复制之后在命令行原地执行：`export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")" [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"`
+   - 复制之后让然需要手动配置.zshrc 文件，如下 3.
+
+3. 使用 brew 安装
+
+   - You should create NVM's working directory if it doesn't exist: `mkdir ~/.nvm`
+   - Add the following to `~/.zshrc` or your desired shell configuration file:
+
+     ```sh
+     export NVM_DIR="$HOME/.nvm"
+     [ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+     [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+     ```
+
+   - You can set $NVM_DIR to any location, but leaving it unchanged from `/usr/local/opt/nvm` will destroy any nvm-installed Node installations upon upgrade/reinstall.
+
+4. 常用命令：
    - `nvm install version`
    - `nvm use version`
    - `nvm uninstall version`
