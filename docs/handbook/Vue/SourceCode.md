@@ -50,6 +50,12 @@ date: "2021-12-28"
 1. mounted 和 updated 都不能保证子组件全部挂载完成；
 2. 使用`$nextTick`渲染 dom；
 
+### nextTick 的原理
+
+1. nextTick 中的回调是在下次 Dom 更新循环结束之后执行的延迟回调
+2. 可以用于获取更新后的 Dom
+3. Vue 中的数据更新是异步的，使用 nextTick 可以保证用户定义的逻辑在更新之后执行
+
 ### 什么时候操作 ajax
 
 1. created 和 mounted 钩子里都可以；
@@ -411,3 +417,19 @@ server {
 router hash 模式它的特点在于：hash 虽然出现在 URL 中，但不会被包括在 HTTP 请求中，对服务端完全没有影响，因此改变 hash 不会重新加载页面。
 
 hash 模式下，仅 hash 符号之前的内容会被包含在请求中，如 `website.com/#/login` 只有 `website.com` 会被包含在请求中 ，因此对于服务端来说，即使没有配置 location，也不会返回 404 错误。
+
+## Vue 中的模板编译原理
+
+这个问题的核心是如何将 template 转换成 render 函数。
+
+1. 将 template 模版转换成 ast 语法树 - parserHTML
+2. 对静态语法做标记（某些节点不改变）
+3. 重新生成代码 - codeGen，使用 with 语法包裹字符串
+4. 执行 render 函数，此时初次渲染的话会触发 data 属性的 getter，进行依赖收集，同时生成虚拟 dom 树
+5. 然后把 vdom 树生成真实 dom 树并 patch 到页面根节点上
+
+## Vue.$set 方法是如何实现的
+
+- vue 给对象和数组本身都增加了 dep 属性
+- 当给对象新增不存在的属性的时候，就会触发对象依赖的 watcher 去更新
+- 当修改数组索引的时候，就调用数组本身的 splice 方法去更新数组

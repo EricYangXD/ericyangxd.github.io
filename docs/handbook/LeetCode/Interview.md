@@ -879,7 +879,7 @@ function convert2Array(root) {
 		const item = { id, name, parentId };
 		arr.push(item);
 
-		child.forEach((node) => {
+		children.forEach((node) => {
 			nodeToParent.set(node, curNode);
 			queue.unshift(node);
 		});
@@ -1575,7 +1575,7 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 
 有很多 npm package 被攻击后，就是通过 `npm postinstall` 自动执行一些事，比如挖矿等。
 
-#### 总结-npm run script 时发生了什么
+#### 总结 npm run script 时发生了什么
 
 - 表面上：`npm run xxx`的时候，首先会去项目的 package.json 文件里找 scripts 里找对应的 xxx，然后执行 xxx 的命令，例如启动 vue 项目 `npm run serve`的时候，实际上就是执行了`vue-cli-service serve` 这条命令。
 - 实际上：`vue-cli-service`这条指令不存在操作系统中，我们在安装依赖的时候，是通过 npm i xxx 来执行的，例如 `npm i @vue/cli-service`，npm 在 安装这个依赖的时候，就会在 `node_modules/.bin/` 目录中创建好 `vue-cli-service` 为名的几个可执行文件，实际是些软链接/node 脚本。
@@ -1590,7 +1590,86 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 
 #### npm i 时发生了什么
 
-TODO
+> npm 模块安装机制
+
+1. npm install 执行后，会检查并获取 npm 配置，优先级为：`项目级别的.npmrc文件 > 用户级别的.npmrc文件 > 全局的.npmrc文件 > npm内置的.npmrc文件`，查看配置命令：`npm config ls -l`。
+2. 然后检查项目中是否有 package-lock.json 文件。
+   - 如果有，检查 package-lock.json 和 package.json 中声明的依赖是否一致
+     - 一致：直接使用 package-lock.json 中声明的依赖，从缓存或者网络中加载依赖
+     - 不一致：各个版本的 npm 处理方式：[各个版本的 npm 处理方式](../../assets/npm-v.png)
+   - 如果没有，根据 package.json 递归构建依赖树，然后根据依赖树下载完整的依赖资源，在下载时会检查是否有相关的资源缓存
+     - 存在：将缓存资源解压到 node_modules 中
+     - 不存在：从远程仓库下载资源包，并校验完整性，并添加到缓存，同时解压到 node_modules 中
+3. 最后生成 package-lock.json 文件。
+
+- 构建依赖树时，不管是直接依赖还是子依赖，都会按照扁平化的原则，优先将其放置在 node_modules 根目录中(最新的 npm 规范)。在这个过程中，如果遇到相同的模块，会检查已放置在依赖树中的模块是否符合新模块的版本范围——如果符合，则跳过；不符合，则在当前模块的 node_modules 下放置新模块。
+- npm 安装依赖时，会下载到缓存.npm 当中，然后解压到项目的 node_modules 中。
+- 再次安装依赖的时候，会根据 package-lock.json 中存储的 integrity、version、name 信息生成一个唯一的 key，然后拿着 key 去目录中查找对应的缓存记录，如果有缓存资源，就会找到 tar 包的 hash 值，根据 hash 再去找缓存的 tar 包，并把对应的二进制文件解压到相应的项目 node_modules 下面，省去了网络下载资源的开销。
+
+```bash
+#  获取缓存位置
+npm config get cache
+# /Users/eric/.npm
+
+#  清除缓存
+npm cache clean --force
+```
+
+- 另外 npm-cache 文件夹中不包含全局安装的包，所以想清除存在问题的包为全局安装包时，需用 `npm uninstall -g <package>`解决
+- npm 工程钩子生命周期： `preinstall、install、postinstall、prepublish、prepare`
+
+#### npm 实现原理
+
+输入 npm install 命令并敲下回车后，会经历如下几个阶段（以 npm 5.5.1 为例）：
+
+1. 执行工程自身 preinstall
+   - 当前 npm 工程如果定义了 preinstall 钩子此时会被执行。
+2. 确定首层依赖模块
+   - 首先需要做的是确定工程中的首层依赖，也就是 dependencies 和 devDependencies 属性中直接指定的模块（假设此时没有添加 npm install 参数）。
+   - 工程本身是整棵依赖树的根节点，每个首层依赖模块都是根节点下面的一棵子树，npm 会开启多进程从每个首层依赖模块开始逐步寻找更深层级的节点。
+3. 获取模块
+   - 获取模块是一个递归的过程，分为以下几步：
+   - 获取模块信息。在下载一个模块之前，首先要确定其版本，这是因为 package.json 中往往是 semantic version（semver，语义化版本）。此时如果版本描述文件（npm-shrinkwrap.json 或 package-lock.json）中有该模块信息直接拿即可，如果没有则从仓库获取。如 packaeg.json 中某个包的版本是 ^1.1.0，npm 就会去仓库中获取符合 1.x.x 形式的最新版本。
+   - 获取模块实体。上一步会获取到模块的压缩包地址（resolved 字段），npm 会用此地址检查本地缓存，缓存中有就直接拿，如果没有则从仓库下载。
+   - 查找该模块依赖，如果有依赖则回到第 1 步，如果没有则停止。
+4. 模块扁平化（dedupe）
+   - 上一步获取到的是一棵完整的依赖树，其中可能包含大量重复模块。比如 A 模块依赖于 loadsh，B 模块同样依赖于 lodash。在 npm3 以前会严格按照依赖树的结构进行安装，因此会造成模块冗余。
+   - 从 npm3 开始默认加入了一个 dedupe 的过程。它会遍历所有节点，逐个将模块放在根节点下面，也就是 node-modules 的第一层。当发现有重复模块时，则将其丢弃。
+   - 这里需要对重复模块进行一个定义，它指的是模块名相同且  semver 兼容。每个 semver 都对应一段版本允许范围，如果两个模块的版本允许范围存在交集，那么就可以得到一个兼容版本，而不必版本号完全一致，这可以使更多冗余模块在 dedupe 过程中被去掉。
+   - 比如 node-modules 下 foo 模块依赖 lodash@^1.0.0，bar 模块依赖 lodash@^1.1.0，则  ^1.1.0  为兼容版本。
+   - 而当 foo 依赖 lodash@^2.0.0，bar 依赖 lodash@^1.1.0，则依据 semver 的规则，二者不存在兼容版本。会将一个版本放在 node_modules 中，另一个仍保留在依赖树里。
+
+```
+举个例子，假设一个依赖树原本是这样：
+
+node_modules
+-- foo
+---- lodash@version1
+-- bar
+---- lodash@version2
+
+假设 version1 和 version2 是兼容版本，则经过 dedupe 会成为下面的形式：
+
+node_modules
+-- foo
+-- bar
+-- lodash（保留的版本为兼容版本）
+
+假设 version1 和 version2 为非兼容版本，则后面的版本保留在依赖树中：
+
+node_modules
+-- foo
+-- lodash@version1
+-- bar
+---- lodash@version2
+```
+
+5. 安装模块
+	- 这一步将会更新工程中的 node_modules，并执行模块中的生命周期函数（按照 preinstall、install、postinstall 的顺序）。
+6. 执行工程自身生命周期
+   - 当前 npm 工程如果定义了钩子此时会被执行（按照 install、postinstall、prepublish、prepare 的顺序）。
+   - 最后一步是生成或更新版本描述文件，npm install 过程完成。
+
 
 ### 软链接和硬链接
 
