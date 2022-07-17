@@ -225,7 +225,7 @@ module.exports = {
 			},
 			{
 				title: "Webpack",
-				// path: "/handbook/Webpack/Plugin-Loader",
+				path: "/handbook/Webpack/Plugin-Loader",
 				children: [
 					{
 						title: "常用插件和Loader",
@@ -280,6 +280,20 @@ module.exports = {
 				],
 			},
 			{
+				title: "Angular",
+				path: "/handbook/Angular/Angular",
+				children: [
+					{
+						title: "Angular",
+						path: "/handbook/Angular/Angular",
+					},
+					{
+						title: "Angular 企业实战开发",
+						path: "/handbook/Angular/AngularDoc",
+					},
+				],
+			},
+			{
 				title: "Docker",
 				children: [
 					{
@@ -300,7 +314,7 @@ module.exports = {
 			},
 			{
 				title: "计算机网络",
-				// path: "/handbook/Network/Http",
+				path: "/handbook/Network/Http",
 				children: [
 					{
 						title: "Http(s)协议相关知识",
@@ -345,6 +359,7 @@ module.exports = {
 			},
 			{
 				title: "Google Chrome V8",
+				path: "/handbook/Chrome/V8",
 				children: [
 					{
 						title: "GeekTime 图解 Google V8",
