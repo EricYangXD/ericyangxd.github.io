@@ -619,6 +619,41 @@ var findMedianSortedArrays = function (nums1, nums2) {
 
 ```
 
+### K 个一组翻转链表
+
+给定两个字符串 str1 和 str2，如果字符串 str1 中的字符，经过排列组合后的字符串中，只要有一个字符串是 str2 的子串，则认为 str1 是 str2 的关联子串。
+
+若 str1 是 str2 的关联子串，请返回子串在 str2 的起始位置；若 str2 中有多个 str1 的组合子串，请返回最小的起始位置。若不是关联子串，则返回-1。
+
+如果 str1 是 str2 的关联子串，则返回子串在 str2 中的起始位置。如果 str1 不是 str2 的关联子串，则返回-1。
+
+```js
+function findSubstring(s1, s2) {
+	const l1 = s1.length;
+	const l2 = s2.length;
+	let result = -1;
+	const target = s1.split("").sort().join("");
+	for (let i = 0; i < l2 - l1; i++) {
+		const s = s2.substring(i, i + l1);
+		const t = s.split("").sort().join("");
+		if (target === t) {
+			result = i;
+			break;
+		}
+	}
+	console.log(result);
+}
+
+const testList = [
+	{ str1: "abc", str2: "efghicabiii" },
+	{ str1: "abc", str2: "efghicaibii" },
+];
+testList.forEach((v) => {
+	const { str1, str2 } = v;
+	findSubstring(str1, str2);
+});
+```
+
 ### 深度优先遍历 DOM 节点
 
 - el.childNodes:获取全部节点，包括 element 节点、注释节点、文本节点等等，返回的是：NodeList[]
@@ -1665,11 +1700,10 @@ node_modules
 ```
 
 5. 安装模块
-	- 这一步将会更新工程中的 node_modules，并执行模块中的生命周期函数（按照 preinstall、install、postinstall 的顺序）。
+   - 这一步将会更新工程中的 node_modules，并执行模块中的生命周期函数（按照 preinstall、install、postinstall 的顺序）。
 6. 执行工程自身生命周期
    - 当前 npm 工程如果定义了钩子此时会被执行（按照 install、postinstall、prepublish、prepare 的顺序）。
    - 最后一步是生成或更新版本描述文件，npm install 过程完成。
-
 
 ### 软链接和硬链接
 

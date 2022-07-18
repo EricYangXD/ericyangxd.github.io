@@ -195,3 +195,21 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 1. 转到  苹果菜单，然后选择“系统偏好设置”，然后转到“键盘”
 2. 在“键盘”选项卡下，选择“自定义控制条”(注意此处未称为“触摸栏”)
 3. 自定义触摸栏以删除 Siri：光标可以移动到 touchbar 上，把不需要的 Siri 拖出去即可
+
+## 好用的软件
+
+1. MacZip 永久免费的解压软件，比自带的强
+2. uTools 超强工具
+3. magnet 分屏
+4. ShadowsocksX-NG、clash 等
+5. CleanMyMac
+6. Office365
+7. Adobe Acrobat Reader DC
+8. VSCode
+9. iTerm2
+10. ApiFox
+11. Network Lite
+12. webstorm
+13. 阿里云盘
+14. Chrome
+15. 搜狗输入法
