@@ -149,11 +149,11 @@ Angular 会根据你指定的服务的类型来传递你想要使用的服务实
    7. --inlineStyle
    8. --prefix
 
-   <img src="../../assets/images/58.png" width="60%" align="left"/>
+<img src="../../assets/images/58.png" width="60%" align="center"/>
 
-   <img src="../../assets/images/59.png" width="60%" align="left"/>
+<img src="../../assets/images/59.png" width="60%" align="center"/>
 
-   <img src="../../assets/images/60.png" width="60%" align="left"/>
+<img src="../../assets/images/60.png" width="60%" align="center"/>
 
 3. 运行应用：`ng serve`
 
@@ -164,7 +164,7 @@ Angular 会根据你指定的服务的类型来传递你想要使用的服务实
 
 4. 访问应用：`localhost:4200`
 
-   <img src="../../assets/images/3.png"/>
+<img src="../../assets/images/3.png"/>
 
 #### 3.2 默认代码解析
 
@@ -192,7 +192,7 @@ platformBrowserDynamic()
 	.catch((err) => console.error(err));
 ```
 
-<img src="../../assets/images/61.png" align="left" width="60%"/>
+<img src="../../assets/images/61.png" align="center" width="60%"/>
 
 ##### 3.2.2 environment.ts
 
@@ -291,38 +291,38 @@ export class AppComponent {}
 
 3. 在共享模块中导出共享组件
 
-   ```javascript
-   @NgModule({
-   	declarations: [LayoutComponent],
-   	exports: [LayoutComponent],
-   })
-   export class SharedModule {}
-   ```
+```javascript
+@NgModule({
+	declarations: [LayoutComponent],
+	exports: [LayoutComponent],
+})
+export class SharedModule {}
+```
 
 4. 在根模块中导入共享模块
 
-   ```javascript
-   @NgModule({
-   	declarations: [AppComponent],
-   	imports: [SharedModule],
-   	bootstrap: [AppComponent],
-   })
-   export class AppModule {}
-   ```
+```javascript
+@NgModule({
+	declarations: [AppComponent],
+	imports: [SharedModule],
+	bootstrap: [AppComponent],
+})
+export class AppModule {}
+```
 
 5. 在根组件中使用 Layout 组件
 
-   ```javascript
-   @Component({
-   	selector: "app-root",
-   	template: `
-   		<div>App works</div>
-   		<app-layout></app-layout>
-   	`,
-   	styles: [],
-   })
-   export class AppComponent {}
-   ```
+```javascript
+@Component({
+	selector: "app-root",
+	template: `
+		<div>App works</div>
+		<app-layout></app-layout>
+	`,
+	styles: [],
+})
+export class AppComponent {}
+```
 
 ### 4. 组件模板
 
@@ -566,7 +566,7 @@ export class AppComponent {
 
 #### 5.1 内置指令
 
-##### 5.1.1 \*ngIf
+##### 5.1.1 `*ngIf`
 
 根据条件渲染 DOM 节点或移除 DOM 节点。
 
@@ -580,7 +580,7 @@ export class AppComponent {
 <ng-template #noData>没有更多数据</ng-template>
 ```
 
-##### 5.1.2 [hidden]
+##### 5.1.2 `[hidden]`
 
 根据条件显示 DOM 节点或隐藏 DOM 节点 (display)。
 
@@ -589,7 +589,7 @@ export class AppComponent {
 <div [hidden]="data.length > 0">没有更多数据</div>
 ```
 
-##### 5.1.3 \*ngFor
+##### 5.1.3 `*ngFor`
 
 遍历数据生成 HTML 结构
 
@@ -786,7 +786,7 @@ export class AppComponent {
 
 ### 8. 组件生命周期
 
-<img src="../../assets/images/4.png" align="left" width="50%"/>
+<img src="../../assets/images/4.png" align="center" width="50%"/>
 
 #### 8.1 挂载阶段
 
@@ -794,70 +794,70 @@ export class AppComponent {
 
 1. constructor
 
-   Angular 在实例化组件类时执行, 可以用来接收 Angular 注入的服务实例对象。
+Angular 在实例化组件类时执行, 可以用来接收 Angular 注入的服务实例对象。
 
-   ```javascript
-   export class ChildComponent {
-     constructor (private test: TestService) {
-       console.log(this.test) // "test"
-     }
-   }
-   ```
+```javascript
+export class ChildComponent {
+  constructor (private test: TestService) {
+    console.log(this.test) // "test"
+  }
+}
+```
 
 2. ngOnInit
 
-   在首次接收到输入属性值后执行，在此处可以执行请求操作。
+在首次接收到输入属性值后执行，在此处可以执行请求操作。
 
-   ```html
-   <app-child name="张三"></app-child>
-   ```
+```html
+<app-child name="张三"></app-child>
+```
 
-   ```javascript
-   export class ChildComponent implements OnInit {
-   	@Input("name") name: string = "";
-   	ngOnInit() {
-   		console.log(this.name); // "张三"
-   	}
-   }
-   ```
+```javascript
+export class ChildComponent implements OnInit {
+	@Input("name") name: string = "";
+	ngOnInit() {
+		console.log(this.name); // "张三"
+	}
+}
+```
 
 3. ngAfterContentInit
 
-   当内容投影初始渲染完成后调用。
+当内容投影初始渲染完成后调用。
 
-   ```html
-   <app-child>
-   	<div #box>Hello Angular</div>
-   </app-child>
-   ```
+```html
+<app-child>
+	<div #box>Hello Angular</div>
+</app-child>
+```
 
-   ```javascript
-   export class ChildComponent implements AfterContentInit {
-   	@ContentChild("box") box: ElementRef<HTMLDivElement> | undefined;
+```javascript
+export class ChildComponent implements AfterContentInit {
+	@ContentChild("box") box: ElementRef<HTMLDivElement> | undefined;
 
-   	ngAfterContentInit() {
-   		console.log(this.box); // <div>Hello Angular</div>
-   	}
-   }
-   ```
+	ngAfterContentInit() {
+		console.log(this.box); // <div>Hello Angular</div>
+	}
+}
+```
 
 4. ngAfterViewInit
 
-   当组件视图渲染完成后调用。
+当组件视图渲染完成后调用。
 
-   ```html
-   <!-- app-child 组件模板 -->
-   <p #p>app-child works</p>
-   ```
+```html
+<!-- app-child 组件模板 -->
+<p #p>app-child works</p>
+```
 
-   ```javascript
-   export class ChildComponent implements AfterViewInit {
-   	@ViewChild("p") p: ElementRef<HTMLParagraphElement> | undefined;
-   	ngAfterViewInit() {
-   		console.log(this.p); // <p>app-child works</p>
-   	}
-   }
-   ```
+```javascript
+export class ChildComponent implements AfterViewInit {
+	@ViewChild("p") p: ElementRef<HTMLParagraphElement> | undefined;
+	ngAfterViewInit() {
+		console.log(this.p); // <p>app-child works</p>
+	}
+}
+```
 
 #### 8.2 更新阶段
 
@@ -869,62 +869,62 @@ export class AppComponent {
    4. 对于基本数据类型来说, 只要值发生变化就可以被检测到
    5. 对于引用数据类型来说, 可以检测从一个对象变成另一个对象, 但是检测不到同一个对象中属性值的变化，但是不影响组件模板更新数据。
 
-   **基本数据类型值变化**
+**基本数据类型值变化**
 
-   ```html
-   <app-child [name]="name" [age]="age"></app-child>
-   <button (click)="change()">change</button>
-   ```
+```html
+<app-child [name]="name" [age]="age"></app-child>
+<button (click)="change()">change</button>
+```
 
-   ```javascript
-   export class AppComponent {
-   	name: string = "张三";
-   	age: number = 20;
-   	change() {
-   		this.name = "李四";
-   		this.age = 30;
-   	}
-   }
-   ```
+```javascript
+export class AppComponent {
+	name: string = "张三";
+	age: number = 20;
+	change() {
+		this.name = "李四";
+		this.age = 30;
+	}
+}
+```
 
-   ```javascript
-   export class ChildComponent implements OnChanges {
-   	@Input("name") name: string = "";
-   	@Input("age") age: number = 0;
+```javascript
+export class ChildComponent implements OnChanges {
+	@Input("name") name: string = "";
+	@Input("age") age: number = 0;
 
-   	ngOnChanges(changes: SimpleChanges) {
-   		console.log("基本数据类型值变化可以被检测到");
-   	}
-   }
-   ```
+	ngOnChanges(changes: SimpleChanges) {
+		console.log("基本数据类型值变化可以被检测到");
+	}
+}
+```
 
-   **引用数据类型变化**
+**引用数据类型变化**
 
-   ```html
-   <app-child [person]="person"></app-child>
-   <button (click)="change()">change</button>
-   ```
+```html
+<app-child [person]="person"></app-child>
+<button (click)="change()">change</button>
+```
 
-   ```javascript
-   export class AppComponent {
-   	person = { name: "张三", age: 20 };
-   	change() {
-   		this.person = { name: "李四", age: 30 };
-   	}
-   }
-   ```
+```javascript
+export class AppComponent {
+	person = { name: "张三", age: 20 };
+	change() {
+		this.person = { name: "李四", age: 30 };
+	}
+}
+```
 
-   ```javascript
-   export class ChildComponent implements OnChanges {
-   	@Input("person") person = { name: "", age: 0 };
+```javascript
+export class ChildComponent implements OnChanges {
+	@Input("person") person = { name: "", age: 0 };
 
-   	ngOnChanges(changes: SimpleChanges) {
-   		console.log(
-   			"对于引用数据类型, 只能检测到引用地址发生变化, 对象属性变化不能被检测到"
-   		);
-   	}
-   }
-   ```
+	ngOnChanges(changes: SimpleChanges) {
+		console.log(
+			"对于引用数据类型, 只能检测到引用地址发生变化, 对象属性变化不能被检测到"
+		);
+	}
+}
+```
 
 2. ngDoCheck：主要用于调试，只要输入属性发生变化，不论是基本数据类型还是引用数据类型还是引用数据类型中的属性变化，都会执行。
 
@@ -936,15 +936,15 @@ export class AppComponent {
 
 1. ngOnDestroy
 
-   当组件被销毁之前调用, 用于清理操作。
+当组件被销毁之前调用, 用于清理操作。
 
-   ```javascript
-   export class HomeComponent implements OnDestroy {
-   	ngOnDestroy() {
-   		console.log("组件被卸载");
-   	}
-   }
-   ```
+```javascript
+export class HomeComponent implements OnDestroy {
+	ngOnDestroy() {
+		console.log("组件被卸载");
+	}
+}
+```
 
 ### 9. 依赖注入
 
@@ -1008,86 +1008,86 @@ Angular 有自己的 DI 框架，它将实现依赖注入的过程隐藏了，�
 
 1. 创建注入器
 
-   ```javascript
-   import { ReflectiveInjector } from "@angular/core";
-   // 服务类
-   class MailService {}
-   // 创建注入器并传入服务类
-   const injector = ReflectiveInjector.resolveAndCreate([MailService]);
-   ```
+```javascript
+import { ReflectiveInjector } from "@angular/core";
+// 服务类
+class MailService {}
+// 创建注入器并传入服务类
+const injector = ReflectiveInjector.resolveAndCreate([MailService]);
+```
 
 2. 获取注入器中的服务类实例对象
 
-   ```javascript
-   const mailService = injector.get(MailService);
-   ```
+```javascript
+const mailService = injector.get(MailService);
+```
 
 3. 服务实例对象为单例模式，注入器在创建服务实例后会对其进行缓存
 
-   ```javascript
-   const mailService1 = injector.get(MailService);
-   const mailService2 = injector.get(MailService);
+```javascript
+const mailService1 = injector.get(MailService);
+const mailService2 = injector.get(MailService);
 
-   console.log(mailService1 === mailService2); // true
-   ```
+console.log(mailService1 === mailService2); // true
+```
 
 4. 不同的注入器返回不同的服务实例对象
 
-   ```javascript
-   const injector = ReflectiveInjector.resolveAndCreate([MailService]);
-   const childInjector = injector.resolveAndCreateChild([MailService]);
+```javascript
+const injector = ReflectiveInjector.resolveAndCreate([MailService]);
+const childInjector = injector.resolveAndCreateChild([MailService]);
 
-   const mailService1 = injector.get(MailService);
-   const mailService2 = childInjector.get(MailService);
+const mailService1 = injector.get(MailService);
+const mailService2 = childInjector.get(MailService);
 
-   console.log(mailService1 === mailService2);
-   ```
+console.log(mailService1 === mailService2);
+```
 
 5. 服务实例的查找类似函数作用域链，当前级别可以找到就使用当前级别，当前级别找不到去父级中查找
 
-   ```javascript
-   const injector = ReflectiveInjector.resolveAndCreate([MailService]);
-   const childInjector = injector.resolveAndCreateChild([]);
+```javascript
+const injector = ReflectiveInjector.resolveAndCreate([MailService]);
+const childInjector = injector.resolveAndCreateChild([]);
 
-   const mailService1 = injector.get(MailService);
-   const mailService2 = childInjector.get(MailService);
+const mailService1 = injector.get(MailService);
+const mailService2 = childInjector.get(MailService);
 
-   console.log(mailService1 === mailService2);
-   ```
+console.log(mailService1 === mailService2);
+```
 
 ##### 9.2.2 提供者 Provider
 
 1. 配置注入器的对象，指定了创建实例对象的服务类和访问服务实例对象的标识。
 
-   ```javascript
-   const injector = ReflectiveInjector.resolveAndCreate([
-   	{ provide: MailService, useClass: MailService },
-   ]);
-   ```
+```javascript
+const injector = ReflectiveInjector.resolveAndCreate([
+	{ provide: MailService, useClass: MailService },
+]);
+```
 
 2. 访问依赖对象的标识也可以是字符串类型
 
-   ```javascript
-   const injector = ReflectiveInjector.resolveAndCreate([
-   	{ provide: "mail", useClass: MailService },
-   ]);
-   const mailService = injector.get("mail");
-   ```
+```javascript
+const injector = ReflectiveInjector.resolveAndCreate([
+	{ provide: "mail", useClass: MailService },
+]);
+const mailService = injector.get("mail");
+```
 
 3. useValue
 
-   ```javascript
-   const injector = ReflectiveInjector.resolveAndCreate([
-   	{
-   		provide: "Config",
-   		useValue: Object.freeze({
-   			APIKEY: "API1234567890",
-   			APISCRET: "500-400-300",
-   		}),
-   	},
-   ]);
-   const Config = injector.get("Config");
-   ```
+```javascript
+const injector = ReflectiveInjector.resolveAndCreate([
+	{
+		provide: "Config",
+		useValue: Object.freeze({
+			APIKEY: "API1234567890",
+			APISCRET: "500-400-300",
+		}),
+	},
+]);
+const Config = injector.get("Config");
+```
 
 将实例对象和外部的引用建立了松耦合关系，外部通过标识获取实例对象，只要标识保持不变，内部代码怎么变都不会影响到外部。
 
@@ -1116,48 +1116,48 @@ export class AppComponent {
 
 1. 在根注入器中注册服务，所有模块使用同一个服务实例对象。
 
-   ```javascript
-   import { Injectable } from "@angular/core";
+```javascript
+import { Injectable } from "@angular/core";
 
-   @Injectable({
-   	providedIn: "root",
-   })
-   export class CarListService {}
-   ```
+@Injectable({
+	providedIn: "root",
+})
+export class CarListService {}
+```
 
 2. 在模块级别注册服务，该模块中的所有组件使用同一个服务实例对象。
 
-   ```javascript
-   import { Injectable } from "@angular/core";
-   import { CarModule } from "./car.module";
+```javascript
+import { Injectable } from "@angular/core";
+import { CarModule } from "./car.module";
 
-   @Injectable({
-   	providedIn: CarModule,
-   })
-   export class CarListService {}
-   ```
+@Injectable({
+	providedIn: CarModule,
+})
+export class CarListService {}
+```
 
-   ```javascript
-   import { CarListService } from "./car-list.service";
+```javascript
+import { CarListService } from "./car-list.service";
 
-   @NgModule({
-   	providers: [CarListService],
-   })
-   export class CarModule {}
-   ```
+@NgModule({
+	providers: [CarListService],
+})
+export class CarModule {}
+```
 
 3. 在组件级别注册服务，该组件及其子组件使用同一个服务实例对象。
 
-   ```javascript
-   import { Component } from '@angular/core';
-   import { CarListService } from '../car-list.service.ts'
+```javascript
+import { Component } from '@angular/core';
+import { CarListService } from '../car-list.service.ts'
 
-   @Component({
-     selector:    'app-car-list',
-     templateUrl: './car-list.component.html',
-     providers:  [ CarListService ]
-   })
-   ```
+@Component({
+  selector:    'app-car-list',
+  templateUrl: './car-list.component.html',
+  providers:  [ CarListService ]
+})
+```
 
 ### 11. 表单
 
@@ -1173,55 +1173,55 @@ export class AppComponent {
 
 1. 引入依赖模块 FormsModule
 
-   ```javascript
-   import { FormsModule } from "@angular/forms";
+```javascript
+import { FormsModule } from "@angular/forms";
 
-   @NgModule({
-   	imports: [FormsModule],
-   })
-   export class AppModule {}
-   ```
+@NgModule({
+	imports: [FormsModule],
+})
+export class AppModule {}
+```
 
 2. 将 DOM 表单转换为 ngForm
 
-   ```html
-   <form #f="ngForm" (submit)="onSubmit(f)"></form>
-   ```
+```html
+<form #f="ngForm" (submit)="onSubmit(f)"></form>
+```
 
 3. 声明表单字段为 ngModel
 
-   ```html
-   <form #f="ngForm" (submit)="onSubmit(f)">
-   	<input type="text" name="username" ngModel />
-   	<button>提交</button>
-   </form>
-   ```
+```html
+<form #f="ngForm" (submit)="onSubmit(f)">
+	<input type="text" name="username" ngModel />
+	<button>提交</button>
+</form>
+```
 
 4. 获取表单字段值
 
-   ```javascript
-   import { NgForm } from "@angular/forms";
+```javascript
+import { NgForm } from "@angular/forms";
 
-   export class AppComponent {
-   	onSubmit(form: NgForm) {
-   		console.log(form.value);
-   	}
-   }
-   ```
+export class AppComponent {
+	onSubmit(form: NgForm) {
+		console.log(form.value);
+	}
+}
+```
 
 5. 表单分组
 
-   ```html
-   <form #f="ngForm" (submit)="onSubmit(f)">
-   	<div ngModelGroup="user">
-   		<input type="text" name="username" ngModel />
-   	</div>
-   	<div ngModelGroup="contact">
-   		<input type="text" name="phone" ngModel />
-   	</div>
-   	<button>提交</button>
-   </form>
-   ```
+```html
+<form #f="ngForm" (submit)="onSubmit(f)">
+	<div ngModelGroup="user">
+		<input type="text" name="username" ngModel />
+	</div>
+	<div ngModelGroup="contact">
+		<input type="text" name="phone" ngModel />
+	</div>
+	<button>提交</button>
+</form>
+```
 
 ##### 11.1.3 表单验证
 
@@ -1293,86 +1293,86 @@ input.ng-touched.ng-invalid {
 
 1. 引入 ReactiveFormsModule
 
-   ```javascript
-   import { ReactiveFormsModule } from "@angular/forms";
+```javascript
+import { ReactiveFormsModule } from "@angular/forms";
 
-   @NgModule({
-   	imports: [ReactiveFormsModule],
-   })
-   export class AppModule {}
-   ```
+@NgModule({
+	imports: [ReactiveFormsModule],
+})
+export class AppModule {}
+```
 
 2. 在组件类中创建 FormGroup 表单控制对象
 
-   ```javascript
-   import { FormControl, FormGroup } from "@angular/forms";
+```javascript
+import { FormControl, FormGroup } from "@angular/forms";
 
-   export class AppComponent {
-   	contactForm: FormGroup = new FormGroup({
-   		name: new FormControl(),
-   		phone: new FormControl(),
-   	});
-   }
-   ```
+export class AppComponent {
+	contactForm: FormGroup = new FormGroup({
+		name: new FormControl(),
+		phone: new FormControl(),
+	});
+}
+```
 
 3. 关联组件模板中的表单
 
-   ```html
-   <form [formGroup]="contactForm" (submit)="onSubmit()">
-   	<input type="text" formControlName="name" />
-   	<input type="text" formControlName="phone" />
-   	<button>提交</button>
-   </form>
-   ```
+```html
+<form [formGroup]="contactForm" (submit)="onSubmit()">
+	<input type="text" formControlName="name" />
+	<input type="text" formControlName="phone" />
+	<button>提交</button>
+</form>
+```
 
 4. 获取表单值
 
-   ```javascript
-   export class AppComponent {
-   	onSubmit() {
-   		console.log(this.contactForm.value);
-   	}
-   }
-   ```
+```javascript
+export class AppComponent {
+	onSubmit() {
+		console.log(this.contactForm.value);
+	}
+}
+```
 
 5. 设置表单默认值
 
-   ```javascript
-   contactForm: FormGroup = new FormGroup({
-   	name: new FormControl("默认值"),
-   	phone: new FormControl(15888888888),
-   });
-   ```
+```javascript
+contactForm: FormGroup = new FormGroup({
+	name: new FormControl("默认值"),
+	phone: new FormControl(15888888888),
+});
+```
 
 6. 表单分组
 
-   ```javascript
-   contactForm: FormGroup = new FormGroup({
-   	fullName: new FormGroup({
-   		firstName: new FormControl(),
-   		lastName: new FormControl(),
-   	}),
-   	phone: new FormControl(),
-   });
-   ```
+```javascript
+contactForm: FormGroup = new FormGroup({
+	fullName: new FormGroup({
+		firstName: new FormControl(),
+		lastName: new FormControl(),
+	}),
+	phone: new FormControl(),
+});
+```
 
-   ```html
-   <form [formGroup]="contactForm" (submit)="onSubmit()">
-   	<div formGroupName="fullName">
-   		<input type="text" formControlName="firstName" />
-   		<input type="text" formControlName="lastName" />
-   	</div>
-   	<input type="text" formControlName="phone" />
-   	<button>提交</button>
-   </form>
-   ```
+```html
+<form [formGroup]="contactForm" (submit)="onSubmit()">
+	<div formGroupName="fullName">
+		<input type="text" formControlName="firstName" />
+		<input type="text" formControlName="lastName" />
+	</div>
+	<input type="text" formControlName="phone" />
+	<button>提交</button>
+</form>
+```
 
-   ```javascript
-   onSubmit() {
-     console.log(this.contactForm.value.name.username)
-     console.log(this.contactForm.get(["name", "username"])?.value)
-   }
-   ```
+```javascript
+onSubmit() {
+  console.log(this.contactForm.value.name.username)
+  console.log(this.contactForm.get(["name", "username"])?.value)
+}
+```
 
 ##### 11.2.3 FormArray
 
@@ -1446,50 +1446,50 @@ export class AppComponent implements OnInit {
 
 1. 使用内置验证器提供的验证规则验证表单字段
 
-   ```javascript
-   import { FormControl, FormGroup, Validators } from "@angular/forms";
+```javascript
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 
-   contactForm: FormGroup = new FormGroup({
-   	name: new FormControl("默认值", [
-   		Validators.required,
-   		Validators.minLength(2),
-   	]),
-   });
-   ```
+contactForm: FormGroup = new FormGroup({
+	name: new FormControl("默认值", [
+		Validators.required,
+		Validators.minLength(2),
+	]),
+});
+```
 
 2. 获取整体表单是否验证通过
 
-   ```javascript
-   onSubmit() {
-     console.log(this.contactForm.valid)
-   }
-   ```
+```javascript
+onSubmit() {
+  console.log(this.contactForm.valid)
+}
+```
 
-   ```html
-   <!-- 表单整体未验证通过时禁用表单按钮 -->
-   <button [disabled]="contactForm.invalid">提交</button>
-   ```
+```html
+<!-- 表单整体未验证通过时禁用表单按钮 -->
+<button [disabled]="contactForm.invalid">提交</button>
+```
 
 3. 在组件模板中显示为验证通过时的错误信息
 
-   ```javascript
-   get name() {
-     return this.contactForm.get("name")!
-   }
-   ```
+```javascript
+get name() {
+  return this.contactForm.get("name")!
+}
+```
 
-   ```html
-   <form [formGroup]="contactForm" (submit)="onSubmit()">
-   	<input type="text" formControlName="name" />
-   	<div *ngIf="name.touched && name.invalid && name.errors">
-   		<div *ngIf="name.errors.required">请填写姓名</div>
-   		<div *ngIf="name.errors.maxlength">
-   			姓名长度不能大于 {{ name.errors.maxlength.requiredLength }}
-   			实际填写长度为 {{ name.errors.maxlength.actualLength }}
-   		</div>
-   	</div>
-   </form>
-   ```
+```html
+<form [formGroup]="contactForm" (submit)="onSubmit()">
+	<input type="text" formControlName="name" />
+	<div *ngIf="name.touched && name.invalid && name.errors">
+		<div *ngIf="name.errors.required">请填写姓名</div>
+		<div *ngIf="name.errors.maxlength">
+			姓名长度不能大于 {{ name.errors.maxlength.requiredLength }} 实际填写长度为
+			{{ name.errors.maxlength.actualLength }}
+		</div>
+	</div>
+</form>
+```
 
 ##### 11.2.5 自定义同步表单验证器
 
@@ -1598,94 +1598,90 @@ export class AppComponent {
 
 1. 获取一组复选框中选中的值
 
-   ```html
-   <form [formGroup]="form" (submit)="onSubmit()">
-   	<label *ngFor="let item of Data">
-   		<input
-   			type="checkbox"
-   			[value]="item.value"
-   			(change)="onChange($event)"
-   		/>
-   		{{ item.name }}
-   	</label>
-   	<button>提交</button>
-   </form>
-   ```
+```html
+<form [formGroup]="form" (submit)="onSubmit()">
+	<label *ngFor="let item of Data">
+		<input type="checkbox" [value]="item.value" (change)="onChange($event)" />
+		{{ item.name }}
+	</label>
+	<button>提交</button>
+</form>
+```
 
-   ```javascript
-   import { Component } from "@angular/core"
-   import { FormArray, FormBuilder, FormGroup } from "@angular/forms"
-   interface Data {
-     name: string
-     value: string
-   }
-   @Component({
-     selector: "app-checkbox",
-     templateUrl: "./checkbox.component.html",
-     styles: []
-   })
-   export class CheckboxComponent {
-     Data: Array<Data> = [
-       { name: "Pear", value: "pear" },
-       { name: "Plum", value: "plum" },
-       { name: "Kiwi", value: "kiwi" },
-       { name: "Apple", value: "apple" },
-       { name: "Lime", value: "lime" }
-     ]
-     form: FormGroup
+```javascript
+import { Component } from "@angular/core"
+import { FormArray, FormBuilder, FormGroup } from "@angular/forms"
+interface Data {
+  name: string
+  value: string
+}
+@Component({
+  selector: "app-checkbox",
+  templateUrl: "./checkbox.component.html",
+  styles: []
+})
+export class CheckboxComponent {
+  Data: Array<Data> = [
+    { name: "Pear", value: "pear" },
+    { name: "Plum", value: "plum" },
+    { name: "Kiwi", value: "kiwi" },
+    { name: "Apple", value: "apple" },
+    { name: "Lime", value: "lime" }
+  ]
+  form: FormGroup
 
-     constructor(private fb: FormBuilder) {
-       this.form = this.fb.group({
-         checkArray: this.fb.array([])
-       })
-     }
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      checkArray: this.fb.array([])
+    })
+  }
 
-     onChange(event: Event) {
-       const target = event.target as HTMLInputElement
-       const checked = target.checked
-       const value = target.value
-       const checkArray = this.form.get("checkArray") as FormArray
+  onChange(event: Event) {
+    const target = event.target as HTMLInputElement
+    const checked = target.checked
+    const value = target.value
+    const checkArray = this.form.get("checkArray") as FormArray
 
-       if (checked) {
-         checkArray.push(this.fb.control(value))
-       } else {
-         const index = checkArray.controls.findIndex(
-           control => control.value === value
-         )
-         checkArray.removeAt(index)
-       }
-     }
+    if (checked) {
+      checkArray.push(this.fb.control(value))
+    } else {
+      const index = checkArray.controls.findIndex(
+        control => control.value === value
+      )
+      checkArray.removeAt(index)
+    }
+  }
 
-     onSubmit() {
-       console.log(this.form.value)
-     }
-   }
+  onSubmit() {
+    console.log(this.form.value)
+  }
+}
 
-   ```
+```
 
 2. 获取单选框中选中的值
 
-   ```javascript
-   export class AppComponent {
-     form: FormGroup
+```javascript
+export class AppComponent {
+  form: FormGroup
 
-     constructor(public fb: FormBuilder) {
-       this.form = this.fb.group({ gender: "" })
-     }
+  constructor(public fb: FormBuilder) {
+    this.form = this.fb.group({ gender: "" })
+  }
 
-     onSubmit() {
-       console.log(this.form.value)
-     }
-   }
-   ```
+  onSubmit() {
+    console.log(this.form.value)
+  }
+}
+```
 
-   ```html
-   <form [formGroup]="form" (submit)="onSubmit()">
-   	<input type="radio" value="male" formControlName="gender" /> Male
-   	<input type="radio" value="female" formControlName="gender" /> Female
-   	<button type="submit">Submit</button>
-   </form>
-   ```
+```html
+<form [formGroup]="form" (submit)="onSubmit()">
+	<input type="radio" value="male" formControlName="gender" /> Male
+	<input type="radio" value="female" formControlName="gender" /> Female
+	<button type="submit">Submit</button>
+</form>
+```
 
 ##### 11.2.9 其他
 
@@ -1711,46 +1707,46 @@ export class AppComponent {
 
 2. 创建路由规则
 
-   ```javascript
-   // app.module.ts
-   import { Routes } from "@angular/router";
+```javascript
+// app.module.ts
+import { Routes } from "@angular/router";
 
-   const routes: Routes = [
-   	{
-   		path: "home",
-   		component: HomeComponent,
-   	},
-   	{
-   		path: "about",
-   		component: AboutComponent,
-   	},
-   ];
-   ```
+const routes: Routes = [
+	{
+		path: "home",
+		component: HomeComponent,
+	},
+	{
+		path: "about",
+		component: AboutComponent,
+	},
+];
+```
 
 3. 引入路由模块并启动
 
-   ```javascript
-   // app.module.ts
-   import { RouterModule, Routes } from "@angular/router";
+```javascript
+// app.module.ts
+import { RouterModule, Routes } from "@angular/router";
 
-   @NgModule({
-   	imports: [RouterModule.forRoot(routes, { useHash: true })],
-   })
-   export class AppModule {}
-   ```
+@NgModule({
+	imports: [RouterModule.forRoot(routes, { useHash: true })],
+})
+export class AppModule {}
+```
 
 4. 添加路由插座
 
-   ```html
-   <!-- 路由插座即占位组件 匹配到的路由组件将会显示在这个地方 -->
-   <router-outlet></router-outlet>
-   ```
+```html
+<!-- 路由插座即占位组件 匹配到的路由组件将会显示在这个地方 -->
+<router-outlet></router-outlet>
+```
 
 5. 在导航组件中定义链接
 
-   ```html
-   <a routerLink="/home">首页</a> <a routerLink="/about">关于我们</a>
-   ```
+```html
+<a routerLink="/home">首页</a> <a routerLink="/about">关于我们</a>
+```
 
 #### 12.3 匹配规则
 
@@ -2015,48 +2011,47 @@ export class AppModule {}
 
 4. 配置用户模块的路由规则
 
-   ```javascript
-   import { NgModule } from "@angular/core";
-   import { Routes, RouterModule } from "@angular/router";
-   import { LoginComponent } from "./pages/login/login.component";
-   import { RegisterComponent } from "./pages/register/register.component";
+```javascript
+import { NgModule } from "@angular/core";
+import { Routes, RouterModule } from "@angular/router";
+import { LoginComponent } from "./pages/login/login.component";
+import { RegisterComponent } from "./pages/register/register.component";
 
-   const routes: Routes = [
-   	{
-   		path: "login",
-   		component: LoginComponent,
-   	},
-   	{
-   		path: "register",
-   		component: RegisterComponent,
-   	},
-   ];
+const routes: Routes = [
+	{
+		path: "login",
+		component: LoginComponent,
+	},
+	{
+		path: "register",
+		component: RegisterComponent,
+	},
+];
 
-   @NgModule({
-   	imports: [RouterModule.forChild(routes)],
-   	exports: [RouterModule],
-   })
-   export class UserRoutingModule {}
-   ```
+@NgModule({
+	imports: [RouterModule.forChild(routes)],
+	exports: [RouterModule],
+})
+export class UserRoutingModule {}
+```
 
 5. 将用户路由模块关联到主路由模块
 
-   ```javascript
-   // app-routing.module.ts
-   const routes: Routes = [
-   	{
-   		path: "user",
-   		loadChildren: () =>
-   			import("./user/user.module").then((m) => m.UserModule),
-   	},
-   ];
-   ```
+```javascript
+// app-routing.module.ts
+const routes: Routes = [
+	{
+		path: "user",
+		loadChildren: () => import("./user/user.module").then((m) => m.UserModule),
+	},
+];
+```
 
 6. 在导航组件中添加访问链接
 
-   ```html
-   <a routerLink="/user/login">登录</a> <a routerLink="/user/register">注册</a>
-   ```
+```html
+<a routerLink="/user/login">登录</a> <a routerLink="/user/register">注册</a>
+```
 
 #### 12.10 路由守卫
 
@@ -2252,7 +2247,7 @@ export class HomeComponent {
 
 #### 13.1 概述
 
-<img src="../../assets/images/65.png" align="left" width="120"/>
+<img src="../../assets/images/65.png" align="center" width="120"/>
 
 ##### 13.1.1 什么是 RxJS ?
 
@@ -2272,27 +2267,27 @@ RxJS 是一个用于处理异步编程的 JavaScript 库，目标是使编写异
 
 3. 订阅 ( subscribe )：类比 then 方法，通过订阅将可观察对象和观察者连接起来，当可观察对象发出数据时，订阅者可以接收到数据。
 
-   <img src="../../assets/images/63.png" align="left"/>
+<img src="../../assets/images/63.png" align="center"/>
 
-   ```typescript
-   import { Observable } from "rxjs";
+```typescript
+import { Observable } from "rxjs";
 
-   const observable = new Observable(function (observer) {
-   	setTimeout(function () {
-   		observer.next({
-   			name: "张三",
-   		});
-   	}, 2000);
-   });
+const observable = new Observable(function (observer) {
+	setTimeout(function () {
+		observer.next({
+			name: "张三",
+		});
+	}, 2000);
+});
 
-   const observer = {
-   	next: function (value) {
-   		console.log(value);
-   	},
-   };
+const observer = {
+	next: function (value) {
+		console.log(value);
+	},
+};
 
-   observable.subscribe(observer);
-   ```
+observable.subscribe(observer);
+```
 
 #### 13.2 可观察对象
 
@@ -2300,139 +2295,139 @@ RxJS 是一个用于处理异步编程的 JavaScript 库，目标是使编写异
 
 1. 在 Observable 对象内部可以多次调用 next 方法向外发送数据。
 
-   ```javascript
-   const observable = new Observable(function (observer) {
-   	let index = 0;
-   	setInterval(function () {
-   		observer.next(index++);
-   	}, 1000);
-   });
+```javascript
+const observable = new Observable(function (observer) {
+	let index = 0;
+	setInterval(function () {
+		observer.next(index++);
+	}, 1000);
+});
 
-   const observer = {
-   	next: function (value) {
-   		console.log(value);
-   	},
-   };
+const observer = {
+	next: function (value) {
+		console.log(value);
+	},
+};
 
-   observable.subscribe(observer);
-   ```
+observable.subscribe(observer);
+```
 
 2. 当所有数据发送完成以后，可以调用 complete 方法终止数据发送。
 
-   ```javascript
-   const observable = new Observable(function (observer) {
-   	let index = 0;
-   	let timer = setInterval(function () {
-   		observer.next(index++);
-   		if (index === 3) {
-   			observer.complete();
-   			clearInterval(timer);
-   		}
-   	}, 1000);
-   });
+```javascript
+const observable = new Observable(function (observer) {
+	let index = 0;
+	let timer = setInterval(function () {
+		observer.next(index++);
+		if (index === 3) {
+			observer.complete();
+			clearInterval(timer);
+		}
+	}, 1000);
+});
 
-   const observer = {
-   	next: function (value) {
-   		console.log(value);
-   	},
-   	complete: function () {
-   		console.log("数据发送完成");
-   	},
-   };
+const observer = {
+	next: function (value) {
+		console.log(value);
+	},
+	complete: function () {
+		console.log("数据发送完成");
+	},
+};
 
-   observable.subscribe(observer);
-   ```
+observable.subscribe(observer);
+```
 
 3. 当 Observable 内部逻辑发生错误时，可以调用 error 方法将失败信息发送给订阅者，Observable 终止。
 
-   ```javascript
-   import { Observable } from "rxjs";
+```javascript
+import { Observable } from "rxjs";
 
-   const observable = new Observable(function (observer) {
-   	let index = 0;
-   	let timer = setInterval(function () {
-   		observer.next(index++);
-   		if (index === 3) {
-   			observer.error("发生错误");
-   			clearInterval(timer);
-   		}
-   	}, 1000);
-   });
+const observable = new Observable(function (observer) {
+	let index = 0;
+	let timer = setInterval(function () {
+		observer.next(index++);
+		if (index === 3) {
+			observer.error("发生错误");
+			clearInterval(timer);
+		}
+	}, 1000);
+});
 
-   const observer = {
-   	next: function (value) {
-   		console.log(value);
-   	},
-   	error: function (error) {
-   		console.log(error);
-   	},
-   };
+const observer = {
+	next: function (value) {
+		console.log(value);
+	},
+	error: function (error) {
+		console.log(error);
+	},
+};
 
-   observable.subscribe(observer);
-   ```
+observable.subscribe(observer);
+```
 
 4. 可观察对象是惰性的，只有被订阅后才会执行
 
-   ```javascript
-   const observable = new Observable(function () {
-   	console.log("Hello RxJS");
-   });
-   // observable.subscribe()
-   ```
+```javascript
+const observable = new Observable(function () {
+	console.log("Hello RxJS");
+});
+// observable.subscribe()
+```
 
 5. 可观察对象可以有 n 多订阅者，每次被订阅时都会得到执行
 
-   <img src="../../assets/images/64.png" align="left"/>
+<img src="../../assets/images/64.png" align="center"/>
 
-   ```javascript
-   const observable = new Observable(function () {
-   	console.log("Hello RxJS");
-   });
+```javascript
+const observable = new Observable(function () {
+	console.log("Hello RxJS");
+});
 
-   observable.subscribe();
-   observable.subscribe();
-   observable.subscribe();
-   observable.subscribe();
-   observable.subscribe();
-   ```
+observable.subscribe();
+observable.subscribe();
+observable.subscribe();
+observable.subscribe();
+observable.subscribe();
+```
 
 6. 取消订阅
 
-   ```javascript
-   import { interval } from "rxjs";
+```javascript
+import { interval } from "rxjs";
 
-   const obs = interval(1000);
-   const subscription = obs.subscribe(console.log);
+const obs = interval(1000);
+const subscription = obs.subscribe(console.log);
 
-   setTimeout(function () {
-   	subscription.unsubscribe();
-   }, 2000);
-   ```
+setTimeout(function () {
+	subscription.unsubscribe();
+}, 2000);
+```
 
 ##### 13.2.2 Subject
 
 1. 用于创建空的可观察对象，在订阅后不会立即执行，next 方法可以在可观察对象外部调用
 
-   ```javascript
-   import { Subject } from "rxjs";
+```javascript
+import { Subject } from "rxjs";
 
-   const demoSubject = new Subject();
+const demoSubject = new Subject();
 
-   demoSubject.subscribe({
-   	next: function (value) {
-   		console.log(value);
-   	},
-   });
-   demoSubject.subscribe({
-   	next: function (value) {
-   		console.log(value);
-   	},
-   });
+demoSubject.subscribe({
+	next: function (value) {
+		console.log(value);
+	},
+});
+demoSubject.subscribe({
+	next: function (value) {
+		console.log(value);
+	},
+});
 
-   setTimeout(function () {
-   	demoSubject.next("hahaha");
-   }, 3000);
-   ```
+setTimeout(function () {
+	demoSubject.next("hahaha");
+}, 3000);
+```
 
 ##### 13.2.3 BehaviorSubject
 
@@ -2481,7 +2476,7 @@ setTimeout(function () {
 
 range(start, length)，调用方法后返回 observable 对象，被订阅后会发出指定范围的数值。
 
-<img src="../../assets/images/9.png" width="80%" align="left"/>
+<img src="../../assets/images/9.png" width="80%" align="center"/>
 
 ```javascript
 import { range } from "rxjs";
@@ -2501,7 +2496,7 @@ range(0, 5).subscribe((n) => console.log(n));
 
 将参数列表作为数据流返回。
 
-<img src="../../assets/images/5.png" width="80%" align="left"/>
+<img src="../../assets/images/5.png" width="80%" align="center"/>
 
 ```javascript
 of("a", "b", [], {}, true, 20).subscribe((v) => console.log(v));
@@ -2511,7 +2506,7 @@ of("a", "b", [], {}, true, 20).subscribe((v) => console.log(v));
 
 将 Array，Promise, Iterator 转换为 observable 对象。
 
-<img src="../../assets/images/10.png" width="80%" align="left"/>
+<img src="../../assets/images/10.png" width="80%" align="center"/>
 
 ```javascript
 from(["a", "b", "c"]).subscribe((v) => console.log(v));
@@ -2537,7 +2532,7 @@ from(p()).subscribe((v) => console.log(v));
 
 **Interval：**每隔一段时间发出一个数值，数值递增
 
-<img src="../../assets/images/11.png" width="80%" align="left"/>
+<img src="../../assets/images/11.png" width="80%" align="center"/>
 
 ```javascript
 import { interval } from "rxjs";
@@ -2547,7 +2542,7 @@ interval(1000).subscribe((n) => console.log(n));
 
 **timer：**间隔时间过去以后发出数值，行为终止，或间隔时间发出数值后，继续按第二个参数的时间间隔继续发出值
 
-<img src="../../assets/images/12.png" width="80%" align="left"/>
+<img src="../../assets/images/12.png" width="80%" align="center"/>
 
 ```javascript
 import { timer } from "rxjs";
@@ -2560,7 +2555,7 @@ timer(0, 1000).subscribe((n) => console.log(n));
 
 合并数据流，先让第一个数据流发出值，结束后再让第二个数据流发出值，进行整体合并。
 
-<img src="../../assets/images/8.png" width="80%" align="left"/>
+<img src="../../assets/images/8.png" width="80%" align="center"/>
 
 ```javascript
 import { concat, range } from "rxjs";
@@ -2572,7 +2567,7 @@ concat(range(1, 5), range(6, 5)).subscribe(console.log);
 
 合并数据流，多个参数一起发出数据流，按照时间线进行交叉合并。
 
-<img src="../../assets/images/33.png" width="80%" align="left"/>
+<img src="../../assets/images/33.png" width="80%" align="center"/>
 
 ```javascript
 import { merge, fromEvent, interval } from "rxjs";
@@ -2587,7 +2582,7 @@ merge(clicks, timer).subscribe(console.log);
 
 将两个 Obserable 中最新发出的数据流进行组合成新的数据流，以数组的形式发出。和当前最新的进行组合。
 
-<img src="../../assets/images/40.png" width="80%" align="left"/>
+<img src="../../assets/images/40.png" width="80%" align="center"/>
 
 ```javascript
 import { combineLatest, timer } from "rxjs";
@@ -2606,7 +2601,7 @@ combineLatest(firstTimer, secondTimer).subscribe(console.log);
 
 将多个 Observable 中的数据流进行组合。和将来最新的进行组合。
 
-<img src="../../assets/images/39.png" width="80%" align="left"/>
+<img src="../../assets/images/39.png" width="80%" align="center"/>
 
 ```javascript
 import { zip, of } from "rxjs";
@@ -2629,7 +2624,7 @@ zip(name, age, isDev)
 
 forkJoin 是 Rx 版本的 Promise.all()，即表示等到所有的 Observable 都完成后，才一次性返回值。
 
-<img src="../../assets/images/41.png" width="80%" align="left"/>
+<img src="../../assets/images/41.png" width="80%" align="center"/>
 
 ```javascript
 import axios from "axios";
@@ -2647,7 +2642,7 @@ forkJoin({
 
 返回可观察对象并向订阅者抛出错误。
 
-<img src="../../assets/images/42.png" width="80%" align="left"/>
+<img src="../../assets/images/42.png" width="80%" align="center"/>
 
 ```javascript
 import { throwError } from "rxjs";
@@ -2659,7 +2654,7 @@ throwError("发生了未知错误").subscribe({ error: console.log });
 
 如果 Observable 对象抛出错误，则该辅助方法会重新订阅 Observable 以获取数据流，参数为重新订阅次数。
 
-<img src="../../assets/images/43.png" width="80%" align="left"/>
+<img src="../../assets/images/43.png" width="80%" align="center"/>
 
 ```javascript
 import { interval, of, throwError } from "rxjs";
@@ -2715,9 +2710,9 @@ fromEvent(btn, "click").subscribe((e) => console.log(e));
 
 ##### 13.4.1 map、mapTo
 
-**map：**对数据流进行转换，基于原有值进行转换。
+**map**：对数据流进行转换，基于原有值进行转换。
 
-<img src="../../assets/images/13.png" width="80%" align="left"/>
+<img src="../../assets/images/13.png" width="80%" align="center"/>
 
 ```javascript
 import { interval } from "rxjs";
@@ -2728,9 +2723,9 @@ interval(1000)
 	.subscribe((n) => console.log(n));
 ```
 
-**mapTo：**对数据流进行转换，不关心原有值，可以直接传入要转换后的值。
+**mapTo**：对数据流进行转换，不关心原有值，可以直接传入要转换后的值。
 
-<img src="../../assets/images/14.png" width="80%" align="left"/>
+<img src="../../assets/images/14.png" width="80%" align="center"/>
 
 ```javascript
 import { interval } from "rxjs";
@@ -2745,7 +2740,7 @@ interval(1000)
 
 对数据流进行过滤。
 
-<img src="../../assets/images/15.png" width="80%" align="left"/>
+<img src="../../assets/images/15.png" width="80%" align="center"/>
 
 ```javascript
 import { range } from "rxjs";
@@ -2760,7 +2755,7 @@ range(1, 10)
 
 获取数据流对象中的属性值。
 
-<img src="../../assets/images/16.png" width="80%" align="left"/>
+<img src="../../assets/images/16.png" width="80%" align="center"/>
 
 ```javascript
 import { interval } from "rxjs";
@@ -2775,7 +2770,7 @@ interval(1000)
 
 获取数据流中的第一个值或者查找数据流中第一个符合条件的值，类似数组中的 find 方法。获取到值以后终止行为。
 
-<img src="../../assets/images/17.png" width="80%" align="left"/>
+<img src="../../assets/images/17.png" width="80%" align="center"/>
 
 ```javascript
 import { interval } from "rxjs";
@@ -2796,7 +2791,7 @@ interval(1000)
 
 在异步编程中提供默认值的时候非常有用。
 
-<img src="../../assets/images/18.png" width="80%" align="left"/>
+<img src="../../assets/images/18.png" width="80%" align="center"/>
 
 ```javascript
 import { interval } from "rxjs";
@@ -2819,7 +2814,7 @@ interval(1000)
 
 查看数据流中的每个值是否都符合条件，返回布尔值。类似数组中的 every 方法。
 
-<img src="../../assets/images/28.png" width="60%" align="left"/>
+<img src="../../assets/images/28.png" width="60%" align="center"/>
 
 ```javascript
 import { range } from "rxjs";
@@ -2835,9 +2830,9 @@ range(1, 9)
 
 ##### 13.4.7 delay、delayWhen
 
-**delay：**对上一环节的操作整体进行延迟，只执行一次。
+**delay**：对上一环节的操作整体进行延迟，只执行一次。
 
-<img src="../../assets/images/19.png" width="80%" align="left"/>
+<img src="../../assets/images/19.png" width="80%" align="center"/>
 
 ```javascript
 import { from } from "rxjs";
@@ -2856,9 +2851,9 @@ from([1, 2, 3])
 // tap 操作符不会对数据流造成影响, 它被用来执行简单的副作用, 比如输出, 但是复杂的副作用不要在这执行, 比如 Ajax
 ```
 
-**delayWhen：**对上一环节的操作进行延迟，上一环节发出多少数据流，传入的回调函数就会执行多次。
+**delayWhen**：对上一环节的操作进行延迟，上一环节发出多少数据流，传入的回调函数就会执行多次。
 
-<img src="../../assets/images/20.png" width="80%" align="left"/>
+<img src="../../assets/images/20.png" width="80%" align="center"/>
 
 ```javascript
 import { range, timer } from "rxjs";
@@ -2878,7 +2873,7 @@ range(1, 10)
 
 **take**：获取数据流中的前几个
 
-<img src="../../assets/images/21.png" width="80%" align="left"/>
+<img src="../../assets/images/21.png" width="80%" align="center"/>
 
 ```javascript
 import { range } from "rxjs";
@@ -2887,9 +2882,9 @@ import { take } from "rxjs/operators";
 range(1, 10).pipe(take(5)).subscribe(console.log);
 ```
 
-**takeWhile：**根据条件从数据源前面开始获取。
+**takeWhile**：根据条件从数据源前面开始获取。
 
-<img src="../../assets/images/22.png" width="80%" align="left"/>
+<img src="../../assets/images/22.png" width="80%" align="center"/>
 
 ```javascript
 import { range } from "rxjs";
@@ -2900,9 +2895,9 @@ range(1, 10)
 	.subscribe(console.log);
 ```
 
-**takeUntil：**接收可观察对象，当可观察对象发出值时，终止主数据源。
+**takeUntil**：接收可观察对象，当可观察对象发出值时，终止主数据源。
 
-<img src="../../assets/images/23.png" width="80%" align="left"/>
+<img src="../../assets/images/23.png" width="80%" align="center"/>
 
 ```javascript
 import { interval, timer } from "rxjs";
@@ -2916,9 +2911,9 @@ interval(100)
 
 ##### 13.4.9 skip、skipWhile、skipUntil
 
-**skip：**跳过前几个数据流。
+**skip**：跳过前几个数据流。
 
-<img src="../../assets/images/24.png" width="80%" align="left"/>
+<img src="../../assets/images/24.png" width="80%" align="center"/>
 
 ```javascript
 import { range } from "rxjs";
@@ -2927,9 +2922,9 @@ import { skip } from "rxjs/operators";
 range(1, 10).pipe(skip(5)).subscribe(console.log);
 ```
 
-**skipWhile：**根据条件进行数据流的跳过。
+**skipWhile**：根据条件进行数据流的跳过。
 
-<img src="../../assets/images/25.png" width="80%" align="left"/>
+<img src="../../assets/images/25.png" width="80%" align="center"/>
 
 ```javascript
 import { range } from "rxjs";
@@ -2940,9 +2935,9 @@ range(1, 10)
 	.subscribe(console.log);
 ```
 
-**skipUntil：**跳过数据源中前多少时间发出的数据流，发送从这个时间以后数据源中发送的数据流。
+**skipUntil**：跳过数据源中前多少时间发出的数据流，发送从这个时间以后数据源中发送的数据流。
 
-<img src="../../assets/images/26.png" width="80%" align="left"/>
+<img src="../../assets/images/26.png" width="80%" align="center"/>
 
 ```javascript
 import { timer, interval } from "rxjs";
@@ -2957,7 +2952,7 @@ interval(100)
 
 获取数据流中的最后一个。
 
-<img src="../../assets/images/27.png" width="80%" align="left"/>
+<img src="../../assets/images/27.png" width="80%" align="center"/>
 
 ```javascript
 import { range } from "rxjs";
@@ -2977,13 +2972,13 @@ interval(1000).pipe(take(5), last()).subscribe(console.log);
 
 ##### 13.4.11 concatAll、concatMap
 
-**concatAll：**有时 Observable 发出的又是一个 Obervable，concatAll 的作用就是将新的可观察对象和数据源进行合并。
+**concatAll**：有时 Observable 发出的又是一个 Obervable，concatAll 的作用就是将新的可观察对象和数据源进行合并。
 
 Observable => [1, 2, 3]
 
 Observable => [Observable, Observable]
 
-<img src="../../assets/images/29.png" width="80%" align="left"/>
+<img src="../../assets/images/29.png" width="80%" align="center"/>
 
 ```javascript
 import { fromEvent, interval } from "rxjs";
@@ -3009,15 +3004,15 @@ interval(1000)
 	.subscribe(console.log);
 ```
 
-**concatMap：**合并可观察对象并处理其发出的数据流。
+**concatMap**：合并可观察对象并处理其发出的数据流。
 
-<img src="../../assets/images/30.png" width="80%" align="left"/>
+<img src="../../assets/images/30.png" width="80%" align="center"/>
 
 ##### 13.4.13 reduce、scan
 
-**reduce**: 类似 JavaScript 数组中的 reduce，对数数据进行累计操作。reduce 会等待数据源中的数据流发送完成后再执行，执行时 reduce 内部遍历每一个数据流进行累计操作，操作完成得到结果将结果作为数据流发出。
+**reduce**： 类似 JavaScript 数组中的 reduce，对数数据进行累计操作。reduce 会等待数据源中的数据流发送完成后再执行，执行时 reduce 内部遍历每一个数据流进行累计操作，操作完成得到结果将结果作为数据流发出。
 
-<img src="../../assets/images/31.png" width="80%" align="left"/>
+<img src="../../assets/images/31.png" width="80%" align="center"/>
 
 ```javascript
 import { interval } from "rxjs";
@@ -3033,7 +3028,7 @@ interval(500)
 
 **scan**：类似 reduce，进行累计操作，但执行时机不同，数据源每次发出数据流 scan 都会执行。reduce 是发送出最终计算的结果，而 scan 是发出每次计算的结果。
 
-<img src="../../assets/images/32.png" width="80%" align="left"/>
+<img src="../../assets/images/32.png" width="80%" align="center"/>
 
 ```javascript
 import { interval } from "rxjs";
@@ -3049,9 +3044,9 @@ interval(500)
 
 ##### 13.4.14 mergeAll、mergeMap
 
-**mergeAll：**交叉合并可观察对象。
+**mergeAll**：交叉合并可观察对象。
 
-<img src="../../assets/images/34.png" width="80%" align="left"/>
+<img src="../../assets/images/34.png" width="80%" align="center"/>
 
 ```javascript
 import { fromEvent, interval } from "rxjs";
@@ -3067,7 +3062,7 @@ fromEvent(document, "click")
 
 **mergeMap**：交叉合并可观察对象以后对可观察对象发出的数据流进行转换。
 
-<img src="../../assets/images/35.png" width="80%" align="left"/>
+<img src="../../assets/images/35.png" width="80%" align="center"/>
 
 ```javascript
 import { of, interval } from "rxjs";
@@ -3082,7 +3077,7 @@ of("a", "b", "c")
 
 节流，可观察对象高频次向外部发出数据流，通过 throttleTime 限制在规定时间内每次只向订阅者传递一次数据流。
 
-<img src="../../assets/images/36.png" width="80%" align="left"/>
+<img src="../../assets/images/36.png" width="80%" align="center"/>
 
 ```javascript
 import { fromEvent } from "rxjs";
@@ -3097,7 +3092,7 @@ fromEvent(document, "click")
 
 防抖，触发高频事件，只响应最后一次。
 
-<img src="../../assets/images/37.png" width="80%" align="left"/>
+<img src="../../assets/images/37.png" width="80%" align="center"/>
 
 ```javascript
 import { fromEvent } from "rxjs";
@@ -3112,7 +3107,7 @@ fromEvent(document, "click")
 
 检测数据源当前发出的数据流是否和上次发出的相同，如相同，跳过，不相同，发出。
 
-<img src="../../assets/images/38.png" width="80%" align="left"/>
+<img src="../../assets/images/38.png" width="80%" align="center"/>
 
 ```javascript
 import { of } from "rxjs";
@@ -3127,7 +3122,7 @@ of(1, 1, 2, 2, 2, 1, 1, 2, 3, 3, 4)
 
 对数据流进行分组。
 
-<img src="../../assets/images/44.png" width="80%" align="left"/>
+<img src="../../assets/images/44.png" width="80%" align="center"/>
 
 ```javascript
 import { of } from "rxjs";
@@ -3154,7 +3149,7 @@ of(
 
 主数据源发出的数据流总是和支数据源中的最新数据流进行结合，返回数组。
 
-<img src="../../assets/images/45.png" width="80%" align="left"/>
+<img src="../../assets/images/45.png" width="80%" align="center"/>
 
 ```javascript
 import { fromEvent, interval } from "rxjs";
@@ -3169,7 +3164,7 @@ clicks.pipe(withLatestFrom(timer)).subscribe(console.log);
 
 切换可观察对象。
 
-<img src="../../assets/images/46.png" width="80%" align="left"/>
+<img src="../../assets/images/46.png" width="80%" align="center"/>
 
 ```javascript
 import { fromEvent, interval } from "rxjs";
@@ -3324,38 +3319,38 @@ fromEvent(button, "click")
 
 1. 引入 HttpClientModule 模块
 
-   ```javascript
-   // app.module.ts
-   import { httpClientModule } from "@angular/common/http";
-   imports: [httpClientModule];
-   ```
+```javascript
+// app.module.ts
+import { httpClientModule } from "@angular/common/http";
+imports: [httpClientModule];
+```
 
 2. 注入 HttpClient 服务实例对象，用于发送请求
 
-   ```javascript
-   // app.component.ts
-   import { HttpClient } from '@angular/common/http';
+```javascript
+// app.component.ts
+import { HttpClient } from '@angular/common/http';
 
-   export class AppComponent {
-   	constructor(private http: HttpClient) {}
-   }
-   ```
+export class AppComponent {
+constructor(private http: HttpClient) {}
+}
+```
 
 3. 发送请求
 
-   ```javascript
-   import { HttpClient } from "@angular/common/http"
+```javascript
+import { HttpClient } from "@angular/common/http"
 
-   export class AppComponent implements OnInit {
-     constructor(private http: HttpClient) {}
-     ngOnInit() {
-       this.getUsers().subscribe(console.log)
-     }
-     getUsers() {
-       return this.http.get("https://jsonplaceholder.typicode.com/users")
-     }
-   }
-   ```
+export class AppComponent implements OnInit {
+  constructor(private http: HttpClient) {}
+  ngOnInit() {
+    this.getUsers().subscribe(console.log)
+  }
+  getUsers() {
+    return this.http.get("https://jsonplaceholder.typicode.com/users")
+  }
+}
+```
 
 #### 14.2 请求方法
 
@@ -3375,41 +3370,41 @@ this.http.get<Post[]>('/getAllPosts')
 
 1. HttpParams 类
 
-   ```javascript
-   export declare class HttpParams {
-       constructor(options?: HttpParamsOptions);
-       has(param: string): boolean;
-       get(param: string): string | null;
-       getAll(param: string): string[] | null;
-       keys(): string[];
-       append(param: string, value: string): HttpParams;
-       set(param: string, value: string): HttpParams;
-       delete(param: string, value?: string): HttpParams;
-       toString(): string;
-   }
-   ```
+```javascript
+export declare class HttpParams {
+  constructor(options?: HttpParamsOptions);
+  has(param: string): boolean;
+  get(param: string): string | null;
+  getAll(param: string): string[] | null;
+  keys(): string[];
+  append(param: string, value: string): HttpParams;
+  set(param: string, value: string): HttpParams;
+  delete(param: string, value?: string): HttpParams;
+  toString(): string;
+}
+```
 
 2. HttpParamsOptions 接口
 
-   ```javascript
-   declare interface HttpParamsOptions {
-   	fromString?: string;
-   	fromObject?: {
-   		[param: string]: string | ReadonlyArray<string>,
-   	};
-   	encoder?: HttpParameterCodec;
-   }
-   ```
+```javascript
+declare interface HttpParamsOptions {
+	fromString?: string;
+	fromObject?: {
+		[param: string]: string | ReadonlyArray<string>,
+	};
+	encoder?: HttpParameterCodec;
+}
+```
 
 3. 使用示例
 
-   ```javascript
-   import { HttpParams } from "@angular/common/http";
+```javascript
+import { HttpParams } from "@angular/common/http";
 
-   let params = new HttpParams({ fromObject: { name: "zhangsan", age: "20" } });
-   params = params.append("sex", "male");
-   let params = new HttpParams({ fromString: "name=zhangsan&age=20" });
-   ```
+let params = new HttpParams({ fromObject: { name: "zhangsan", age: "20" } });
+params = params.append("sex", "male");
+let params = new HttpParams({ fromString: "name=zhangsan&age=20" });
+```
 
 #### 14.4 请求头
 
@@ -3417,16 +3412,16 @@ this.http.get<Post[]>('/getAllPosts')
 
 ```javascript
 export declare class HttpHeaders {
-    constructor(headers?: string | {
-        [name: string]: string | string[];
-    });
-    has(name: string): boolean;
-    get(name: string): string | null;
-    keys(): string[];
-    getAll(name: string): string[] | null;
-    append(name: string, value: string | string[]): HttpHeaders;
-    set(name: string, value: string | string[]): HttpHeaders;
-    delete(name: string, value?: string | string[]): HttpHeaders;
+  constructor(headers?: string | {
+      [name: string]: string | string[];
+  });
+  has(name: string): boolean;
+  get(name: string): string | null;
+  keys(): string[];
+  getAll(name: string): string[] | null;
+  append(name: string, value: string | string[]): HttpHeaders;
+  set(name: string, value: string | string[]): HttpHeaders;
+  delete(name: string, value?: string | string[]): HttpHeaders;
 }
 ```
 
@@ -3450,11 +3445,9 @@ this.http
 
 #### 14.6 拦截器
 
-拦截器是 Angular 应用中全局捕获和修改 HTTP 请求和响应的方式。（Token、Error）
+拦截器是 Angular 应用中全局捕获和修改 HTTP 请求和响应的方式。（Token、Error）。
 
-拦截器将只拦截使用 HttpClientModule 模块发出的请求。
-
-`ng g interceptor <name>`
+拦截器将只拦截使用 HttpClientModule 模块发出的请求。`ng g interceptor <name>`
 
 <img src="../../assets/images/47.png"/>
 
@@ -3522,37 +3515,37 @@ import { HTTP_INTERCEPTORS } from "@angular/common/http"
 
 1. 在项目的根目录下创建 proxy.conf.json 文件并加入如下代码
 
-   ```json
-   {
-   	"/api/*": {
-   		"target": "http://localhost:3070",
-   		"secure": false,
-   		"changeOrigin": true
-   	}
-   }
-   ```
+```json
+{
+	"/api/*": {
+		"target": "http://localhost:3070",
+		"secure": false,
+		"changeOrigin": true
+	}
+}
+```
 
-   1. /api/\*：在应用中发出的以 /api 开头的请求走此代理
-   2. target：服务器端 URL
-   3. secure：如果服务器端 URL 的协议是 https，此项需要为 true
-   4. changeOrigin：如果服务器端不是 localhost， 此项需要为 true
+1.  /api/\*：在应用中发出的以 /api 开头的请求走此代理
+2.  target：服务器端 URL
+3.  secure：如果服务器端 URL 的协议是 https，此项需要为 true
+4.  changeOrigin：如果服务器端不是 localhost， 此项需要为 true
 
-2. 指定 proxy 配置文件 (方式一)
+5.  指定 proxy 配置文件 (方式一)
 
-   ```javascript
-   "scripts": {
-     "start": "ng serve --proxy-config proxy.conf.json",
-   }
-   ```
+```javascript
+"scripts": {
+  "start": "ng serve --proxy-config proxy.conf.json",
+}
+```
 
 3. 指定 proxy 配置文件 (方式二)
 
-   ```json
-   "serve": {
-     "options": {
-       "proxyConfig": "proxy.conf.json"
-     },
-   ```
+```json
+"serve": {
+  "options": {
+    "proxyConfig": "proxy.conf.json"
+  },
+```
 
 ### 15. NgRx
 
@@ -3560,7 +3553,7 @@ import { HTTP_INTERCEPTORS } from "@angular/common/http"
 
 NgRx 是 Angular 应用中实现全局状态管理的 Redux 架构解决方案。
 
-<img src="../../assets/images/49.png" align="left" width="80%"/>
+<img src="../../assets/images/49.png" align="center" width="80%"/>
 
 1. @ngrx/store：全局状态管理模块
 2. @ngrx/effects：处理副作用
@@ -3573,130 +3566,130 @@ NgRx 是 Angular 应用中实现全局状态管理的 Redux 架构解决方案�
 
 1. 下载 NgRx
 
-   `npm install @ngrx/store @ngrx/effects @ngrx/entity @ngrx/router-store @ngrx/store-devtools @ngrx/schematics`
+`npm install @ngrx/store @ngrx/effects @ngrx/entity @ngrx/router-store @ngrx/store-devtools @ngrx/schematics`
 
 2. 配置 NgRx CLI
 
-   `ng config cli.defaultCollection @ngrx/schematics`
+`ng config cli.defaultCollection @ngrx/schematics`
 
-   ```javascript
-   // angular.json
-   "cli": {
-     "defaultCollection": "@ngrx/schematics"
-   }
-   ```
+```javascript
+// angular.json
+"cli": {
+  "defaultCollection": "@ngrx/schematics"
+}
+```
 
 3. 创建 Store
 
-   `ng g store State --root --module app.module.ts --statePath store --stateInterface AppState`
+`ng g store State --root --module app.module.ts --statePath store --stateInterface AppState`
 
 4. 创建 Action
 
-   `ng g action store/actions/counter --skipTests`
+`ng g action store/actions/counter --skipTests`
 
-   ```javascript
-   import { createAction } from "@ngrx/store";
+```javascript
+import { createAction } from "@ngrx/store";
 
-   export const increment = createAction("increment");
-   export const decrement = createAction("decrement");
-   ```
+export const increment = createAction("increment");
+export const decrement = createAction("decrement");
+```
 
 5. 创建 Reducer
 
-   `ng g reducer store/reducers/counter --skipTests --reducers=../index.ts`
+`ng g reducer store/reducers/counter --skipTests --reducers=../index.ts`
 
-   ```javascript
-   import { createReducer, on } from "@ngrx/store";
-   import { decrement, increment } from "../actions/counter.actions";
+```javascript
+import { createReducer, on } from "@ngrx/store";
+import { decrement, increment } from "../actions/counter.actions";
 
-   export const counterFeatureKey = "counter";
+export const counterFeatureKey = "counter";
 
-   export interface State {
-   	count: number;
-   }
+export interface State {
+	count: number;
+}
 
-   export const initialState: State = {
-   	count: 0,
-   };
+export const initialState: State = {
+	count: 0,
+};
 
-   export const reducer = createReducer(
-   	initialState,
-   	on(increment, (state) => ({ count: state.count + 1 })),
-   	on(decrement, (state) => ({ count: state.count - 1 }))
-   );
-   ```
+export const reducer = createReducer(
+	initialState,
+	on(increment, (state) => ({ count: state.count + 1 })),
+	on(decrement, (state) => ({ count: state.count - 1 }))
+);
+```
 
 6. 创建 Selector
 
-   `ng g selector store/selectors/counter --skipTests`
+`ng g selector store/selectors/counter --skipTests`
 
-   ```javascript
-   import { createFeatureSelector, createSelector } from "@ngrx/store"
-   import { counterFeatureKey, State } from "../reducers/counter.reducer"
-   import { AppState } from ".."
+```javascript
+import { createFeatureSelector, createSelector } from "@ngrx/store"
+import { counterFeatureKey, State } from "../reducers/counter.reducer"
+import { AppState } from ".."
 
-   export const selectCounter = createFeatureSelector<AppState, State>(counterFeatureKey)
-   export const selectCount = createSelector(selectCounter, state => state.count)
-   ```
+export const selectCounter = createFeatureSelector<AppState, State>(counterFeatureKey)
+export const selectCount = createSelector(selectCounter, state => state.count)
+```
 
 7. 组件类触发 Action、获取状态
 
-   ```javascript
-   import { select, Store } from "@ngrx/store"
-   import { Observable } from "rxjs"
-   import { AppState } from "./store"
-   import { decrement, increment } from "./store/actions/counter.actions"
-   import { selectCount } from "./store/selectors/counter.selectors"
+```javascript
+import { select, Store } from "@ngrx/store"
+import { Observable } from "rxjs"
+import { AppState } from "./store"
+import { decrement, increment } from "./store/actions/counter.actions"
+import { selectCount } from "./store/selectors/counter.selectors"
 
-   export class AppComponent {
-     count: Observable<number>
-     constructor(private store: Store<AppState>) {
-       this.count = this.store.pipe(select(selectCount))
-     }
-     increment() {
-       this.store.dispatch(increment())
-     }
-     decrement() {
-       this.store.dispatch(decrement())
-     }
-   }
-   ```
+export class AppComponent {
+  count: Observable<number>
+  constructor(private store: Store<AppState>) {
+    this.count = this.store.pipe(select(selectCount))
+  }
+  increment() {
+    this.store.dispatch(increment())
+  }
+  decrement() {
+    this.store.dispatch(decrement())
+  }
+}
+```
 
 8. 组件模板显示状态
 
-   ```html
-   <button (click)="increment()">+</button>
-   <span>{{ count | async }}</span>
-   <button (click)="decrement()">-</button>
-   ```
+```html
+<button (click)="increment()">+</button>
+<span>{{ count | async }}</span>
+<button (click)="decrement()">-</button>
+```
 
 #### 15.3 Action Payload
 
 1. 在组件中使用 dispatch 触发 Action 时传递参数，参数最终会被放置在 Action 对象中。
 
-   ```javascript
-   this.store.dispatch(increment({ count: 5 }));
-   ```
+```javascript
+this.store.dispatch(increment({ count: 5 }));
+```
 
 2. 在创建 Action Creator 函数时，获取参数并指定参数类型。
 
-   ```javascript
-   import { createAction, props } from "@ngrx/store"
-   export const increment = createAction("increment", props<{ count: number }>())
-   ```
+```javascript
+import { createAction, props } from "@ngrx/store"
+export const increment = createAction("increment", props<{ count: number }>())
+```
 
-   ```javascript
-   export declare function props<P extends object>(): Props<P>;
-   ```
+```javascript
+export declare function props<P extends object>(): Props<P>;
+```
 
 3. 在 Reducer 中通过 Action 对象获取参数。
 
-   ```javascript
-   export const reducer = createReducer(
-   	initialState,
-   	on(increment, (state, action) => ({ count: state.count + action.count }))
-   );
-   ```
+```javascript
+export const reducer = createReducer(
+	initialState,
+	on(increment, (state, action) => ({ count: state.count + action.count }))
+);
+```
 
 #### 15.4 MetaReducer
 
@@ -3720,66 +3713,66 @@ export const metaReducers: MetaReducer<AppState>[] = !environment.production
 
 1. 在组件模板中新增一个用于异步数值增加的按钮，按钮被点击后执行 `increment_async` 方法
 
-   ```html
-   <button (click)="increment_async()">async</button>
-   ```
+```html
+<button (click)="increment_async()">async</button>
+```
 
 2. 在组件类中新增 `increment_async` 方法，并在方法中触发执行异步操作的 Action
 
-   ```javascript
-   increment_async() {
-     this.store.dispatch(increment_async())
-   }
-   ```
+```javascript
+increment_async() {
+  this.store.dispatch(increment_async())
+}
+```
 
 3. 在 Action 文件中新增执行异步操作的 Action
 
-   ```javascript
-   export const increment_async = createAction("increment_async");
-   ```
+```javascript
+export const increment_async = createAction("increment_async");
+```
 
 4. 创建 Effect，接收 Action 并执行副作用，继续触发 Action
 
-   `ng g effect store/effects/counter --root --module app.module.ts --skipTests`
+`ng g effect store/effects/counter --root --module app.module.ts --skipTests`
 
-   Effect 功能由 @ngrx/effects 模块提供，所以在根模块中需要导入相关的模块依赖
+Effect 功能由 @ngrx/effects 模块提供，所以在根模块中需要导入相关的模块依赖
 
-   ```javascript
-   import { Injectable } from "@angular/core"
-   import { Actions, createEffect, ofType } from "@ngrx/effects"
-   import { increment, increment_async } from "../actions/counter.actions"
-   import { mergeMap, map } from "rxjs/operators"
-   import { timer } from "rxjs"
+```javascript
+import { Injectable } from "@angular/core"
+import { Actions, createEffect, ofType } from "@ngrx/effects"
+import { increment, increment_async } from "../actions/counter.actions"
+import { mergeMap, map } from "rxjs/operators"
+import { timer } from "rxjs"
 
-   // createEffect
-   // 用于创建 Effect, Effect 用于执行副作用.
-   // 调用方法时传递回调函数, 回调函数中返回 Observable 对象, 对象中要发出副作用执行完成后要触发的 Action 对象
-   // 回调函数的返回值在 createEffect 方法内部被继续返回, 最终返回值被存储在了 Effect 类的属性中
-   // NgRx 在实例化 Effect 类后, 会订阅 Effect 类属性, 当副作用执行完成后它会获取到要触发的 Action 对象并触发这个 Action
+// createEffect
+// 用于创建 Effect, Effect 用于执行副作用.
+// 调用方法时传递回调函数, 回调函数中返回 Observable 对象, 对象中要发出副作用执行完成后要触发的 Action 对象
+// 回调函数的返回值在 createEffect 方法内部被继续返回, 最终返回值被存储在了 Effect 类的属性中
+// NgRx 在实例化 Effect 类后, 会订阅 Effect 类属性, 当副作用执行完成后它会获取到要触发的 Action 对象并触发这个 Action
 
-   // Actions
-   // 当组件触发 Action 时, Effect 需要通过 Actions 服务接收 Action, 所以在 Effect 类中通过 constructor 构造函数参数的方式将 Actions 服务类的实例对象注入到 Effect 类中
-   // Actions 服务类的实例对象为 Observable 对象, 当有 Action 被触发时, Action 对象本身会作为数据流被发出
+// Actions
+// 当组件触发 Action 时, Effect 需要通过 Actions 服务接收 Action, 所以在 Effect 类中通过 constructor 构造函数参数的方式将 Actions 服务类的实例对象注入到 Effect 类中
+// Actions 服务类的实例对象为 Observable 对象, 当有 Action 被触发时, Action 对象本身会作为数据流被发出
 
-   // ofType
-   // 对目标 Action 对象进行过滤.
-   // 参数为目标 Action 的 Action Creator 函数
-   // 如果未过滤出目标 Action 对象, 本次不会继续发送数据流
-   // 如果过滤出目标 Action 对象, 会将 Action 对象作为数据流继续发出
+// ofType
+// 对目标 Action 对象进行过滤.
+// 参数为目标 Action 的 Action Creator 函数
+// 如果未过滤出目标 Action 对象, 本次不会继续发送数据流
+// 如果过滤出目标 Action 对象, 会将 Action 对象作为数据流继续发出
 
-   @Injectable()
-   export class CounterEffects {
-     constructor(private actions: Actions) {
-       // this.loadCount.subscribe(console.log)
-     }
-     loadCount = createEffect(() => {
-       return this.actions.pipe(
-         ofType(increment_async),
-         mergeMap(() => timer(1000).pipe(map(() => increment({ count: 10 }))))
-       )
-     })
-   }
-   ```
+@Injectable()
+export class CounterEffects {
+  constructor(private actions: Actions) {
+    // this.loadCount.subscribe(console.log)
+  }
+  loadCount = createEffect(() => {
+    return this.actions.pipe(
+      ofType(increment_async),
+      mergeMap(() => timer(1000).pipe(map(() => increment({ count: 10 }))))
+    )
+  })
+}
+```
 
 #### 15.6 Entity
 
@@ -3793,33 +3786,33 @@ NgRx 中提供了实体适配器对象，在实体适配器对象下面提供了
 
 1. EntityState：实体类型接口
 
-   ```javascript
-   /*
-   	{
-   		ids: [1, 2],
-   		entities: {
-   			1: { id: 1, title: "Hello Angular" },
-   			2: { id: 2, title: "Hello NgRx" }
-   		}
-   	}
-   */
-   export interface State extends EntityState<Todo> {}
-   ```
+```javascript
+/*
+{
+  ids: [1, 2],
+  entities: {
+    1: { id: 1, title: "Hello Angular" },
+    2: { id: 2, title: "Hello NgRx" }
+  }
+}
+*/
+export interface State extends EntityState<Todo> {}
+```
 
 2. createEntityAdapter： 创建实体适配器对象
 
 3. EntityAdapter：实体适配器对象类型接口
 
-   ```javascript
-   export const adapter: EntityAdapter<Todo> = createEntityAdapter<Todo>()
-   // 获取初始状态 可以传递对象参数 也可以不传
-   // {ids: [], entities: {}}
-   export const initialState: State = adapter.getInitialState()
-   ```
+```javascript
+export const adapter: EntityAdapter<Todo> = createEntityAdapter<Todo>()
+// 获取初始状态 可以传递对象参数 也可以不传
+// {ids: [], entities: {}}
+export const initialState: State = adapter.getInitialState()
+```
 
 ##### 15.6.3 实例方法
 
-https://ngrx.io/guide/entity/adapter#adapter-collection-methods
+[实例方法](https://ngrx.io/guide/entity/adapter#adapter-collection-methods）
 
 ##### 15.6.4 选择器
 
@@ -3843,27 +3836,27 @@ export const selectTodos = createSelector(selectTodo, selectAll)
 
 1. 引入模块
 
-   ```javascript
-   import { StoreRouterConnectingModule } from "@ngrx/router-store";
+```javascript
+import { StoreRouterConnectingModule } from "@ngrx/router-store";
 
-   @NgModule({
-   	imports: [StoreRouterConnectingModule.forRoot()],
-   })
-   export class AppModule {}
-   ```
+@NgModule({
+	imports: [StoreRouterConnectingModule.forRoot()],
+})
+export class AppModule {}
+```
 
 2. 将路由状态集成到 Store
 
-   ```javascript
-   import * as fromRouter from "@ngrx/router-store";
+```javascript
+import * as fromRouter from "@ngrx/router-store";
 
-   export interface AppState {
-   	router: fromRouter.RouterReducerState;
-   }
-   export const reducers: ActionReducerMap<AppState> = {
-   	router: fromRouter.routerReducer,
-   };
-   ```
+export interface AppState {
+	router: fromRouter.RouterReducerState;
+}
+export const reducers: ActionReducerMap<AppState> = {
+	router: fromRouter.routerReducer,
+};
+```
 
 ##### 15.7.2 创建获取路由状态的 Selector
 
@@ -3920,13 +3913,13 @@ export class AboutComponent {
 
 状态表示的是要进行运动的元素在运动的不同时期所呈现的样式。
 
-<img src="../../assets/images/50.png" align="left" width="60%"/>
+<img src="../../assets/images/50.png" align="center" width="60%"/>
 
 ##### 16.6.2 状态的种类
 
 在 Angular 中，有三种类型的状态，分别为：`void`、`*`、`custom`
 
-<img src="../../assets/images/51.png" align="left" width="55%"/>
+<img src="../../assets/images/51.png" align="center" width="55%"/>
 
 void：当元素在内存中创建好但尚未被添加到 DOM 中或将元素从 DOM 中删除时会发生此状态
 
@@ -3938,81 +3931,81 @@ custom：自定义状态，元素默认就在页面之中，从一个状态运�
 
 进场动画是指元素被创建后以动画的形式出现在用户面前，进场动画的状态用 `void => *` 表示，别名为 `:enter`
 
-<img src="../../assets/images/52.png" align="left" width="55%"/>
+<img src="../../assets/images/52.png" align="center" width="55%"/>
 
 出场动画是指元素在被删除前执行的一段告别动画，出场动画的状态用 `* => void`，别名为 `:leave`
 
-<img src="../../assets/images/53.png" align="left" width="55%"/>
+<img src="../../assets/images/53.png" align="center" width="55%"/>
 
 #### 16.2 快速上手
 
 1. 在使用动画功能之前，需要引入动画模块，即 `BrowserAnimationsModule`
 
-   ```javascript
-   import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+```javascript
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-   @NgModule({
-   	imports: [BrowserAnimationsModule],
-   })
-   export class AppModule {}
-   ```
+@NgModule({
+	imports: [BrowserAnimationsModule],
+})
+export class AppModule {}
+```
 
 2. 默认代码解析，todo 之删除任务和添加任务
 
-   ```html
-   <!-- 在 index.html 文件中引入 bootstrap.min.css -->
-   <link
-   	rel="stylesheet"
-   	href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
-   />
-   ```
+```html
+<!-- 在 index.html 文件中引入 bootstrap.min.css -->
+<link
+	rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+/>
+```
 
-   ```html
-   <div class="container">
-   	<h2>Todos</h2>
-   	<div class="form-group">
-   		<input
-   			(keyup.enter)="addItem(input)"
-   			#input
-   			type="text"
-   			class="form-control"
-   			placeholder="add todos"
-   		/>
-   	</div>
-   	<ul class="list-group">
-   		<li
-   			(click)="removeItem(i)"
-   			*ngFor="let item of todos; let i = index"
-   			class="list-group-item"
-   		>
-   			{{ item }}
-   		</li>
-   	</ul>
-   </div>
-   ```
+```html
+<div class="container">
+	<h2>Todos</h2>
+	<div class="form-group">
+		<input
+			(keyup.enter)="addItem(input)"
+			#input
+			type="text"
+			class="form-control"
+			placeholder="add todos"
+		/>
+	</div>
+	<ul class="list-group">
+		<li
+			(click)="removeItem(i)"
+			*ngFor="let item of todos; let i = index"
+			class="list-group-item"
+		>
+			{{ item }}
+		</li>
+	</ul>
+</div>
+```
 
-   ```javascript
-   import { Component } from "@angular/core";
+```javascript
+import { Component } from "@angular/core";
 
-   @Component({
-   	selector: "app-root",
-   	templateUrl: "./app.component.html",
-   	styles: [],
-   })
-   export class AppComponent {
-   	// todo 列表
-   	todos: string[] = ["Learn Angular", "Learn RxJS", "Learn NgRx"];
-   	// 添加 todo
-   	addItem(input: HTMLInputElement) {
-   		this.todos.push(input.value);
-   		input.value = "";
-   	}
-   	// 删除 todo
-   	removeItem(index: number) {
-   		this.todos.splice(index, 1);
-   	}
-   }
-   ```
+@Component({
+	selector: "app-root",
+	templateUrl: "./app.component.html",
+	styles: [],
+})
+export class AppComponent {
+	// todo 列表
+	todos: string[] = ["Learn Angular", "Learn RxJS", "Learn NgRx"];
+	// 添加 todo
+	addItem(input: HTMLInputElement) {
+		this.todos.push(input.value);
+		input.value = "";
+	}
+	// 删除 todo
+	removeItem(index: number) {
+		this.todos.splice(index, 1);
+	}
+}
+```
 
 3. 创建动画
 
@@ -4021,57 +4014,57 @@ custom：自定义状态，元素默认就在页面之中，从一个状态运�
    3. style 方法用于设置元素在不同的状态下所对应的样式
    4. animate 方法用于设置运动参数，比如动画运动时间，延迟事件，运动形式
 
-   ```javascript
-   @Component({
-     animations: [
-       // 创建动画, 动画名称为 slide
-       trigger("slide", [
-         // 指定入场动画 注意: 字符串两边不能有空格, 箭头两边可以有也可以没有空格
-         // void => * 可以替换为 :enter
-         transition("void => *", [
-           // 指定元素未入场前的样式
-           style({ opacity: 0, transform: "translateY(40px)" }),
-           // 指定元素入场后的样式及运动参数
-           animate(250, style({ opacity: 1, transform: "translateY(0)" }))
-         ]),
-         // 指定出场动画
-         // * => void 可以替换为 :leave
-         transition("* => void", [
-           // 指定元素出场后的样式和运动参数
-           animate(600, style({ opacity: 0, transform: "translateX(100%)" }))
-         ])
-       ])
-     ]
-   })
-   ```
+```javascript
+@Component({
+  animations: [
+    // 创建动画, 动画名称为 slide
+    trigger("slide", [
+      // 指定入场动画 注意: 字符串两边不能有空格, 箭头两边可以有也可以没有空格
+      // void => * 可以替换为 :enter
+      transition("void => *", [
+        // 指定元素未入场前的样式
+        style({ opacity: 0, transform: "translateY(40px)" }),
+        // 指定元素入场后的样式及运动参数
+        animate(250, style({ opacity: 1, transform: "translateY(0)" }))
+      ]),
+      // 指定出场动画
+      // * => void 可以替换为 :leave
+      transition("* => void", [
+        // 指定元素出场后的样式和运动参数
+        animate(600, style({ opacity: 0, transform: "translateX(100%)" }))
+      ])
+    ])
+  ]
+})
+```
 
-   ```html
-   <li @slide></li>
-   ```
+```html
+<li @slide></li>
+```
 
-   注意：入场动画中可以不指定元素的默认状态，Angular 会将 void 状态清空作为默认状态
+注意：入场动画中可以不指定元素的默认状态，Angular 会将 void 状态清空作为默认状态
 
-   ```javascript
-   trigger("slide", [
-   	transition(":enter", [
-   		style({ opacity: 0, transform: "translateY(40px)" }),
-   		animate(250),
-   	]),
-   	transition(":leave", [
-   		animate(600, style({ opacity: 0, transform: "translateX(100%)" })),
-   	]),
-   ]);
-   ```
+```javascript
+trigger("slide", [
+	transition(":enter", [
+		style({ opacity: 0, transform: "translateY(40px)" }),
+		animate(250),
+	]),
+	transition(":leave", [
+		animate(600, style({ opacity: 0, transform: "translateX(100%)" })),
+	]),
+]);
+```
 
-   注意：要设置动画的运动参数，需要将 animate 方法的一个参数更改为字符串类型
+注意：要设置动画的运动参数，需要将 animate 方法的一个参数更改为字符串类型
 
-   ```javascript
-   // 动画执行总时间 延迟时间 (可选) 运动形式 (可选)
-   animate(
-   	"600ms 1s ease-out",
-   	style({ opacity: 0, transform: "translateX(100%)" })
-   );
-   ```
+```javascript
+// 动画执行总时间 延迟时间 (可选) 运动形式 (可选)
+animate(
+	"600ms 1s ease-out",
+	style({ opacity: 0, transform: "translateX(100%)" })
+);
+```
 
 #### 16.3 关键帧动画
 
@@ -4112,95 +4105,95 @@ done(event: AnimationEvent) {
 
 1. 将动画的定义放置在单独的文件中，方便多组件调用。
 
-   ```javascript
-   import {
-   	animate,
-   	keyframes,
-   	style,
-   	transition,
-   	trigger,
-   } from "@angular/animations";
+```javascript
+import {
+	animate,
+	keyframes,
+	style,
+	transition,
+	trigger,
+} from "@angular/animations";
 
-   export const slide = trigger("slide", [
-   	transition(":enter", [
-   		style({ opacity: 0, transform: "translateY(40px)" }),
-   		animate(250),
-   	]),
-   	transition(":leave", [
-   		animate(
-   			600,
-   			keyframes([
-   				style({ offset: 0.3, transform: "translateX(-80px)" }),
-   				style({ offset: 1, transform: "translateX(100%)" }),
-   			])
-   		),
-   	]),
-   ]);
-   ```
+export const slide = trigger("slide", [
+	transition(":enter", [
+		style({ opacity: 0, transform: "translateY(40px)" }),
+		animate(250),
+	]),
+	transition(":leave", [
+		animate(
+			600,
+			keyframes([
+				style({ offset: 0.3, transform: "translateX(-80px)" }),
+				style({ offset: 1, transform: "translateX(100%)" }),
+			])
+		),
+	]),
+]);
+```
 
-   ```javascript
-   import { slide } from "./animations"
+```javascript
+import { slide } from "./animations"
 
-   @Component({
-     animations: [slide]
-   })
-   ```
+@Component({
+  animations: [slide]
+})
+```
 
 2. 抽取具体的动画定义，方便多动画调用。
 
-   ```javascript
-   import {
-   	animate,
-   	animation,
-   	keyframes,
-   	style,
-   	transition,
-   	trigger,
-   	useAnimation,
-   } from "@angular/animations";
+```javascript
+import {
+	animate,
+	animation,
+	keyframes,
+	style,
+	transition,
+	trigger,
+	useAnimation,
+} from "@angular/animations";
 
-   export const slideInUp = animation([
-   	style({ opacity: 0, transform: "translateY(40px)" }),
-   	animate(250),
-   ]);
+export const slideInUp = animation([
+	style({ opacity: 0, transform: "translateY(40px)" }),
+	animate(250),
+]);
 
-   export const slideOutLeft = animation([
-   	animate(
-   		600,
-   		keyframes([
-   			style({ offset: 0.3, transform: "translateX(-80px)" }),
-   			style({ offset: 1, transform: "translateX(100%)" }),
-   		])
-   	),
-   ]);
+export const slideOutLeft = animation([
+	animate(
+		600,
+		keyframes([
+			style({ offset: 0.3, transform: "translateX(-80px)" }),
+			style({ offset: 1, transform: "translateX(100%)" }),
+		])
+	),
+]);
 
-   export const slide = trigger("slide", [
-   	transition(":enter", useAnimation(slideInUp)),
-   	transition(":leave", useAnimation(slideOutLeft)),
-   ]);
-   ```
+export const slide = trigger("slide", [
+	transition(":enter", useAnimation(slideInUp)),
+	transition(":leave", useAnimation(slideOutLeft)),
+]);
+```
 
 3. 调用动画时传递运动总时间，延迟时间，运动形式
 
-   ```javascript
-   export const slideInUp = animation(
-   	[
-   		style({ opacity: 0, transform: "translateY(40px)" }),
-   		animate("{{ duration }} {{ delay }} {{ easing }}"),
-   	],
-   	{
-   		params: {
-   			duration: "400ms",
-   			delay: "0s",
-   			easing: "ease-out",
-   		},
-   	}
-   );
-   ```
+```javascript
+export const slideInUp = animation(
+	[
+		style({ opacity: 0, transform: "translateY(40px)" }),
+		animate("{{ duration }} {{ delay }} {{ easing }}"),
+	],
+	{
+		params: {
+			duration: "400ms",
+			delay: "0s",
+			easing: "ease-out",
+		},
+	}
+);
+```
 
-   ```javascript
-   transition(":enter", useAnimation(slideInUp, { params: { delay: "1s" } }));
-   ```
+```javascript
+transition(":enter", useAnimation(slideInUp, { params: { delay: "1s" } }));
+```
 
 #### 16.6 查询元素执行动画
 
@@ -4273,90 +4266,90 @@ Angular 提供了 `state` 方法用于定义状态。
 
 1. 默认代码解析
 
-   ```html
-   <div class="container">
-   	<div class="panel panel-default">
-   		<div class="panel-heading" (click)="toggle()">
-   			一套框架, 多种平台, 移动端 & 桌面端
-   		</div>
-   		<div class="panel-body">
-   			<p>
-   				使用简单的声明式模板，快速实现各种特性。使用自定义组件和大量现有组件，扩展模板语言。在几乎所有的
-   				IDE 中获得针对 Angular
-   				的即时帮助和反馈。所有这一切，都是为了帮助你编写漂亮的应用，而不是绞尽脑汁的让代码“能用”。
-   			</p>
-   			<p>
-   				从原型到全球部署，Angular 都能带给你支撑 Google
-   				大型应用的那些高延展性基础设施与技术。
-   			</p>
-   			<p>
-   				通过 Web Worker 和服务端渲染，达到在如今(以及未来）的 Web
-   				平台上所能达到的最高速度。 Angular 让你有效掌控可伸缩性。基于
-   				RxJS、Immutable.js 和其它推送模型，能适应海量数据需求。
-   			</p>
-   			<p>
-   				学会用 Angular
-   				构建应用，然后把这些代码和能力复用在多种多种不同平台的应用上 ——
-   				Web、移动 Web、移动应用、原生应用和桌面原生应用。
-   			</p>
-   		</div>
-   	</div>
-   </div>
-   <style>
-   	.container {
-   		margin-top: 100px;
-   	}
-   	.panel-heading {
-   		cursor: pointer;
-   	}
-   </style>
-   ```
+```html
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading" (click)="toggle()">
+			一套框架, 多种平台, 移动端 & 桌面端
+		</div>
+		<div class="panel-body">
+			<p>
+				使用简单的声明式模板，快速实现各种特性。使用自定义组件和大量现有组件，扩展模板语言。在几乎所有的
+				IDE 中获得针对 Angular
+				的即时帮助和反馈。所有这一切，都是为了帮助你编写漂亮的应用，而不是绞尽脑汁的让代码“能用”。
+			</p>
+			<p>
+				从原型到全球部署，Angular 都能带给你支撑 Google
+				大型应用的那些高延展性基础设施与技术。
+			</p>
+			<p>
+				通过 Web Worker 和服务端渲染，达到在如今(以及未来）的 Web
+				平台上所能达到的最高速度。 Angular 让你有效掌控可伸缩性。基于
+				RxJS、Immutable.js 和其它推送模型，能适应海量数据需求。
+			</p>
+			<p>
+				学会用 Angular
+				构建应用，然后把这些代码和能力复用在多种多种不同平台的应用上 ——
+				Web、移动 Web、移动应用、原生应用和桌面原生应用。
+			</p>
+		</div>
+	</div>
+</div>
+<style>
+	.container {
+		margin-top: 100px;
+	}
+	.panel-heading {
+		cursor: pointer;
+	}
+</style>
+```
 
-   ```javascript
-   import { Component } from "@angular/core";
+```javascript
+import { Component } from "@angular/core";
 
-   @Component({
-   	selector: "app-root",
-   	templateUrl: "./app.component.html",
-   	styles: [],
-   })
-   export class AppComponent {
-   	isExpended: boolean = false;
-   	toggle() {
-   		this.isExpended = !this.isExpended;
-   	}
-   }
-   ```
+@Component({
+	selector: "app-root",
+	templateUrl: "./app.component.html",
+	styles: [],
+})
+export class AppComponent {
+	isExpended: boolean = false;
+	toggle() {
+		this.isExpended = !this.isExpended;
+	}
+}
+```
 
 2. 创建动画
 
-   ```javascript
-   trigger("expandCollapse", [
-   	// 使用 state 方法定义折叠状态元素对应的样式
-   	state(
-   		"collapsed",
-   		style({
-   			height: 0,
-   			overflow: "hidden",
-   			paddingTop: 0,
-   			paddingBottom: 0,
-   		})
-   	),
-   	// 使用 state 方法定义展开状态元素对应的样式
-   	state("expanded", style({ height: "*", overflow: "auto" })),
-   	// 定义展开动画
-   	transition("collapsed => expanded", animate("400ms ease-out")),
-   	// 定义折叠动画
-   	transition("expanded => collapsed", animate("400ms ease-in")),
-   ]);
-   ```
+```javascript
+trigger("expandCollapse", [
+	// 使用 state 方法定义折叠状态元素对应的样式
+	state(
+		"collapsed",
+		style({
+			height: 0,
+			overflow: "hidden",
+			paddingTop: 0,
+			paddingBottom: 0,
+		})
+	),
+	// 使用 state 方法定义展开状态元素对应的样式
+	state("expanded", style({ height: "*", overflow: "auto" })),
+	// 定义展开动画
+	transition("collapsed => expanded", animate("400ms ease-out")),
+	// 定义折叠动画
+	transition("expanded => collapsed", animate("400ms ease-in")),
+]);
+```
 
-   ```html
-   <div
-   	class="panel-body"
-   	[@expandCollapse]="isExpended ? 'expanded' : 'collapsed'"
-   ></div>
-   ```
+```html
+<div
+	class="panel-body"
+	[@expandCollapse]="isExpended ? 'expanded' : 'collapsed'"
+></div>
+```
 
 #### 16.9 路由动画
 
@@ -4364,118 +4357,116 @@ Angular 提供了 `state` 方法用于定义状态。
 
 1. 为路由添加状态标识，此标识即为路由执行动画时的自定义状态
 
-   ```javascript
-   const routes: Routes = [
-   	{
-   		path: "",
-   		component: HomeComponent,
-   		pathMatch: "full",
-   		data: {
-   			animation: "one",
-   		},
-   	},
-   	{
-   		path: "about",
-   		component: AboutComponent,
-   		data: {
-   			animation: "two",
-   		},
-   	},
-   	{
-   		path: "news",
-   		component: NewsComponent,
-   		data: {
-   			animation: "three",
-   		},
-   	},
-   ];
-   ```
+```javascript
+const routes: Routes = [
+	{
+		path: "",
+		component: HomeComponent,
+		pathMatch: "full",
+		data: {
+			animation: "one",
+		},
+	},
+	{
+		path: "about",
+		component: AboutComponent,
+		data: {
+			animation: "two",
+		},
+	},
+	{
+		path: "news",
+		component: NewsComponent,
+		data: {
+			animation: "three",
+		},
+	},
+];
+```
 
 2. 通过路由插座对象获取路由状态标识，并将标识传递给动画的调用者，让动画执行当前要执行的状态是什么
 
-   ```html
-   <div class="routerContainer" [@routerAnimations]="prepareRoute(outlet)">
-   	<router-outlet #outlet="outlet"></router-outlet>
-   </div>
-   ```
+```html
+<div class="routerContainer" [@routerAnimations]="prepareRoute(outlet)">
+	<router-outlet #outlet="outlet"></router-outlet>
+</div>
+```
 
-   ```javascript
-   import { RouterOutlet } from "@angular/router";
+```javascript
+import { RouterOutlet } from "@angular/router";
 
-   export class AppComponent {
-   	prepareRoute(outlet: RouterOutlet) {
-   		return (
-   			outlet &&
-   			outlet.activatedRouteData &&
-   			outlet.activatedRouteData.animation
-   		);
-   	}
-   }
-   ```
+export class AppComponent {
+	prepareRoute(outlet: RouterOutlet) {
+		return (
+			outlet && outlet.activatedRouteData && outlet.activatedRouteData.animation
+		);
+	}
+}
+```
 
 3. 将 routerContainer 设置为相对定位，将它的直接一级子元素设置成绝对定位
 
-   ```css
-   /* styles.css */
-   .routerContainer {
-   	position: relative;
-   }
+```css
+/* styles.css */
+.routerContainer {
+	position: relative;
+}
 
-   .routerContainer > * {
-   	position: absolute;
-   	left: 0;
-   	top: 0;
-   	width: 100%;
-   }
-   ```
+.routerContainer > * {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+}
+```
 
 4. 创建动画
 
-   ```javascript
-   trigger("routerAnimations", [
-   	transition("one => two, one => three, two => three", [
-   		query(":enter", style({ transform: "translateX(100%)", opacity: 0 })),
-   		group([
-   			query(
-   				":enter",
-   				animate(
-   					"0.4s ease-in",
-   					style({ transform: "translateX(0)", opacity: 1 })
-   				)
-   			),
-   			query(
-   				":leave",
-   				animate(
-   					"0.4s ease-out",
-   					style({
-   						transform: "translateX(-100%)",
-   						opacity: 0,
-   					})
-   				)
-   			),
-   		]),
-   	]),
-   	transition("three => two, three => one, two => one", [
-   		query(":enter", style({ transform: "translateX(-100%)", opacity: 0 })),
-   		group([
-   			query(
-   				":enter",
-   				animate(
-   					"0.4s ease-in",
-   					style({ transform: "translateX(0)", opacity: 1 })
-   				)
-   			),
-   			query(
-   				":leave",
-   				animate(
-   					"0.4s ease-out",
-   					style({
-   						transform: "translateX(100%)",
-   						opacity: 0,
-   					})
-   				)
-   			),
-   		]),
-   	]),
-   ]);
-   ```
+```javascript
+trigger("routerAnimations", [
+	transition("one => two, one => three, two => three", [
+		query(":enter", style({ transform: "translateX(100%)", opacity: 0 })),
+		group([
+			query(
+				":enter",
+				animate(
+					"0.4s ease-in",
+					style({ transform: "translateX(0)", opacity: 1 })
+				)
+			),
+			query(
+				":leave",
+				animate(
+					"0.4s ease-out",
+					style({
+						transform: "translateX(-100%)",
+						opacity: 0,
+					})
+				)
+			),
+		]),
+	]),
+	transition("three => two, three => one, two => one", [
+		query(":enter", style({ transform: "translateX(-100%)", opacity: 0 })),
+		group([
+			query(
+				":enter",
+				animate(
+					"0.4s ease-in",
+					style({ transform: "translateX(0)", opacity: 1 })
+				)
+			),
+			query(
+				":leave",
+				animate(
+					"0.4s ease-out",
+					style({
+						transform: "translateX(100%)",
+						opacity: 0,
+					})
+				)
+			),
+		]),
+	]),
+]);
+```

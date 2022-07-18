@@ -67,9 +67,9 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
 - 把所有属性变成必需的 required
 
 ```ts
-# eg.源码
+//  eg.源码
 type Required<T> = {
-    [P in keyof T]-?: T[P];
+	[P in keyof T]-?: T[P];
 };
 ```
 
@@ -78,13 +78,13 @@ type Required<T> = {
 - 从一个复合类型中，取出几个想要的类型的组合，得到一个新类型
 
 ```ts
-# eg.源码
+// eg.源码
 type Pick<T, K extends keyof T> = {
-  [key in k]: T[key]
-}
+	[key in k]: T[key];
+};
 
-# eg. 从TState中拿到name和age属性，组成一个新的类型TSingleState
-interface TSingleState extends Pick<TState, "name" | "age"> {};
+// eg. 从TState中拿到name和age属性，组成一个新的类型TSingleState
+interface TSingleState extends Pick<TState, "name" | "age"> {}
 ```
 
 - 解析：在泛型中使用 extends 并不是用来继承的，而是用来约束类型的。所以这个 K extends keyof T，应该是说 key 被约束在 T 的 key 中，不能超出这个范围，否则会报错的。
@@ -94,9 +94,9 @@ interface TSingleState extends Pick<TState, "name" | "age"> {};
 - Make all properties in T optional，把某个类型中的所有属性都变为可选
 
 ```ts
-# eg.源码
+// eg.源码
 type Partial<T> = {
-    [P in keyof T]?: T[P];
+	[P in keyof T]?: T[P];
 };
 ```
 
@@ -105,9 +105,9 @@ type Partial<T> = {
 - 变为只读
 
 ```ts
-# eg.源码
+// eg.源码
 type Readonly<T> = {
-    readonly [P in keyof T]: T[P];
+	readonly [P in keyof T]: T[P];
 };
 ```
 
@@ -130,7 +130,7 @@ b.foo.bar = 33; // Cannot assign to 'bar' because it is a read-only property.ts(
 - Construct a type with a set of properties K of type T，即将 K 中的每个属性([P in K]),都转为 T 类型。
 
 ```ts
-# eg.源码
+// eg.源码
 type Record<K extends keyof any, T> = {
     [P in K]: T;
 };
@@ -139,25 +139,25 @@ type Person6 = Record<'name' | 'age', string>;
 // Person6 === {name: string; age: string}
 ```
 
-### Exclude<T,U>
+### `Exclude<T,U>`
 
 Exclude 和 Omit 的区别：Omit 返回的是新的类型，原理上是在 Exclude 之上进行的，Exclude 是根据自类型返回的。
 
 把 T 中不属于 U 的提取出来。当 T 中有 U 就会剔除对应的属性，如果 U 中又的属性 T 中没有，或 T 和 U 刚好一样的情况都会返回 nerver，且对象永远返回 nerver
 
-### Extract<T,U>
+### `Extract<T,U>`
 
 把 T 中属于的 U 提取出来
 
-### NonNullable<T>
+### `NonNullable<T>`
 
 提取出 T 中不是 null、undefined 的值，从 T 中排除 null 和 undefined。
 
-### Parameters<T>
+### `Parameters<T>`
 
 用于获取 获取函数类型的参数类型。
 
-### ReturnType<T>
+### `ReturnType<T>`
 
 用于获取 函数 T 的返回类型。
 
@@ -169,9 +169,9 @@ type ReturnType<T extends (...args: any[]) => any> = T extends (
 	: any;
 ```
 
-### InstanceType<T>
+### `InstanceType<T>`
 
-### ThisType<T>
+### `ThisType<T>`
 
 ### Mutable
 
