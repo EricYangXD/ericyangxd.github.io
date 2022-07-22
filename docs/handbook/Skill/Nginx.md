@@ -156,3 +156,80 @@ tips test
 ::: details
 折叠详情块，在 IE/Edge 中不生效
 :::
+
+## 缓存问题
+
+### 前端缓存-前端发布新代码后的浏览器缓存问题
+
+解决方法
+
+1. 用户自行清理浏览器缓存。
+
+- 优点：清除浏览器缓存后可达到效果。
+- 缺点：影响用户体验
+
+2. 使用禁用缓存标签，实现禁用浏览器缓存。（优先级略低）
+
+- 优点：可达到效果。
+- 缺点：每次请求页面都要重新请求，我们还是希望有缓存的
+
+```html
+<meta
+	http-equiv="Cache-Control"
+	content="no-cache, no-store, must-revalidate"
+/>
+<meta http-equiv="Cache" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+```
+
+3. 为 js 和 css 文件添加版本号。
+
+- 优点：可达到效果。
+- 缺点：给所有的静态资源都添加版本号参数，这个参数可以是时间戳或者随机数。处理方式的代码如下：
+
+```html
+<link
+	rel="stylesheet"
+	type="text/css"
+	href="${pageContext.request.contextPath}/static/plugins/layui-v2.5.5/layui/css/layui.css?v=20200110052406"
+/>
+<link
+	rel="stylesheet"
+	type="text/css"
+	href="${pageContext.request.contextPath}/static/css/style.css?v=20200110052406"
+/>
+<link
+	rel="stylesheet"
+	type="text/css"
+	href="${pageContext.request.contextPath}/static/css/addStyle.css?v=20200110052406"
+/>
+<link
+	rel="stylesheet"
+	type="text/css"
+	href="${pageContext.request.contextPath}/static/css/template/addStyle.css?v=20200110052406"
+/>
+```
+
+4. 修改 nginx 配置。（满足以下条件后有缓存可以修改 nginx 配置文件）背景：
+
+- 使用 nginx 做代理
+- 使用 webpack 等打包出一个唯一的入口文件 index.html，或者其他方式的入口 html 文件
+- 入口 html 文件中 js 已经使用 hash 后缀方式加载
+- 缺点：需要前端人员会配置 nginx
+
+```nginx
+location ~ .*\.(htm|html)?$ {
+  # 原来这样设置的不管用
+  # expires -1;
+  # 现在改为，增加缓存
+  add_header Cache-Control "private, no-store, no-cache, must-revalidate, proxy-revalidate";
+  access_log on;
+}
+```
+
+### Nginx 缓存问题
+
+每次修改了动态的内容，缓存却没过期，这样就必须手动清理缓存了。于是尝试使用`nginx`+`ngx_cache_purge`模块。
+
+需要下载 NGINX 源码和模块源码进行编译，参考[这里](https://www.henghost.com/zixun/7981/)

@@ -188,6 +188,30 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 否则重启之后 app 会打不开，更新订阅成功的通知不出现也是因为签名对不上。
 
+### 给一个.sh 文件赋执行权限
+
+1. `xattr -d com.apple.quarantine ./路径/文件名`，去掉「Apple 隔离扩展属性」，查看该属性：`xattr -l ./路径/文件名`
+2. `chmod 777 ./路径/文件名`
+
+### 关闭 SIP（System Integrity Protection）
+
+Terminal 运行一个外部的 APP 文件，在有`chmod 777`权限的情况下仍然无法运行。此时的 APP 文件是可以打开编辑的，但是 Terminal 无法启动。研究过后，这种情况有两种可能：一是 Terminal 的权限问题，或者是由于下载的文件来源于网络，所以被系统锁定。
+
+Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还是没有权限，例如我们希望修改/usr/bin 目录下的文件名，这是因为，电脑启用了 `SIP（System Integrity Protection）`，增加了 rootless 机制，即使在 root 权限下依然无法修改文件。
+
+#### 打开 Terminal 完全磁盘访问权限
+
+文件有权限打开，但是不意味着 Terminal 有权限访问文件。此时可以：`系统->安全性与隐私->完全磁盘访问权限`，找到终端，开启权限。
+
+#### 关闭 SIP
+
+如果我们还是需要修改目录`/usr/bin`目录下的文件，就需要关闭 SIP，具体步骤下：
+
+1. 重启，过程中按住 command+R，进入保护模式
+2. 打开 terminal 终端，输入`csrutil disable`
+3. 重启，即可对 `/usr/bin` 目录下文件进行修改
+4. 文件修改完之后，再重新打开 SIP，步骤与上面相同，只是执行的命令换成`csrutil enable`
+
 ### 如何在 Mac 上的触摸栏中删除 Siri 图标
 
 显然，这仅适用于具有触摸栏屏幕的 Mac 硬件：
@@ -195,6 +219,14 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 1. 转到  苹果菜单，然后选择“系统偏好设置”，然后转到“键盘”
 2. 在“键盘”选项卡下，选择“自定义控制条”(注意此处未称为“触摸栏”)
 3. 自定义触摸栏以删除 Siri：光标可以移动到 touchbar 上，把不需要的 Siri 拖出去即可
+
+### Mac 电脑如何设置长按 delete 键进行连续删除？
+
+「系统偏好设置」->「键盘」->「重复前延迟」->「高」
+
+### 查看某个软件的软链接
+
+比如查看 docker 的`ls -l /usr/local/bin/docker*`
 
 ## 好用的软件
 

@@ -239,11 +239,11 @@ git worktree prune [-n] [-v] [--expire <expire>]
 
 eg.
 
-`git worktree add -b "hotfix/JIRA234-fix-naming" ../hotfix/JIRA234-fix-naming`.
+- `git worktree add -b "hotfix/JIRA234-fix-naming" ../hotfix/JIRA234-fix-naming`.
 
-`git worktree list`.
+- `git worktree list`.
 
-`git worktree remove hotfix/hotfix/JIRA234-fix-naming`.
+- `git worktree remove hotfix/hotfix/JIRA234-fix-naming`.
 
 建议：通常使用 git worktree，我会统一目录结构，比如 feature 目录下存放所有 feature 的 worktree，hotfix 目录下存放所有 hotfix 的 worktree，这样整个磁盘目录结构不至于因为创建多个 worktree 而变得混乱。
 
@@ -268,7 +268,19 @@ eg.
 
 ### git 设置识别文件名大小写
 
-`git config core.ignoreCase true/false`
+需要在一个 git 仓库里设置：`git config core.ignoreCase true/false`
+
+### git 重命名文件/文件夹
+
+1. 单个文件：`git mv dockerfile Dockerfile`
+2. 多个文件：有很多个文件都是名字大小写变化，这种情况：
+   1. 首先可以移除所有 git 缓存：`git rm -r --cached .`
+   2. 这个命令将移除当前文件夹下所有文件/文件夹的 Git 缓存版本。运行这个命令后，会看到所有文件都显示在 git changes 中。
+   3. 接下来，继续运行：`git add --all .`
+   4. 就可以重新添加所有文件，仅显示有更改的文件。
+3. 文件夹：借助一个临时的文件夹名字：`git mv myfolder tempFolder && git mv tempFolder myFolder`，或者用 2 中的方法。
+4. 如果因为大小写问题已经导致远程仓库有俩重复文件，例：dockerfile Dockerfile
+   1.
 
 ### git reflog
 
@@ -296,3 +308,15 @@ eg.
 git config --global http.proxy http://127.0.0.1:port
 git config --global https.proxy http://127.0.0.1:port
 ```
+
+## Git Large File Storage - LFS 大文件存储
+
+1. [下载安装](https://git-lfs.github.com/)或`brew install git-lfs`
+2. 然后在 git bash 里面安装一下：`git lfs install`
+3. 接着 track 一下准备上传的文件，按文件格式进行：`git lfs track "*.psd"`
+4. 进行了上述步骤之后你的文件夹会多出一个`.gitattributes`文件。接下来的先 add，commit，push 这个文件，之后再进行大文件的上传(正常操作即可)：
+   1. `git add .gitattributes`
+   2. `git add file.psd`
+   3. `git commit -m "Add design file"`
+   4. `git push origin master`
+5. 请注意，定义 Git LFS 应该跟踪的文件类型本身不会将任何预先存在的文件转换为 Git LFS，例如其他分支上的文件或您之前的提交历史记录中的文件。为此，请使用 `git lfs migrate` 命令，该命令具有一系列选项，旨在适应各种潜在用例。
