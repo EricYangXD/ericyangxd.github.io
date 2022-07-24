@@ -8,7 +8,7 @@ date: "2021-12-29"
 
 ### 是什么
 
-TS 是 JS 的超集，
+TS 是 JS 的超集。
 
 ### 要解决什么问题
 
@@ -39,6 +39,66 @@ type res = Test<any>;
 ### 分布式条件类型
 
 当条件类型的左边是类型参数时，会有 distributive 的性质，也就是把联合类型的每个类型单独传入求值，把每个的结果合并成联合类型，这叫做分布式条件类型。
+
+### 枚举类型 enum
+
+在 TypeScript 中使用枚举是访问旨在跨多个文件共享的特定参数的好方法，例如特定用户的访问级别或特定常量。
+
+但是 Enums 会生成大量代码，通过 const 在 TypeScript 中与我们的 Enums 一起引入关键字，我们可以减轻大量生成的代码。例如：
+
+```ts
+enum Sizes {
+	Small,
+	Medium,
+	Large,
+}
+```
+
+编译成 js 之后：
+
+```js
+var Sizes;
+
+(function (Sizes) {
+	Sizes[(Sizes["Small"] = 0)] = "Small";
+	Sizes[(Sizes["Medium"] = 1)] = "Medium";
+	Sizes[(Sizes["Large"] = 2)] = "Large";
+})(Sizes || (Sizes = {}));
+
+const coffee = {
+	name: "Espresso",
+	size: Sizes.Small,
+};
+```
+
+显然，这时候可以使用反向映射：
+
+```ts
+const coffee = {
+	name: "Espresso",
+	size: Sizes[Sizes.Small], // 'Small'
+};
+```
+
+但是当我们明确知道并不需要使用反向映射时，这样的代码显然有部分是多余的，此时可以使用 const 来声明 enum：
+
+```ts
+// 📣警告！这消除了具有反向映射行为的能力，因此如果您依赖它，请不要使用这种方法。
+const enum Sizes {
+	Small,
+	Medium,
+	Large,
+}
+```
+
+此时编译出来的代码就会比之前少得多：
+
+```js
+const coffee = {
+	name: "Espresso",
+	size: 0 /* Small */,
+};
+```
 
 ## 官方提供的工具类型
 
@@ -609,7 +669,6 @@ function isJava(lang: Javascript | Java): lang is Java {
 6. 命名空间和同名函数可以合并，相当于给函数增加了属性（命名空间声明要放在函数声明后面，且需要 export）；
 7. 命名空间和同名 class 可以合并，相当于给 class 增加了静态属性（命名空间声明要放在 class 声明后面，且需要 export）；
 8. 命名空间和同名 enum 可以合并，相当于给 enum 增加了属性（顺序无关，需要 export）；
-9.
 
 ## 给外部类库增加自定义方法
 

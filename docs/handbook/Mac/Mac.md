@@ -224,6 +224,12 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 
 「系统偏好设置」->「键盘」->「重复前延迟」->「高」
 
+### Mac 设置 python3 为默认
+
+1. 首先获得 python3 安装路径，执行命令：`which python3`
+2. 修改`.zshrc`或`.bash_profile`增加：`alias python="/usr/local/bin/python3"`
+3. 执行`source ~/.zshrc`
+
 ### 查看某个软件的软链接
 
 比如查看 docker 的`ls -l /usr/local/bin/docker*`

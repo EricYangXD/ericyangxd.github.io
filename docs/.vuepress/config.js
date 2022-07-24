@@ -254,6 +254,10 @@ module.exports = {
 						path: "/handbook/Skill/Nginx",
 					},
 					{
+						title: "Python",
+						path: "/handbook/Skill/Python",
+					},
+					{
 						title: "Emoji表情",
 						path: "/handbook/Skill/Emoji",
 					},
