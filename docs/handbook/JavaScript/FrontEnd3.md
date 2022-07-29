@@ -125,3 +125,39 @@ test(value); // 'value is not undefined'
 推荐的做法：使用`void 0`或`void(0)`代替`undefined`。
 
 void 运算符是对给定的表达式进行求值，然后返回 undefined 。而且， void 是不能重新定义的，不然会报语法错误，这样也保证了用 void 来代替 undefined 的不会出现被重定义而造成的 bug。
+
+## js 判断图片是否被缓存
+
+```js
+/**
+ url 测试图片路径
+ 被缓存返回true，没被缓存返回false
+ */
+function testCache(url) {
+	alert("执行");
+	var url = "http://www.8chedao.com/page/images/webIndex-logo.png";
+	var myImg = new Image();
+	myImg.src = url;
+	if (myImg.complete) {
+		alert("图片被缓存");
+		return true;
+	} else {
+		alert("图片没被缓存");
+		myImg.onload = function () {
+			alert("图片已经下载成功!");
+		};
+		return false;
+	}
+}
+```
+
+## 正则-捕获组
+
+```javascript
+const str = "2022-07";
+const reg = /(?<year>[0-9]{4})-(?<month>[0-9]{2})/;
+
+const group = str.match(reg).groups;
+
+console.log(group.year);
+```
