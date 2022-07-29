@@ -95,7 +95,7 @@ nodejs的寻址方式：
 
 pnpm 项目的 node_modules 并不是扁平化结构，而是目录树的结构，类似 npm version 2.x 版本中的结构。同时还有个.pnpm 目录，.pnpm 以平铺的形式储存着所有的包，正常的包都可以在这种命名模式的文件夹中被找到（peerDep 例外）：
 
-```
+```bash
 .pnpm/<organization-name>+<package-name>@<version>/node_modules/<name>
 
 // 组织名(若无会省略)+包名@版本号/node_modules/名称(项目名称)
@@ -131,8 +131,8 @@ if (await canLinkToSubdir(tempFile, homedir)) {
 
 pnpm install 的安装过程中，我们会看到如下的信息，这个里面的 Content-addressable store 就是我们目前说的 Store.
 
--   CAS 内容寻址存储，是一种存储信息的方式，根据内容而不是位置进行检索信息的存储方式.
--   Virtual store 虚拟存储，指向存储的链接的目录，所有直接和间接依赖项都链接到此目录中，项目当中的.pnpm 目录.
+- CAS 内容寻址存储，是一种存储信息的方式，根据内容而不是位置进行检索信息的存储方式.
+- Virtual store 虚拟存储，指向存储的链接的目录，所有直接和间接依赖项都链接到此目录中，项目当中的.pnpm 目录.
 
 区别对比：如果是 npm 或 yarn，那么这个依赖在多个项目中使用，在每次安装的时候都会被重新下载一次；而在使用 pnpm 对项目安装依赖的时候，如果某个依赖在 sotre 目录中存在了话，那么就会直接从 store 目录里面去 hard-link，避免了二次安装带来的时间消耗，如果依赖在 store 目录里面不存在的话，就会去下载一次。
 

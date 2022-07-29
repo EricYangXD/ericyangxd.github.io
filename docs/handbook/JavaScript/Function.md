@@ -770,6 +770,16 @@ function getType(obj) {
 }
 ```
 
+### Object.create
+
+`Object.create(proto [,propertiesObject])`以第一个参数 proto 为原型创建一个新对象，propertiesObject 为新创建的对象添加指定的属性值和对应的属性描述符。这些属性对应于 Object.defineProperties() 的第二个参数。
+
+```javascript
+o = new Constructor();
+// is equivalent to:
+o = Object.create(Constructor.prototype);
+```
+
 ## 深浅拷贝
 
 ### 浅拷贝
@@ -777,7 +787,7 @@ function getType(obj) {
 只复制指向某个对象的指针。
 
 1. 数组浅拷贝：`Array.from()/Object.assign()/...扩展运算符/arr.slice()/arr.concat()`/等；只拷贝第一层属性的值，如果有嵌套对象/数组，那么只会拷贝引用。
-2. 对象（非数组）浅拷贝：`Object.assign({}, oldObj)`对于第二层的对象拷贝的是引用，修改新对象会同时影响老对象。
+2. 对象（非数组）浅拷贝：`Object.assign({}, oldObj)`对于第二层的对象拷贝的是引用，修改新对象会同时影响老对象。**不能复制原型链上的属性和不可枚举的属性**
 
 ```js
 var outObj = {
@@ -798,6 +808,25 @@ console.log(newObj);
 // inObj: {a: 2, b: 2}
 // inObj1: 2
 // inObj2: "ZXc"
+
+// 不能复制原型链上的属性和不可枚举的属性
+let someObj = {
+	a: 2,
+};
+let obj = Object.create(someObj, {
+	// 不显示声明enumerable的话就是false
+	b: {
+		value: 2,
+	},
+	c: {
+		value: 3,
+		writable: true,
+		enumerable: true,
+		configurable: true,
+	},
+});
+let objCopy = Object.assign({}, obj);
+console.log(objCopy); // { c: 3 }
 ```
 
 1. 自己实现浅拷贝：
@@ -814,7 +843,7 @@ for (let key in obj) {
 
 ### 深拷贝
 
-1. 「深」拷贝：`JSON.parse(JSON.stringify(arr));`--不能拷贝函数会丢失 undefined 的属性。
+1. 「深」拷贝：`JSON.parse(JSON.stringify(arr));`--不能拷贝函数，且会丢失为 undefined 的属性。不能用于复制用户定义的对象方法。
 
 2. 手动实现深拷贝：
 

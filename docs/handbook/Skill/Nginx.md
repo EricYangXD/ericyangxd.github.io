@@ -233,3 +233,43 @@ location ~ .*\.(htm|html)?$ {
 每次修改了动态的内容，缓存却没过期，这样就必须手动清理缓存了。于是尝试使用`nginx`+`ngx_cache_purge`模块。
 
 需要下载 NGINX 源码和模块源码进行编译，参考[这里](https://www.henghost.com/zixun/7981/)
+
+### Nginx 同域名不同前缀，访问不同前后端项目
+
+在一台 NGINX 机器上通过多端口多域名来配置实现同时跑多个项目。
+
+```nginx
+server {
+  # 这里默认监听80端口，可根据项目需要自行设置需要监听的端口号
+  listen 80;
+  server_name 此处填写项目发布的域名或者ip地址;
+
+  location / {
+    root 此处填写前端项目文件路径（默认访问的前端项目一的路径）;
+    index index.html index.htm;
+  }
+
+  # 这里因为每个server只能有一个root 所以在根目录默认有root之后，
+  # 可以通过alias来配置其他文件路径
+  # ex: http://www.xxx.com:xxx/unst/#/xxx,
+  # 将/unst这个前置在页面跳转时加入url的#号之前即可
+  location /unst {
+    alias 此处填写前端项目文件路径（前端项目二的路径）;
+    index index.html index.htm;
+  }
+
+	# 前端项目一对应的后端服务一的跳转配置
+	location /st/ {
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass http://127.0.0.1:8089;
+  }
+
+  # 前端项目二对应的后端服务二的跳转配置
+  location /un/ {
+    proxy_pass http://127.0.0.1:8091;
+  }
+}
+```

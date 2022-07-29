@@ -17,14 +17,14 @@ meta:
 2. 脚手架版本：`ng version`
 3. 创建新项目：`ng new ng-test --minimal --inlineTemplate --inlineStyle false`
 
-   - –skipGit=true 自动初始化 Git 仓库
-   - –minimal=true 不创建 test 测试文件
-   - –skip-install 跳过自动安装依赖
-   - –style=css cssloader 类型
-   - –routing=false 路由
-   - –inlineTemplate 模板是否分开为单独文件
-   - –inlineStyle 样式文件是否单独分开
-   - –prefix 修改 module 名称
+   - –-skipGit=true 自动初始化 Git 仓库
+   - –-minimal=true 不创建 test 测试文件
+   - –-skip-install 跳过自动安装依赖
+   - –-style=css cssloader 类型
+   - -–routing=false 路由
+   - –-inlineTemplate 模板是否分开为单独文件
+   - -–inlineStyle 样式文件是否单独分开
+   - –-prefix 修改 module 名称
 
 4. 启动项目：`ng serve --open --hmr`
 
@@ -37,6 +37,74 @@ meta:
 6. 创建共享组件：`ng g c component_name`，可以指定路径
 7. 创建服务：`ng g s service_name`，可以指定路径
 8. 创建指令：`ng g d directive_name`，可以指定路径
+9. 常用命令总结:
+
+| 命令                             | 描述               |
+| -------------------------------- | ------------------ |
+| `ng generate <type> [options]`   | 在项目中构建新代码 |
+| `ng g <type 的首字母> [options]` | 简写               |
+
+| 支持的类型  | 用法                                                                                              |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| component   | ng g c <组件名称>                                                                                 |
+| service     | ng g s <服务名称>                                                                                 |
+| module      | ng g m <模块名称>                                                                                 |
+| pipe        | ng g p <管道名称>                                                                                 |
+| directive   | ng g d <指令名称>                                                                                 |
+| interface   | ng g i <接口名称>                                                                                 |
+| enum        | ng g e <枚举名称>                                                                                 |
+| class       | ng g c <类型名称> （注：该命令功能与 component 相同）                                             |
+| guard       | ng g g <路由守卫名称>                                                                             |
+| interceptor | ng g interceptor <拦截器名称> （注：这里 interceptor 无法简写成 i，因为会被识别为接口             |
+| library     | ng g library <库名称> （注：这里名称就是单独的库名称，名称前面无法指定路径，且 library 无法简写） |
+
+- 构建的组件都会使用自用目录,除非使用 --flat 单独指定
+- 构建的模块可使用 --routing 同时创建对应模块的路由
+
+```bash
+# 创建angular项目
+ng new <项目名称>
+# 创建带有路由，样式为less，不自动安装依赖的angular项目，后续需要手动npm install安装依赖
+ng new <项目名称> --routing --style=less --skip-install
+# 若创建项目时没有使用--routing，可以使用以下命令添加根路由
+ng g m app-routing --flat --module=app
+# 使用--createApplication=false 不会创建根应用，也就是不会有初始化的src目录，包括app.component等文件
+ng new <项目名称> --createApplication=false
+
+# 创建angular组件，组件名称前面可添加路径
+ng generate component <组件名称>
+# 简写
+ng g c <组件名称>
+
+ng g c components/home
+
+# 创建angular服务，服务名称前面可添加路径
+ng generate service <服务名称>
+# 简写
+ng g s <服务名称>
+
+# 创建angular模块，模块名称前面可添加路径
+ng generate module <模块名称>
+# 简写
+ng g m <模块名称>
+
+# 这里使用--routing 可以创建对应模块的路由
+ng g m modules/registry --routing
+# 若没有使用--routing，可以使用以下命令添加对应模块的路由路由
+ng g m modules/registry/registry-routing --flat --module=./registry
+ng g c modules/registry
+ng g c modules/registry/components/hello
+
+ng g library tables
+```
+
+library 命令注意事项:
+
+- 使用 library 命令，会创建一个 projects 文件目录，tables 库会出现在该目录中
+- 在 angular.json 文件，projects 会对应增加 tables 库的配置项。
+- newProjectRoot 默认值是 projects，也就是命令生成的 library 都会放在这个 projects 目录，我们可以修改这个值，下次使用命令生成 library 就会对应放在我们指定的目录中。
+- projectType 用来区别 application 和 library 类型。
+- 在 package.json 配置 scripts，使用 npm run build:tables 命令打包对应的库。
 
 ```ts
 // main.ts
@@ -151,6 +219,102 @@ export class AppComponent {}
 
 ### 组件通信
 
+#### 父到子
+
+1. 子组件中通过`@Input`声明要接收的属性名称和初始值，然后在调用子组件时通过`[propertyName]="xxx"`的形式通信，xxx 是动态变量时 propertyName 需要`[]`,否则 propertyName 不需要`[]`。
+
+#### 子到父
+
+1. 子组件中通过`@Output`声明一个`new EventEmitter()`实例`change`，这个`change`就是父组件上要监听的事件，然后声明一个回调函数，例如`onChange(){this.change.emit({ name: "张三" });}`，当在子组件触发这个 onChange 函数时，会向父组件 emit 一个`change`事件；
+2. 父组件上对这个`change`事件进行监听，并定义一个回调函数来接收参数，例如：`(change)="onChange($event)"`，通过`$event`接收传递的参数。
+
+### 路由传参
+
+1. url `query传参`: `<a [queryParams]="{ name: 'superman', age: 15 }" >product</a>`
+   - 通过`ActivatedRoute`实例 route 来接收参数：
+   - 1. `this.route.snapshot.queryParams["name"]`
+   - 2. `this.route.snapshot.queryParamMap.get("name")`
+   - 3. `this.route.queryParams.subscribe(...)`
+   - 4. `this.route.queryParamMap.subscribe(...)`
+2. url `path传参`: `<a [routerLink]="['/product', product.title]" >product</a>`
+   - 通过`ActivatedRoute`实例 route 来接收参数：
+   - 1. `this.route.snapshot.params["title"]`
+   - 2. `this.route.snapshot.paramMap.get("title")`
+   - 3. `this.route.params.subscribe(...)`
+   - 4. `this.route.paramMap.subscribe(...)`
+3. js `navigate传参`:
+   - 通过`Router`实例 router 来发送参数：
+   - query: `this.router.navigate(['/product'], {queryParams: {name : 'Eric', age : 22}})`
+   - param: `this.router.navigate(['/news', 'japan']);`
+4. 在路由配置中通过 data 属性传参：
+   - 通过`ActivatedRoute`实例 route 来接收参数：
+   - `this.route.data.subscribe(...)`
+
+```html
+<a
+	[routerLink]="['/product', product.title]"
+	[queryParams]="{ name: 'superman', age: 15 }"
+	>product</a
+>
+```
+
+```ts
+const routes: Routes = [
+	{
+		path: "home",
+		component: HomeComponent,
+		data: {
+			testkey: "testkeykkk",
+		},
+	},
+	// ...
+];
+```
+
+```ts
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+
+@Component({
+	selector: "app-product",
+	template: ` <p>product works!</p> `,
+	styles: [],
+})
+export class ProductComponent implements OnInit {
+	// 注入依赖
+	constructor(private route: ActivatedRoute) {}
+	// 生命周期钩子
+	ngOnInit() {
+		// 路由快照
+		console.log(this.route.snapshot.params["title"]); //第一个商品
+		console.log(this.route.snapshot.queryParams["name"]); //superman
+		// 上面两个都只是只读普通对象
+		//observable对象，非只读，有get/set/getAll 等方法
+		console.log(this.route.snapshot.paramMap.get("title")); // 第一个商品
+		console.log(this.route.snapshot.queryParamMap.get("name")); //superman
+		// 非路由快照的路由信息，他们都是Observable对象
+		// 与上面一一对应,也是只读的
+		this.route.params.subscribe((params) => {
+			console.log(params.title);
+		});
+		this.route.queryParams.subscribe((params) => {
+			console.log(params.name, params.age);
+		});
+		// 非只读的
+		this.route.paramMap.subscribe((params) => {
+			console.log(params.get("title"));
+		});
+		this.route.queryParamMap.subscribe((params) => {
+			console.log(params.get("name"), params.get("age"));
+		});
+	}
+}
+```
+
 ## 使用
+
+### 显示 html
+
+通过绑定属性 innerHTML 来显示 html 片段。eg.`<div [innerHTML]="innerHTML"></div>`
 
 ## 技巧

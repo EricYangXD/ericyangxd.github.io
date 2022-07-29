@@ -200,8 +200,11 @@ module.exports = {
 			},
 			{
 				title: "CSS",
-				// path: "/handbook/CSS/CSS",
-				children: [{ title: "CSS", path: "/handbook/CSS/CSS" }],
+				path: "/handbook/CSS/CSS1",
+				children: [
+					{ title: "CSS", path: "/handbook/CSS/CSS1" },
+					{ title: "CSS", path: "/handbook/CSS/CSS2" },
+				],
 			},
 			{
 				title: "AntDesign",

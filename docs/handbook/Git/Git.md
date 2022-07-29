@@ -292,13 +292,13 @@ eg.
 
 ### git 是如何存储信息的
 
-查看.git/objects 目录：
+查看`.git/objects` 目录：
 
-1. 当使用 git add 命令把文件加入暂存区时，git 会根据这个对象的内容计算出 SHA-1 值
-2. git 接着会用 SHA-1 值的前 2 个字符作为目录名称（避免让.git/objects 目录因为文件过多而降低读取效率），后 38 个字符作为文件名，创建目录及文件并放在.git/objects 目录下
+1. 当使用 `git add` 命令把文件加入暂存区时，git 会根据这个对象的内容计算出 SHA-1 值
+2. git 接着会用 SHA-1 值的前 2 个字符作为目录名称（避免让`.git/objects` 目录因为文件过多而降低读取效率），后 38 个字符作为文件名，创建目录及文件并放在`.git/objects` 目录下
 3. 文件的内容则是 git 使用压缩算法把原本的内容压缩之后的结果（二进制 blob 文件）
 4. git commit 存储的是：打包前存储的是全新文件，打包后使用了类似差异备份的方式进行存储
-5. 当.git/objects 目录下对象过多时会自动触发资源回收，或者 git push 到远端服务器时，也可通过`git gc`手动触发
+5. 当`.git/objects` 目录下对象过多时会自动触发资源回收，或者 git push 到远端服务器时，也可通过`git gc`手动触发
 
 ## 开启 ssr 之后无法从 GitHub 下载项目
 
@@ -320,3 +320,8 @@ git config --global https.proxy http://127.0.0.1:port
    3. `git commit -m "Add design file"`
    4. `git push origin master`
 5. 请注意，定义 Git LFS 应该跟踪的文件类型本身不会将任何预先存在的文件转换为 Git LFS，例如其他分支上的文件或您之前的提交历史记录中的文件。为此，请使用 `git lfs migrate` 命令，该命令具有一系列选项，旨在适应各种潜在用例。
+
+## git 拉代码出问题
+
+1. 换掉 Git 的 http 版本: `git config --global http.version HTTP/1.1`
+2. 更改 http buffer: `git config --global http.postBuffer 524288000`

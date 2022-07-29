@@ -1082,8 +1082,8 @@ export const toFixed = function (number, decimalLength = 0) {
 ## Object
 
 - 栈内存 用来储存基本类型，以及引用类型的指针，堆内存 用来储存引用类型数据。
-- 深拷贝: JSON.parse(JSON.stringify());
-- 浅拷贝: Object.assign()
+- 深拷贝: JSON.parse(JSON.stringify())。
+- 浅拷贝: Object.assign()，只能拷贝第一层属性，如果第一层属性是个对象，那么会拷贝这个对象的引用。
 
 ### 继承
 
