@@ -127,7 +127,7 @@ PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名�
   3. 检查一下要从远程仓库转移的提交，获取它的哈希值：`git log target/master`
   4. 使用 git cherry-pick 命令转移提交：`git cherry-pick <commitHash>`
 
-## 修改 Git commit msg
+## 修改 git commit msg
 
 1. 修改最近一次的 commit 信息 git commit --amend
 2. git reset --soft HEAD^ 重新提交
@@ -157,7 +157,7 @@ git rebase -i HEAD~3
 
 提交记录
 
-### gitignore
+### .gitignore
 
 为.gitignore 文件提供语法支持，远程下载.gitignore 模板
 
@@ -325,3 +325,72 @@ git config --global https.proxy http://127.0.0.1:port
 
 1. 换掉 Git 的 http 版本: `git config --global http.version HTTP/1.1`
 2. 更改 http buffer: `git config --global http.postBuffer 524288000`
+
+## git submodule
+
+当项目比较复杂，部分代码希望独立为子模块进行版本控制时，可以使用 git submodule 功能。另一个有用的场景是：当项目依赖并跟踪一个开源的第三方库时，将第三方库设置为 submodule。
+
+使用 git submodule 功能时，主项目仓库并不会包含子模块的文件，只会保留一份子模块的配置信息及版本信息，作为主项目版本管理的一部分。或者说 git 不会主动/自动帮我们把子模块的代码下载到本地。
+
+### git submodule 练习
+
+假定我们有两个项目：project-main 和 project-sub-1，其中 project-main 表示主项目，而 project-sub-1 表示子模块项目。
+
+接下来，我们希望在 project-main 中添加 project-sub-1 ，而又保持 project-sub-1 自身独立的版本控制。
+
+一种选择是使用 git submodule。
+
+1. 创建 submodule：`git submodule add <submodule_url>`可以在项目中创建一个子模块。
+
+   - 此时项目仓库中会多出两个文件：.gitmodules 和 project-sub-1 。
+   - 前者的内容是子模块的相关信息；而后者实际上保存的是子模块当前版本的版本号信息。
+   - 比如需要修改子模块默认使用的分支，那么可以在.gitmodules 中修改 branch
+   - 如果此前项目中已经存在 .gitmodules 文件，则会在文件内容中多出上述三行记录：`submodule、path、url`。
+   - 通常此时可以在主项目中使用 `git commit -m "add submodule xxx"` 提交一次，表示引入了某个子模块。提交后，在主项目仓库中，会显示出子模块文件夹，并带上其所在仓库的「版本号」。
+   - 上述步骤在创建子模块的过程中，会自动将相关代码克隆到对应路径，但对于后续使用者而言，对于主项目使用普通的 clone 操作并不会拉取到子模块中的实际代码。
+   - 如果希望子模块代码也获取到，一种方式是在克隆主项目的时候带上参数 `--recurse-submodules`，这样会递归地将项目中所有子模块的代码拉取。
+
+2. 获取 submodule：`git clone https://github.com/username/project-main.git --recurse-submodules`
+
+   - 另外一种可行的方式是，在当前主项目中执行：`git submodule init`，`git submodule update`
+
+3. 子模块内容的更新：对于子模块而言，并不需要知道引用自己的主项目的存在。对于自身来讲，子模块就是一个完整的 Git 仓库，按照正常的 Git 代码管理规范操作即可。
+
+4. 对于主项目而言，子模块的内容发生变动时，通常有三种情况：
+
+   - 1. 当前项目下子模块文件夹内的内容发生了未跟踪的内容变动；这时进入子模块文件夹，按照子模块内部的版本控制体系提交代码即可。
+   - 2. 当前项目下子模块文件夹内的内容发生了版本变化；可以使用 `git add/commit` 将其添加到主项目的代码提交中，实际的改动就是那个子模块 文件 所表示的版本信息，通常当子项目更新后，主项目修改其所依赖的版本时，会产生类似这种情景的 commit 提交信息。
+   - 3. 当前项目下子模块文件夹内的内容没变，但是子模块远程有更新；此时「当前主项目记录的子模块版本」还没有变化，在主项目看来当前情况一切正常。此时，需要让主项目主动进入子模块拉取新版代码，进行升级操作-`git pull origin master`。当主项目的子项目特别多时，可能会不太方便，此时可以使用 `git submodule` 的一个命令 foreach 执行：`git submodule foreach 'git pull origin master'`
+
+5. 情况汇总:
+
+   - 对于子模块，只需要管理好自己的版本，并推送到远程分支即可；
+   - 对于父模块，若子模块版本信息未提交，需要更新子模块目录下的代码，并执行 commit 操作提交子模块版本信息；
+   - 对于父模块，若子模块版本信息已提交，需要使用 `git submodule update` ，Git 会自动根据子模块版本信息更新所有子模块目录的相关代码。
+
+6. 主项目可以使用 `git submodule update` 更新子模块的代码，但那是指 「当前主项目文件夹下的子模块目录内容」 与 「当前主项目记录的子模块版本」 不一致时，会参考后者进行更新。
+
+7. 删除子模块
+
+   - 先使用 `git submodule deinit` 命令卸载一个子模块。这个命令如果添加上参数 `--force`，则子模块工作区内即使有本地的修改，也会被移除。该命令的实际效果，是自动在 .git/config 中删除了以下内容：`submodule、url...`
+   - 然后执行`git rm project-sub-1`移除 project-sub-1 文件夹，并自动在 .gitmodules 中删除了以下内容：`submodule、path、url`。
+   - 此时，主项目中关于子模块的信息基本已经删除（虽然貌似 .git/modules 目录下还有残余）：执行`git commit -m ...`提交代码，完成对子模块的删除。
+   - 网上流传了一些偏法，主要步骤是直接移除模块，并手动修改 `.gitmodules`、`.git/config` 和 `.git/modules` 内容。包含了一大堆类似`git rm --cached <sub-module>`、`rm -rf <sub-moduel>`、`rm .gitmodules` 和 `git rm --cached` 之类的代码。
+
+8. submodule 管理起来不够灵活，可以使用 lerna 进行管理。
+
+9. 除了 submodule，还有个方法还可以的，就是 mklink（windows 是 mklink，Linux 是 `ln -s /path/to/src/origin /path/to/dst/target`，删除`rm -rf target`，修改`ln -snf [源文件或目录] [目标文件或目录]`），就是等于把子模块复制一份到主模块中，两边所有的修改都会自动同步。 `mklink /d/j sub-module ..\sub-module\`
+
+10. 第 2 步中的简写`git submodule update --init --recursive`
+
+11. 更换 submodule 的 url 也就是把 submodule 的 git 切换到另一个仓库：
+
+    - 1. 在子仓库中运行 git remote set-url origin xx.git 属于直接更换远程仓库
+    - 2. 在主目录.gitsubmodule 文件中，直接修改 url=xx.git
+
+12. 不 cd 进子模块，直接在主项目中拉取指定子模块更新的代码：
+
+    - 1. `git submodule update --init --recursive` 递归
+    - 2. 在.gitsubmodule 文件中把其他不需要更新的模块先注释掉然后使用命令：`git submodule update --recusive`
+
+13. 把子模块添加到指定目录：在第一次拉取的时候使用这个命令`git add submodule -f xxxx.git [目标路径]`，一定要用-f，表示强制

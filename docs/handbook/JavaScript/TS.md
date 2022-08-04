@@ -10,6 +10,18 @@ date: "2021-12-29"
 
 TS 是 JS 的超集。
 
+类型决定了变量的内存大小和可以对它进行的操作，保证对什么类型只做什么操作就叫做类型安全，而保证类型安全的方式就是类型检查。
+
+类型检查可以在运行时做，叫做动态类型检查，也可以在编译时做，叫做静态类型检查。
+
+动态类型可能藏在代码里的隐患太多了，bug 率比较高，所以大型项目注定会用静态类型语言来开发。
+
+JavaScript 本身是一门动态类型语言，因为被越来越多的用来开发各种大型项目，所以就有了对静态类型的需求。TypeScript 就满足了这个需求。而且还有额外的更好的提示、更易于重构的好处。
+
+TypeScript 给 JavaScript 增加了一套静态类型系统，通过 TS Compiler 编译为 JS，编译的过程做类型检查。
+
+它并没有改变 JavaScript 的语法，只是在 JS 的基础上添加了类型语法，所以被叫做 JavaScript 的超集。
+
 ### 要解决什么问题
 
 1. 为 JavaScript 提供可选的类型系统
@@ -246,6 +258,7 @@ type Mutable<T> = {
 ## & 交叉类型 extends
 
 - 与
+- 同一类型可以合并，不同的类型没法合并，会被舍弃：`type res='a'&2; // type res=never`
 
 ## | 联合类型
 
@@ -293,6 +306,8 @@ export {};
 ```
 
 ## 使用泛型时用 extends 进行类型约束
+
+条件类型是 `extends ? :`，这里的 extends 是约束的意思。
 
 ```ts
 function test<T extends number | string, Y extends number | string>(
@@ -420,6 +435,8 @@ type MutableRequired<T> = {
 
 infer: 在 extends 条件语句中待推断的类型变量。在类型前加一个关键字前缀 infer，TS 会将推导出的类型自动填充进去。
 
+如何提取类型的一部分呢？答案是 infer。
+
 ```ts
 // 需要获取到 Promise 类型里蕴含的值
 type PromiseVal<P> = P extends Promise<infer INNER> ? INNER : P;
@@ -509,6 +526,10 @@ type A = typeof a; // A的类型是 number
 ```
 
 ### 泛型
+
+泛型的英文是 Generic Type，通用的类型，它可以代表任何一种类型，也叫做类型参数。
+
+它给类型系统增加了一些灵活性，在整体比较固定，部分变量的类型有变化的情况下，可以减少很多重复代码。
 
 泛型的写法就是在标志符后面添加尖括号`<>`，然后在尖括号里写形参，并在 body（函数体， 接口体或类体） 里用这些形参做一些逻辑处理。
 
@@ -796,3 +817,33 @@ fx2 = fx1; // error 不安全的 Type '() => Animal' is not assignable to type '
 6. 双向协变：
    - 在老版本的 TS 中，函数参数是双向协变的。也就是说，既可以协变又可以逆变，但是这并不是类型安全的。
    - 在新版本 TS (2.6+) 中 ，你可以通过开启 `strictFunctionTypes` 或 `strict` 来修复这个问题。设置之后，函数参数就不再是双向协变的了。
+
+## 3 种类型系统
+
+1. 简单类型系统
+2. 支持泛型的类型系统 JAVA
+3. 支持类型编程的类型系统 TS
+
+TypeScript 的类型系统是图灵完备的，也就是能描述各种可计算逻辑。简单点来理解就是循环、条件等各种 JS 里面有的语法它都有，JS 能写的逻辑它都能写。
+
+## ts 类型
+
+1. JS 基本类型：null, undefined, number, string, boolean, object, symbol, bigint
+2. 其他类型：Array, class
+3. 新增三种复合类型：元组（Tuple）、接口（Interface）、枚举（Enum）
+4. 对象类型、class 类型在 TypeScript 里叫做索引类型
+5. 支持字面量做为类型
+6. TypeScript 类型系统也支持通过 readonly、？等修饰符对属性的特性做进一步的描述。
+7. TypeScript 支持条件、推导、联合、交叉等运算逻辑，还有对联合类型做映射。
+
+8. 四种特殊的类型：void、never、any、unknown
+
+- never 代表不可达，比如函数抛异常的时候，返回值就是 never。
+- void 代表空，可以是 undefined 或 never。
+- any 是任意类型，任何类型都可以赋值给它，它也可以赋值给任何类型（除了 never）。
+- unknown 是未知类型，任何类型都可以赋值给它，但是它不可以赋值给别的类型。
+
+5. 传入类型参数，经过一系列类型运算逻辑后，返回新的类型的类型就叫做高级类型。高级类型的特点是传入类型参数，经过一系列类型运算逻辑后，返回新的类型。
+6. 对象、class 在 TypeScript 对应的类型是索引类型（Index Type），对索引类型作修改通过映射类型。映射类型就相当于把一个集合映射到另一个集合，这是它名字的由来。除了值可以变化，索引也可以做变化，用 as 运算符，叫做重映射。
+7. `& string`: 因为索引类型（对象、class 等）可以用 string、number 和 symbol 作为 key，这里 keyof T 取出的索引就是 string | number | symbol 的联合类型，和 string 取交叉部分就只剩下 string 了。就像前面所说，交叉类型会把同一类型做合并，不同类型舍弃。
+8. 

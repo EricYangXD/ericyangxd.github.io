@@ -251,3 +251,8 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 13. 阿里云盘
 14. Chrome
 15. 搜狗输入法
+
+
+## 安装虚拟机
+
+[参考这里](https://blog.csdn.net/Rockandrollman/article/details/123118778)
