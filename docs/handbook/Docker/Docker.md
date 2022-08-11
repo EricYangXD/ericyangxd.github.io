@@ -235,4 +235,18 @@ $ docker build -t fe-app .
 $ docker run -it --rm fe-app
 ```
 
+
+## MAC彻底删除docker
+解决docker一直starting的问题。
+
+安装docker for mac之后，直接在应用程序将docker卸载了，再次安装的时候发现docker启动不了，一直处于"docker is starting"状态，这时候需要彻底卸载docker。
+
+如果使用docker.dmg或者`brew cask install docker`安装的docker，需要删除`/usr/local/bin/docker`文件夹下docker的组件：
+
+命令：`rm -rf /usr/local/bin/docker*` （谨慎使用）
+
+或者手动进入`/usr/local/bin/`文件夹下删除相关文件（推荐）。
+
+再次安装docker就启动就正常了。
+
 ## Learn Docker

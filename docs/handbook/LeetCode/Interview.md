@@ -2408,7 +2408,7 @@ activated(){
    - 字符串模拟。
    - `bignumber.js`第三方库: 解决大数的问题。原理是把所有数字当作字符串，重新实现了计算逻辑，缺点是性能比原生差很多。
    - `0.10000000000000000555.toPrecision(16);`// 原生 API，做精度运算，超过的精度会自动做凑整处理，返回字符串。使用 toPrecision 凑整并 parseFloat 转成数字后再显示
-   - `Math.js`、`BigDecimal.js`
+   - `Math.js`、`BigDecimal.js`、`big.js`、`Decimal.js(据说计算基金净值比较快)`
    - 对于运算类操作，如 `+-*/`，就不能使用 toPrecision 了。正确的做法是把小数转成整数后再运算。以加法为例：
 
 ```js
