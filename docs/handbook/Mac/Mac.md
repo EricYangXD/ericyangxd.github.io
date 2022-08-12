@@ -239,7 +239,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 1. MacZip 永久免费的解压软件，比自带的强
 2. uTools 超强工具
 3. magnet 分屏
-4. ShadowsocksX-NG、clash 等
+4. ShadowsocksX-NG、clash、clashX 等
 5. CleanMyMac
 6. Office365
 7. Adobe Acrobat Reader DC
