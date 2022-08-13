@@ -14,3 +14,9 @@ meta:
 ## 去除 VScode 编写 markdown 时的警告
 
 `command + ,`打开设置，搜索「markdown」，找到*markdownlint*，一般是「语言名称+lint」的形式，点击「Markdownlint：Config」，在 settings.json 中编辑规则即可。比如`"markdownlint.config": {"MD001": false,"MD010": false}`。
+
+## vuepress 运行 blog
+
+1. `node -v: v16.15.0`
+2. `vuepress -v: vuepress/1.9.7 darwin-x64 node-v16.15.0`
+3. `vue --version: @vue/cli 4.5.8`
