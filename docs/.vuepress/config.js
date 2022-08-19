@@ -185,8 +185,12 @@ module.exports = {
 					{ title: "JavaScript", path: "/handbook/JavaScript/JS" },
 					{ title: "co.js", path: "/handbook/JavaScript/Cojs" },
 					{
-						title: "手写函数",
-						path: "/handbook/JavaScript/Function",
+						title: "手写函数1",
+						path: "/handbook/JavaScript/Function1",
+					},
+					{
+						title: "手写函数2",
+						path: "/handbook/JavaScript/Function2",
 					},
 					{
 						title: "包管理工具",
@@ -202,8 +206,8 @@ module.exports = {
 				title: "CSS",
 				path: "/handbook/CSS/CSS1",
 				children: [
-					{ title: "CSS", path: "/handbook/CSS/CSS1" },
-					{ title: "CSS", path: "/handbook/CSS/CSS2" },
+					{ title: "CSS1", path: "/handbook/CSS/CSS1" },
+					{ title: "CSS2", path: "/handbook/CSS/CSS2" },
 				],
 			},
 			{

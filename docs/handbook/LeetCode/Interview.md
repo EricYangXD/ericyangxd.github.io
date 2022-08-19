@@ -2585,3 +2585,23 @@ function arrayToTree(items, rootId) {
 	return result;
 }
 ```
+
+## JavaScript 中 (0, function)(param) 是什么?
+
+1. 逗号操作符: 对它的每个操数求值（从左到右），并返回最后一个操作数的值。
+2. eval 执行的代码环境上下文，通常是局部上下文。直接调用，使用本地作用域。间接调用，使用全局作用域。
+
+```js
+function test() {
+	var x = 2,
+		y = 4;
+	console.log(eval("x + y")); // 直接调用，使用本地作用域，结果是 6
+
+	var geval = eval; // 等价于在全局作用域调用
+	console.log(geval("x + y")); // 间接调用，使用全局作用域，throws ReferenceError 因为`x`未定义
+}
+```
+
+3. `(0,eval)` 属于间接调用，使用的是 全局作用域，this 指向的是全局上下文。
+4. 为什么不用 call / apply 指定全局上下文 window ? 是为预防 call / apply 被篡改后，导致程序运行异常。
+5. 为什么逗号操作符用 0 ? 其实，用其他数字或者字符串也是没问题的。至于为什么用 (0, function) ? 可以说是业界的默认规则。如果硬要说个为什么，可能是 0 在二进制的物理存储方式上，占用的空间较小。

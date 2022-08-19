@@ -235,18 +235,33 @@ $ docker build -t fe-app .
 $ docker run -it --rm fe-app
 ```
 
+## MAC 彻底删除 docker
 
-## MAC彻底删除docker
-解决docker一直starting的问题。
+解决 docker 一直 starting 的问题。
 
-安装docker for mac之后，直接在应用程序将docker卸载了，再次安装的时候发现docker启动不了，一直处于"docker is starting"状态，这时候需要彻底卸载docker。
+安装 docker for mac 之后，直接在应用程序将 docker 卸载了，再次安装的时候发现 docker 启动不了，一直处于"docker is starting"状态，这时候需要彻底卸载 docker。
 
-如果使用docker.dmg或者`brew cask install docker`安装的docker，需要删除`/usr/local/bin/docker`文件夹下docker的组件：
+如果使用 docker.dmg 或者`brew cask install docker`安装的 docker，需要删除`/usr/local/bin/docker`文件夹下 docker 的组件：
 
 命令：`rm -rf /usr/local/bin/docker*` （谨慎使用）
 
 或者手动进入`/usr/local/bin/`文件夹下删除相关文件（推荐）。
 
-再次安装docker就启动就正常了。
+再次安装 docker 就启动就正常了。
+
+1. `/Applications/Docker.app/Contents/MacOS/Docker --uninstall`
+2. To uninstall Docker Desktop from your Mac:
+
+   - From the Docker menu, select Troubleshoot and then select Uninstall.
+   - Click Uninstall to confirm your selection.
+
+3. 进入 docker 的安装目录: `which docker`
+   - `cd /usr/local/bin/`
+   - 删除与docker相关的文件夹
+   - `sudo rm -rf docker*`
+   - `sudo rm -rf com.docker.*`
+   - `sudo rm -rf hub-tool*`
+   - `sudo rm -rf kube*`
+   - `sudo rm -rf vpnkit*`
 
 ## Learn Docker

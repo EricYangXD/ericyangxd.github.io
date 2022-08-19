@@ -745,6 +745,33 @@ declare global {
 11. rootDirs:[]：将多个目录放在一个虚拟目录下，用于运行时
 12. references:[]：引用的其他工程 path、prepend 等
 
+
+## alias别名设置
+
+使用设置别名的方式解决上述问题，两个地方要同时修改，tsconfig使vscode显示不报错,webpack.js使打包编译不报错
+
+```ts
+// 1.修改tsconfig.json
+{
+  "compilerOptions": {
+ 		...
+    "baseUrl": ".",
+    "paths":{
+      "@/*":["src/*"]
+    }
+  },
+  "include": ["./src"]
+}
+
+// 2.修改编译工具配置文件，比如webpack.config.js、rollup.config.js等
+{
+	resolve:{
+		alias:{
+			 '@': path.resolve(__dirname, '..', 'src'),
+		}
+	}
+}
+```
 ## TS 的编译工具
 
 1. 在 webpack.config.js 中，如果使用了 ts-loader，那么可以设置`options.transpileOnly=true`，只做语言转换，不做类型检查，提高打包速度。

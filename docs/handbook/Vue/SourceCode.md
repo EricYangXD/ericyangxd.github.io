@@ -433,3 +433,10 @@ hash 模式下，仅 hash 符号之前的内容会被包含在请求中，如 `w
 - vue 给对象和数组本身都增加了 dep 属性
 - 当给对象新增不存在的属性的时候，就会触发对象依赖的 watcher 去更新
 - 当修改数组索引的时候，就调用数组本身的 splice 方法去更新数组
+
+## v-model
+
+1. v-model 会根据不同的元素来触发不同的事件：
+
+- text 和 textarea 元素使用 input 事件；
+- checkbox / radio 和 select 使用 change 事件；

@@ -14,7 +14,9 @@ date: "2021-05-02"
 
 ## 防抖函数的使用
 
-直接使用 lodash 的 debounce 函数即可。
+1. 若直接在 useEffect()中调用防抖函数，会发现防抖不起作用，原因：useEffect 会在每轮渲染结束后执行，在 state 发生改变时，也会重新执行。因而，这里的 value 每变化一次，debounce 函数就会重新生成一次，其内部逻辑就会执行一次。用 ref 保存一下防抖函数，后面再触发 useEffect 时，就不会生成新的防抖函数了。
+
+2. 直接使用 lodash 的 debounce 函数。通过计数。
 
 ```ts
 const fetchRef = useRef(0);
@@ -40,6 +42,21 @@ const debounceFetcher = React.useMemo(() => {
 
 	return debounce(loadOptions, debounceTimeout);
 }, [xxx, yyy]);
+```
+
+3. 保存这个防抖函数
+
+```js
+import { debounce } from "lodash";
+
+const useMyDebounce = (fun, wait, options) => {
+	const myRef = useRef();
+	if (!myRef.current) {
+		myRef.current = debounce(fun, wait, options);
+	}
+	return myRef.current;
+};
+export default useMyDebounce;
 ```
 
 ## Nignx 使用 njs

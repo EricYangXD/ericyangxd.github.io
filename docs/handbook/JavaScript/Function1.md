@@ -1,5 +1,5 @@
 ---
-title: 记录一些常见的函数实现
+title: 记录一些常见的函数实现1
 author: EricYangXD
 date: "2022-02-09"
 ---
