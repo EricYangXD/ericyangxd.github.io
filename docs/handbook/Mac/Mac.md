@@ -256,3 +256,47 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 ## 安装虚拟机
 
 [参考这里](https://blog.csdn.net/Rockandrollman/article/details/123118778)
+
+
+## 卸载Cisco Anyconnect及重装
+
+### 卸载
+1. `sudo /opt/cisco/anyconnect/bin/vpn_uninstall.sh`
+2. [官网](https://www.cisco.com/c/zh_cn/support/docs/security/anyconnect-secure-mobility-client/116080-productqanda-vpnclients-00.html#anc3)
+
+### 重装
+MAC上Cisco卸载后无法重新安装的解决方法：
+
+1. 打开终端，执行命令：`pkgutil --pkgs|grep com.cisco`
+
+正常情况，会显示下面几行结果（说明Cisco还有下列文件没有被卸载）：
+
+```bash
+com.cisco.pkg.anyconnect.vpn
+com.cisco.pkg.anyconnect.fireamp
+com.cisco.pkg.anyconnect.dart
+com.cisco.pkg.anyconnect.websecurity_v2
+com.cisco.pkg.anyconnect.nvm_v2
+com.cisco.pkg.anyconnect.umbrella
+com.cisco.pkg.anyconnect.iseposture
+com.cisco.pkg.anyconnect.posture
+```
+
+2. 逐条执行命令:实际上就是命令 sudo pkgutil --forget 加第1步中没有卸载干净的文件名
+
+```bash
+sudo pkgutil --forget com.cisco.pkg.anyconnect.vpn
+sudo pkgutil --forget com.cisco.pkg.anyconnect.fireamp
+sudo pkgutil --forget com.cisco.pkg.anyconnect.dart
+sudo pkgutil --forget com.cisco.pkg.anyconnect.websecurity_v2
+sudo pkgutil --forget com.cisco.pkg.anyconnect.nvm_v2
+sudo pkgutil --forget com.cisco.pkg.anyconnect.umbrella
+sudo pkgutil --forget com.cisco.pkg.anyconnect.iseposture
+sudo pkgutil --forget com.cisco.pkg.anyconnect.posture
+```
+
+3. 每个命令执行完显示如下结果，就是正确的: `Forgot package ‘com.cisco.pkg.anyconnect.vpn’ on ‘/’.`
+
+4. 检查是否卸载干净，重新执行命令：`pkgutil --pkgs|grep com.cisco`
+5. 如果没有显示结果，说明已经全部卸载干净；如果还显示形如下面的结果（xxxxxx可以为任何名字）则继续执行`sudo pkgutil --forget com.cisco.pkg.anyconnect.xxxxxx`命令，清除所有未卸载文件: `com.cisco.pkg.anyconnect.xxxxxx`
+6. 清除完所有未卸载文件后即可成功重新安装

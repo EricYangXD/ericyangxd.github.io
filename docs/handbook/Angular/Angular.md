@@ -318,3 +318,34 @@ export class ProductComponent implements OnInit {
 通过绑定属性 innerHTML 来显示 html 片段。eg.`<div [innerHTML]="innerHTML"></div>`
 
 ## 技巧
+
+### 卸载@angular-cli
+
+依次执行以下命令行：
+
+1. `npm uninstall -g angular-cli`
+2. `npm uninstall --save-dev angular-cli`
+3. `npm uninstall -g @angular/cli`
+4. `npm cache verify (低版本npm使用 npm cache clean [--force])`
+5. 然后执行`ng v`, 如果提示`command not found: ng`说明成功卸载，否则看看nvm下的各个版本里是否也有安装cli，依次删除
+6. `npm install -g @angular/cli@7.3.9 (现在推荐使用这个方式安装cli, 而不是npm uninstall -g angular-cli, 如果报错，可以使用cnpm代替npm)`
+
+
+### 安装指定版本@angular-cli
+
+1. 卸载之前的版本 `npm uninstall -g @angular/cli`
+2. 清除缓存，确保卸载干净 `npm cache verify`，在低版本的nodejs里面清除缓存使用的命令是`npm cache clean`
+3. 检查是否卸载干净，输入命令 `ng v`，若显示"command not found"则卸载干净
+4. 全局安装指定版本 `npm install -g @angular/cli@7.3.9`
+5. 检查版本号 `ng v`
+
+### 在Angular项目中运行ngcc/ngc
+
+1. Angular项目的angular.json文件里有这么一行：`"aot": true,`，意思是使用Ivy编译， 即Angular 下一代编译和渲染管道的代号。 `ahead-of-time (AOT) compiler`
+2. 从 Angular 的版本 9 开始，这个新的编译器和运行时指令集就代替了老的编译器和运行时（即视图引擎 View Engine）成为了默认值。
+3. 可以使用通过 View Engine 编译器创建的库来构建 Ivy 应用程序。此兼容性由称为 Angular 兼容性编译器（ ngcc ）的工具提供。CLI 命令在执行 Angular 构建时会根据需要运行 ngcc。
+4. 如果你是库作者，则应从版本 9 之后继续使用 View Engine 编译器。通过让所有库继续使用 View Engine，你将与使用 Ivy 的默认 v9 应用程序以及已选择的应用程序保持兼容性。
+5. ngcc即我们每次`ng serve`时看到的ngcc(worker):...
+6. Angular的AOT编译器会在构建阶段，在浏览器下载并运行这些代码之前，把Angular的HTML和TypeScript代码转换成高效的JavaScript代码。这是生产环境的最佳编译模式，与即时(JIT)编译相比，它可以减少加载时间并提高性能。
+7. 通过使用`ngc`命令行工具编译你的应用，你可以直接引导到模块工厂，所以你不需要在你的JavaScript包中包含Angular编译器。
+

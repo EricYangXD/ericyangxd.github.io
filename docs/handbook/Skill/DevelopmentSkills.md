@@ -355,6 +355,14 @@ Debugger 打断点的方式除了直接在对应代码行单击的普通断点�
    - `nvm uninstall version`
    - `nvm ls`
    - `nvm ls-remote`
+   - `nvm alias default v10.24.1`
+   - `nvm run 6.10.3 app.js`
+   - `nvm --help`
+   - `nvm exec 4.8.3 node app.js`
+   - `nvm set-colors cgYmW`
+   - `to remove, delete, or uninstall nvm - just remove the '$NVM_DIR' folder (usually '~/.nvm')`
+   - `nvm unalias <name>`
+   - `nvm uninstall <version>`
 
 ### npm
 
@@ -463,3 +471,19 @@ echo "My public IP address is: $ip"
 ```
 
 或 `curl cip.cc`
+
+
+## wechat helper
+1. [WeChatExtension-ForMac](https://github.com/MustangYM/WeChatExtension-ForMac)
+
+2. omw (Oh My WeChat) 是[微信小助手](https://github.com/MustangYM/WeChatExtension-ForMac)的安装/更新工具
+
+### 安装
+1. `curl -o- -L https://omw.limingkai.cn/install.sh | bash -s`
+2. `sudo rm -r -f WeChatExtension-ForMac && git clone --depth=1 https://github.com/MustangYM/WeChatExtension-ForMac && cd WeChatExtension-ForMac/WeChatExtension/Rely && ./Install.sh && cd ~`
+
+
+
+### 卸载
+1. `bash <(curl -sL https://git.io/JUO6r)`
+2. `omw un`
