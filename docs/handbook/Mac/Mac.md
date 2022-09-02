@@ -300,3 +300,16 @@ sudo pkgutil --forget com.cisco.pkg.anyconnect.posture
 4. 检查是否卸载干净，重新执行命令：`pkgutil --pkgs|grep com.cisco`
 5. 如果没有显示结果，说明已经全部卸载干净；如果还显示形如下面的结果（xxxxxx可以为任何名字）则继续执行`sudo pkgutil --forget com.cisco.pkg.anyconnect.xxxxxx`命令，清除所有未卸载文件: `com.cisco.pkg.anyconnect.xxxxxx`
 6. 清除完所有未卸载文件后即可成功重新安装
+
+
+## Mac上使用openconnect
+
+> anyconnect有时会无法使用，因为用的握手协议可能有些Mac不支持
+
+1. 安装openconnect：`brew install openconnect`
+2. 执行`sudo openconnect xx.xxx.com --user=useraccount`
+3. 按提示输入开机密码和vpn密码即可
+
+## Mac上使用IPSec
+
+> baidu.com

@@ -16,22 +16,22 @@ Docker 的介绍，里面包括了 3 个基本概念：
 
 2. docker 的运行原理
 
-docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在主机上，通过 socket 从客户端访问。dockerServer 接收到 docker-Client 的指令，就会执行这个命令。
+docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在主机上，通过 socket 从客户端访问。dockerServer 接收到 dockerClient 的指令，就会执行这个命令。
 
 3. docker 的安装
 
-   - homebrew 的 cask 应支持 Docker for Mac,所以可以直接安装 brew cask install docker
-   - 也可以直接到官网下载，https://download.docker.com/mac/stable/Docker.dmg
-   - docker 的参考文档：https://docs.docker.com
-   - dockerhub 查找镜像源地址：https://hub.docker.com
+   - homebrew 的 cask 支持 Docker for Mac，所以可以直接安装 `brew cask install docker`
+   - 也可以直接到官网下载，`https://download.docker.com/mac/stable/Docker.dmg`
+   - docker 的参考文档：`https://docs.docker.com`
+   - dockerhub 查找镜像源地址：`https://hub.docker.com`
 
 ## Docker Daemon
 
-Docker Daemon 是 Docker 架构中运行在后台的守护进程，可分为 Docker Server、Engine 和 Job 三部分。
+- Docker Daemon 是 Docker 架构中运行在后台的守护进程，可分为 Docker Server、Engine 和 Job 三部分。
 
-Docker Daemon 是通过 Docker Server 模块接受 Docker Client 的请求，并在 Engine 中处理请求，然后根据请求类型，创建出指定的 Job 并运行，运行过程的几种可能：向 Docker Registry 获取镜像，通过 graphdriver 执行容器镜像的本地化操作，通过 networkdriver 执行容器网络环境的配置，通过 execdriver 执行容器内部运行的执行工作等。
+- Docker Daemon 是通过 Docker Server 模块接受 Docker Client 的请求，并在 Engine 中处理请求，然后根据请求类型，创建出指定的 Job 并运行，运行过程的几种可能：向 Docker Registry 获取镜像，通过 graphdriver 执行容器镜像的本地化操作，通过 networkdriver 执行容器网络环境的配置，通过 execdriver 执行容器内部运行的执行工作等。
 
-[启动 docker daemon](../../assets/docker-brew.jpg)
+- [启动 docker daemon](../../assets/docker-brew.jpg)
 
 ## Docker 的使用
 
@@ -81,7 +81,7 @@ Docker Daemon 是通过 Docker Server 模块接受 Docker Client 的请求，并
 
 4. 停止 nginx 服务
 
-`docker stop webserver(容器ID)`
+`docker stop webserver(容器id)`
 
 5. 删除 nginx 服务
 
@@ -157,37 +157,38 @@ Docker Daemon 是通过 Docker Server 模块接受 Docker Client 的请求，并
 
 4. 删除容器
 
-- 指定容器：`docker rm [容器 id]`
-- 多个容器：`docker rm 容器 id 容器 id 容器 id`
+- 指定容器：`docker rm [容器id]`
+- 多个容器：`docker rm 容器id 容器id 容器id`
 - 所有容器：`docker rm $(docker ps -aq) docker ps -a -q|xargs docker rm`
 
-注意：不能删除正在运行的容器，要删除正在运行的容器需要加 -f 参数，`docker rm -f 容器 id`
+注意：不能删除正在运行的容器，要删除正在运行的容器需要加 -f 参数，`docker rm -f 容器id`
 
 5. 启动/重启容器
 
-`docker start/restart 容器 id`
+- `docker start/restart 容器id`:只运行container不进入命令行
+- `docker start -i 74cb2f9141728b8`:运行container并进入命令行
 
-6. 停止/强制停止容器
+1. 停止/强制停止容器
 
-`docker stop/kill 容器 id`
+`docker stop/kill 容器id`
 
 7. 查看容器日志
 
-`docker logs -f -t --tail 100 容器 id`
+`docker logs -f -t --tail 100 容器id`
 
 - --tail 后面必须加参数条数
 
 8. 查看容器中的进程信息
 
-`docker top 容器 id`
+`docker top 容器id`
 
 9. 查看容器的元数据（重要命令）
 
-`docker inspect 容器 id`
+`docker inspect 容器id`
 
 10. 从容器上拷贝数据到主机上
 
-`docker cp 容器 id:容器内路径 主机路径`
+`docker cp 容器id:容器内路径 主机路径`
 
 ## Dockerfile 的指令
 
@@ -265,3 +266,8 @@ $ docker run -it --rm fe-app
    - `sudo rm -rf vpnkit*`
 
 ## Learn Docker
+
+### 1.
+### 2.
+### 3.
+### 4.

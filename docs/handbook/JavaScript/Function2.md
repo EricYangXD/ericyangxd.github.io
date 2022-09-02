@@ -245,3 +245,22 @@ const isNode =
 ```javascript
 const isBrowser = typeof window === "object" && typeof document === "object";
 ```
+
+### 正则匹配金额
+
+```javascript
+// 匹配人民币
+let [reg, info, rmb, result] = [
+	/^(￥)(-?[0-9,]+)(\.[0-9]+)?/,
+	["金额", "符号", "整数部分", "小数分部"],
+	["￥10.01", "￥10", "￥1,111.01", "￥1,000,12", "￥0.1", "￥10.00"],
+];
+rmb.forEach((value) => {
+	console.log(
+		"---------------------------------------------------------------------------------"
+	);
+	for (let i = 0, result = reg.exec(value); i < result.length; i++) {
+		console.log(`${info[i]} = ${result[i]}`);
+	}
+});
+```

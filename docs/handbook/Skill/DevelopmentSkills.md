@@ -472,18 +472,46 @@ echo "My public IP address is: $ip"
 
 或 `curl cip.cc`
 
-
 ## wechat helper
+
 1. [WeChatExtension-ForMac](https://github.com/MustangYM/WeChatExtension-ForMac)
 
 2. omw (Oh My WeChat) 是[微信小助手](https://github.com/MustangYM/WeChatExtension-ForMac)的安装/更新工具
 
 ### 安装
+
 1. `curl -o- -L https://omw.limingkai.cn/install.sh | bash -s`
 2. `sudo rm -r -f WeChatExtension-ForMac && git clone --depth=1 https://github.com/MustangYM/WeChatExtension-ForMac && cd WeChatExtension-ForMac/WeChatExtension/Rely && ./Install.sh && cd ~`
 
-
-
 ### 卸载
+
 1. `bash <(curl -sL https://git.io/JUO6r)`
 2. `omw un`
+
+## tar：file-changed-as-we-read-it 报错处理
+
+在使用 tar 命令对 Mysql 的数据目录进行备份打包时出现如下报错：
+
+- command: `tar cvzf mysql.tgz mysql`
+
+- error: `/bin/tar: /path/to/mysql: file changed as we read it`
+
+1. 因为在打包的过程中文件发生了变化，所以导致报错，但是打包依然进行并且有效。需要屏蔽的是文件修改的报错：`file-changed %s: file changed as we read it`，在使用 tar 命令时加上`--warning=no-file-changed`参数即可不输出报错。例：`/bin/tar --warning=no-file-changed -zcvf /path/to/bak/archive.tar.gz \ --exclude '*.pyc' --exclude .git -C /path/to/app target_dir_name`
+2. tar 命令的退出值会有三种情况：
+   - 0 - Successful termination. - 1 - Some files differ. - 2 - Fatal error
+     在返回值为 1 的时候，还有以下情况:
+
+- 当使用 `--compare (--diff, -d)` 调用 tar 命令的时候，表示 tar 包中的文件与磁盘上对应的文件不一致。
+- 当使用`--create, --append or --update`参数时候，表示打包过程中，文件有变化，导致无法打包准确的文件内容。
+  所以当返回值为 1 的时候，可以认为 tar 命令还是能够正确打包完成，只不过可能无法包含最终准确的内容而已，可以认为这个时候 tar 命令结果还是正常的。因此可以通过忽略返回值为 1 的情况，参考以下信息：
+
+```sh
+set +e
+tar -czf sample.tar.gz dir1 dir2
+exitcode=$?
+
+if [ "$exitcode" != "1" ] && [ "$exitcode" != "0" ]; then
+		exit $exitcode
+fi
+set -e
+```

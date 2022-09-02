@@ -1166,6 +1166,55 @@ meta 是文档级元数据元素，用来表示那些不能由其它 HTML 元相
   1. 在 body 上设置`overflow: hidden;`缺点：兼容性问题
   2. 在 body 上设置`position:fixed;height:100%;width:100%;`，缺点：外层页面不会停留在原来的位置而是被置顶。需记录下 scrollTop 的位置，然后通过`scrollTop(0,scrollTop)`恢复
   3. 在 body 上设置`position:fixed;height:100%;width:100%;`；在 body 下的 div 上使用自己的`height:100%;overflow:auto/scroll;`
+  4. `touch-action`: 默认情况下，平移（滚动）和缩放手势由浏览器专门处理，但是可以通过 CSS 特性 `touch-action` 来改变触摸手势的行为。在 popup 元素上设置该属性，禁用元素（及其不可滚动的后代）上的所有手势就可以解决该问题了。`touch-action: none;`(小程序本身好像就不可以缩放)
+     |值 |描述|
+     |--|--|
+     |auto| 启用浏览器处理所有平移和缩放手势。|
+     |none| 禁用浏览器处理所有平移和缩放手势。|
+     |manipulation |启用平移和缩放手势，但禁用其他非标准手势，例如双击缩放。|
+     |pinch-zoom |启用页面的多指平移和缩放。|
+  5. `event.preventDefault`: 在 `touchstart` 和 `touchmove` 事件中调用 `preventDefault` 方法可以阻止任何关联事件的默认行为，包括鼠标事件和滚动。
+     - Step 1. 监听弹窗最外层元素（popup）的 touchmove 事件并阻止默认行为来禁用所有滚动（包括弹窗内部的滚动元素）。
+     - Step 2. 释放弹窗内的滚动元素，允许其滚动：同样监听 touchmove 事件，但是阻止该滚动元素的冒泡行为（stopPropagation），使得在滚动的时候最外层元素（popup）无法接收到 touchmove 事件。
+
+### 滚动溢出
+
+- 表现：弹窗内含有滚动元素，在滚动元素滚到底部或顶部时，再往下或往上滚动，也会触发页面的滚动，这种现象称之为滚动链（scroll chaining）, 但是感觉滚动溢出（overscroll）这个名字更言辞达意。
+- 解决方案：
+- 1. `overscroll-behavior`: 是 CSS 的一个特性，允许控制浏览器滚动到边界的表现。` overscroll-behavior: none;`，缺点是不支持 safari。
+     |值 |描述|
+     |--|--|
+     |auto |默认效果，元素的滚动可以传播到祖先元素。|
+     |contain |阻止滚动链，滚动不会传播到祖先元素，但是会显示节点自身的局部效果。例如 Android 上过度滚动的发光效果或 iOS 上的橡皮筋效果。|
+     |none| 与 contain 相同，但是会阻止自身的过度效果。|
+
+- 2. `event.preventDefault`: 当组件滚动到底部或顶部时，通过调用 `event.preventDefault` 阻止所有滚动，从而页面滚动也不会触发了，而在滚动之间则不做处理。
+
+```js
+let initialPageY = 0;
+
+scrollBox.addEventListener("touchstart", (e) => {
+	initialPageY = e.changedTouches[0].pageY;
+});
+
+scrollBox.addEventListener("touchmove", (e) => {
+	const deltaY = e.changedTouches[0].pageY - initialPageY;
+
+	// 禁止向上滚动溢出
+	if (e.cancelable && deltaY > 0 && scrollBox.scrollTop <= 0) {
+		e.preventDefault();
+	}
+
+	// 禁止向下滚动溢出
+	if (
+		e.cancelable &&
+		deltaY < 0 &&
+		scrollBox.scrollTop + scrollBox.clientHeight >= scrollBox.scrollHeight
+	) {
+		e.preventDefault();
+	}
+});
+```
 
 ### App 唤起
 
