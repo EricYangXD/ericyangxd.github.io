@@ -203,7 +203,25 @@ ssh -v git@8.8.8.8
 
 ## 命令
 
+### id
+
+显示用户身份号
+
+### umask
+
+设置默认的文件权限
+
+### su
+
+以另一个用户的身份来运行 shell
+
+### chgrp
+
+更改文件组所有权
+
 ### chown
+
+更改文件所有者
 
 Linux chown（英文全拼：change owner）命令用于设置文件所有者和文件关联组的命令。
 
@@ -235,6 +253,8 @@ chown -R runoob:runoobgroup \*
 - 查看 Nginx 端口进程：`PS -ef|grep nginx`
 
 ### sudo
+
+以另一个用户的身份来执行命令
 
 1. 以管理员 root 权限运行程序脚本
 2. 获取管理员权限：`sudo su`
@@ -427,7 +447,6 @@ $ sudo timedatectl set-time HH:MM:SS
 6. loginctl
 
 loginctl 命令用于查看当前登录的用户。
-
 
 ```bash
 
