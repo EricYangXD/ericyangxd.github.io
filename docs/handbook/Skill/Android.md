@@ -6,6 +6,8 @@ date: "2022-02-09"
 
 ## 安卓手机安装谷歌服务
 
+### 手动模式
+
 首先必须了解 Google 套件正常运行是由三个基础构建而成：服务框架，账户管理程序，Play 服务。
 
 一般大家用的都是商店为基础，那就再加个 商店 组成四件套。
@@ -20,6 +22,12 @@ date: "2022-02-09"
 4. 安装 商店 Google Play Store。
 
 可以从此处[www.apkmirror.com](https://www.apkmirror.com)下载所需的 APK 及对应版本。
+
+### 自动模式
+
+使用谷歌安装器
+
+1. 点击下载[Go 安装器](/demos/software/GoInstaller.apk)
 
 ## 运行安卓项目
 
