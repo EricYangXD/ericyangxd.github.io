@@ -236,80 +236,38 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 
 ## 好用的软件
 
-1. MacZip 永久免费的解压软件，比自带的强
-2. uTools 超强工具
-3. magnet 分屏
-4. ShadowsocksX-NG、clash、clashX 等
-5. CleanMyMac
-6. Office365
-7. Adobe Acrobat Reader DC
-8. VSCode
-9. iTerm2
-10. ApiFox
-11. Network Lite
-12. webstorm
-13. 阿里云盘
-14. Chrome
-15. 搜狗输入法
-
+1. MacZip 永久免费的解压软件，比自带的强。
+2. BetterZip
+3. uTools 超强工具
+4. magnet 分屏
+5. ShadowsocksX-NG、clash、clashX、openvpn（自建） 等
+6. CleanMyMac
+7. Office365
+8. Adobe Acrobat Reader DC
+9. VSCode
+10. iTerm2
+11. ApiFox
+12. Network Lite
+13. webstorm
+14. 阿里云盘
+15. Chrome
+16. 搜狗输入法
+17. shottr
+18. Movist 视频播放器
+19. 移动硬盘写入驱动：Tuxera NTFS
+20. 系统监控工具：iStat Menus
+21. 看图软件：Xee
 
 ## 安装虚拟机
 
-[参考这里](https://blog.csdn.net/Rockandrollman/article/details/123118778)
+### VirtualBox
 
+免费[参考这里](https://blog.csdn.net/Rockandrollman/article/details/123118778)
 
-## 卸载Cisco Anyconnect及重装
+### Parallels desktop for Mac
 
-### 卸载
-1. `sudo /opt/cisco/anyconnect/bin/vpn_uninstall.sh`
-2. [官网](https://www.cisco.com/c/zh_cn/support/docs/security/anyconnect-secure-mobility-client/116080-productqanda-vpnclients-00.html#anc3)
+需付费，或使用破解版
 
-### 重装
-MAC上Cisco卸载后无法重新安装的解决方法：
+### VMWare Fusion
 
-1. 打开终端，执行命令：`pkgutil --pkgs|grep com.cisco`
-
-正常情况，会显示下面几行结果（说明Cisco还有下列文件没有被卸载）：
-
-```bash
-com.cisco.pkg.anyconnect.vpn
-com.cisco.pkg.anyconnect.fireamp
-com.cisco.pkg.anyconnect.dart
-com.cisco.pkg.anyconnect.websecurity_v2
-com.cisco.pkg.anyconnect.nvm_v2
-com.cisco.pkg.anyconnect.umbrella
-com.cisco.pkg.anyconnect.iseposture
-com.cisco.pkg.anyconnect.posture
-```
-
-2. 逐条执行命令:实际上就是命令 sudo pkgutil --forget 加第1步中没有卸载干净的文件名
-
-```bash
-sudo pkgutil --forget com.cisco.pkg.anyconnect.vpn
-sudo pkgutil --forget com.cisco.pkg.anyconnect.fireamp
-sudo pkgutil --forget com.cisco.pkg.anyconnect.dart
-sudo pkgutil --forget com.cisco.pkg.anyconnect.websecurity_v2
-sudo pkgutil --forget com.cisco.pkg.anyconnect.nvm_v2
-sudo pkgutil --forget com.cisco.pkg.anyconnect.umbrella
-sudo pkgutil --forget com.cisco.pkg.anyconnect.iseposture
-sudo pkgutil --forget com.cisco.pkg.anyconnect.posture
-```
-
-3. 每个命令执行完显示如下结果，就是正确的: `Forgot package ‘com.cisco.pkg.anyconnect.vpn’ on ‘/’.`
-
-4. 检查是否卸载干净，重新执行命令：`pkgutil --pkgs|grep com.cisco`
-5. 如果没有显示结果，说明已经全部卸载干净；如果还显示形如下面的结果（xxxxxx可以为任何名字）则继续执行`sudo pkgutil --forget com.cisco.pkg.anyconnect.xxxxxx`命令，清除所有未卸载文件: `com.cisco.pkg.anyconnect.xxxxxx`
-6. 清除完所有未卸载文件后即可成功重新安装
-
-
-## Mac上使用openconnect
-
-> anyconnect有时会无法使用，因为用的握手协议可能有些Mac不支持
-
-1. 安装openconnect：`brew install openconnect`
-2. 执行`sudo openconnect xx.xxx.com --user=useraccount`
-3. 按提示输入开机密码和vpn密码即可
-
-## Mac上使用IPSec
-
-> baidu.com
+甲骨文开源的。[下载](https://www.ifunmac.com/2022/08/vmware-fusion-22h2/)
