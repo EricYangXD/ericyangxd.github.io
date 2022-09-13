@@ -441,6 +441,158 @@ module.exports = CustomHtmlPlugin;
 
 ## Babel
 
+1. Babel 是一个 JavaScript 编译器。
+2. Babel 是一个工具链，主要用于将采用 ECMAScript 2015+ 语法编写的代码转换为向后兼容的 JavaScript 语法，以便能够运行在当前和旧版本的浏览器或其他环境中。
+   - 语法转换
+   - 通过 Polyfill 方式在目标环境中添加缺失的特性 （通过引入第三方 polyfill 模块，例如 `core-js`）
+   - 源码转换（codemods）
+3. Babel 不做类型检查，你仍然需要安装 Flow 或 TypeScript 来执行类型检查的工作。
+
+### 在项目中使用 babel
+
+1. 安装：`npm install --save-dev @babel/core @babel/cli @babel/preset-env`
+   - Babel 的核心功能包含在 `@babel/core` 模块中。
+   - `@babel/cli` 是一个能够从终端（命令行）使用的工具。
+   -
+2. 在项目的根目录下创建一个命名为 `babel.config.json` 的配置文件:(如果你使用的是 Babel 的旧版本，则文件名为 `babel.config.js`):
+
+```json
+{
+	"presets": [
+		[
+			"@babel/preset-env",
+			{
+				"targets": {
+					"edge": "17",
+					"firefox": "60",
+					"chrome": "67",
+					"safari": "11.1"
+				},
+				"useBuiltIns": "usage",
+				"corejs": "3.6.5"
+			}
+		]
+	]
+}
+```
+
+```js
+const presets = [
+	[
+		"@babel/preset-env",
+		{
+			targets: {
+				edge: "17",
+				firefox: "60",
+				chrome: "67",
+				safari: "11.1",
+			},
+			useBuiltIns: "usage", // 只引入用到的/需要的polyfill
+			corejs: "3.6.4",
+		},
+	],
+];
+module.exports = { presets };
+```
+
+3. 运行此命令将 src 目录下的所有代码编译到 lib 目录：
+
+```shell
+./node_modules/.bin/babel src --out-dir lib
+```
+
+这将解析 src 目录下的所有 JavaScript 文件，并应用我们所指定的代码转换功能，然后把每个文件输出到 lib 目录下。由于我们还没有指定任何代码转换功能，所以输出的代码将与输入的代码相同（不保留原代码格式）。我们可以将我们所需要的代码转换功能作为参数传递进去。
+
+可以通过 `--help` 参数来查看命令行工具所能接受的所有参数列表。但是现在对我们来说最重要的是 `--plugins` 和 `--presets` 这两个参数。
+
+你可以利用 `npm@5.2.0` 所自带的 npm 包运行器将 `./node_modules/.bin/babel` 命令缩短为 `npx babel`。
+
+4. 需要使用相应的插件，来对代码进行转换，例如将代码中的所有箭头函数（arrow functions）都转换为 ES5 兼容的函数表达式：
+
+```shell
+npm install --save-dev @babel/plugin-transform-arrow-functions
+
+./node_modules/.bin/babel src --out-dir lib --plugins=@babel/plugin-transform-arrow-functions
+```
+
+5. 我们不需要一个接一个地添加所有需要的插件，我们可以使用一个 "preset" （即一组预先设定的插件）。就像插件一样，你也可以根据自己所需要的插件组合创建一个自己的 preset 并将其分享出去。对于当前的用例而言，我们可以使用一个名称为 `env` 的 preset，即`@babel/preset-env`。
+
+```shell
+npm install --save-dev @babel/preset-env
+
+./node_modules/.bin/babel src --out-dir lib --presets=@babel/env
+```
+
+如果不进行任何配置，上述 preset 所包含的插件将支持所有最新的 JavaScript （ES2015、ES2016 等）特性。但是 preset 也是支持参数的。
+
+**我们来看看另一种传递参数的方法：配置文件，而不是通过终端控制台同时传递 cli 和 preset 的参数。**
+
+根据你的需要，可以通过几种不同的方式来使用配置文件。
+
+6. 如上第 2 步中所示，首先创建一个名为 babel.config.json 的文件（需要 v7.8.0 或更高版本），并包含 presets 字段及相应配置。此时，名为 `env` 的 preset 只会为目标浏览器中没有的功能加载转换插件。
+
+7. 从 `Babel 7.4.0` 版本开始，这个软件包`@babel/polyfill`已经不建议使用了，建议直接包含 `core-js/stable` （用于模拟 ECMAScript 的功能）。
+
+`@babel/polyfill` 模块包含 `core-js` 和一个自定义的 `regenerator runtime` 来模拟完整的 ES2015+ 环境。`npm install --save @babel/polyfill`，这个 lib 包含所有 js 的新特性，所以如果你确切知道你需要的是哪个特性，那么可以直接从`core-js`中引入，或者使用插件`babel-plugin-transform-runtime`。
+
+8. 如果我们不使用将 "useBuiltIns" 参数设置为 "usage" （默认值是 "false"）的 env 预设的话，那么我们必须在所有代码之前利用 require 加载一次完整的 polyfill。比如可以在`main.js`中引入`import "core-js/stable";`（适用于`Babel 7.4.0` 版本以后）。
+
+9. 总结：我们使用 `@babel/cli` 从终端运行 Babel，利用 `@babel/polyfill` 来模拟所有新的 JavaScript 功能，而 `env` preset 只对我们所使用的并且目标浏览器中缺失的功能进行代码转换和加载 polyfill。
+
+10. 配置插件和预设时最好写全名称：加上`preset- or plugin-`。
+
+11. 官方提供的预设，我们已经针对常用环境编写了一些预设（preset）：
+
+    - @babel/preset-env for compiling ES2015+ syntax
+    - @babel/preset-typescript for TypeScript
+    - @babel/preset-react for React
+    - @babel/preset-flow for Flow
+
+12. 如需创建一个自己的预设（无论是为了本地使用还是发布到 npm），需要导出（export）一个配置对象。也可以是返回一个插件数组。preset 可以包含其他的 preset，以及带有参数的插件。Preset 是逆序排列的（从后往前执行）。
+
+```javascript
+// 1.
+module.exports = function () {
+	return {
+		plugins: ["pluginA", "pluginB", "pluginC"],
+	};
+};
+// 2.
+module.exports = () => ({
+	presets: [require("@babel/preset-env")],
+	plugins: [
+		[require("@babel/plugin-proposal-class-properties"), { loose: true }],
+		require("@babel/plugin-proposal-object-rest-spread"),
+	],
+});
+// 3. 如果不指定参数，下面这几种形式都是一样的：
+{
+  "presets": [
+    "presetA", // bare string
+    ["presetA"], // wrapped in array
+    ["presetA", {}] // 2nd argument is an empty options object
+  ]
+}
+// 4. 要指定参数，请传递一个以参数名作为键（key）的对象。
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "loose": true,
+        "modules": false
+      }
+    ]
+  ]
+}
+```
+
+13. 插件顺序：如果两个转换插件都将处理“程序（Program）”的某个代码片段，则将根据转换插件或 preset 的排列顺序依次执行。
+    - 插件在 Presets 前运行。
+    - 插件顺序从前往后排列。
+    - Preset 顺序是颠倒的（从后往前）。
+    - 插件参数同 preset 设置的形式一样，也是那三种形式：`{"plugins": ["pluginA", ["pluginB"], ["pluginC", {}]]}`。
+
 ### babel.config.js 与 babelrc.js 的区别
 
 1. babelrc 只会影响本项目中的代码
@@ -452,8 +604,9 @@ module.exports = CustomHtmlPlugin;
 转换 ES6 语法成 ES5 的语法。
 
 ```js
+// babelrc.js
 module.exports = {
-	{presets: [
+	presets: [
 		[
 			"@babel/env",
 			{
@@ -471,10 +624,14 @@ module.exports = {
 				modules: "auto", // "amd" | "umd" | "systemjs" | "commonjs" | "cjs" | "auto" | false,defaults to "auto".
 			},
 		],
-	]},
+	],
 	plugins: [],
 };
 ```
+
+### @babel/preset-typescript
+
+`npm install --save-dev @babel/preset-typescript`
 
 ## Loader
 
@@ -515,7 +672,67 @@ module.exports = function (source) {
 
 ### ts-loader
 
-处理.ts、.tsx 文件
+处理.ts、.tsx 文件。这是用于 webpack 的 TypeScript 加载器，将 TypeScript 编译成 JavaScript。
+
+ts-loader 在内部是调用了 TypeScript 的官方编译器 -- tsc。所以，ts-loader 和 tsc 是共享 tsconfig.json。
+
+有两种类型的 Options：TypeScript options（也称为 “编译器 options” ）和 loader options。TypeScript options 应该通过 tsconfig.json 文件设置。loader options 可以通过 webpack 配置中的 options 属性指定：配合`fork-ts-checker-webpack-plugin`可以补全类型检查的功能。
+
+```js
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+module.exports = {
+  ...
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true // 只做语言转换，而不做类型检查
+            }
+          }
+        ]
+      }
+    ],
+    plugins:[
+    ...
+    new ForkTsCheckerWebpackPlugin()
+  ]
+  }
+}
+```
+
+如何选择 TypeScript 编译工具:
+
+1. 如果没有使用 Babel，首选 TypeScript 自带编译器（配合 `ts-loader` 使用）
+2. 如果项目中有 Babel，安装 `@babel/preset-typescript`，配合 tsc 做类型检查。
+3. 两种编译器不要混用。
+
+### awesome-typescript-loader
+
+处理.ts、.tsx 文件，已废弃（推荐直接使用 babel 或者 ts-loader），但是在很多 Angular 历史项目中都有用到。主要是为了加快项目中的编译速度。
+
+- 与 ts-loader 的主要区别：
+  1.  更适合与 Babel 集成，使用 Babel 的转义和缓存。
+  2.  不需要安装独立的插件，就可以把类型检查放在独立进程中。
+- 对于某些版本，打包时只提示有 error 但是不显示具体 error 内容，需要手动修改 node_modules 中的代码，步骤如下：
+
+  1. go to `node_modules/awesome-typescript-loader/dist/instance.js`
+  2. find statement: `console.error(colors.red("\n[" + instanceName + "] Checking finished with " + diags.length + " errors"));`
+  3. Add right below it (inside the same 'if'):
+
+```js
+// diags.map( function (diag) {
+//      console.error(colors.red(diag.pretty));
+// });
+diags.map(function (diag) {
+	console.error(chalk_1.default.red(diag.pretty)); // 这个打印的方法'chalk_1.default.red'看具体的上下文，根据版本会有所不同
+});
+```
+
+- [check here for info](https://github.com/s-panferov/awesome-typescript-loader/issues/347#issuecomment-315677010)
 
 ### url-loader
 

@@ -165,8 +165,8 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 5. 启动/重启容器
 
-- `docker start/restart 容器id`:只运行container不进入命令行
-- `docker start -i 74cb2f9141728b8`:运行container并进入命令行
+- `docker start/restart 容器id`:只运行 container 不进入命令行
+- `docker start -i 74cb2f9141728b8`:运行 container 并进入命令行
 
 1. 停止/强制停止容器
 
@@ -258,7 +258,7 @@ $ docker run -it --rm fe-app
 
 3. 进入 docker 的安装目录: `which docker`
    - `cd /usr/local/bin/`
-   - 删除与docker相关的文件夹
+   - 删除与 docker 相关的文件夹
    - `sudo rm -rf docker*`
    - `sudo rm -rf com.docker.*`
    - `sudo rm -rf hub-tool*`
@@ -268,6 +268,22 @@ $ docker run -it --rm fe-app
 ## Learn Docker
 
 ### 1.
+
+1. docker 启动命令, docker 重启命令, docker 关闭命令
+
+- 启动 `systemctl start docker`
+- 守护进程重启 `sudo systemctl daemon-reload`
+- 重启 docker 服务 `systemctl restart docker`
+- 重启 docker 服务 `sudo service docker restart`
+- 关闭 docker `service docker stop`
+- 关闭 docker `systemctl stop docker`
+
+2. 如何启动应用
+
+启动：`docker start 应用名称`
+
 ### 2.
+
 ### 3.
+
 ### 4.

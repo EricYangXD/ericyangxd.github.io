@@ -745,13 +745,12 @@ declare global {
 11. rootDirs:[]：将多个目录放在一个虚拟目录下，用于运行时
 12. references:[]：引用的其他工程 path、prepend 等
 
+## alias 别名设置
 
-## alias别名设置
-
-使用设置别名的方式解决上述问题，两个地方要同时修改，tsconfig使vscode显示不报错,webpack.js使打包编译不报错
+使用设置别名的方式解决上述问题，两个地方要同时修改，tsconfig 使 vscode 显示不报错,webpack.js 使打包编译不报错
 
 ```ts
-// 1.修改tsconfig.json
+// 1.修改tsconfig.json、tsconfig.app.json...
 {
   "compilerOptions": {
  		...
@@ -772,12 +771,57 @@ declare global {
 	}
 }
 ```
+
 ## TS 的编译工具
 
 1. 在 webpack.config.js 中，如果使用了 ts-loader，那么可以设置`options.transpileOnly=true`，只做语言转换，不做类型检查，提高打包速度。
 2. 借助`fork-ts-checker-webpack-plugin`插件，在另一个独立的进程中做类型校验。
 3. `awesome-typescript-loader`：1.更适合与 babel 集成，使用 babel 的转义和缓存；2.不需安装额外的插件就可以把类型检查放在独立的进程中进行；不推荐；
 4. babel7 之前不支持 ts，使用`@babel/preset-typescript`插件
+
+## 在 TypeScript 中使用 ESLint
+
+1. `npm i eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin -D`
+2. `@typescript-eslint/parser`为 ESLint 提供解析器。别忘了同时安装 typescript。
+3. `@typescript-eslint/eslint-plugin` 它作为 ESLint 默认规则的补充，提供了一些额外的适用于 ts 语法的规则。
+4. 创建配置文件:配置文件的名称一般是 `.eslintrc.js` 或 `.eslintrc.json`。例：
+
+```json
+// .eslintrc.json
+{
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["@typescript-eslint"],
+	"parserOptions": {
+		"project": "./tsconfig.json"
+	},
+	"extends": ["plugin:@typescript-eslint/recommended"],
+	"rules": { "@typescript-eslint/no-inferrable-types": "off" }
+}
+```
+
+5. 在 VSCode 中集成 ESLint 检查:
+   - 安装 ESLint 插件，点击「扩展」按钮，搜索 ESLint，然后安装即可。
+   - VSCode 中的 ESLint 插件默认是不会检查 .ts 后缀的，需要在「文件 => 首选项 => 设置 => 工作区」中（也可以在项目根目录下创建一个配置文件 .vscode/settings.json），添加以下配置：
+
+```json
+{
+  ...
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "vue",
+    "html",
+    "typescript"
+  ],
+	...
+}
+```
+
+6. 比较 `babel-eslint` 和 `typescript-eslint`
+
+   - `babel-eslint`: 支持 TypeScript 没有的额外的语法检查，抛弃 TypeScript，不支持类型检查。
+   - `typescript-eslint`: 基于 TypeScript 的 AST，支持创建基于类型信息的规则（tsconfig.json）
+   - 两者底层机制不一样，不要一起用。Babel 体系建议用 `babel-eslint`，否则可以用 `typescript-eslint`。
 
 ## TS 中的逆变和协变
 
@@ -873,4 +917,4 @@ TypeScript 的类型系统是图灵完备的，也就是能描述各种可计算
 5. 传入类型参数，经过一系列类型运算逻辑后，返回新的类型的类型就叫做高级类型。高级类型的特点是传入类型参数，经过一系列类型运算逻辑后，返回新的类型。
 6. 对象、class 在 TypeScript 对应的类型是索引类型（Index Type），对索引类型作修改通过映射类型。映射类型就相当于把一个集合映射到另一个集合，这是它名字的由来。除了值可以变化，索引也可以做变化，用 as 运算符，叫做重映射。
 7. `& string`: 因为索引类型（对象、class 等）可以用 string、number 和 symbol 作为 key，这里 keyof T 取出的索引就是 string | number | symbol 的联合类型，和 string 取交叉部分就只剩下 string 了。就像前面所说，交叉类型会把同一类型做合并，不同类型舍弃。
-8. 
+8.

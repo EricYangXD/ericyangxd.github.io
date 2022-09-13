@@ -57,7 +57,7 @@ webpack 使用加载器的顺序是从后往前调用。
    - webpack 配置:`options.postcssOptions.plugins=['autoprefixer']`
    - 然后正常编写样式代码即可，打包时会自动加上前缀
 5. `sass-loader`：sass 加载器，该加载器依赖 sass 模块，所以需要一并安装：`npm install sass-loader sass`，并对`.scss`文件使用该 loader 即可。
-6. `babel-loader`：使用 Babel 对 ES6+的新特性的代码进行转换，一般转换成 ES5 代码。先要安装 babel-loader，它需要依赖@babel/core：`npm install babel-loader @babel/core @babel/preset-env`。`@babel/preset-env`是用来解决浏览器兼容问题的预设，能根据当前的运行环境，自动确定你需要的 plugins 和 polyfills，强力推荐。对 js 文件设置`use:{loader:'babel-loader',options:{presets:['@babel/preset-env']}}`即可。
+6. `babel-loader`：使用 Babel 对 ES6+的新特性的代码进行转换，一般转换成 ES5 代码。先要安装 `babel-loader`，它需要依赖`@babel/core`：`npm install babel-loader @babel/core @babel/preset-env`。`@babel/preset-env`是用来解决浏览器兼容问题的预设，能根据当前的运行环境，自动确定你需要的 plugins 和 polyfills，强力推荐。对 js 文件设置`use:{loader:'babel-loader',options:{presets:['@babel/preset-env']}}`即可。
 
 ## 详解 webpack 中的 hash、chunkhash、contenthash 区别
 
