@@ -1483,7 +1483,7 @@
   resolved "https://registry.npmjs.org/@vuepress-reco/vuepress-plugin-back-to-top/-/vuepress-plugin-back-to-top-1.6.13.tgz#dfc31ed7354a9839fd7781532b0ea5722ad73fc0"
   integrity sha512-4KPllVU1ruD4SANuZ0wNQJwpcSctKJmWD4XhdAXOuoNc2kRzM4ic/xnWZ9YJuTlae94w4ocnmm3bZafWuewqRw==
 
-"@vuepress-reco/vuepress-plugin-bgm-player@1.1.4":
+"@vuepress-reco/vuepress-plugin-bgm-player@^1.1.4":
   version "1.1.4"
   resolved "https://registry.npmjs.org/@vuepress-reco/vuepress-plugin-bgm-player/-/vuepress-plugin-bgm-player-1.1.4.tgz#c3107cb097f323a986ac6004b3dfb556901e74f5"
   integrity sha512-DPSTwyAKmgBu6607D7PzM0ZlW5g5TuMZPEGmSKS50AIvSTFL5AO0J33NQFT63jqVKJhKmjZ0kDB8dtegPYaNlg==
@@ -1501,7 +1501,7 @@
     valine "^1.4.18"
     vssue "^1.4.6"
 
-"@vuepress-reco/vuepress-plugin-extract-code@1.0.4":
+"@vuepress-reco/vuepress-plugin-extract-code@^1.0.4":
   version "1.0.4"
   resolved "https://registry.npmjs.org/@vuepress-reco/vuepress-plugin-extract-code/-/vuepress-plugin-extract-code-1.0.4.tgz#c50b521d8a5d1c9dfd705e245a7e920a80315a32"
   integrity sha512-J4Cas3JRxs0TnfjtzQ+3bl7iNwL/va9cOXMtpayse3sETul863BwYk1vEBXRAZMiLmbmWqnBrGIrJGmD/TnO5Q==
@@ -6215,7 +6215,7 @@ mkdirp@~1.0.4:
   resolved "https://registry.npmjs.org/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-moment@2.29.4:
+moment@^2.29.4:
   version "2.29.4"
   resolved "https://registry.npmjs.org/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
@@ -9028,14 +9028,14 @@ vuepress-plugin-container@^2.0.2:
     "@vuepress/shared-utils" "^1.2.0"
     markdown-it-container "^2.0.0"
 
-vuepress-plugin-copyright@1.0.2:
+vuepress-plugin-copyright@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/vuepress-plugin-copyright/-/vuepress-plugin-copyright-1.0.2.tgz#d5cc73af82028e073d4cd82e3ef99012ad8f79cc"
   integrity sha512-SWiyqqU8StPGB6WxzVTbRMUyyE0g6lJoP9SDoOua5PHUeawd8XdDBAaCCGRrmd2JDMvCDZlNYHTHgsKJncuU2g==
   dependencies:
     "@shigma/stringify-object" "^3.3.0"
 
-vuepress-plugin-cursor-effects@1.1.6:
+vuepress-plugin-cursor-effects@^1.1.4:
   version "1.1.6"
   resolved "https://registry.npmjs.org/vuepress-plugin-cursor-effects/-/vuepress-plugin-cursor-effects-1.1.6.tgz#b71efc76e48a7f0f7492e60fc52047c3386569e9"
   integrity sha512-4qXL2flMQcd6ecp+LhdChspobhdb9fkAfmRjRs2K3a/DiwtQtOE24jaVFCClwhfDpYuRe48a0KVeROYkdiWuXg==
@@ -9070,19 +9070,19 @@ vuepress-plugin-mailchimp@^1.4.1:
     jsonp "^0.2.1"
     query-string "^6.9.0"
 
-vuepress-plugin-nuggets-style-copy@1.0.3:
+vuepress-plugin-nuggets-style-copy@^1.0.3:
   version "1.0.3"
   resolved "https://registry.npmjs.org/vuepress-plugin-nuggets-style-copy/-/vuepress-plugin-nuggets-style-copy-1.0.3.tgz#3a3bb57c04c7d9ec58afd93ff3db8b6102574bb8"
   integrity sha512-0v+9i8ZkD0a87nxH/KGioJE6Szeh5ZMBQxRyjEyeUo3B/OSXuuED9ih6+JW2e3LKbsxkza1ZAv8dVXNurKXtFw==
   dependencies:
     clipboard "^2.0.4"
 
-vuepress-plugin-seo@0.2.0:
-  version "0.2.0"
-  resolved "https://registry.npmjs.org/vuepress-plugin-seo/-/vuepress-plugin-seo-0.2.0.tgz#2fa4fd7ef2eb6c71f62302f264aeba47c6560ee9"
-  integrity sha512-/Rqul20UTL30mZyCbNwkfAfP50Yr7jzWlavQ92OVzZ8PcpZGXoDc+eoKQyKLQKL3G96dqvuCCbIMbW7RRs7Bhw==
+vuepress-plugin-seo@0.1.4:
+  version "0.1.4"
+  resolved "https://registry.npmjs.org/vuepress-plugin-seo/-/vuepress-plugin-seo-0.1.4.tgz#be8e5577491c1fc317a7ad4abe3ae51ff317be1e"
+  integrity sha512-foNKrAAKihiC47bx0UXFzs/+BIFmnowTQsLVF/8pfsnsPDp8FXjkTGyjxyjOhbwj7ADPv32CdX3pEoYGnZ7OjA==
 
-vuepress-plugin-sitemap@2.3.1, vuepress-plugin-sitemap@^2.3.1:
+vuepress-plugin-sitemap@^2.3.1:
   version "2.3.1"
   resolved "https://registry.npmjs.org/vuepress-plugin-sitemap/-/vuepress-plugin-sitemap-2.3.1.tgz#51298aca77a5de96396fdbd1103e1637dd61ae6a"
   integrity sha512-n+8lbukhrKrsI9H/EX0EBgkE1pn85LAQFvQ5dIvrZP4Kz6JxPOPPNTQmZMhahQV1tXbLZQCEN7A1WZH4x+arJQ==
@@ -9103,7 +9103,7 @@ vuepress-plugin-smooth-scroll@^0.0.9:
   dependencies:
     smoothscroll-polyfill "^0.4.4"
 
-vuepress-theme-reco@1.6.14:
+vuepress-theme-reco@^1.6.11:
   version "1.6.14"
   resolved "https://registry.npmjs.org/vuepress-theme-reco/-/vuepress-theme-reco-1.6.14.tgz#d158c450454d61508a51ded7b94d9714f3e58df2"
   integrity sha512-vGBgNBNStKFGyN4yZHDHjElv7Rq70PNG9HU02gvQADCda8/ukTvEt11K7yCR8A59XIN3EBlMqiUkb4Px6uWGpQ==
@@ -9119,7 +9119,7 @@ vuepress-theme-reco@1.6.14:
     vue-click-outside "1.1.0"
     vuepress-plugin-smooth-scroll "^0.0.9"
 
-vuepress@1.9.7:
+vuepress@^1.9.7:
   version "1.9.7"
   resolved "https://registry.npmjs.org/vuepress/-/vuepress-1.9.7.tgz#2cd6709a2228f5cef588115aaeabf820ab9ed7cc"
   integrity sha512-aSXpoJBGhgjaWUsT1Zs/ZO8JdDWWsxZRlVme/E7QYpn+ZB9iunSgPMozJQNFaHzcRq4kPx5A4k9UhzLRcvtdMg==

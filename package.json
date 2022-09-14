@@ -5,14 +5,14 @@
 	"author": "EricYangXD",
 	"license": "MIT",
 	"devDependencies": {
-		"@vuepress-reco/vuepress-plugin-bgm-player": "1.1.4",
-		"@vuepress-reco/vuepress-plugin-extract-code": "1.0.4",
-		"vuepress": "1.9.7",
-		"vuepress-plugin-copyright": "1.0.2",
-		"vuepress-plugin-cursor-effects": "1.1.6",
-		"vuepress-plugin-nuggets-style-copy": "1.0.3",
-		"vuepress-plugin-seo": "0.2.0",
-		"vuepress-plugin-sitemap": "2.3.1"
+		"@vuepress-reco/vuepress-plugin-bgm-player": "^1.1.4",
+		"@vuepress-reco/vuepress-plugin-extract-code": "^1.0.4",
+		"vuepress": "^1.9.7",
+		"vuepress-plugin-copyright": "^1.0.2",
+		"vuepress-plugin-cursor-effects": "^1.1.4",
+		"vuepress-plugin-nuggets-style-copy": "^1.0.3",
+		"vuepress-plugin-seo": "0.1.4",
+		"vuepress-plugin-sitemap": "^2.3.1"
 	},
 	"scripts": {
 		"docs:dev": "vuepress dev docs",
@@ -23,7 +23,7 @@
 		"update": "sh update.sh"
 	},
 	"dependencies": {
-		"moment": "2.29.4",
-		"vuepress-theme-reco": "1.6.14"
+		"moment": "^2.29.4",
+		"vuepress-theme-reco": "^1.6.11"
 	}
 }
