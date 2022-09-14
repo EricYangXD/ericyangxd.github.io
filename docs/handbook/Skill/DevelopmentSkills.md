@@ -33,10 +33,8 @@ const enUsername = encrypt("username");
 ## 代码风格检查&license 声明添加
 
 - 利用 git hook
-
-- 使用 husky\<5.0，>5.0 参考[这里](https://zhuanlan.zhihu.com/p/366786798)。安装后，可以很方便的在 package.json 配置 git hook 脚本，如下：
-- `lint-staged`:该工具仍允许我们使用 Husky 运行 Git hooks，但它只能在已暂存的文件上运行。
--
+- 使用 husky5.0 参考[这里](https://zhuanlan.zhihu.com/p/366786798)。安装后，可以很方便的在 package.json 配置 git hook 脚本，如下：
+- `lint-staged`: 该工具库仍允许我们使用 Husky 运行 Git hooks，但它只能在已暂存的文件上运行。
 
 1. package.json
 
