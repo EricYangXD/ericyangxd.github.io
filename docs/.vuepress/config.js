@@ -552,5 +552,13 @@ module.exports = {
 			},
 		],
 		[require("./vuepress-plugin-jsonld")],
+		[
+			"uglifyjs-webpack-plugin",
+			{
+				parallel: true,
+				cache: true,
+			},
+		],
+		["hard-source-webpack-plugin"],
 	],
 };
