@@ -395,6 +395,8 @@ nodejs 原生自带包管理工具。
    1. 从 node 14.x 版本开始，package.json 里支持了 exports 属性，当它存在时，它的优先级最高。
    2. 当 exports 属性不存在，而 module 属性存在时，构建工具（如 webpack、rollup）会把 module 属性作为 ESM 的入口来使用。
    3. 如果 exports 和 module 都不存在，则 package.json 中的 main 属性会成为指定入口的唯一属性。
+6. 默认情况下，只要运行`npm install`，`package-lock.json`就会更新。然而，这可以通过在`~/.npmrc`全局设置`package-lock=false`禁用。
+7. `npm install --package-lock`: 生成`package-lock.json`文件，此命令是全局`package-lock=false`设置处于活动状态时，强制执行`package-lock.json`更新的唯一保证方式。
 
 ### yrm/nrm
 
