@@ -120,6 +120,50 @@ meta:
 }
 ```
 
+### shouldUpdate 属性
+
+antd 版本未知，可能是最新版。
+
+```jsx
+import React, { useEffect } from "react";
+import antd from "antd";
+
+const { Form, Input } = antd;
+
+export default function App() {
+	const [form] = Form.useForm();
+	const formData = form.getFieldsValue();
+	Form.useWatch("age", form);
+
+	useEffect(() => {
+		form.setFieldsValue({
+			name: "小明",
+			age: 99,
+			sex: "男",
+		});
+	}, []);
+
+	return (
+		<>
+			{/* 按钮组件 */}
+			<Form form={form}>
+				<Form.Item label="姓名" name="name">
+					<Input />
+				</Form.Item>
+				{/* 方案 1 */}
+				<Form.Item label="年龄" name="age">
+					<div>{formData.age}</div>
+				</Form.Item>
+				{/* 方案 2 */}
+				<Form.Item label="年龄" shouldUpdate>
+					{({ getFieldValue }) => <span>{getFieldValue("sex")}</span>}
+				</Form.Item>
+			</Form>
+		</>
+	);
+}
+```
+
 ## Modal 组件
 
 ### 使用

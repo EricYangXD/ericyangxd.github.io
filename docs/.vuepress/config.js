@@ -208,6 +208,7 @@ module.exports = {
 				children: [
 					{ title: "CSS1", path: "/handbook/CSS/CSS1" },
 					{ title: "CSS2", path: "/handbook/CSS/CSS2" },
+					{ title: "SCSS", path: "/handbook/CSS/SCSS" },
 				],
 			},
 			{
@@ -462,6 +463,13 @@ module.exports = {
 		// 腾讯公益
 		// noFoundPageByTencent: false,
 	},
+	// devServer: {
+	// 	proxy: {
+	// 		'/api': {
+	// 			target: 'http://localhost:8090',
+	// 		}
+	// 	}
+	// },
 	markdown: {
 		lineNumbers: true,
 		externalLinks: { target: "_blank", rel: "nofollow noopener noreferrer" },
