@@ -493,3 +493,25 @@ $ loginctl show-user ruanyf
 - 在弹出的框中选择文件，上传文件的用户和组是当前登录的用户
 - SecureCRT 设置默认路径：`Options -> Session Options -> Terminal -> Xmodem/Zmodem ->Directories`
 - Xshell 设置默认路径：`右键会话 -> 属性 -> ZMODEM -> 接收文件夹`
+
+
+
+## Oracle VPS
+
+### 申请免费账号
+
+最多可以注册4个实例。
+
+### 重置实例
+
+1. 甲骨文 `ubuntu 20.04`更换`Debian`系统，甲骨文DD系统，甲骨文ARM实例重置系统
+
+```bash
+# 命令模板
+bash <(wget --no-check-certificate -qO- 'https://raw.githubusercontent.com/MoeClub/Note/master/InstallNET.sh') -d 9 -v 64 -p 密码
+
+# 命令中的 -d 后面为Debian版本号，-v 后面为64位/32位，【7、8、9、10】
+# 命令中的 -u 后面为Ubuntu版本号，-v 后面为64位/32位，【14.04、16.04、18.04、20.04】
+# 示例
+bash <(wget --no-check-certificate -qO- 'https://raw.githubusercontent.com/MoeClub/Note/master/InstallNET.sh') -d 9 -v 64 -p Xy12345678
+```

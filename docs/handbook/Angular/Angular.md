@@ -317,6 +317,10 @@ export class ProductComponent implements OnInit {
 
 通过绑定属性 innerHTML 来显示 html 片段。eg.`<div [innerHTML]="innerHTML"></div>`
 
+
+### @types/node
+
+有时会报错，那么可以在`tsconfig.json > compilerOptions` 中注掉空`types`或者向空数组中添加`node/browser`等。
 ## 技巧
 
 ### 卸载@angular-cli

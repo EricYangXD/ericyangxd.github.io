@@ -397,6 +397,10 @@ nodejs 原生自带包管理工具。
    3. 如果 exports 和 module 都不存在，则 package.json 中的 main 属性会成为指定入口的唯一属性。
 6. 默认情况下，只要运行`npm install`，`package-lock.json`就会更新。然而，这可以通过在`~/.npmrc`全局设置`package-lock=false`禁用。
 7. `npm install --package-lock`: 生成`package-lock.json`文件，此命令是全局`package-lock=false`设置处于活动状态时，强制执行`package-lock.json`更新的唯一保证方式。
+8. `npm config set ignore-scripts true`，`npm i --ignore-scripts`或者`yarn --ignore-scripts`，在安装依赖包时，确保添加`–ignore-scripts`后缀以禁止 npm 里第三方依赖包的预先安装脚本或则安装后脚本被执行，这样就可以避免一个恶意包里的病毒。这样可以减轻恶意代码的危害，但同时也会导致下载的依赖包没有正常发挥作用。
+9. 怎么样可以预先了解哪些依赖包需要脚本文件，我们不能使用`–ignore-scripts`后缀呢？可以预先先去下载`can-i-ignore-scripts`这个依赖包：可以帮助我们分析各个依赖包是否可以使用`--ignore-scripts`命令。去官网下载或者`npx can-i-ignore-scripts`安装。
+10. 如何使用这个工具呢？我们去安装了 node_modules 包的目录下运行`can-i-ignore-scripts`命令去查看。
+11. npm 脚本有 pre 和 post 两个钩子。举例来说，build 脚本命令的钩子就是 prebuild 和 postbuild。用户执行 npm run build 的时候，会自动按照下面的顺序执行。`npm run prebuild && npm run build && npm run postbuild`。
 
 ### yrm/nrm
 
@@ -515,3 +519,16 @@ if [ "$exitcode" != "1" ] && [ "$exitcode" != "0" ]; then
 fi
 set -e
 ```
+
+## ApiFox 使用技巧
+
+### 本地接口 mock
+
+1. 直接添加接口，设置对应的环境，设置 response 响应字段，可以对字段定义 mock 规则，即可 mock。
+2. 如果不想使用 mock，只是使用已有的 response 响应数据，那么可以使用高级 mock 功能，在「脚本」中配置返回值，页面旁边就有官方示例。需要开启才能 mock。
+
+### tips
+
+1. `{}`:接口 path 中的单个花括号表示路径 path 参数，可以配置相应 mock 规则
+2. `{{}}`:接口 path 中的双花括号表示全局设置的变量，可以从右上角进入管理设置页面
+3. 添加 cookie 时，只能一个一个添加，从右下角「Cookie 管理」进入管理设置页面
