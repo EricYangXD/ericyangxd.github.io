@@ -515,3 +515,85 @@ bash <(wget --no-check-certificate -qO- 'https://raw.githubusercontent.com/MoeCl
 # 示例
 bash <(wget --no-check-certificate -qO- 'https://raw.githubusercontent.com/MoeClub/Note/master/InstallNET.sh') -d 9 -v 64 -p Xy12345678
 ```
+## CentOS 8
+
+[参考的这里](https://blog.csdn.net/sunno326/article/details/105798590)
+
+### Centos 添加 ip 黑名单禁止某个 ip 访问，对登陆失败的主机进行封禁
+
+1. 只需要把 ip 添加到`/etc/hosts.deny`文件中即可完成禁止访问操作
+2. 添加命令格式为：`sshd:$IP:deny`，例：`sshd:192.168.163.128:deny`
+3. 添加允许网段编辑文件`/etc/hosts.allow`
+
+### ssh 登录失败次数超过 10 次，自动将此远程 IP 放入 Tcp Wrapper 的黑名单中予以禁止防问
+
+#### 编写脚本
+
+编写脚本`/root/bin/checkip.sh`，每 5 分钟检查一次，如果发现通过 ssh 登录失败次数超过 10 次，自动将此远程 IP 放入 Tcp Wrapper 的黑名单中予以禁止防问
+
+1. 创建脚本:`nano /bin/checkip.sh`
+
+```bash
+#!/bin/bash
+
+#过滤/var/log/secure日志，因为有密码输入错误和用户名输入错误，awk取IP值要利用NF-3取值
+awk '/Failed password/{count[$(NF-3)]++}END{for(i in count){if(count[i]>10) print i}}' /var/log/secure > /tmp/ssh_faild.log
+while read ip;do
+	#如果IP为空或者已经在/etc/hosts.deny中，就跳过此次循环
+	if grep -q "$ip" /etc/hosts.deny;then
+		continue
+	else
+		echo "sshd:$ip" >> /etc/hosts.deny
+	fi
+done </tmp/ssh_faild.log
+```
+
+2. `chmod +x /bin/checkip.sh`，赋权
+3. 添加计划任务:`nano /etc/crontab`
+
+```bash
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+
+# For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name  command to be executed
+*/5  *  *  *  * root sh /root/bin/checkip.sh &>/dev/null
+```
+
+4. 模拟错误登陆...
+5. 检查`/var/log/secure`日志
+6. 执行脚本，检查`/etc/hosts.deny`
+
+   1. `sh /bin/checkip.sh`
+   2. `cat /etc/hosts.deny`
+
+7. `tail -3 /var/log/secure`，查看日志
+
+#### 增加个用户并配置权限
+
+配置 magedu 用户的 sudo 权限，允许 magedu 用户拥有 root 权限。
+
+1. `useradd magedu`:增加用户
+2. `passwd magedu`:设置密码
+3. `visudo`:参考下面
+
+```bash
+...
+## Allow root to run any commands anywhere
+root    ALL=(ALL)   ALL
+magedu  ALL=(ALL)   ALL  ###添加此行
+...
+```
+
+4. `su - magedu`:切换用户
+5. `sudo touch /root/abc.txt`:可以在 root 下创建文件
+6. `sudo ls /root`:可以列出 root 下的内容
