@@ -340,6 +340,10 @@ module.exports = {
 						title: "DMZ区域",
 						path: "/handbook/Network/DMZ",
 					},
+					{
+						title: "knowhow",
+						path: "/handbook/Network/KnowHow",
+					},
 				],
 			},
 			{
