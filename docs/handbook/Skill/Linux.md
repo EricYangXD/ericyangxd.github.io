@@ -494,17 +494,15 @@ $ loginctl show-user ruanyf
 - SecureCRT 设置默认路径：`Options -> Session Options -> Terminal -> Xmodem/Zmodem ->Directories`
 - Xshell 设置默认路径：`右键会话 -> 属性 -> ZMODEM -> 接收文件夹`
 
-
-
 ## Oracle VPS
 
 ### 申请免费账号
 
-最多可以注册4个实例。
+最多可以注册 4 个实例。
 
 ### 重置实例
 
-1. 甲骨文 `ubuntu 20.04`更换`Debian`系统，甲骨文DD系统，甲骨文ARM实例重置系统
+1. 甲骨文 `ubuntu 20.04`更换`Debian`系统，甲骨文 DD 系统，甲骨文 ARM 实例重置系统
 
 ```bash
 # 命令模板
@@ -515,6 +513,7 @@ bash <(wget --no-check-certificate -qO- 'https://raw.githubusercontent.com/MoeCl
 # 示例
 bash <(wget --no-check-certificate -qO- 'https://raw.githubusercontent.com/MoeClub/Note/master/InstallNET.sh') -d 9 -v 64 -p Xy12345678
 ```
+
 ## CentOS 8
 
 [参考的这里](https://blog.csdn.net/sunno326/article/details/105798590)
