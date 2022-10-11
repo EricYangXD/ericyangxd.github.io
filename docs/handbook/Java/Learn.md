@@ -18,7 +18,10 @@ meta:
    - 字符串拼接时，如果没有变量参与，都是字符串直接相加，编译之后就是拼接之后的结果，会复用串池中的字符串。（可以用==比较）
    - 如果有变量参与，每一行拼接的代码，都会在内存中创建新的字符串，浪费内存。（不可以用==比较）
 5. JavaBean: 类名需要见名知意；成员变量使用 private 修饰；提供至少两个构造方法：无参和全参；成员方法：提供每个成员变量对应的 getter/setter 函数，如果还有其他行为也要写上。
-6.
+6. 整数有四种类型：byte:1 字节，byte:2 字节，int:4 字节（默认），long:8 字节
+7. 浮点数 2 种：float:4 字节，double:8 字节（默认）
+8. 字符：char:2 字节（单引号&一个字符）
+9. 布尔：boolean：1 字节
 
 ### String/StringBuilder/StringJoiner
 
@@ -138,6 +141,7 @@ meta:
    3. 接口和接口之间：继承关系，可以单继承，也可以多继承，需要重写所有抽象方法
 8. 当一个方法的参数是接口时，可以传递接口所有实现类的对象，这种方式称之为接口多态。
 9. 适配器模式：定义一个抽象类 xxxAdapter（一般不需要实例化），对一个接口的所有抽象方法进行空实现，然后在我们要用到的地方继承这个类，重写用到的某个方法即可，不需要在业务代码中实现接口中的所有抽象方法。相当于在接口和实现类之间添加的一层中间件。这个中间抽象类还可以继承其他类，让实现类进行间接继承。
+10. 如果一个接口里面没有抽象方法，则表示当前的接口是个标记型接口。
 
 ### 内部类
 
@@ -161,3 +165,70 @@ meta:
 8. `javap xxx.class`：反编译 class 文件，Java 自带功能。
 9. 匿名内部类使用场景：
    1. 当方法的参数是接口或者类时，以接口为例，可以传递这个接口的实现类对象，如果实现类只要使用一次，就可以用匿名内部类简化代码。
+
+## 常用 Api
+
+### Math
+
+1. abs
+2. round
+3. ceil：向数轴右侧取整
+4. floor：向数轴左侧取整
+5. sqrt：开方
+6. cbrt：开立方
+7. max/min
+8. absExact：防止溢出
+
+### System
+
+1. exit
+2. currentTimeMillis
+3. arraycopy(source,start,target,start,length)
+
+### Runtime
+
+1. Runtime.getRuntime()
+2. Runtime.getRuntime().exit()
+3. Runtime.getRuntime().totalMemory()
+
+### Object
+
+最高父类
+
+1. toString()
+2. equals()
+3. clone()
+4. Objects：工具类
+   1. equals：先做非空判断再调用第一个入参的 equals 方法比较
+   2. isNull
+   3. nonNull
+
+### BigInteger & BigDecimal
+
+#### BigInteger
+
+1. 对象一旦创建，内部记录的值就不能再变。
+2. new BigInteger("13412")：常用，字符串中必须是整数
+3. BigInteger.valueOf(1232L)：常用，参考 6，有优化。
+4. new BigInteger("13453",2 进制)
+5. new BigInteger(int num, Random rnd):获取指定范围的随机大整数 2^num
+6. 对-16~16 的数字做了优化，多次创建都是同一个对象。
+7. BigInteger 方法：
+
+   1. add, subtract, multiply, divide, divideAndRemainder, equals, pow, max, min, intValue, doubleValue
+
+8. 存储上限：
+
+   1. 数组中最多能存储的元素个数：21 亿多
+   2. 数组中每一位能表示的数字：42 亿多
+   3. BigInteger 能表示的最大数字为：42 亿的 21 亿次方
+
+9. 存储形式：先转换成二进制补码，一位符号位，其余 bit 按 32 位一组，存到数组中。
+
+#### BigDecimal
+
+小数计算结果精确
+
+1. BigDecimal.valueOf(number/string)：常用
+2. new BigDecimal(string)：常用
+3. 对 0~10 之间的整数，会返回已经创建好的对象，不会重新 new

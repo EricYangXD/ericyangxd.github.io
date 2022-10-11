@@ -596,3 +596,10 @@ magedu  ALL=(ALL)   ALL  ###添加此行
 4. `su - magedu`:切换用户
 5. `sudo touch /root/abc.txt`:可以在 root 下创建文件
 6. `sudo ls /root`:可以列出 root 下的内容
+
+### 每次通过密码链接 vps 时都会提示有 xx 次失败记录
+
+可能是爬虫或者恶意攻击，解决方法有至少两个：
+
+1. 关闭`PasswordAuthentication`，修改`nano /etc/ssh/sshd_config`这个文件里对应的地方。同时最好也关闭`PermitRootLogin`root 账户登录。只使用`ssh-key`登录。
+2. 换个不常用的端口，降低被扫到的几率。
