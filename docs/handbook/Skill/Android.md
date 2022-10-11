@@ -27,7 +27,7 @@ date: "2022-02-09"
 
 使用谷歌安装器
 
-1. 点击下载[Go 安装器](/demos/software/GoInstaller.apk)
+1. 点击下载[Go 安装器](https://pan.baidu.com/s/1_MWsGh7tege9WrDr2gngBw?pwd=9h1d)
 
 ## 运行安卓项目
 
