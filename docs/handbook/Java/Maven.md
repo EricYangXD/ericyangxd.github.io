@@ -149,7 +149,7 @@ meta:
 - 配置本地仓库：`conf/settings.xml` -> `<localRepository>...</localRepository>`
 - 配置镜像仓库：`conf/settings.xml` -> `<morror>...</morror>`，配置阿里镜像
 
-### 坐标
+### 坐标&依赖
 
 - 格式：`groupId-artifactId-version[-packaging]`
 - groupId：当前 Maven 项目隶属组织名称，通常是域名反写
@@ -157,3 +157,68 @@ meta:
 - version：版本号
 - packaging：包最终的产物？
 - 在 pom.xml -> project 层级 -> build -> plugins -> plugin -> 需要的插件信息：groupId、artifactId、version
+- 依赖传递：可以直接使用依赖中的依赖
+  1. 直接依赖：在当前项目中通过依赖配置建立的依赖关系
+  2. 间接依赖：被引入的依赖如果依赖其他资源，当前项目间接依赖其他资源
+- 依赖传递的冲突解决：
+
+  1.  路径优先：当依赖中出现相同的资源时，层级越深，优先级越低，层级越浅，优先级越高
+  2.  声明优先：当资源在相同的层级被依赖时，配置顺序靠前的覆盖顺序靠后的
+  3.  特殊优先：当同级配置了相同的资源的不同版本，后配置的覆盖先配置的
+
+- 可选依赖：指对外隐藏当前所依赖的资源，不透明。在 dependency 中增加 optional 标签并设为 true 即可
+- 排除依赖：通过配置，不使用依赖中的依赖，主动断开间接依赖。在 dependency 中增加 exclusions>exclusion 标签并写上依赖的 groupId 和 artifactId 即可
+- 依赖范围：
+  1.  依赖的 jar 默认情况下可以在任何地方使用，可以通过 scope 标签设定其作用范围，四个值参考下面表格
+  2.  作用范围：
+      1. 主程序范围有效（main 文件夹范围内）
+      2. 测试程序范围有效（test 文件夹范围内）
+      3. 是否参与打包（package 指令范围内）
+
+|          | compile | test | provided | runtime | 直接依赖 |
+| -------- | ------- | ---- | -------- | ------- | -------- |
+| compile  | compile | test | provided |         |          |
+| test     |         |      |          |         |          |
+| provided |         |      |          |         |          |
+| runtime  | runtime | test | provided | runtime |          |
+| 间接依赖 |         |      |          |         |          |
+
+### 生命周期和插件
+
+1. 项目构建的生命周期分为三大阶段：
+   1. clean：清理工作
+   2. default：核心工作，例如编译、测试、打包、部署等
+   3. site：产生报告，发布站点等
+2. clean：
+   1. pre-clean：
+   2. clean：移除所有上一次构建生成的文件
+   3. post-clean：
+3. default：只关注几个常用的即可
+   1. validate：
+   2. compile：
+   3. test-compile：
+   4. test：
+   5. package：
+   6. verify：
+   7. install：
+   8. deploy：
+4. site：
+   1. pre-site：
+   2. site：生成项目的站点文档
+   3. post-site：
+   4. site-deploy：
+5. 每个生命周期都有不同的插件，生命周期从头执行到自己设置的那个 phase
+
+## Maven 高级
+
+### 分模块开发与设计
+
+1.
+
+###
+
+###
+
+###
+
+###
