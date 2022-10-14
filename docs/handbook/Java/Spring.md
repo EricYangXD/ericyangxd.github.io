@@ -86,5 +86,5 @@ meta:
 1. 把配置写入 jdbc.properties 文件，比如：`jdbc.username=xxx jdbc.password=xxx`
 2. 开 context 命名空间
    1. jdbc.properties 中，beans 里面增加一行`xmlns:context="http://www.springframework.org/schema/context"`，再增加 2 行`http:.../context`，`http:.../context/spring-context.xsd`。大部分是这么操作
-   2. 使用 context 空间加载 properties 配置文件：`<context:property-placeholder location="jdbc.properties"/>`
+   2. 使用 context 空间加载 properties 配置文件：`<context:property-placeholder location="jdbc.properties"/>`，通过`system-properties-mode="NEVER"`设置不去加载系统属性，通过 location 属性配置使用不同的 jdbc.properties 文件。
    3. 在 bean 中使用属性占位符`${}`读取 properties 配置文件中的属性
