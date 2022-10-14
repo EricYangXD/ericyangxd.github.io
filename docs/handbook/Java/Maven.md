@@ -17,7 +17,7 @@ meta:
 
 1. [Download 相应版本](https://maven.apache.org/download.cgi?.)
 2. install：解压，放到方便的目录下即可
-3. Maven 配置：`maven/conf/settings.xml`，自定义修改配置，添加私有仓库、账户名、密码等等
+3. Maven 配置：`${maven}/conf/settings.xml`，自定义修改配置，添加私有仓库、账户名、密码等等，在 servers、mirrors 等标签里。
 4. Idea 配置：在 Preferences》Build》Build tools》Maven：
    1. 设置 Maven home path：2 中解压的 maven 目录即可，例`/Users/eric/backend/maven`
    2. 设置 User settings：`/Users/eric/backend/maven/conf/settings_eric.xml`，看需求，一般会需要自定义配置一些账号密码
@@ -64,17 +64,21 @@ meta:
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.marcobehler</groupId>
-    <artifactId>my-project</artifactId> (1)
-    <version>1.0-SNAPSHOT</version> (2)
+    <!-- (1) -->
+    <artifactId>my-project</artifactId>
+    <!-- (2) -->
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source> (3)
+        <!-- (3) -->
+        <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <dependency> (4)
+        <!-- (4) -->
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
@@ -90,6 +94,8 @@ meta:
 2. 版本号为 `1.0-SNAPSHOT`，例：`work-in-progress`
 3. 使用 Java 1.8 进行编译
 4. 单元测试需要一个依赖项：4.12 版本的 junit
+
+PS：[Maven 中常用的各个标签的含义](./pom.xml)
 
 > Maven’s src & target folders
 
@@ -213,12 +219,61 @@ meta:
 
 ### 分模块开发与设计
 
-1.
+- 老项目会用这种形式，新项目一般用微服务了？
+- 大致的做法就是把一个项目中的各个模块分别新建成单独的 module，然后新建属于这个 module 的 pom.xml 文件，并配置相应的依赖关系，小技巧--可以直接把老的 pom.xml 拷过来然后根据实际情况去删除一些不需要的配置即可，然后需要构建成功才算拆完。后续各模块之间通过接口进行通信。然后再在根目录下添加一个根 pom.xml 文件，配置 modules>module，把每个单独拆出来的 module 引用进来，之后便可以通过这里进行集中维护。
+-
 
-###
+### 模块聚合
 
-###
+1. 目的就是拆分完 module 之后，对各个 module 做一个统一的管理，改动、版本之类的都要同步
+2. 新建一个空的 root module，配置他的 pom.xml，在其中增加 modules>module 的配置，把所有拆出来的 module 添加进去（相对路径？顺序无关！）。另外 **packaging 要设置成 「pom」**，表示该工程的用途是用来进行构建管理而非业务。另外也要设置相应的 groupId、artifactId 等。
+3. 配好之后，当需要对项目整体进行打包编译时，直接在 idea 右侧的 Maven 栏中打开这个 root module，然后在 Lifecycle 里面双击 compile 即可。
+4. 默认打 jar 包
 
-###
+### 模块继承
 
-###
+1. 模块依赖关系维护
+2. 父工程中定义的依赖版本
+
+### 属性
+
+添加自定义属性，做统一管理。
+
+1. `<properties>`标签中，可以自定义需要配置的属性名称，参考各自公司规范或者个人喜好，自定义属性标签中写上变量对应的值（自定义标签相当于变量名称），然后在后面需要使用的地方通过`${xxx}`的形式就可以使用自定义的变量了。
+2. 最外层的标签如：`<version>`等也可以当成属性来引用，不用写在`<properties>`标签中。
+
+除了自定义属性，还有系统内置属性、settings 属性（Maven 配置文件中 settings.xml 中的属性，通过`${settings.xx}`调用）、Java 的系统属性（通过`System.getProperties()`或者`mvn help:system`获取）、环境变量属性（`mvn help:system`获取，通过`${env.xx}`调用）
+
+### 版本管理
+
+1. SNAPSHOT 快照版、尝鲜版
+2. RELEASE 发布版本
+
+### 资源配置
+
+管理其他自定义的资源配置
+
+1. 比如管理 jdbc 配置，如果要在 jdbc.properties 中使用全局的配置，那么要在 root module 的 pom.xml 中配置`<resources>`标签，在其下添加`<resource>`标签，1 写明`<directory>`即资源文件对应的「目录」，相对 root module 的路径，不到文件名，2 配置`<filtering>`为 true，表示开启对配置文件的资源加载过滤。1 中可以通过`${project.basedir}`做优化。
+2. `<testResources>`同理
+
+### 环境配置
+
+不同环境兼容区分
+
+1. pom.xml 中，project 根层级下，通过`<profiles>`->`<profile>`标签定义具体的环境，通过`<id>`区分不同环境。通过`<properties>`设置自定义参数属性，通过`<activation>`->`<activeByDefault>`true 设置默认启动。
+
+### 跳过测试
+
+1. 命令模式：`mvn install -D skipTests`
+2. 在 pom.xml 中，对 `plugin` 增加 `configuration` 标签然后设置 `skipTests` 为 true。不推荐。
+3. 在 pom.xml 中，对 `plugin` 增加 `configuration` 标签然后设置 `includes` 和 `excludes` 来配置需要执行的和不需要执行的测试。
+
+### 私服
+
+1. nexus 启动：`nexus.exe /run nexus`
+2. 在 `nexus-default.properties` 文件和 `nexus.vmoptions` 中修改一些配置信息
+3. 仓库：
+   1. 宿主仓库 hosted：无法保存从中央仓库获取的资源-自主研发、第三方非开源项目。
+   2. 代理仓库 proxy：代理远程仓库，通过 nexus 访问其他公共仓库，例如中央仓库。
+   3. 仓库组 group：将若干仓库组成一个群组，简化配置；仓库组不能保存资源，属于设计性仓库。
+4. 发布管理配置：在 `pom.xml` 的 `distributionManagement` 标签中配置私服的地址，`mvn deploy`
