@@ -88,3 +88,12 @@ meta:
    1. jdbc.properties 中，beans 里面增加一行`xmlns:context="http://www.springframework.org/schema/context"`，再增加 2 行`http:.../context`，`http:.../context/spring-context.xsd`。大部分是这么操作
    2. 使用 context 空间加载 properties 配置文件：`<context:property-placeholder location="jdbc.properties"/>`，通过`system-properties-mode="NEVER"`设置不去加载系统属性，通过 location 属性配置使用不同的 jdbc.properties 文件。
    3. 在 bean 中使用属性占位符`${}`读取 properties 配置文件中的属性
+
+### 容器
+
+1. 容器初始化方式一：`ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");`
+2. 容器初始化方式二：`ApplicationContext ctx = new FileSystemXmlApplicationContext("D:\\applicationContext.xml");`
+3. 容器初始化加载多个配置文件：`ApplicationContext ctx = new ClassPathXmlApplicationContext("bean1.xml","bean2.xml");`
+4. 获取 bean 方式一：使用 bean 名称获取`BookDao bookDao = (BookDao) ctx.getBean("bookDao");`
+5. 获取 bean 方式二：使用 bean 名称获取并指定类型`BookDao bookDao = ctx.getBean("bookDao"，BookDao.class);`
+6. 获取 bean 方式三：使用 bean 类型获取`BookDao bookDao = ctx.getBean(BookDao.class);`

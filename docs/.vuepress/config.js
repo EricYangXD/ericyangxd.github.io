@@ -306,6 +306,27 @@ module.exports = {
 				],
 			},
 			{
+				title: "Backend",
+				children: [
+					{
+						title: "Learn Java",
+						path: "/handbook/Java/Learn",
+					},
+					{
+						title: "Java Work",
+						path: "/handbook/Java/Work",
+					},
+					{
+						title: "Maven",
+						path: "/handbook/Java/Maven",
+					},
+					{
+						title: "Spring",
+						path: "/handbook/Java/Spring",
+					},
+				],
+			},
+			{
 				title: "Docker",
 				children: [
 					{
