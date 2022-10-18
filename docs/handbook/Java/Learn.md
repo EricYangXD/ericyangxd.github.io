@@ -455,3 +455,48 @@ List 和 Set 有相同的遍历方式：3 种：
 
 1. 找到你现在这个版本对应的包需要是 x.x.x 的，通过 idea 帮你重下包或者手动删掉自己添加然后更新
 2. 找到报错提示的路径，删掉对应的包，然后 `build -> rebuild project`，或者右键项目，`maven -> reimport`。
+
+### 查看有效依赖
+
+在 pom.xml 上右键，找到最下面的 `Maven` > `显示有效的POM`
+
+### 添加依赖和插件
+
+以`dependency-check-maven`为例，它可以检测依赖漏洞，生成一个`dependency-check-report.html`：
+
+```xml
+<!-- ... -->
+<dependencies>
+   <!--        代码依赖包安全漏洞检测-->
+   <!-- https://mvnrepository.com/artifact/org.owasp/dependency-check-maven -->
+   <dependency>
+      <groupId>org.owasp</groupId>
+      <artifactId>dependency-check-maven</artifactId>
+      <version>6.5.2</version>
+   </dependency>
+   <!-- ... -->
+</dependencies>
+
+<build>
+   <!-- ... -->
+   <plugins>
+      <!--        代码依赖包安全漏洞检测-->
+      <plugin>
+         <groupId>org.owasp</groupId>
+         <artifactId>dependency-check-maven</artifactId>
+         <configuration>
+            <autoUpdate>true</autoUpdate>
+         </configuration>
+         <executions>
+            <execution>
+               <goals>
+                     <goal>check</goal>
+               </goals>
+            </execution>
+         </executions>
+      </plugin>
+   </plugins>
+   <!-- ... -->
+</build>
+<!-- ... -->
+```
