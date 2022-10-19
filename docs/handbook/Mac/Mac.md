@@ -276,10 +276,24 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 
 ### FinalShell
 
-服务器远程桌面加速，ssh，开发运维工具！
+服务器远程桌面加速，ssh，开发运维工具！PS：据说不安全。
 
 [下载](https://www.hostbuf.com/downloads/finalshell_install.pkg)
+
+### XShell
+
+收费
 
 ### 宝塔面板
 
 [服务器开发运维工具](https://www.bt.cn/new/download.html)
+
+### FTP 工具
+
+#### FileZilla
+
+跨平台，免费，中文支持。[download](https://www.filezilla.cn/download/client)
+
+#### Terminus
+
+有免费版本，可以 Telnet、ssh、ftp 等，[download](https://www.termius.com/mac-os)

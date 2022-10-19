@@ -372,25 +372,25 @@ git config --global https.proxy http://127.0.0.1:port
 
 7. 删除子模块
 
-   - 先使用 `git submodule deinit` 命令卸载一个子模块。这个命令如果添加上参数 `--force`，则子模块工作区内即使有本地的修改，也会被移除。该命令的实际效果，是自动在 .git/config 中删除了以下内容：`submodule、url...`
-   - 然后执行`git rm project-sub-1`移除 project-sub-1 文件夹，并自动在 .gitmodules 中删除了以下内容：`submodule、path、url`。
+   - 先使用 `git submodule deinit` 命令卸载一个子模块。这个命令如果添加上参数 `--force`，则子模块工作区内即使有本地的修改，也会被移除。该命令的实际效果，是自动在 `.git/config` 中删除了以下内容：`submodule、url...`
+   - 然后执行`git rm project-sub-1`移除 `project-sub-1` 文件夹，并自动在 `.gitmodules` 中删除了以下内容：`submodule、path、url`。
    - 此时，主项目中关于子模块的信息基本已经删除（虽然貌似 .git/modules 目录下还有残余）：执行`git commit -m ...`提交代码，完成对子模块的删除。
    - 网上流传了一些偏法，主要步骤是直接移除模块，并手动修改 `.gitmodules`、`.git/config` 和 `.git/modules` 内容。包含了一大堆类似`git rm --cached <sub-module>`、`rm -rf <sub-moduel>`、`rm .gitmodules` 和 `git rm --cached` 之类的代码。
 
 8. submodule 管理起来不够灵活，可以使用 lerna 进行管理。
 
-9. 除了 submodule，还有个方法还可以的，就是 mklink（windows 是 mklink，Linux 是 `ln -s /path/to/src/origin /path/to/dst/target`，删除`rm -rf target`，修改`ln -snf [源文件或目录] [目标文件或目录]`），就是等于把子模块复制一份到主模块中，两边所有的修改都会自动同步。 `mklink /d/j sub-module ..\sub-module\`
+9. 除了 submodule，还有个方法还可以的，就是 `mklink`（windows 是 `mklink`，Linux 是 `ln -s /path/to/src/origin /path/to/dst/target`，删除`rm -rf target`，修改`ln -snf [源文件或目录] [目标文件或目录]`），就是等于把子模块复制一份到主模块中，两边所有的修改都会自动同步。 `mklink /d/j sub-module ..\sub-module\`
 
 10. 第 2 步中的简写`git submodule update --init --recursive`
 
 11. 更换 submodule 的 url 也就是把 submodule 的 git 切换到另一个仓库：
 
-    - 1. 在子仓库中运行 git remote set-url origin xx.git 属于直接更换远程仓库
-    - 2. 在主目录.gitsubmodule 文件中，直接修改 url=xx.git
+    - 1. 在子仓库中运行 `git remote set-url origin xx.git` 属于直接更换远程仓库
+    - 2. 在主目录`.gitsubmodule` 文件中，直接修改 `url=xx.git`
 
 12. 不 cd 进子模块，直接在主项目中拉取指定子模块更新的代码：
 
     - 1. `git submodule update --init --recursive` 递归
-    - 2. 在.gitsubmodule 文件中把其他不需要更新的模块先注释掉然后使用命令：`git submodule update --recusive`
+    - 2. 在`.gitsubmodule` 文件中把其他不需要更新的模块先注释掉然后使用命令：`git submodule update --recusive`
 
 13. 把子模块添加到指定目录：在第一次拉取的时候使用这个命令`git add submodule -f xxxx.git [目标路径]`，一定要用-f，表示强制

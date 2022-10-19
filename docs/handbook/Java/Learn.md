@@ -415,3 +415,88 @@ List 和 Set 有相同的遍历方式：3 种：
 7. 使用场景：
    1. 定义类、方法、接口的时候，如果类型不确定，就可以定义泛型
    2. 如果类型不确定，但是能知道是哪个继承体系中的，可以使用泛型的通配符
+
+## xml
+
+### schemaLocation
+
+`XML Schema`提供了两个在实例文档中使用的特殊属性，用于指出模式文档的位置。这两个属性是：`xsi:schemaLocation`和`xsi:noNamespaceSchemaLocation`，前者用于声明了目标名称空间的模式文档，后者用于没有目标名称空间的模式文档，它们通常在实例文档中使用。
+
+1. `xsi:schemaLocation`属性的值由一个 URI 引用对组成，两个 URI 之间以空白符分隔。第一个 URI 是名称空间的名字，第二个 URI 给出模式文档的位置，模式处理器将从这个位置读取模式文档，该模式文档的目标名称空间必须与第一个 URI 相匹配。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+   // 声明默认的名称空间
+   xmlns="http://maven.apache.org/POM/4.0.0"
+   // 声明 `XML Schema`实例名称空间`http://www.w3.org/2001/XMLSchema-instance`，并将xsi前缀与该名称空间绑定，这样模式处理器就可以识别
+   // `xsi:schemaLocation`属性。`XML Schema`实例名称空间的前缀通常使用xsi。
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   // 使用`xsi:schemaLocation`属性指定名称空间`http://maven.apache.org/POM/4.0.0`和模式位置`https://maven.apache.org/xsd/maven-4.0.0.xsd`相关
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <!-- 。。。。 -->
+</project>
+```
+
+2. `XML Schema`推荐标准中指出，`xsi:schemaLocation`属性可以在实例中的任何元素上使用，而不一定是根元素，不过，`xsi:schemaLocation`属性必须出现在它要验证的任何元素和属性之前。
+3. 此外，要注意的是，`XML Schema`推荐标准并没有要求模式处理器必须要使用`xsi:schemaLocation`属性，某些模式处理器可以通过其他的方式来得到模式文档的位置，而忽略`xsi:schemaLocation`属性。
+4. `xsi:noNamespaceSchemaLocation`属性用于引用没有目标名称空间的模式文档。与`xsi:schemaLocation`属性不同的是，`xsi:noNamespaceSchemaLocation`属性的值是单一的值，只是用于指定模式文档的位置。
+5. 与`xsi:schemaLocation`属性一样，`xsi:noNamespaceSchemaLocation`属性也可以在实例中的任何元素上使用，而不一定是根元素，不过，`xsi:noNamespaceSchemaLocation`属性必须出现在它要验证的任何元素和属性之前。
+6. 此外，要注意的是，`XML Schema`推荐标准并没有要求模式处理器必须要使用`xsi:noNamespaceSchemaLocation`属性，某些模式处理器可以通过其他的方式来得到模式文档的位置，而忽略`xsi:noNamespaceSchemaLocation`属性。
+
+## Errors
+
+### 导包或切版本错误
+
+> 报错场景：导入一个新的项目，导包异常。
+
+- 报错原因：可能是导入的过程中非正常关闭 idea 或者网络异常或者其他原因导致包下载不全。
+  解决方法：
+
+1. 找到你现在这个版本对应的包需要是 x.x.x 的，通过 idea 帮你重下包或者手动删掉自己添加然后更新
+2. 找到报错提示的路径，删掉对应的包，然后 `build -> rebuild project`，或者右键项目，`maven -> reimport`。
+
+### 查看有效依赖
+
+在 pom.xml 上右键，找到最下面的 `Maven` > `显示有效的POM`
+
+### 添加依赖和插件
+
+以`dependency-check-maven`为例，它可以检测依赖漏洞，生成一个`dependency-check-report.html`：
+
+```xml
+<!-- ... -->
+<dependencies>
+   <!--        代码依赖包安全漏洞检测-->
+   <!-- https://mvnrepository.com/artifact/org.owasp/dependency-check-maven -->
+   <dependency>
+      <groupId>org.owasp</groupId>
+      <artifactId>dependency-check-maven</artifactId>
+      <version>6.5.2</version>
+   </dependency>
+   <!-- ... -->
+</dependencies>
+
+<build>
+   <!-- ... -->
+   <plugins>
+      <!--        代码依赖包安全漏洞检测-->
+      <plugin>
+         <groupId>org.owasp</groupId>
+         <artifactId>dependency-check-maven</artifactId>
+         <configuration>
+            <autoUpdate>true</autoUpdate>
+         </configuration>
+         <executions>
+            <execution>
+               <goals>
+                     <goal>check</goal>
+               </goals>
+            </execution>
+         </executions>
+      </plugin>
+   </plugins>
+   <!-- ... -->
+</build>
+<!-- ... -->
+```

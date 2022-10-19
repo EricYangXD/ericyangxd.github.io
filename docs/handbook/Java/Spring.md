@@ -85,16 +85,30 @@ meta:
 
 1. 把配置写入 jdbc.properties 文件，比如：`jdbc.username=xxx jdbc.password=xxx`
 2. 开 context 命名空间
+
    1. jdbc.properties 中，beans 里面增加一行`xmlns:context="http://www.springframework.org/schema/context"`，再增加 2 行`http:.../context`，`http:.../context/spring-context.xsd`。大部分是这么操作
    2. 使用 context 空间加载 properties 配置文件：`<context:property-placeholder location="jdbc.properties"/>`，通过`system-properties-mode="NEVER"`设置不去加载系统属性，通过 location 属性配置使用不同的 jdbc.properties 文件。
-   3. 在 bean 中使用属性占位符`${}`读取 properties 配置文件中的属性
+   3. 在 bean 中使用属性占位符`${}`读取 properties 配置文件中的属性。
 
-### 容器
+3. 不加载系统属性：`<context:property-placeholder location="jdbc.properties" system-properties-mode="NEVER" />`
+4. 加载多个：`<context:property-placeholder location="jdbc.properties,jdbc2.properties" />`
+5. 加载所有：`<context:property-placeholder location="*.properties" />`
+6. 加载 properties 文件**标准格式**：`<context:property-placeholder location="classpath:*.properties" />`
+7. 从类路径或加载系统属性：`<context:property-placeholder location="classpath*:*.properties" />`
 
-1. 容器初始化方式一：`ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");`
-2. 容器初始化方式二：`ApplicationContext ctx = new FileSystemXmlApplicationContext("D:\\applicationContext.xml");`
+### IOC 容器
+
+1. 容器初始化方式一：加载类路径下的配置文件：`ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");`
+2. 容器初始化方式二：从文件系统下加载配置文件：`ApplicationContext ctx = new FileSystemXmlApplicationContext("D:\\applicationContext.xml");`
 3. 容器初始化加载多个配置文件：`ApplicationContext ctx = new ClassPathXmlApplicationContext("bean1.xml","bean2.xml");`
 4. 获取 bean 方式一：使用 bean 名称获取`BookDao bookDao = (BookDao) ctx.getBean("bookDao");`
 5. 获取 bean 方式二：使用 bean 名称获取并指定类型`BookDao bookDao = ctx.getBean("bookDao"，BookDao.class);`
-6. 获取 bean 方式三：使用 bean 类型获取`BookDao bookDao = ctx.getBean(BookDao.class);`
-7.
+6. 获取 bean 方式三：使用 bean 类型获取`BookDao bookDao = ctx.getBean(BookDao.class);`，此时系统中该类只能有一个。
+7. 上古方法：BeanFactory 接口是 IoC 容器的顶层接口，初始化 BeanFactory 对象时，延迟加载 Bean。
+8. ApplicationContext 是 Spring 容器的核心接口，初始化时立即加载 Bean。该接口提供基础的 bean 操作相关方法，通过其它接口扩展器功能。
+9. bean 相关:
+
+```java
+
+
+```

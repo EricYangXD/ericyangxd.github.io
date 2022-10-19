@@ -277,13 +277,13 @@ chown -R runoob:runoobgroup \*
 
 2. RedHat 系列
 
-- 常见的安装包格式 rpm 包,安装 rpm 包的命令是“rpm -参数”
+- 常见的安装包格式 rpm 包,安装 rpm 包的命令是`rpm -参数`
 - 包管理工具 yum
 - 支持 tar 包
 
 3. Debian 系列
 
-- 常见的安装包格式 deb 包,安装 deb 包的命令是“dpkg -参数”
+- 常见的安装包格式 deb 包,安装 deb 包的命令是`dpkg -参数`
 - 包管理工具 apt-get
 - 支持 tar 包
 
@@ -301,7 +301,7 @@ chown -R runoob:runoobgroup \*
 
 6. wget 和 yum 的比较
 
-- wget 是一种下载工具是通过 HTTP、HTTPS、FTP 三个最常见的 TCP/IP 协议下载，并可以使用 HTTP 代理，而且 wget 可以在用户退出系统的之后在后台执行。名字是 World Wide Web”与“get”的结合。
+- wget 是一种下载工具是通过 HTTP、HTTPS、FTP 三个最常见的 TCP/IP 协议下载，并可以使用 HTTP 代理，而且 wget 可以在用户退出系统的之后在后台执行。名字是 World Wide Web 与 get 的结合。
 - 而 yum 是 redhat，centos 系统下的软件安装方式，基于 Linux，是一个在 Fedora 和 RedHat 以及 CentOS 中的 Shell 前端软件包管理器。是基于 RPM 包管理，能够从指定的服务器自动下载 RPM 包并且安装，可以自动处理依赖性关系，并且一次安装所有依赖的软件包。
 - rpm: 软件管理； redhat 的软件格式 `rpm r=redhat p=package m=management`；
 - 用于安装、卸载`.rpm`软件
@@ -460,7 +460,37 @@ $ loginctl list-users
 $ loginctl show-user ruanyf
 ```
 
-###
+### telnet
+
+- 什么是 Telnet？对于 Telnet 的认识，不同的人持有不同的观点，可以把 Telnet 当成一种通信协议，但是对于入侵者而言，Telnet 只是一种远程登录的工具。一旦入侵者与远程主机建立了 Telnet 连接，入侵者便可以使用目标主机上的软、硬件资源，而入侵者的本地机只相当于一个只有键盘和显示器的终端而已。
+- 为什么需要 telnet？telnet 就是查看某个端口是否可访问。我们在搞开发的时候，经常要用的端口就是 8080。那么你可以启动服务器，用 telnet 去查看这个端口是否可用。
+- Telnet 协议是 TCP/IP 协议家族中的一员，是 Internet 远程登陆服务的标准协议和主要方式。它为用户提供了在本地计算机上完成远程主机工作的能力。在终端使用者的电脑上使用 telnet 程序，用它连接到服务器。终端使用者可以在 telnet 程序中输入命令，这些命令会在服务器上运行，就像直接在服务器的控制台上输入一样。可以在本地就能控制服务器。要开始一个 telnet 会话，必须输入用户名和密码来登录服务器。Telnet 是常用的远程控制 Web 服务器的方法。
+- Telnet 客户端命常用命令：
+  - open : 使用 openhostname 可以建立到主机的 Telnet 连接。
+  - close : 使用命令 close 命令可以关闭现有的 Telnet 连接。
+  - display : 使用 display 命令可以查看 Telnet 客户端的当前设置。
+  - send : 使用 send 命令可以向 Telnet 服务器发送命令。支持以下命令：
+  - ao : 放弃输出命令。
+  - ayt : `Are you there`命令。
+  - esc : 发送当前的转义字符。
+  - ip : 中断进程命令。
+  - synch : 执行 Telnet 同步操作。
+  - brk : 发送信号。
+- 上表所列命令以外的其他命令都将以字符串的形式发送至 Telnet 服务器。例如，sendabcd 将发送字符串 abcd 至 Telnet 服务器，这样，Telnet 会话窗口中将出现该字符串。
+- quit ：使用 quit 命令可以退出 Telnet 客户端。
+- telnet 用于远程登录到网络中的计算机，并以命令行的方式远程管理计算机。需要注意的是，远程机器必须启动 telnet 服务器，否则无法打开 telnet 命令。
+- 例如：在命令提示符中输入`telnet 114.80.67.193`，按回车键，但是为了安全起见，要输入`n`并按回车键，出现登录提示符。输入登录名后，按回车键即可登录到远程机器。
+- 使用 telnet 的 open 子命令远程登录远程机器。命令格式：`open hostname[port]`，hostname 为 ip 地址，port 默认为 23。 在 telnet 提示符下输入`open 114.80.67.193`，按回车键。再输入`n`，根据提示输入用户名和密码即可远程机器上。
+- 使用 telnet 的 unset 子命令关闭本地回显功能。操作过程：先在命令提示符中输入`telnet`，按回车键；然后输入`setlocalecho`，按回车键，即可打开本地回显功能；如要关闭回显能力，只要在 telnet 命令提示符后输入`unsetlocalecho`，按回车。
+- 使用 telnet 的 status 子命令查看连接状态。操作过程： 输入`telnet`进入 telnet 命令，再输入`status`，按回车，此时显示当前已经登录到 IP 为 114.80.67.193 的机器上。
+- Windows 开启 Telnet 功能：
+  - Windows7： 开始　 → 　控制面板　 → 　程序和功能　 → 　打开或关闭 Windows 功能，在这里就可以看到`telnet服务器`和`telnet客服端`。
+  - Windows10： 控制面板　 → 程序 → 　程序和功能　 → 　启用或关闭 Windows 功能，点击打开之后就能找到，勾选并确定等待安装完毕即可。
+  - 使用第三方工具 putty 等
+- MacOS 上：
+  - `brew install telnet`
+  - 使用 terminus 等工具
+- 以上主要是用作客户端的一些知识
 
 ## 修改密码并改 SSH 秘钥登录为密码登录
 
