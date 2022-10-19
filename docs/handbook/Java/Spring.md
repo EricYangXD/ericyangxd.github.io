@@ -112,3 +112,56 @@ meta:
 
 
 ```
+
+### 注解模式开发
+
+1. 定义 bean
+
+   - @Component
+
+     - @Controller
+     - @Service
+     - @Repository
+
+   - `<context:component-scan/>`
+
+2. 纯注解开发
+
+   - @Configuration
+   - @ComponentScan，多个值用数组
+   - @AnnotationConfigApplicationContext
+
+3. bean 生命周期
+   - 作用范围@Scope
+   - 使用@PostConstruct、@PreDestroy 定义 bean 生命周期
+
+```java
+@Repository
+@Scope("singleton") // 单例模式，prototype:非单例
+public class BookDaoImpl implements BookDao{
+   public BookDaoImpl(){...}
+   @PostConstruct
+   public void init(){...}
+   @PreDestroy
+   public void destroy(){...}
+}
+```
+
+4. 自动装配：无同名 bean 时直接使用@AutoWired，按类型装配，使用反射里面的暴力反射简化代码书写。有同名 bean 时，1 可以通过按名称装配，在 bean 中使用@Repository("xx")注解的形式区分；2 是使用@Qualifier("beanName")注解的形式开启指定名称装配 bean，直接使用。
+   - 注意：自动装配基于反射设计创建对象并暴力反射对应属性为私有属性初始化数据，因此无需提供 setter 方法
+   - 注意：自动装配建议使用无参构造方法创建对象（默认），如果不提供对应的构造方法，请提供唯一的构造方法
+   - 注意：@Qualifier 注解无法单独使用，必须配合@AutoWired 注解使用
+   - 使用@Value 实现简单类型/值类型的注入
+5. 加载外部 properties 文件
+   - 使用@PropertySource 注解加载 properties 文件，不支持`*`文件名
+   - 注意：路径仅支持单一文件配置，多文件请使用数组格式配置，不允许使用通配符`*`
+6. 第三方 bean 管理
+
+   - 使用@Bean 定义一个返回这 bean 实例的方法
+   - 将独立的配置类加入核心配置
+     - 方式一：导入式，使用@Import 注解手动加入配置类到核心配置，此注解只能添加一次，多个数据使用数组格式。推荐
+     - 方式二：扫描式，使用@ComponentScan({"xx.config"})注解扫描配置类所在的包，加载对应的配置类信息。不推荐
+
+7. 第三方 bean 的依赖注入
+   1. 简单类型：直接使用@Value 注解，相当于变量的形式
+   2. 引用类型：在@Bean 下定义的方法中定义形参，然后就能直接使用，会自动按类型检测。容器会根据类型自动装配对象。
