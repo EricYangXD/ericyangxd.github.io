@@ -168,7 +168,50 @@ public class BookDaoImpl implements BookDao{
 
 ### AOP
 
+- 基础：
+
 1. 面向切面编程，一种编程范式，指导开发者如何组织程序结构。作用是在不惊动原始设计的基础上为其进行功能增强。
 2. Spring 倡导无侵入式编程
 3. ![AOP核心概念](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221020143540.png)
-4.
+4. 连接点：程序执行过程中的任意位置，粒度为执行方法、抛出异常、设置变量等
+   1. 在 SpringAOP 中，理解为方法的执行
+5. 切入点：匹配连接点的式子。在 SpringAOP 中，一个切入点可以只描述一个具体方法，也可以匹配多个方法
+   1. 一个具体方法：某个包下某个接口中的无形参无返回值的某个方法
+   2. 匹配多个方法：所有的 save 方法，所有的 get 开头的方法，所有的以 Dao 结尾的接口中的任意方法。。
+6. 通知：在切入点处执行的操作，也就是共性功能
+   1. 在 SpringAOP 中，功能最终以方法的形式呈现
+7. 通知类：定义通知的类
+8. 切面：描述通知与切入点的对应关系
+
+- 实战：
+
+1. 导包：`org.springframework.spring-context`，`org.aspectj.aspectjweaver`
+2. 保持原来的接口和实现类不变
+3. Spring 的执行程序（main 方法）也不变
+4. SpringConfig 中，增加`@EnableAspectJAutoProxy`注解，告诉程序我们要用注解开发 AOP
+5. AOP 通知类（自己创建）上，增加`@Component`注解，告诉 Spring 来加载。增加`@Aspect`注解，进行关联通知。
+6. 在通知类中，新增一个私有的空方法`pt()`做通知，名字任意，无参无返回值无实际逻辑，使用`@Pointcut`注解，并传入：`"execution(void com.xxx.BookDao.xx())"`
+7. 把切入点（抽出来的函数）与通知绑定，通过`@Before("pt()")`的形式
+8. SpringAOP 的核心模式就是代理模式
+9. 切入点：要进行增强的方法
+10. 切入点表达式：要进行增强的方法的描述方式，有两种描述方式：
+    1. 执行 com.xxx.dao 包下的 BookDao 接口中的无参数 update 方法
+    2. 执行 com.xxx.dao.impl 包下的 BookDaoImpl 类中的无参数 update 方法
+11. 切入点表达式标准格式：`动作关键字(访问修饰符 返回值 包名.类/接口名.方法名(参数)异常名)`
+    1. 动作关键字：描述切入点的行为动作。例如 execution 表示执行到指定切入点
+    2. 访问修饰符：public，private 等可以省略
+    3. 返回值
+    4. 包名
+    5. 类/接口名
+    6. 方法名
+    7. 参数
+    8. 异常名：方法定义中抛出指定异常，可以省略
+12. 可以使用通配符描述切入点，快速描述
+    1. `*`：单个独立的任意符号，可以独立出现，也可以作为前缀或者后缀的匹配符出现，`@Pointcut("execution(public * com.xxx.*.BookDao.find* (*))")`
+    2. `..`：多个连续的任意符号，可以独立出现，常用于简化包名与参数的书写，`execution(public User com..BookDao.findById (..))`
+    3. `+`：专用于匹配子类类型，`execution(* *..*Service+.*(..))`
+    4. 终极写法：`execution(* *..*(..))`，不常用
+13. ![20221020220453](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20221020220453.png)
+14. ![20221020221605](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20221020221605.png)
+15. ![20221020221529](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20221020221529.png)
+16. ![20221020221629](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20221020221629.png)
