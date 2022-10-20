@@ -8,28 +8,28 @@ date: "2021-12-28"
 
 ### Vue3.0
 
-- 如图：[生命周期](../../assets/lifecycle.svg)
+- 如图：![生命周期](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/lifecycle.svg)
 
 - 生命周期钩子
 
-0. `Vue.createApp(options).mount(el)`；
-1. `init events & lifecycle`；
-2. beforeCreate 钩子：此时创建了一个空白的 Vue 实例；data、methods 尚未初始化，不可用；
-3. `init injections & reactivity`；
-4. created 钩子：此时 Vue 实例初始化完成，完成响应式绑定；data、methods 都已经初始化完成，可以调用；尚未开始渲染模板；
-5. 判断`options`里面是否有`template`属性？如果有`template`，则把`template`编译成 render 函数，否则把 el 的 innerHTML 编译成模板；
-6. beforeMount 钩子：此时编译模板，调用 render 生成 vdom；还没有开始渲染 dom；dom 不可用；
-7. `create app.$el and append it to el`；
-8. mounted 钩子：此时已经把 vdom 转化成真实的 dom 节点并挂载到 el 上，完成 dom 渲染；组件就创建完成了；此时可以操作 dom，并由「创建阶段」进入「运行阶段」。
-9. 在 Mounted 之后进入运行阶段，当 data 发生变化时，进入 Update 更新阶段；
-10. beforeUpdate 钩子：此时 data 发生变化，准备更新 dom；
-11. `vdom diff、re-rendered and patch`；
-12. updated 钩子：此时 dom 已完成更新，data 的变化已反映在 dom 上；不要在此时修改 data，否则会死循环！
-13. 然后进入「销毁阶段」时：即触发`app.unmount()`之后；
-14. beforeUnmount 钩子：组件卸载之前，组件尚未销毁依然可正常使用，此时可以清理一些全局事件、自定义事件，如定时器、事件监听等；
-15. unmounted 钩子：组件包括所有的子组件都已卸载/销毁；
-16. 被`keep-alive`包裹的组件的生命周期：activated 和 deactivated，激活和未激活；
-17. activated：初次渲染，先 created，然后 activated；之后切换时，只会触发 deactivated（先，要隐藏的） 和 activated（后，要激活的）；
+1. `Vue.createApp(options).mount(el)`；
+2. `init events & lifecycle`；
+3. beforeCreate 钩子：此时创建了一个空白的 Vue 实例；data、methods 尚未初始化，不可用；
+4. `init injections & reactivity`；
+5. created 钩子：此时 Vue 实例初始化完成，完成响应式绑定；data、methods 都已经初始化完成，可以调用；尚未开始渲染模板；
+6. 判断`options`里面是否有`template`属性？如果有`template`，则把`template`编译成 render 函数，否则把 el 的 innerHTML 编译成模板；
+7. beforeMount 钩子：此时编译模板，调用 render 生成 vdom；还没有开始渲染 dom；dom 不可用；
+8. `create app.$el and append it to el`；
+9. mounted 钩子：此时已经把 vdom 转化成真实的 dom 节点并挂载到 el 上，完成 dom 渲染；组件就创建完成了；此时可以操作 dom，并由「创建阶段」进入「运行阶段」。
+10. 在 Mounted 之后进入运行阶段，当 data 发生变化时，进入 Update 更新阶段；
+11. beforeUpdate 钩子：此时 data 发生变化，准备更新 dom；
+12. `vdom diff、re-rendered and patch`；
+13. updated 钩子：此时 dom 已完成更新，data 的变化已反映在 dom 上；不要在此时修改 data，否则会死循环！
+14. 然后进入「销毁阶段」时：即触发`app.unmount()`之后；
+15. beforeUnmount 钩子：组件卸载之前，组件尚未销毁依然可正常使用，此时可以清理一些全局事件、自定义事件，如定时器、事件监听等；
+16. unmounted 钩子：组件包括所有的子组件都已卸载/销毁；
+17. 被`keep-alive`包裹的组件的生命周期：activated 和 deactivated，激活和未激活；
+18. activated：初次渲染，先 created，然后 activated；之后切换时，只会触发 deactivated（先，要隐藏的） 和 activated（后，要激活的）；
 
 - Vue3 Composition API 生命周期的变化：
 

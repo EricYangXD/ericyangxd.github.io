@@ -277,8 +277,8 @@ HEAD 方法可以看做是 GET 方法的一个`简化版`或者`轻量版`。因
 
 ## 中间人攻击
 
-1. https 加密过程，[加密过程](../assets/../../assets/zjrgj.png)
-2. 中间人攻击，[原理](../assets/../../assets/zjr.png)
+1. https 加密过程，![加密过程](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/zjrgj.png)
+2. 中间人攻击，![原理](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/zjr.png)
 
 ## URI 转译
 

@@ -225,8 +225,8 @@ ssh -v git@8.8.8.8
 
 Linux chown（英文全拼：change owner）命令用于设置文件所有者和文件关联组的命令。
 
-- chown 需要超级用户 root 的权限才能执行此命令。
-- chown [-cfhvR] [--help] [--version] user[:group] file...
+- `chown` 需要超级用户 root 的权限才能执行此命令。
+- `chown [-cfhvR] [--help] [--version] user[:group] file...`
 
 参数 :
 

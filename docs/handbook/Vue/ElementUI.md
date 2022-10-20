@@ -205,7 +205,7 @@ date: "2021-12-28"
 - on-success 文件上传成功时的钩子
 - before-upload 上传文件之前的钩子，参数为上传的文件，若返回 false 或者返回 Promise 且被 reject，则停止上传。
 - before-remove 删除文件之前的钩子，参数为上传的文件和文件列表，若返回 false 或者返回 Promise 且被 reject，则停止删除。
-- file-list 上传的文件列表, 例如: [{name: 'food.jpg', url: 'https://xxx.cdn.com/xxx.jpg'}]
+- file-list 上传的文件列表, 例如: `[{name: 'food.jpg', url: 'https://xxx.cdn.com/xxx.jpg'}]`
 - auto-upload 是否在选取文件后立即进行上传
 - list-type 文件列表的类型 text/picture/picture-card
 - http-request 覆盖默认的上传行为，可以自定义上传的实现

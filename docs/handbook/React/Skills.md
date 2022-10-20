@@ -136,7 +136,7 @@ class Clock extends React.Component {
 
 - 简单易懂版
 
-![img](../../assets/react-lifecycle.png "React生命周期")
+![img](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/react-lifecycle.png "React生命周期")
 
 - 当首次挂载组件时，按顺序执行 getDefaultProps、getInitialState、componentWillMount、render 和 componentDidMount。
 - 当卸载组件时，执行 componentWillUnmount。
@@ -398,7 +398,7 @@ function App() {
 
 ## React 常用方法及周边
 
-- [React 总结](../../assets/react-zj.jpg)
+![React 总结](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/react-zj.jpg)
 
 ## React.createRef
 

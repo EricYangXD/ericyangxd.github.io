@@ -372,7 +372,7 @@ SubType.sayAge(); // 'gim'
 SubType.sayName(); // '17'
 ```
 
-[行为委托](../../assets//xwwt.png "行为委托")
+![行为委托](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/xwwt.png "行为委托")
 
 ### sleep 函数
 
@@ -401,7 +401,7 @@ const sleep = (timeoutMs) =>
 
 ### 隐式类型转换
 
-![隐式类型转换](../../assets/type-trans.png)
+![隐式类型转换](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/type-trans.png)
 
 ### 判断是否运行在移动端
 

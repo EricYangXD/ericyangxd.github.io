@@ -125,11 +125,11 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
 6. 现在你需要确保将 `maven/bin` 目录添加到你的 PATH 变量中，否则你不能从任何地方调用`mvn`命令（比如：`mvn clean install`）。
 7. 看一下 Maven 构建生命周期：阶段
 
-[maven-lifecycle](../../assets/maven-lifecycle.png)
+![maven-lifecycle](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/maven-lifecycle.png)
 
-8. 当你调用 `mvn deploy` 时，mvn 也会在部署前执行每个生命周期阶段，依次为：validate, compile, test, package, verify, install.
-9. Same for verify: validate, compile, test, package. Same for all other phases.
-10. 由于 clean 不是 Maven 默认生命周期的一部分，因此您最终会使用 `mvn clean install` 或 `mvn clean package` 之类的命令安装或打包将触发所有前面的阶段，但您需要另外指定 clean。
+1. 当你调用 `mvn deploy` 时，mvn 也会在部署前执行每个生命周期阶段，依次为：validate, compile, test, package, verify, install.
+2. Same for verify: validate, compile, test, package. Same for all other phases.
+3. 由于 clean 不是 Maven 默认生命周期的一部分，因此您最终会使用 `mvn clean install` 或 `mvn clean package` 之类的命令安装或打包将触发所有前面的阶段，但您需要另外指定 clean。
 
 > Maven 在哪里存储 3rd 方库？
 

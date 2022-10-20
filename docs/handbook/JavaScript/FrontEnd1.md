@@ -188,7 +188,7 @@ traverse(ast, {
 - 帧刷新不能被拖延否则会卡顿甚至掉帧，所以就需要 JS 代码里面不要做过多计算，于是有了 requestIdleCallback 的 api，希望在每次 check 完发现还有时间就执行，没时间就不执行（这个 deadline 的时间也作为参数让 js 代码自己判断），为了避免一直没时间，还提供了 timeout 参数强制执行。
 - 防止计算时间过长导致渲染掉帧是 ui 框架一直关注的问题，就是怎么不阻塞渲染，让逻辑能够拆成帧间隔时间内能够执行完的小块。浏览器提供了 idelcallback 的 api，很多 ui 框架也通过递归改循环然后记录状态等方式实现了计算量的拆分，目的只有一个：loop 内的逻辑执行不能阻塞 check，也就是不能阻塞渲染引擎做帧刷新。所以不管是 JS 代码宏微任务、 requestAnimationCallback、requestIdleCallback 都不能计算时间太长。这个问题是前端开发的持续性阵痛。
 
-![image](../../assets/640.png)
+![image](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/640.png)
 
 - js 引擎包括 parser、解释器、gc 再加一个 JIT 编译器这几部分。
 - parser：负责把 javascript 源码转成 AST
@@ -196,7 +196,7 @@ traverse(ast, {
 - JIT compiler：对执行时的热点函数进行编译，把字节码转成机器码，之后可以直接执行机器码
 - gc（garbage collector）：垃圾回收器，清理堆内存中不再使用的对象
 
-![image](../../assets/6400.png)
+![image](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/6400.png)
 
 - 如图，一般的 JS 引擎的编译流水线是 parse 源码成 AST，之后 AST 转为字节码，解释执行字节码。运行时会收集函数执行的频率，对于到达了一定阈值的热点代码，会把对应的字节码转成机器码（JIT），然后直接执行。这就是 js 代码能够生效的流程。
 
@@ -978,7 +978,7 @@ function sieOfLS() {
 
 ## blob、dataUrl、ArrayBuffer
 
-- [图片](../../assets/image.jpg)
+- ![image](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/image.jpg)
 
 ## referrer
 
@@ -1009,7 +1009,7 @@ https://tinypng.com/
 
 js 采用 IEEE754 标准中的 双精度浮点数来表示一个数字，标准规定双精度浮点数采用 64 位存储，即 8 个字节表示一个浮点数。
 
-[图](../../assets/number.png)
+![图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/number.png)
 
 在双精度浮点数中，第一位的 1bit 符号位 决定了这个数的正负，指数部分的 11bit 决定数值大小，小数部分的 52bit 决定数值精度。
 
@@ -1193,7 +1193,7 @@ JavaScript 语言的作用域链是由词法作用域决定的，而词法作用
 
 ## 计算机网络模型
 
-[计算机网络模型](../../assets/network.jpg "计算机网络模型")
+![计算机网络模型](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/network.jpg "计算机网络模型")
 
 ## 输入 URL 到页面展示的过程
 
@@ -1226,9 +1226,9 @@ JavaScript 语言的作用域链是由词法作用域决定的，而词法作用
 
 ### 渲染过程
 
-渲染过程：[渲染流水线](../../assets/render.jpg "渲染流水线")
+渲染过程：![渲染流水线](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/render.jpg "渲染流水线")
 
-总结：[总结](../../assets/layout.jpg "总结")
+总结：![总结](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/layout.jpg "总结")
 
 ### 减少重排重绘
 

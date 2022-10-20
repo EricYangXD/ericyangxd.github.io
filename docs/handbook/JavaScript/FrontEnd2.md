@@ -1388,7 +1388,7 @@ HTML `<picture>` 元素通过包含零或多个 `<source>` 元素和一个 `<img
 2. ReactDOM.hydrate(element,container)
 3. renderToNodeStream/renderToString 对最终的渲染结果没区别，前者性能要好得多，因为组件渲染为字符串，是一次性处理完之后才开始向浏览器端返回结果，而采用流的话可以边读边输出，可以让页面更快的展现，缩短首屏展示时间。
 4. 发起请求到渲染流程：
-   - [流程图](../../assets/ssr1.png)
+   - ![流程图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/ssr1.png)
    - 从图中可以看出：同一份代码需要运行两次，一次在服务端渲染完成页面结构，一次在客户端渲染完成事件绑定。
    - 所谓同构就是采用一套代码，构建双端逻辑，最大限度重用代码，不需维护两套代码。
    - 还有一个重要特性也是同构的重要体现：浏览器接管页面后的进一步渲染（交互、事件）过程中，会判断已有的 DOM 结构和浏览器渲染出的结构是否相同，若相同则不重复渲染，只需绑定事件即可。该特性是 react 提供的双端节点对比功能。
@@ -1509,7 +1509,7 @@ iOS 中有两种 webview，一种是 UIWebview，另一种是 WKWebview，这里
 
 - 如果从 native 获取到的 message 中有 responseId，说明这个 message 是 JS 调 Native 之后回调接收的 message，所以从一开始 sendData 中添加的 responseCallbacks 中根据 responseId（一开始存的时候是用的 callbackId，两个值是相同的）取出这个回调函数并执行，这样就完成了一次 JS 调用 Native 的流程。
 
-4. 过程总结，如图：[webview 调用 native 能力](../../assets/jsb1.jpeg)
+4. 过程总结，如图：![webview 调用 native 能力](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/jsb1.jpeg)
 
 - native 端注册 jsb
 - webview 侧创建 iframe，设置 src 为`__bridge_load__`
@@ -1520,7 +1520,7 @@ iOS 中有两种 webview，一种是 UIWebview，另一种是 WKWebview，这里
 
 #### 5.native 调用 webview 能力
 
-native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通过触发 iframe 的 src 触发执行的了，因为 Native 可以自己主动调用 JS 侧的方法。毕竟不管是 iOS 的 UIWebView 还是 WKWebView，还是 Android 的 WebView 组件，都以子组件的形式存在于 View/Activity 中，直接调用相应的 API 即可。其具体过程如图：[native 调用 webview 能力](../../assets/jsb2.jpeg)
+native 调用 webview 注册的 jsb 的逻辑是相似的，不过就不是通过触发 iframe 的 src 触发执行的了，因为 Native 可以自己主动调用 JS 侧的方法。毕竟不管是 iOS 的 UIWebView 还是 WKWebView，还是 Android 的 WebView 组件，都以子组件的形式存在于 View/Activity 中，直接调用相应的 API 即可。其具体过程如图：![native 调用 webview 能力](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/jsb2.jpeg)
 
 Native 调用 JavaScript，其实就是执行拼接 JavaScript 字符串，从外部调用 JavaScript 中的方法，因此 JavaScript 的方法必须在全局的 window 上。
 

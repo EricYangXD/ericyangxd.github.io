@@ -294,7 +294,7 @@ div {
 
 ## 水平垂直居中
 
-- ![水平垂直居中](../../assets/spczjz.jpg "水平垂直居中")
+- ![水平垂直居中](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/spczjz.jpg "水平垂直居中")
 
 ## CSS 伪类与伪元素
 

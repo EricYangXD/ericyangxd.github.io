@@ -31,7 +31,7 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 - Docker Daemon 是通过 Docker Server 模块接受 Docker Client 的请求，并在 Engine 中处理请求，然后根据请求类型，创建出指定的 Job 并运行，运行过程的几种可能：向 Docker Registry 获取镜像，通过 graphdriver 执行容器镜像的本地化操作，通过 networkdriver 执行容器网络环境的配置，通过 execdriver 执行容器内部运行的执行工作等。
 
-- [启动 docker daemon](../../assets/docker-brew.jpg)
+- [启动 docker daemon](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/docker-brew.jpg)
 
 ## Docker 的使用
 

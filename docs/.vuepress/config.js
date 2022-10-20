@@ -458,6 +458,7 @@ module.exports = {
 		huawei: true,
 		// logo: "/public/logo.png",
 		// authorAvatar: "/public/logo.png",
+		// authorAvatar: "https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/header.png",
 		type: "blog",
 		//友情链接
 		// friendLink: [

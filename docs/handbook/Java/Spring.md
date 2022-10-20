@@ -165,3 +165,10 @@ public class BookDaoImpl implements BookDao{
 7. 第三方 bean 的依赖注入
    1. 简单类型：直接使用@Value 注解，相当于变量的形式
    2. 引用类型：在@Bean 下定义的方法中定义形参，然后就能直接使用，会自动按类型检测。容器会根据类型自动装配对象。
+
+### AOP
+
+1. 面向切面编程，一种编程范式，指导开发者如何组织程序结构。作用是在不惊动原始设计的基础上为其进行功能增强。
+2. Spring 倡导无侵入式编程
+3. ![AOP核心概念](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221020143540.png)
+4.

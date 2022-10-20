@@ -136,3 +136,20 @@ nodejs 中的 `protobufjs` 库包含一个 `toObject` 方法，该方法提供�
 # 构建 favicon
 "build:favicon": "node scripts/favicon.js",
 ```
+
+### npm adduser
+
+切换私有仓库之后，可能需要登录才能下载依赖。
+
+1. `yrm/nrm` 切换到对应的源。或者手动切换`npm config set registry=xxxx`。
+2. 然后`npm adduser`:输入用户名密码邮箱即可。
+3. 之后`.npmrc`文件中会增加一行类似：`//registry.npmjs.org/:_authToken=MYTOKEN`
+4. 重新`npm i`。
+5. [参考这里](https://docs.npmjs.com/cli/v8/configuring-npm/npmrc)
+
+> `Unable to authenticate, need: BASIC realm="Sonatype Nexus Repository Manager"`这个报错怎么解决？
+
+1. 如上，登录即可，注意`.npmrc`文件中的 registry 要配置正确，应该以`/`结尾？？（TODO）
+2. `package-lock=false` // 在安装时忽略 lock 文件。
+3. `loglevel=timing` // 安装依赖包的时候指定日志的类型
+4. `ignore-scripts=false` // 执行通过`npm i`安装的依赖中的脚本

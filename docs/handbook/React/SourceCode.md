@@ -865,7 +865,7 @@ shouldComponentUpdate 可以根据传入的新的 props 和 state ，或者 newC
 
 ### 6 渲染控制流程图
 
-[渲染控制流程图](../../assets/renderControl.png)
+![渲染控制流程图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/renderControl.png)
 
 ### 什么时候需要注意渲染节流
 
@@ -1246,8 +1246,9 @@ React 发生一次更新，会统一走 `ensureRootIsScheduled（调度应用）
 7. `workloop`: 这个 workLoop 是调度中的 workLoop，不要把它和调和中的 workLoop 弄混淆了。workLoop 会依次更新过期任务队列中的任务。到此为止，完成整个调度过程。
 8. shouldYield 中止 workloop: 在 fiber 的异步更新任务 workLoopConcurrent 中，每一个 fiber 的 workloop 都会调用 shouldYield 判断是否有超时更新的任务，如果有，那么停止 workLoop。
 
-[调度流程图](../../assets/scheduler.png)
-[调和 + 异步调度 流程总图](../../assets/reconciler.png)
+![调度流程图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/scheduler.png)
+
+![调和 + 异步调度 流程总图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/reconciler.png)
 
 ## 调和与 fiber
 
@@ -1325,4 +1326,4 @@ Reactv16 为了解决卡顿问题引入了 fiber，为什么它能解决卡顿�
    - 如果有 ref ，会重新赋值 ref 。
 7. 对 commit 阶段做一个总结，主要做的事就是执行 effectList，更新 DOM，执行生命周期，获取 ref 等操作。
 
-[调和 + 异步调度 流程总图](../../assets//sche_rcon.png)
+![调和 + 异步调度 流程总图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/sche_rcon.png)

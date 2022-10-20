@@ -1631,7 +1631,7 @@ npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Ha
 2. 然后检查项目中是否有 package-lock.json 文件。
    - 如果有，检查 package-lock.json 和 package.json 中声明的依赖是否一致
      - 一致：直接使用 package-lock.json 中声明的依赖，从缓存或者网络中加载依赖
-     - 不一致：各个版本的 npm 处理方式：[各个版本的 npm 处理方式](../../assets/npm-v.png)
+     - 不一致：各个版本的 npm 处理方式：![各个版本的 npm 处理方式](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/npm-v.png)
    - 如果没有，根据 package.json 递归构建依赖树，然后根据依赖树下载完整的依赖资源，在下载时会检查是否有相关的资源缓存
      - 存在：将缓存资源解压到 node_modules 中
      - 不存在：从远程仓库下载资源包，并校验完整性，并添加到缓存，同时解压到 node_modules 中
@@ -1770,7 +1770,7 @@ Proxy：在对象之间架设一个拦截层，对一些操作进行拦截和处
 
 订阅/绑定一些事件`eventBus.on('event1',()=>{});`，然后发布/触发这些事件`eventBus.emit('event1',props);`，绑定的事件在组件销毁时记得删除解绑。Publisher 和 Observer 互不认识，需要中间媒介 Event Channel。
 
-和观察者模式的区别：[对比](../../assets/subwatcher.png)
+和观察者模式的区别：![对比](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/subwatcher.png)
 
 #### 装饰器模式
 
@@ -2453,8 +2453,8 @@ Webpack HMR 特性的原理并不复杂，核心流程：
 6. Webpack 运行时触发变更模块的 module.hot.accept 回调，执行代码变更逻辑
 7. done
 
-[参考](../../assets/hmr.png)
-[参考](../../assets/hmr-process.png)
+![hmr](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/hmr.png)
+![hmr-process](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/hmr-process.png)
 
 Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSocket 发送变更消息；二是需要客户端提供配合，通过 module.hot.accept 接口明确告知 Webpack 如何执行代码替换。
 
