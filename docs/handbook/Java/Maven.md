@@ -84,6 +84,22 @@ meta:
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        <!-- （5）  xxx-common 是继承的父依赖   -->
+        <dependency>
+            <groupId>com.xx.xxx</groupId>
+            <artifactId>xxx-common</artifactId>
+            <version>1.0.0</version>
+            <!-- (6) -->
+            <type>pom</type>
+            <exclusions>
+                <exclusion>
+                    <!--   nacos 配置冲突，需要排除   -->
+                    <groupId>com.alibaba.cloud</groupId>
+                    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 </project>
 ```
@@ -94,6 +110,9 @@ meta:
 2. 版本号为 `1.0-SNAPSHOT`，例：`work-in-progress`
 3. 使用 Java 1.8 进行编译
 4. 单元测试需要一个依赖项：4.12 版本的 junit
+5. 引入父依赖并排除指定的依赖关系，也可以在子模块中重新引用相应的版本。
+6. `type=pom`表示对这个以来做一个单独的聚合管理，减少配置代码。这一个依赖实际是多个依赖的组合。比如引入 Spring 时可以这么配置。
+7. PS：当改变了某个模块的依赖之后，这个模块又被其他模块引用了，那么此时需要重新运行`mvn clean install`，重新打 jar/war 包。
 
 PS：[Maven 中常用的各个标签的含义](./pom.xml)
 
@@ -277,3 +296,17 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
    2. 代理仓库 proxy：代理远程仓库，通过 nexus 访问其他公共仓库，例如中央仓库。
    3. 仓库组 group：将若干仓库组成一个群组，简化配置；仓库组不能保存资源，属于设计性仓库。
 4. 发布管理配置：在 `pom.xml` 的 `distributionManagement` 标签中配置私服的地址，`mvn deploy`
+
+### 插件
+
+1. 依赖检查：`org.owasp:dependency-check-maven`
+
+```xml
+ <dependency>
+    <groupId>org.owasp</groupId>
+    <artifactId>dependency-check-maven</artifactId>
+    <version>6.5.2</version>
+</dependency>
+```
+
+2. TODO

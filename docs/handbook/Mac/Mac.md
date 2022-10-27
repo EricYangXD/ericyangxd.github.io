@@ -307,3 +307,15 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 #### Terminus
 
 有免费版本，可以 Telnet、ssh、ftp 等，[download](https://www.termius.com/mac-os)
+
+#### iTerm2
+
+- 也可以配置
+  - scp：`scp -r username@ip:folder username@ip:folder`
+  - 使用 rz 和 sz 的方式进行，在安装完成 iTerm2 之后打开，然后使用 homebrew 的方式安装 lrzsz，[教程 1](https://github.com/RobberPhex/iterm2-zmodem)，[教程 2](https://blog.csdn.net/whowhowhoisimportant/article/details/117566485)
+- 配置`alt/option + 左右箭头`在文字间跳转
+  - Go to iTerm `Preferences` → `Profiles`
+  - select your profile
+  - then the `Keys` tab with its sub-tab `Key Mappings`
+  - Click `Load Preset`...
+  - and choose `Natural Text Editing`

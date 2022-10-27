@@ -213,5 +213,100 @@ public class BookDaoImpl implements BookDao{
     4. 终极写法：`execution(* *..*(..))`，不常用
 13. ![20221020220453](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20221020220453.png)
 14. ![20221020221605](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20221020221605.png)
+    1. 关键步骤如下：
+    2. `@Around()`
+    3. `Object`
+    4. `Throwable`
+    5. `ProceedingJoinPoint pjp`
+    6. `pjp.proceed()`
+    7. `return ret`
+    8. 然后填充要做的操作逻辑
 15. ![20221020221529](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20221020221529.png)
 16. ![20221020221629](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20221020221629.png)
+17. `Signature sig = pjp.getSignature(); String xx = sig.getDeclaringTypeName()/getName();`获取具体执行的切入点的信息
+18. AOP 通知获取参数数据：
+    1. JoinPoint 对象描述了连接点方法的运行状态。可以获取到原始方法的调用参数，用于除了`@Around`以外的
+    2. ProceedJointPoint 是 JointPoint 的子类：用于`@Around`
+19. AOP 通知获取返回值数据：
+    1. 抛出异常后通知可以获取切入点方法中出现的异常信息，使用形参可以接受对应的异常对象。`@AfterReturning(value="pt()",returning="ret")`
+    2. 环绕通知中可以手工书写对原始方法的调用，得到的结果即为原始方法的返回值。
+20. AOP 通知获取异常数据（了解）
+    1. 抛出异常：`@AfterThrowing(value="pt()",throwing="t")`，通过形参`Throwable t`接收并使用对应的异常对象
+    2. 抛出异常后通知可以获取切入点方法运行的异常信息，使用形参可以接受运行时抛出的的异常对象，使用`try{}catch(Throwable t){...}`接受并使用
+21. 大量的相同的有共性的可以提取出来的方法，可以用 AOP，可以简化大量操作。
+
+### Spring 事务
+
+1. 事务的作用：在数据层保障一系列的数据库操作同成功同失败。
+2. Spring 事务作用：在数据层或业务层保障一系列的数据库操作同成功同失败。
+3. `interface PlatformTransactionManager`、`class DataSourceTransactionManager`
+4. 使用步骤 3 步：
+   1. 在业务层接口上添加 Spring 事务管理：`@Transactional`，通常添加在业务层接口而不是业务层实现类中，降低耦合，注解式事务可以添加到业务方法上表示当前方法开启事务，也可以添加到接口上表示当前接口所有方法开启事务
+   2. 设置事务管理器：通过 `PlatformTransactionManager` 新建一个 bean，bean 中返回 `DataSourceTransactionManager` 的实例对象。事务管理器要根据实现技术进行选择，MyBatis 框架使用的是 JDBC 事务。
+   3. 开启注解式事务驱动：`@EnableTransactionManagement`
+5. Spring 事务角色：
+   1. 事务管理员：发起事务方，在 Spring 中通常指代业务层开启事务的方法
+   2. 事务协调员：加入事务方，在 Spring 中通常指代数据层方法，也可以是业务层方法
+6. 事务相关配置：一般只在 Error 错误或运行时异常时才会导致事务回滚。有些异常是不会导致事务回滚的，比如 IOException。
+   1. 如果要加上这种异常，需在`@Transactional(rollbackFor={IOException.class})`这样配置
+   2. ![事务相关配置](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221021154844.png)
+7. 事务传播行为：事务协调员对事务管理员所携带事务的处理态度。。。
+   1. 如果某个接口或方法需要单独开启事务，需在`@Transactional(propagation=Propagation.REQUIRE_NEW)`这样配置
+   2. ![事务传播行为](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221021155835.png)
+
+## SpringMVC
+
+SpringMVC 技术与 Servlet 技术功能等同，均属于 web 层开发技术。SpringMVC 是一种基于 Java 实现 MVC 模型的轻量级 Web 框架。使用简单，开发便捷（相较于 Servlet）。灵活性强。
+
+### 使用步骤
+
+1. 先导入 `SpringMVC（spring-webmvc）`与`Servlet（javax.servlet-api）`的坐标（依赖）
+2. 创建 SpringMVC 控制器类（等同于 Servlet 功能）
+   1. 定义访问路径：`@RequestMapping("/xxx")`
+   2. 定义返回：`@ResponseBody`
+3. 初始化 SpringMVC 环境（同 Spring 环境）设定 SpringMVC 加载对应的 bean
+4. 启动 Tomcat 服务器的时候要保证能加载到服务器的配置，初始化 Servlet 容器。加载 SpringMVC 环境，并设置 SpringMVC 技术处理的请求。
+   1. 创建一个类，继承`AbstractDispatcherServletInitializer`并实现它的几个抽象方法。
+   2. 初始化一个`AnnotationConfigWebApplicationContext`并注册 SpringMvcConfig.class
+   3. 在 getServletMappings 方法中设置把所有进入 Tomcat 的请求都交由 SpringMVC 来处理。固定格式`return new String[]{"/"};`
+5. ![入门案例总结](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221021164054.png)
+6. ![入门案例工作流程分析](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221021164522.png)
+7. ![Controller加载控制与业务bean加载控制](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221021171118.png)
+8. 乱码处理：重写 `getServletFilters()`，`return new Filter[]{new CharacterEncodingFilter().setEncoding("UTF-8")};`
+9. get 请求：在@Controller 中
+   1. 注解`@RequestMapping("函数名，也是请求的 path")`
+   2. 注解`@ResponseBody`
+   3. 编写响应函数体，通过形参接收参数，通过`(@RequestParam("name") String username, ... )`设置参数别名，return 返回响应字符串
+10. post 请求：
+    1. 通过`x-www-form-urlencoded`发送时，Java 代码和 get 请求一样
+11. 参数传递：
+    1. 普通参数如上
+    2. POJO 参数：通过实体类来接收，使用时直接以形参注入
+    3. 嵌套 POJO 参数一样，请求时嵌套属性以 AA.bb 的形式请求
+    4. 数组参数：多个相同的属性会自动组成数组
+    5. 集合参数：通过`@RequestParam List<String> lists`来接收
+    6. 各种 JSON 数据（包括 POJO，POJO 集合）对象数组等：
+       1. 添加依赖`jackson-databind`
+       2. SpringMvcConfig 中添加`@EnableWebMvc`注解
+       3. 通过`@RequestBody List<String> lists`来接收
+12. `@RequestBody`与`@RequestParam`的区别：
+    1. `@RequestParam`用于接收 url 地址传参，表单传参`application/x-www-form-urlencoded`
+    2. `@RequestBody`用于接收 json 数据`application/json`
+    3. `@PathVariable`用于接收路径参数，使用{参数名称}描述路径参数
+    4. 开发中，发送 json 格式数据为主，`@RequestBody`应用较广
+    5. 如果发送非 json 数据，选用`@RequestParam`接收请求参数
+    6. 采用 restful 进行开发，当参数数量较少时，例如 1 个，可以采用`@PathVariable`接收请求路径变量，通常用于传递 id 值
+13. 日期型参数接收：提前使用`@DateFormat(pattern="yyyy-MM-dd") Date date`进行格式约定，否则默认只能接收`yyyy/MM/dd`格式。底层是通过 Converter 接口重写的 convert 方法实现的转化。
+14. 响应：
+    1. 页面：直接在处理函数中返回页面的相对路径即可，不需要`@ResponseBody`
+    2. 数据：
+       1. 字符串：需要`@ResponseBody`
+       2. JSON：需要`@ResponseBody`--设置当前控制器返回值作为响应体，返回一个 POJO 对应的对象即可，是 jackson 实现的。是 HttpMessageConverter 接口转的。
+
+### RESTful 风格
+
+1. 首先要遵循 restful 风格定义接口
+2. 然后借助注解`@RequestMapping("函数名，也是请求的 path", method=RequestMethod.DELETE)`的第二个参数，定义接口行为
+3. 对于路由参数，使用注解`@PathVariable`接收，同时要做`@RequestMapping(value="/xxx/{id}")`配置，跟前端路由参数一样。
+4.
+5.
