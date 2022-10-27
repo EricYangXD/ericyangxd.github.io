@@ -24,6 +24,13 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
    - 也可以直接到官网下载，`https://download.docker.com/mac/stable/Docker.dmg`
    - docker 的参考文档：`https://docs.docker.com`
    - dockerhub 查找镜像源地址：`https://hub.docker.com`
+   - 查看 docker 安装包：`yum list | grep docker`
+   - 安装 Docker Ce 社区版本：`yum install -y docker-ce.x86_64`
+   - 设置开机启动：`systemctl enable docker`
+   - 更新 xfsprogs：`yum -y update xfsprogs`
+   - 启动 docker：`systemctl start docker`
+   - 查看版本：`docker version`
+   - 查看详细信息：`docker info`
 
 ## Docker Daemon
 
@@ -32,6 +39,14 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 - Docker Daemon 是通过 Docker Server 模块接受 Docker Client 的请求，并在 Engine 中处理请求，然后根据请求类型，创建出指定的 Job 并运行，运行过程的几种可能：向 Docker Registry 获取镜像，通过 graphdriver 执行容器镜像的本地化操作，通过 networkdriver 执行容器网络环境的配置，通过 execdriver 执行容器内部运行的执行工作等。
 
 - [启动 docker daemon](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/docker-brew.jpg)
+
+- 配置阿里云镜像加速：`vi /etc/docker/daemon.json`
+
+```json
+{ "registry-mirrors": ["https://5xok66d4.mirror.aliyuncs.com"] }
+```
+
+- 重启：`systemctl daemon-reload && systemctl restart docker`
 
 ## Docker 的使用
 
@@ -129,6 +144,15 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 11. 查看镜像运行记录
 
 `docker history 镜像id`
+
+12. summary：
+    - 查看本地镜像：`docker images`
+    - 搜索镜像：`docker search centos`
+    - 搜索镜像并过滤是官方的： `docker search --filter "is-official=true" centos`
+    - 搜索镜像并过滤大于多少颗星星的：`docker search --filter stars=10 centos`
+    - 下载 centos7 镜像：`docker pull centos:7`
+    - 修改本地镜像名字（小写）：`docker tag centos:7 mycentos:1`
+    - 本地镜像的删除：`docker rmi centos:7`
 
 ## 容器相关命令
 
@@ -267,7 +291,7 @@ $ docker run -it --rm fe-app
 
 ## Learn Docker
 
-### 1.
+### 1. 基础启动命令
 
 1. docker 启动命令, docker 重启命令, docker 关闭命令
 
@@ -282,8 +306,91 @@ $ docker run -it --rm fe-app
 
 启动：`docker start 应用名称`
 
-### 2.
+### 2. 容器的构建等基本操作
 
-### 3.
+1. Docker 容器的创建，查看，停止，重启等
+   - 构建容器：`docker run -itd --name=mycentos centos:7`
+     - `-i` ：表示以交互模式运行容器（让容器的标准输入保持打开）
+     - `-d`：表示后台运行容器，并返回容器 ID
+     - `-t`：为容器重新分配一个伪输入终端
+     - `--name`：为容器指定名称
+2. 查看本地所有的容器：`docker ps -a`
+3. 查看本地正在运行的容器：`docker ps`
+4. 停止容器：`docker stop CONTAINER_ID / CONTAINER_NAME`
+5. 一次性停止所有容器：`docker stop $(docker ps -a -q)`
+6. 启动容器：`docker start CONTAINER_ID / CONTAINER_NAME`
+7. 重启容器：`docker restart CONTAINER_ID / CONTAINER_NAME`
+8. 删除容器：`docker rm CONTAINER_ID / CONTAINER_NAME`
+9. 强制删除容器：`docker rmi -f CONTAINER_ID / CONTAINER_NAME`
+10. 查看容器详细信息：`docker inspect CONTAINER_ID / CONTAINER_NAME`
+11. 进入容器：`docker exec -it 0ad5d7b2c3a4 /bin/bash`
 
-### 4.
+### 3. 容器的文件复制与挂载
+
+容器与宿主机之间文件复制与挂载。
+
+1. 从宿主机复制到容器：`docker cp 宿主机本地路径 容器名字/ID：容器路径`
+   - `docker cp /root/123.txt mycentos:/home/`
+2. 从容器复制到宿主机：`docker cp 容器名字/ID：容器路径 宿主机本地路径`
+   - `docker cp mycentos:/home/456.txt /root`
+3. 宿主机文件夹挂载到容器里：`docker run -itd -v 宿主机路径:容器路径 镜像ID`
+   - `docker run -itd -v /root/xdclass/:/home centos:7`
+
+### docker 目前镜像的制作有 2 种方法
+
+1. 基于 Docker Commit 制作镜像
+2. 基于 dockerfile 制作镜像，Dockerfile 方式为主流的制作镜像方式
+
+### 4. Commit 构建自定义镜像
+
+- 对容器的修改以及保存
+
+1. 启动并进入容器：`docker run -it centos:7 /bin/bash`
+2. 在/home 路径下创建 xdclass 文件夹：`mkdir /home/xdclass`
+3. 安装 ifconfig 命令：`yum -y install net-tools`
+4. 重启容器，查看容器的 xdclass 文件夹还在不在：`docker restart 67862569d4f7`
+5. 删除容器，再重新启动一个容器进入查看有没有 xdclass 文件夹：`docker rm 67862569d4f7 && docker run -it centos:7 /bin/bash`
+6. 构建镜像：
+   - `docker commit 4eb9d14ebb18 mycentos:7`
+   - `docker commit -a "XD" -m "mkdir /home/xdclass" 4eb9d14ebb18 mcentos:7`
+   - `-a`：标注作者
+   - `-m`：说明注释
+   - 查看详细信息：`docker inspect 180176be1b4c`
+7. 启动容器：`docker run -itd 180176be1b4c /bin/bash`
+8. 进入容器查看：`docker exec -it 2a4d38eca64f /bin/bash`
+
+- Dockerfile 构建镜像
+
+1. Dockerfile
+
+```bash
+# this is a dockerfile
+FROM centos:7
+MAINTAINER XD 123456@qq.com
+RUN echo "正在构建镜像！！！"
+WORKDIR /home/xdclass
+COPY 123.txt /home/xdclass
+RUN yum install -y net-tools
+```
+
+2. 构建：`docker build -t mycentos:v2 .`
+3. 查看：`docker images`
+4. 进入验证：验证成功
+
+### 5. 介绍一些常用的 Dockerfile 指令
+
+- FROM:基于哪个镜像
+- MAINTAINER:注明作者
+- COPY:复制文件进入镜像（只能用相对路径，不能用绝对路径）
+- ADD:复制文件进入镜像（假如文件是.tar.gz 文件会解压）
+- WORKDIR:指定工作目录，假如路径不存在会创建路径
+- ENV:设置环境变量
+- EXPOSE:暴露容器端口
+- RUN:在构建镜像的时候执行，作用于镜像层面
+- ENTRYPOINT:在容器启动的时候执行，作用于容器层，dockerfile 里有多条时只允许执行最后一条
+- CMD:
+  - 在容器启动的时候执行，作用于容器层，dockerfile 里有多条时只允许执行最后一条
+  - 容器启动后执行默认的命令或者参数，允许被修改
+- 命令格式：
+  - shell 命令格式：`RUN yum install -y net-tools`
+  - exec 命令格式：`RUN [ "yum","install" ,"-y" ,"net-tools"]`

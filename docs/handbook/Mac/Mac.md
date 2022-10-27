@@ -236,7 +236,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 
 ## 好用的软件
 
-1. MacZip 永久免费的解压软件，比自带的强。
+1. MacZip 永久免费的解压软件，比自带的强。iZip。
 2. BetterZip
 3. uTools 超强工具
 4. magnet 分屏
@@ -246,17 +246,27 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 8. Adobe Acrobat Reader DC
 9. VSCode
 10. iTerm2
-11. ApiFox
+11. ApiFox、Postman
 12. Network Lite
-13. webstorm
+13. webstorm、idea、pycharm
 14. 阿里云盘
 15. Chrome
 16. 搜狗输入法
-17. shottr
+17. shottr、微信
 18. Movist 视频播放器
-19. 移动硬盘写入驱动：Tuxera NTFS
+19. 移动硬盘写入驱动：Tuxera NTFS(收费)、Omi NTFS 磁盘管理（推荐）
 20. 系统监控工具：iStat Menus
 21. 看图软件：Xee
+22. 下载：qBittorrent
+23. shell 工具：xshell、Terminus
+24. mindnote、easyfind、Alfred
+25. Picgo 图床管理
+26. markdown 编辑：Typora
+27. Agenda 日程管理
+28. 备忘录
+29. Grammarly
+30. Fastclip 剪切板管理
+31. FileZilla
 
 ## 安装虚拟机
 

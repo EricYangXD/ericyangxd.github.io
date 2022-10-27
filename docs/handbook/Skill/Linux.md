@@ -460,6 +460,8 @@ $ loginctl list-users
 $ loginctl show-user ruanyf
 ```
 
+7. 关闭防火墙：`systemctl stop firewalld.service vi /etc/selinux/config`
+
 ### telnet
 
 - 什么是 Telnet？对于 Telnet 的认识，不同的人持有不同的观点，可以把 Telnet 当成一种通信协议，但是对于入侵者而言，Telnet 只是一种远程登录的工具。一旦入侵者与远程主机建立了 Telnet 连接，入侵者便可以使用目标主机上的软、硬件资源，而入侵者的本地机只相当于一个只有键盘和显示器的终端而已。
