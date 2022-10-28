@@ -17,15 +17,37 @@ meta:
 
 1. [Download 相应版本](https://maven.apache.org/download.cgi?.)
 2. install：解压，放到方便的目录下即可
-3. Maven 配置：`${maven}/conf/settings.xml`，自定义修改配置，添加私有仓库、账户名、密码等等，在 servers、mirrors 等标签里。
-4. Idea 配置：在 Preferences》Build》Build tools》Maven：
+3. Maven 配置：`${maven}/conf/settings.xml`，自定义修改配置，添加私有仓库、账户名、密码等等，在 servers、mirrors 等标签里。也可以在 pom 文件中手动配置源：
+
+```xml
+<!-- ... -->
+<!--配置maven地址 -->
+<repositories>
+   <repository>
+        <id>myrepository</id>
+        <url>https://my.repository.com/nexus/repository/maven-releases/</url>
+    </repository>
+</repositories>
+<!-- ... -->
+
+<!-- 配置与源id对应的的maven仓库地址的用户和密码 -->
+ <servers>
+        <server>
+            <id>myrepository</id>
+            <username>user</username>
+            <password>password</password>
+        </server>
+ </servers>
+```
+
+4. idea 配置：在 Preferences》Build》Build tools》Maven：
    1. 设置 Maven home path：2 中解压的 maven 目录即可，例`/Users/eric/backend/maven`
    2. 设置 User settings：`/Users/eric/backend/maven/conf/settings_eric.xml`，看需求，一般会需要自定义配置一些账号密码
 5. 修改项目的 SDK 版本，在项目最外层目录右键》Open module settings》Project structure》Project settings》Project》SDK：设置相应版本的 SDK，可以设自己安装的，也可以通过 add sdk 下载新的。
 6. Maven 命令：
    1. `mvn install`: First, it does a `package`(!). Then it takes that `.jar/.war` file and puts it into your local Maven repository, which lives in `~/.m2/repository`.
    2. `mvn clean install`: 您正在使用 clean 命令，该命令将删除项目中所有以前编译的 Java .class 文件和资源（如 .properties）。您的构建将从一个干净的状态开始。然后 install 将编译、测试和打包您的 Java 项目，甚至将您构建的 .jar/.war 文件安装/复制到您的本地 Maven 存储库中。
-   3. `mvn -v`
+   3. `mvn -v`: 看版本
    4. `mvn clean`: deletes the `/target` folder.
    5. `mvn package`: Converts your `.java` source code into a `.jar/.war` file and puts it into the `/target` folder.
 7. 在 Maven 3.1 之前，增量编译基本上是不存在的，即使是最新的 Maven 和编译器插件版本，在增量编译支持中也存在奇怪的 bug 和文档问题。所以调用`mvn clean install`，尽管会多花一些时间。
@@ -43,12 +65,11 @@ meta:
    2. `-am`：表示`also make`，它也将构建依赖模块
 10. `mvn -U`：有时，如果您的项目依赖于 SNAPSHOT 依赖项，Maven 不会使用最新的快照版本更新您的本地 Maven 存储库。如果你想确保 Maven 总是尝试下载最新的快照依赖版本，请使用 -U 开关调用它。
 11. `mvnw`：一些项目附带一个 `mvnw` 可执行文件，它不代表 Maven (on) Windows，而是代表 Maven 包装器。这意味着您不必在您的机器上安装 mvn 来构建您的项目 - 相反，mvn 嵌入在您的项目目录中，您可以使用 `mvnw` 可执行文件调用它。
-12. `mvn -U`：
-13. `mvn compile`：编译
-14. `mvn test`：测试
-15. `mvn package`：打包
-16. `mvn clean`：清理
-17. `mvn install`：安装依赖到本地
+12. `mvn compile`：编译
+13. `mvn test`：测试
+14. `mvn package`：打包
+15. `mvn clean`：清理
+16. `mvn install`：安装依赖到本地例，会把 pom.xml 中的依赖等下载到本地
 
 #### pom.xml
 
@@ -296,17 +317,76 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
    2. 代理仓库 proxy：代理远程仓库，通过 nexus 访问其他公共仓库，例如中央仓库。
    3. 仓库组 group：将若干仓库组成一个群组，简化配置；仓库组不能保存资源，属于设计性仓库。
 4. 发布管理配置：在 `pom.xml` 的 `distributionManagement` 标签中配置私服的地址，`mvn deploy`
+5. 下载某个依赖的源码或者别的：
+
+```xml
+<!-- 示例： -->
+<dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+    <version>30.1.1-jre</version>
+</dependency>
+```
+
+```bash
+# 下载源码，按需修改依赖GroupID及ArtifactId
+mvn dependency:sources -DdownloadSources=true -DincludeGroupIds=com.google.guava -DincludeArtifactIds=guava
+# 下载JavaDoc，按需修改依赖GroupID及ArtifactId
+mvn dependency:resolve -Dclassifier=javadoc -DincludeGroupIds=com.google.guava -DincludeArtifactIds=guava
+```
+
+6. 注意要通过 idea 中的 maven 执行上述命令，源码等会下载到默认位置。
+7. 另一种：
+
+```bash
+mvn dependency:get -DremoteRepositories=repositoryURL -Dartifact=[GROUP_ID]:[ARTIFACT_ID]:[VERSION] -Dpackaging=pom
+
+mvn dependency:get -Dartifact=junit:junit:4.12:jar:sources
+```
+
+8. [用 maven 下载 jar 包](https://blog.csdn.net/howard_shooter/article/details/127228404)
+9. 借助`maven-dependency-plugin`插件：
+
+```bash
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=groupId:artifactId:version[:packaging[:classifier]]
+
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.hibernate:hibernate-entitymanager:3.4.0.GA:jar:sources
+```
+
+10. 原始的做法：先写个 xml 定义好需要的依赖，源，及账号密码。然后在 xml 所在的目录下运行如下的 mvn 命令：`mvn -f pom.xml dependency:copy-dependencies`
 
 ### 插件
 
-1. 依赖检查：`org.owasp:dependency-check-maven`
+1. 依赖检查：`org.owasp:dependency-check-maven`，在 pom 中添加如下代码：
 
 ```xml
- <dependency>
-    <groupId>org.owasp</groupId>
-    <artifactId>dependency-check-maven</artifactId>
-    <version>6.5.2</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>6.5.2</version>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <!-- 代码依赖包安全漏洞检测 -->
+        <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <configuration>
+                <autoUpdate>true</autoUpdate>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
 ```
 
 2. TODO

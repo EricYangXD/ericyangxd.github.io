@@ -308,5 +308,9 @@ SpringMVC 技术与 Servlet 技术功能等同，均属于 web 层开发技术�
 1. 首先要遵循 restful 风格定义接口
 2. 然后借助注解`@RequestMapping("函数名，也是请求的 path", method=RequestMethod.DELETE)`的第二个参数，定义接口行为
 3. 对于路由参数，使用注解`@PathVariable`接收，同时要做`@RequestMapping(value="/xxx/{id}")`配置，跟前端路由参数一样。
-4.
-5.
+4. 公共路径前缀通过在函数上添加注解`@RequestMapping("/commonPath")`实现简化。
+5. 同上`@ResponseBody`注解也可以提取到函数外面，前提是所有响应方法都需要这个注解。
+6. 在上面 4+5 中，可以用`@RestController`代替`@Controller`和`@ResponseBody`。
+7. `@RequestMapping(value="", method=RequestMethod.POST)`===`@PostMapping(...)`，其他几种都有类似简化书写方式
+8.
+9.

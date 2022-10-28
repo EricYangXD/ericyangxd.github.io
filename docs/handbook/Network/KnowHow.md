@@ -33,7 +33,25 @@ meta:
 
 ### 师夷长技以制夷
 
-1. 常用工具
+#### 常用协议
+
+- PPTP：点对点隧道协议。以 GRE 协议做点对点传输，并由 TCP 1723 端口来发起和管理 GRE，本身没有加密和身份验证功能，仅依靠点对点协议（即 PTP）的隧道传输通道实现安全功能，所以速度快，但是由于安全性能低，早已不建议使用。
+- IPSec：类似于 PPTP，也是比较老而过时的 VPN 隧道协议，尽管它的协议含有 AH/认证头，ESP/封装安全载荷，和 IKEv2/因特密匙失交换，对比 PPTP 拥有更好的安全性，IPSec 流量传输更容易被网路服务商识别并阻断。
+- L2TP：第一个真正专为 VPN 开发的隧道协议。 为了升级其安全性，L2TP 经常会与 IPSec 搭配使用。它需要两次检查数据，即需要更多 CPU 资源和时间来处理。在没有 OpenVPN, WireGuard 这些首选协议的情况下，L2TP/IPsec 也不失为一个靠谱的选项。
+- IKev2：与 OpenVPN 协议相比，在有硬件加速的背景下，它们有着差不多的数据安全加密级别、连接快速。在移动设备稳定性更高。 IKev2/IPSec 搭配起来可以向用户提供相对升级的 VPN 体验。
+- SSTP：安全套接字隧道协议，通过使用 SSL/TLS 来传输 PPP 流量，从而给用户提供了传输级别的安全性。此外，对 TCP 端口 443（默认）的支持有助于使流量成功通过大多数防火墙和代理。非开源协议，微软专有。
+- OpenVPN：技术核心是虚拟网卡和 SSL 协议实现，使用 OpenSSL 加密库的 SSL/TLS 进行密钥交换，以便严密保护点对点或站点到站点连接，并且通过将数据分成小包来传输数据。又可分为两种 OpenVPN TCP 和 OpenVPN UDP，前者更侧重网络安全而后者拥有更好的连接速度。
+- WireGuard：新一代，不仅加密级别高，稳定，速度更是被认定比 OpenVPN 快。 但在平台的兼容性还比不上 OpenVPN。WireGuard 只是重新组装了现成的算法，以实现更简单但仍然安全的加密目标。具体来说，其前沿的密码学用法包括 Noise 协议框架、ChaCha20、Curve25519 等。
+- Shadowsocks：免费且开源的加密代理/VPN 协议。它是一款基于 Socks5 的代理协议，最早由亚洲某审查严重国家的程序员开发，主要应用于绕过政府防火墙/GFW 审查。后面还延伸出了更多的代理协议，例如 V2Ray 和 Trojan。
+- SSH：（安全 Shell）此协议创建一个隧道，同时加密所有数据。
+
+#### PPTP、L2TP、OpenVPN 三种隧道协议的优缺点对比
+
+- 易用性： PPTP > L2TP > OpenVPN
+- 速度： PPTP > OpenVPN UDP > L2TP > OpenVPN TCP
+- 安全性： OpenVPN > L2TP > PPTP
+- 稳定性： OpenVPN > L2TP > PPTP
+- 网络适用性：OpenVPN > PPTP > L2TP
 
 #### 小米路由器刷机救砖
 
@@ -53,3 +71,17 @@ meta:
    4. 橙灯闪烁：进入刷机流程或系统升级中（该过程不要断电）
    5. 红灯长亮：系统故障
    6. 红灯闪烁：刷机失败
+
+#### 开源工具
+
+1. clashX（Mac），clash（Windows）：github上搜索
+2. shadowsockets：同上，两个平台软件的名称不太一样
+3. OpenVPN：同上
+
+#### clashX用法
+
+Windows上的clash非常好用，Mac上的clashX刚用起来有点不知所措。
+
+1. 添加订阅链接：在工具栏左键点击clashX的图标，选择config-》remote config-》manage，然后点击add，粘贴上订阅地址即可。
+2. 订阅地址转换：[subconverter](https://subconverter.speedupvpn.com/)
+3. 订阅地址转换：[acl4ssr](https://acl4ssr-sub.github.io/)
