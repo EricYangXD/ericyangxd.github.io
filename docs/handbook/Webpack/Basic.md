@@ -185,7 +185,7 @@ module: {
 2. 如对一个 JS 文件配置了 eslint、typescript、babel 等 loader，他将有可能执行五次编译，被五次解析为 AST：
 
 - acorn: 用以依赖分析，解析为 acorn 的 AST
-- eslint-parser: 用以 lint，解析为 espree 的 AST
+- `eslint-parser`: 用以 lint，解析为 espree 的 AST
 - typescript: 用以 ts，解析为 typescript 的 AST
 - babel: 用以转化为低版本，解析为 @babel/parser 的 AST
 - terser: 用以压缩混淆，解析为 acorn 的 AST

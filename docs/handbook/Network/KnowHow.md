@@ -74,14 +74,16 @@ meta:
 
 #### 开源工具
 
-1. clashX（Mac），clash（Windows）：github上搜索
+1. clashX（Mac），clash（Windows）：github 上搜索
 2. shadowsockets：同上，两个平台软件的名称不太一样
 3. OpenVPN：同上
 
-#### clashX用法
+#### clashX 用法
 
-Windows上的clash非常好用，Mac上的clashX刚用起来有点不知所措。
+Windows 上的 clash 非常好用，Mac 上的 clashX 刚用起来有点不知所措。
 
-1. 添加订阅链接：在工具栏左键点击clashX的图标，选择config-》remote config-》manage，然后点击add，粘贴上订阅地址即可。
+1. 添加订阅链接：在工具栏左键点击 clashX 的图标，选择 config-》remote config-》manage，然后点击 add，粘贴上订阅地址即可。
 2. 订阅地址转换：[subconverter](https://subconverter.speedupvpn.com/)
 3. 订阅地址转换：[acl4ssr](https://acl4ssr-sub.github.io/)
+
+## 1 分钟建站

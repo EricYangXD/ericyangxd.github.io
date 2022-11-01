@@ -74,7 +74,8 @@ tag 对应某次 commit， 是一个点，是不可移动的。branch 对应一�
 11. `git push <remote> --delete <tag_name>`：删除远程仓库中的某个标签。
 12. `git push <remote> :refs/tags/<tagname>`：删除远程仓库某个标签的等价方式，相当于将冒号前面的空值推送到远程标签名，从而高效地删除它。
 13. `git checkout -b <branchName> <tagName>`：检出标签，因为 tag 本身指向的就是一个 commit，所以和根据 commit id 检出分支是一个道理。
-14. ``：。
+14. `git fetch origin refs/tags/*:refs/tags/* --prune`：删除不在远程仓库上的任何本地标签。
+15. 为了自动获取标签，将以下行添加到您的`.git/config`文件中的条目下`[remote "origin"]`。`fetch = refs/tags/*:refs/tags/*`。
 
 示例：
 

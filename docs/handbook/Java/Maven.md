@@ -340,6 +340,7 @@ mvn dependency:resolve -Dclassifier=javadoc -DincludeGroupIds=com.google.guava -
 
 ```bash
 mvn dependency:get -DremoteRepositories=repositoryURL -Dartifact=[GROUP_ID]:[ARTIFACT_ID]:[VERSION] -Dpackaging=pom
+# 这里的第三项 -Dpackaging 是指的该依赖的打包方式，不写默认是 jar。写 pom 代表打包方式是 pom。
 
 mvn dependency:get -Dartifact=junit:junit:4.12:jar:sources
 ```

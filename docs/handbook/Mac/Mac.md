@@ -162,7 +162,7 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 1. host
 
 - python2 语法：`python -m SimpleHTTPServer [port]`
-- python3 语法：`python -m http.server [port]`
+- python3 语法：`python3 -m http.server [port]`
 - 如果不指定端口号默认的是 8000 端口。在局域网中使用 web 去访问 http://IP:8000 即可
 
 2. client
@@ -267,6 +267,13 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 29. Grammarly
 30. Fastclip 剪切板管理
 31. FileZilla
+
+### 安装 mactex
+
+用来在 Java 项目中生成 pdf 文件
+
+1. [mactex](https://formulae.brew.sh/cask/mactex)
+2. 也可以下载之后安装，如果有问题，参考 1
 
 ## 安装虚拟机
 

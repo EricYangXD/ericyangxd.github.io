@@ -312,5 +312,3 @@ SpringMVC 技术与 Servlet 技术功能等同，均属于 web 层开发技术�
 5. 同上`@ResponseBody`注解也可以提取到函数外面，前提是所有响应方法都需要这个注解。
 6. 在上面 4+5 中，可以用`@RestController`代替`@Controller`和`@ResponseBody`。
 7. `@RequestMapping(value="", method=RequestMethod.POST)`===`@PostMapping(...)`，其他几种都有类似简化书写方式
-8.
-9.

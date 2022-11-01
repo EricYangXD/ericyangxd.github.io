@@ -200,6 +200,10 @@ module.exports = {
 						title: "用TS封装Axios",
 						path: "/handbook/JavaScript/Axios",
 					},
+					{
+						title: "ESLint+Prettier",
+						path: "/handbook/JavaScript/ESLint",
+					},
 				],
 			},
 			{
