@@ -304,9 +304,19 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
 
 ### 跳过测试
 
-1. 命令模式：`mvn install -D skipTests`
+1. 命令模式：`mvn install -DskipTests`
 2. 在 pom.xml 中，对 `plugin` 增加 `configuration` 标签然后设置 `skipTests` 为 true。不推荐。
 3. 在 pom.xml 中，对 `plugin` 增加 `configuration` 标签然后设置 `includes` 和 `excludes` 来配置需要执行的和不需要执行的测试。
+
+### 使用 Latex 生成 pdf
+
+1. 安装 latex，
+2. 编写相应的.tex 文件，用于生成 pdf
+3. 进到相应的模块目录下执行：`mvn clean install -Pdocgen-pdf`
+
+### 管理 module 中被忽略的文件
+
+如图：![被忽略的pom.xml](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221102154302.png)，取消勾选，刷新 maven 就行了。在 ide 中如果已经存在了一个 maven 模块 user-server，新建模块时，如果名称依然叫 user-server，此时会提示模块已经存在，就算你取消不在创建，但是还是会给 user-server 这个模块忽略的,平时注意观察 maven 模块是否被忽略，此问题很坑爹很坑爹很坑爹……
 
 ### 私服
 
@@ -325,6 +335,12 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
     <groupId>com.google.guava</groupId>
     <artifactId>guava</artifactId>
     <version>30.1.1-jre</version>
+</dependency>
+
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-text</artifactId>
+    <version>1.10.0</version>
 </dependency>
 ```
 

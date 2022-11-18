@@ -395,6 +395,21 @@ List 和 Set 有相同的遍历方式：3 种：
    5. 如果想对集合中的元素进行排序：用 TreeSet 集合，基于红黑树，后续也可用 List 集合实现排序
 
 #### Map
+1. API：put/remove/clear/containsKey/containsValue/isEmpty/size;
+2. `Map<String,String> map=new HashMap<>();`
+3. put: 1.添加map中不存在；2.如果已有key则覆盖已有的元素，并把被覆盖的value返回。
+4. remove: 删除并返回value
+5. keys/values/entrySet: 对于entrySet，用`Set<Entry<String,String>>`或`Set<Map.Entry<String,String>>`，前者需要导包，然后getKey/getValue
+6. lambda表达式遍历：
+   1. BiConsumer匿名内部类
+   2. 箭头函数
+7. HashMap:是Map的一个实现类，由键决定的：无序、不重复、无索引。和HashSet底层一样，都是哈系表结构。依赖hashCode方法和equals方法保证键的唯一。若键存储的是自定义对象，需要重写hashCode方法和equals方法，若值存储自定义对象，则无需重新hashCode方法和equals方法
+8. LinkedHashMap: 是HashMap的子类，只是每个键值对元素又额外的多了一个双链表的机制记录存储的顺序，也就是有序的
+9. TreeSet/TreeMap:底层原理都是红黑树，由键决定特性：不重复、无索引、可排序，对键进行排序，默认按键从小到大排序
+   1.  实现Comparable接口，冲洗compareTo方法，指定比较规则：`TreeMap<Integer,String> tm=new TreeMap<>();`
+   2.  创建集合时传递Comparator比较器对象，指定比较规则`TreeMap<Integer,String> tm=new TreeMap<>(new Comparator<Integer>(){...});`重写compare方法
+10. 
+
 
 ### 泛型
 
