@@ -161,3 +161,32 @@ const group = str.match(reg).groups;
 
 console.log(group.year);
 ```
+
+## css中html和body的区别
+
+1. 在html中，`<html>`包含`<body>`
+2. 在html文档中，`<html>`是根元素。
+3. 在css中有一个`:root`选择器，和`html`选择器作用一样，甚至`:root`具有更高的优先级！
+4. 以下内联属性Inline Attribute最初在规范spec中分配给了`<body>`：`background`、`bgcolor`、`marginbottom`、`marginleft`、`marginright`、`margintop`、`text`
+5. 相应的 CSS 属性：`background`、`background/background-color`、`margin-bottom`、`margin-left`、`margin-right`、`margin-top`、`font`
+6. `rem` 单位是相对于文档根目录的。是相对于 `<html>` 元素的字体大小的。
+7. 如何将 `<html>` 上的字体大小设置为百分比，以便在使用 rem 单位时用作重置:[1](http://snook.ca/archives/html_and_css/font-size-with-rem)
+8. 在body上设置`background-color`，
+9. 在html上设置`background-color`，
+10. JavaScript 也存在差异。例如，html 是 `document.rootElement`，body 是 `document.body`。
+11. body 元素实际上没有浏览器窗口那么高。它只和里面的内容一样高，就像 div 或其他任何东西一样。所以在body上设置background时要特别注意，背景有可能撑不起来：如果 html 元素没有背景，body 背景将覆盖页面。如果 html 元素上有背景，则 body 背景的行为与任何其他元素一样。所以背景色要么设置在html上，要么给body设置一个高度，以防万一。
+12. 将基本字体大小定义为 62.5%，以便以类似于使用 px 的方式方便地调整 rems 大小。
+
+```css
+/* 不考虑兼容性 */
+html { font-size: 62.5%; } 
+body { font-size: 1.4rem; } /* =14px */
+h1   { font-size: 2.4rem; } /* =24px */
+
+/* 考虑兼容性 */
+html { font-size: 62.5%; } 
+body { font-size: 14px; font-size: 1.4rem; } /* =14px */
+h1   { font-size: 24px; font-size: 2.4rem; } /* =24px */
+```
+
+13. 关键在于区分那些属性是可覆盖的，然后设置在不同的标签上

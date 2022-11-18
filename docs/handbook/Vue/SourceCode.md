@@ -440,3 +440,28 @@ hash 模式下，仅 hash 符号之前的内容会被包含在请求中，如 `w
 
 - text 和 textarea 元素使用 input 事件；
 - checkbox / radio 和 select 使用 change 事件；
+
+
+## Vue.config.errorHandler
+
+### TODO
+
+## 全局捕获Promise错误
+
+1. babel插件，[参考](https://juejin.cn/post/7155434131831128094)
+2. addEventListener监听unhandledrejection
+
+```js
+window.addEventListener('unhandledrejection', function (event) {
+  console.log("event",event);
+  // 处理事件对象
+  console.log(111,event.reason); //获取到catch的err的原因(内容) 与控制台报错一致
+  console.log(222,event.promise); //获取到未处理的promise对象
+  event.preventDefault();
+});
+```
+3. 封装接口的时候全部resolve掉，然后处理错误信息
+## 关于sourcemap
+
+1. 开发环境不会混淆和压缩代码，开发时可直接定位位置
+2. sourcemap文件上传到异常收集系统，比如sentry，然后把前端捕获的异常信息上报到系统中，系统会用sourcemap文件自动定位到原始代码位置。记住别把sourcemap文件也一起发到部署到服务器中，浏览器可以解析出源代码，相当于没混淆压缩

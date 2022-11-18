@@ -407,3 +407,158 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.hibe
 ```
 
 2. TODO
+
+## Profile
+
+1. profile 语法
+   > 1. 项目在不同环境，比如开发环境、测试环境、生产环境，有的配置可能会不一样，比如数据源配置、日志文件配置、以及一些软件运行过程中的基本配置
+   > 2. 每次我们部署到不同环境时, 都需要修改相应的配置文件，这样来回修改，很容易出错，而且浪费劳动力
+   > 3. 而 maven 也提供了一种灵活的解决方案，也就是 profile 功能
+2. profile 中的配置结构
+
+```xml
+<project>
+    <profiles>
+        <profile>
+            <build>
+                <defaultGoal>...</defaultGoal>
+                <finalName>...</finalName>
+                <resources>...</resources>
+                <testResources>...</testResources>
+                <plugins>...</plugins>
+            </build>
+            <reporting>...</reporting>
+            <modules>...</modules>
+            <dependencies>...</dependencies>
+            <dependencyManagement>...</dependencyManagement>
+            <distributionManagement>...</distributionManagement>
+            <repositories>...</repositories>
+            <pluginRepositories>...</pluginRepositories>
+            <properties>...</properties>
+        </profile>
+    </profiles>
+</project>
+```
+
+3. profile 的定义位置
+
+> 1. 针对于特定项目的 profile 配置我们可以定义在该项目的 pom.xml 中。
+> 2. 针对于特定用户的 profile 配置，我们可以在用户的 settings.xml 文件中定义 profile。该文件在用户家目录下的“.m2”目录下。
+> 3. 全局的 profile 配置。全局的 profile 是定义在 Maven 安装目录下的“xx/conf/settings.xml”文件中的。
+
+- 当 profile 定义在 settings.xml 中时意味着该 profile 是全局的，它会对所有项目或者某一用户的所有项目都产生作用。因为它是全局的，所以在 settings.xml 中只能定义一些相对而言范围宽泛一点的配置信息，比如远程仓库等。而一些比较细致一点的需要根据项目的不同来定义的就需要定义在项目的 pom.xml 中。具体而言，能够定义在 settings.xml 中的信息有`<repositories>`、`<pluginRepositories>`和`<properties>`。定义在`<properties>`里面的键值对可以在 pom.xml 中使用。
+
+- 定义在 pom.xml 中的 profile 可以定义更多的信息。主要有以下这些：
+
+```xml
+<repositories>
+<pluginRepositories>
+<dependencies>
+<plugins>
+<properties>
+<dependencyManagement>
+<distributionManagement>
+还有build元素下面的子元素，主要包括：
+<defaultGoal>
+<resources>
+<testResources>
+<finalName>
+```
+
+4. 如何激活 profile
+
+- profile 定义中使用 activeByDefault 默认激活
+
+```xml
+<profiles>
+    <profile>
+        <id>profileTest1</id>
+        <properties>
+            <hello>world</hello>
+        </properties>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+    </profile>
+
+    <profile>
+        <id>profileTest2</id>
+        <properties>
+            <hello>andy</hello>
+        </properties>
+        <activation>
+            <property>
+                <name>profileProperty</name>
+                <!-- 进一步配置某个属性的值是什么时候激活,这样就可以在 mvn 中用“-D”参数来指定激活 -->
+                <!-- 表示激活属性名称为 profileProperty，值为 dev 的 profile。 -->
+                <!-- mvn clean install -DprofileProperty=dev -->
+                <value>dev</value>
+            </property>
+        </activation>
+    </profile>
+</profiles>
+```
+
+activeByDefault 为 true 的时候就表示当没有指定其他 profile 为激活状态时，该 profile 就默认会被激活。所以当我们调用`mvn package`的时候上面的 profileTest1 将会被激活，但是当我们使用`mvn package –P profileTest2`的时候将激活 profileTest2，而这个时候 profileTest1 将不会被激活。
+
+- 在 settings.xml 中使用 activeProfiles 指定激活的 profile
+
+```xml
+<profiles>
+    <profile>
+        <id>profileTest1</id>
+        <properties>
+            <hello>world</hello>
+        </properties>
+    </profile>
+
+    <profile>
+        <id>profileTest2</id>
+        <properties>
+            <hello>andy</hello>
+        </properties>
+    </profile>
+</profiles>
+```
+
+这里的 profile 可以是定义在 settings.xml 中的，也可以是定义在 pom.xml 中的。这个时候如果我们需要指定 profileTest1 为激活状态，那么我们就可以在 settings.xml 中定义 activeProfiles，具体定义如下：
+
+```xml
+<settings>
+    ...
+    <activeProfiles>
+        <activeProfile>profileTest1</activeProfile>
+        <!-- 在activeProfiles下同时定义多个需要激活的profile -->
+        <activeProfile>profileTest2</activeProfile>
+        <activeProfile>profileTest3</activeProfile>
+    </activeProfiles>
+    ...
+<settings>
+```
+
+从 profileTest1 和 profileTest2 我们可以看出它们共同定义了属性 hello。那么这个时候我在 pom.xml 中使用属性 hello 的时候，它到底取的哪个值呢？是根据 activeProfile 定义的顺序，后面的覆盖前面的吗？根据我的测试，答案是非也，它是根据 profile 定义的先后顺序来进行覆盖取值的，然后后面定义的会覆盖前面定义的。
+
+- 使用-P 参数显示的激活一个 profile，如果一次要激活多个 profile，可以用逗号分开一起激活。
+
+我们在进行Maven操作时就可以使用-P参数显示的指定当前激活的是哪一个profile了。比如我们需要在对项目进行打包的时候使用id为profileTest1的profile，我们就可以这样做 (P后面可以有空格也可以没有)：
+
+```bash
+mvn package –P profileTest1
+mvn clean install -Pdev_env,test_evn 
+```
+当我们使用activeByDefault或settings.xml中定义了处于激活的profile，但是当我们在进行某些操作的时候又不想它处于激活状态，这个时候我们可以这样做：
+
+```bash
+mvn package –P !profileTest1 
+```
+这里假设profileTest1是在settings.xml中使用activeProfile标记的处于激活状态的profile，那么当我们使用-P !profile的时候就表示在当前作中该profile将不处于激活状态。
+
+5. 查看当前处于激活状态的profile
+
+我们可以同时定义多个profile，那么在建立项目的过程中，到底激活的是哪一个profile呢？Maven为我们提供了一个指令可以查看当前处于激活状态的profile都有哪些，这个指定就是`mvn help:active-profiles`。查看所有的 profile`Mvn help:all-profiles`。
+
+这里有个误区要特别注意: 同时激活的profile可以是多个, 它们可能是不同维度的. 如某个profile是用来管理repository的, 某个profile是管理某些properties的.
+
+6. 运行`mvn clean package (默认profile)` 或 `mvn clean package -Ptest (指定profie)` 打包
+7. idea中可以通过点击按钮实现不童环境的切换
+8. 
