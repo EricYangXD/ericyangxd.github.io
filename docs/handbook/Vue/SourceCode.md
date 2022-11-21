@@ -2,6 +2,9 @@
 title: Vue源码阅读笔记
 author: EricYangXD
 date: "2021-12-28"
+meta:
+  - name: keywords
+    content: Vue,Vue2,Vue3,vuejs
 ---
 
 ## 生命周期

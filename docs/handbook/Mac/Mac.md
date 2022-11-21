@@ -2,6 +2,9 @@
 title: Mac 使用tips
 author: EricYangXD
 date: "2022-01-17"
+meta:
+  - name: keywords
+    content: Mac,MacOS,iTerm2
 ---
 
 ## MacOS 配置 iTerm2 + oh-my-zsh 及插件教程

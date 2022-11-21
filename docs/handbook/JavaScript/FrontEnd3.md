@@ -4,7 +4,7 @@ author: EricYangXD
 date: "2022-06-24"
 meta:
   - name: keywords
-    content: 前端监控,上报
+    content: 前端监控,上报,常识
 ---
 
 ## 前端监控上报数据
