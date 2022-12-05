@@ -264,3 +264,14 @@ rmb.forEach((value) => {
 	}
 });
 ```
+
+### js 替代 eval 方法
+
+项目中遇到需要支持用户输入 js 并加以解析的场景。eval() 本身不太好，所以查找了下其他实现：
+
+```js
+function new_eval(str) {
+	var fn = Function;
+	return new fn("return " + str)();
+}
+```

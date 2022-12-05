@@ -406,7 +406,21 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.hibe
 </build>
 ```
 
-2. TODO
+2. Cargo是一组帮助用户操作Web容器的工具，能够实现自动化部署，并且支持几乎所有的Web容器，如Tomcat、JBoss、Jetty和Glassfish等。Cargo通过`cargo-maven2/3-plugin`提供了Maven集成，可以使用该插件将Web项目部署到Web容器中。
+
+### 解决数据库中文乱码
+
+1. 在setting->maven->Runner->VM Options一栏中填入 -Dfile.encoding=gb2312
+2. 在pom.xml中添加：
+```xml
+<properties>
+    <!-- 文件拷贝时 -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- 编译时 -->
+    <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+</properties>
+```
 
 ## Profile
 
@@ -561,4 +575,9 @@ mvn package –P !profileTest1
 
 6. 运行`mvn clean package (默认profile)` 或 `mvn clean package -Ptest (指定profie)` 打包
 7. idea中可以通过点击按钮实现不童环境的切换
-8. 
+8. For showing your effective pom:
+   1. `mvn help:effective-pom`
+   2. IDEA in `Maven window` right click on your project node and select `show effective POM`(it depends on your IDE).
+9. maven项目执行main函数的时候需要两个插件:
+    1. `maven-compiler-plugin`：用来编译Java文件，指定JDK版本等
+    2. `exec-maven-plugin`：用来执行class文件，其中插件配置中需指明执行类的路径

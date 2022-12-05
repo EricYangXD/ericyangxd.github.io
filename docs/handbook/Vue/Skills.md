@@ -626,3 +626,9 @@ Vue.directive('throttle', {
 // 2.为button标签设置v-throttle自定义指令
 <button @click="sayHello" v-throttle>提交</button>
 ```
+
+## mixins的缺点
+
+1. 不清晰的数据来源：当使用了多个 mixin 时，实例上的数据属性来自哪个 mixin 变得不清晰，这使追溯实现和理解组件行为变得困难。
+2. 命名空间冲突：多个来自不同作者的 mixin 可能会注册相同的属性名，造成命名冲突。
+3. 隐式的跨 mixin 交流：多个 mixin 需要依赖共享的属性名来进行相互作用，这使得它们隐性地耦合在一起。

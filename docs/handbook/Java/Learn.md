@@ -395,21 +395,153 @@ List 和 Set 有相同的遍历方式：3 种：
    5. 如果想对集合中的元素进行排序：用 TreeSet 集合，基于红黑树，后续也可用 List 集合实现排序
 
 #### Map
+
 1. API：put/remove/clear/containsKey/containsValue/isEmpty/size;
 2. `Map<String,String> map=new HashMap<>();`
-3. put: 1.添加map中不存在；2.如果已有key则覆盖已有的元素，并把被覆盖的value返回。
-4. remove: 删除并返回value
-5. keys/values/entrySet: 对于entrySet，用`Set<Entry<String,String>>`或`Set<Map.Entry<String,String>>`，前者需要导包，然后getKey/getValue
-6. lambda表达式遍历：
-   1. BiConsumer匿名内部类
+3. put: 1.添加 map 中不存在；2.如果已有 key 则覆盖已有的元素，并把被覆盖的 value 返回。
+4. remove: 删除并返回 value
+5. keys/values/entrySet: 对于 entrySet，用`Set<Entry<String,String>>`或`Set<Map.Entry<String,String>>`，前者需要导包，然后 getKey/getValue
+6. lambda 表达式遍历：
+   1. BiConsumer 匿名内部类
    2. 箭头函数
-7. HashMap:是Map的一个实现类，由键决定的：无序、不重复、无索引。和HashSet底层一样，都是哈系表结构。依赖hashCode方法和equals方法保证键的唯一。若键存储的是自定义对象，需要重写hashCode方法和equals方法，若值存储自定义对象，则无需重新hashCode方法和equals方法
-8. LinkedHashMap: 是HashMap的子类，只是每个键值对元素又额外的多了一个双链表的机制记录存储的顺序，也就是有序的
-9. TreeSet/TreeMap:底层原理都是红黑树，由键决定特性：不重复、无索引、可排序，对键进行排序，默认按键从小到大排序
-   1.  实现Comparable接口，冲洗compareTo方法，指定比较规则：`TreeMap<Integer,String> tm=new TreeMap<>();`
-   2.  创建集合时传递Comparator比较器对象，指定比较规则`TreeMap<Integer,String> tm=new TreeMap<>(new Comparator<Integer>(){...});`重写compare方法
-10. 
+7. HashMap: 是 Map 的一个实现类，由键决定的：无序、不重复、无索引。和 HashSet 底层一样，都是哈系表结构。依赖 hashCode 方法和 equals 方法保证键的唯一。若键存储的是自定义对象，需要重写 hashCode 方法和 equals 方法，若值存储自定义对象，则无需重新 hashCode 方法和 equals 方法
+8. LinkedHashMap: 是 HashMap 的子类，只是每个键值对元素又额外的多了一个双链表的机制记录存储的顺序，也就是有序的
+9. TreeSet/TreeMap: 底层原理都是红黑树，由键决定特性：不重复、无索引、可排序，对键进行排序，默认按键从小到大排序
+   1. 自定义对象排序时，需要实现 Comparable 接口，重写 compareTo 方法，指定比较规则：`TreeMap<Integer,String> tm=new TreeMap<>();`，在 compareTo 方法中，this 表示当前要添加的元素，o 表示已经在红黑树中存在的元素，返回值是负数，表示当前要添加的元素是小的，存左边，正数表示是大的存右边，0 表示当前要添加的元素已经存在，要舍弃。
+   2. 创建集合时传递 Comparator 比较器对象，指定比较规则`TreeMap<Integer,String> tm=new TreeMap<>(new Comparator<Integer>(){...});`重写 compare 方法
+10. 对应 Set，普通 Map，用 HashMap；存取有序，用 LinkedHashMap；要排序，用 TreeMap。
+11. Integer/Double 默认是按升序排列；String 默认是按 ASCII 码表中对应的数字升序进行排列。
 
+#### 不可变集合
+
+1. 在 List、Set、Map 接口中，都存在静态的 of 方法，可以获取一个不可变的集合--不能添加、删除和修改。
+2. 例：`List<String> list=List.of("1","2","3");`，`Set<String> set=Set.of("1","2","3");`，`Map<String,String> map=Map.of("k1","v1","k2","v2","k3","v3");// 两两成键值对`
+3. List直接用，Set元素不能重复，Map元素不能重复、键值对数量最多是10个，超过10个用ofEntries方法
+
+```java
+HashMap<String,String> hm = new HashMap<>();
+hm.put("1","1");
+// ...
+// 利用上面的数据获取一个不可变集合
+// 1. 先获取所有的键值对对象
+Set<Map.Entry<String,String>> entries = hm.entrySet();
+// 2. 把entries变成一个数组
+Map.Entry[] arr = new Map.Entry[0];
+// toArray方法在底层会比较集合的长度跟数组的长度两者之间的大小关系
+// 如果集合长度大于数组长度：数据在数组中放不下，此时会根据实际数据的个数，重新创建数组
+// 如果集合长度小于等于数组长度：数据在数组中放的下，此时不会重新创建数组，直接用现有的数组
+Map.Entry[] newArr1 = entries.toArray(arr);
+// 3. 转成不可变
+Map map1 = Map.ofEntries(arr);
+
+// 简写版
+Map<Object,Object> map2 = Map.ofEntries(hm.entrySet().toArray(new Map.Entry[0]));
+
+// 最终版 JDK>=10
+Map<String,String> map3 = Map.copyOf(hm);
+```
+
+#### Stream 流
+
+1. 链式调用，结合Lambda表达式，简化集合、数组的操作。
+2. 有 filter过滤、limit获取前几个元素、skip跳过前几个元素、distinct元素去重（依赖hashCode和equals方法）、concat合并ab两个流为一个流、map遍历、forEach遍历、count统计元素个数、toArray收集流中的数据放到数组中、collect收集流中的数据放到集合中等
+   1. 中间方法，返回新的Stream流，原来的Stream流只能使用一次，因此最好用链式编程
+   2. 修改Stream流中的数据，不会影响原来集合或数组中的数据
+3. 中间方法：过滤、转换等：filter、limit、skip、distinct、concat、map
+4. 终结方法：统计、打印等：forEach、count、toArray
+5. 双列集合无法直接使用stream流，hashMap.ketSet/entrySet.stream()...
+6. 单列集合使用Collection中的默认方法，list.stream()...
+7. 数组使用Arrays工具类中的静态方法，Arrays.stream(arr)...
+8. 零散数据(需要是同类数据类型)使用Stream接口中的静态方法，Stream.of(1,2,3,4)...
+9.  注意：Stream接口中静态方法of的细节：方法的形参是一个可变参数，可以传递一堆零散的数据，也可以传递数组，但是数组必须是引用数据类型的，如果传递基本数据类型，则会把整个数组当成一个元素放到Stream当中。
+10. toArray方法的参数：`new IntFunction<>(){@Override public T apply(){...return T;}}`
+11. collect方法可以收集到Set、List、Map等：
+    1.  Collectors.toList()不去重
+    2.  Collectors.toSet()去重
+    3.  Collectors.toMap("key的规则","value的规则")，如果要收集到Map中，那么键名不能重复，否则报错。
+    4.  如下：Function泛型一：表示流里面的每一个数据的类型，泛型二表示Map集合中值的数据类型。方法apply形参：依次表示流里面的每一个数据，方法体：生成键/值的代码，返回值是已经生成的键/值。
+
+```java
+list.stream().filter(...).collect(Collectors.toMap(
+   new Function<String, String>(){
+      @Override
+      public String apply(String s){
+         return s.xxx;
+      }
+   },
+   new Function<String, Integer>(){
+      @Override
+      public Integer apply(String s){
+         return s.xxx;
+      }
+   })
+);
+```
+
+#### 方法引用
+引用处需要是函数式接口`@FunctionalInterface`；被引用的方法必须已经存在；被引用方法的形参和返回值需要跟抽象方法保持一致；被引用方法的功能要满足当前需求。
+
+1. 类名::方法名
+2. 引用静态方法：类名::静态方法名 -- Integer::parseInt
+3. 引用成员方法：
+   1. 引用其他类的成员方法：
+   2. 引用本类的成员方法：
+   3. 引用父类的成员方法：
+4. 引用构造方法：构造方法::new
+5. 其他调用方式：
+   1. 使用类名引用成员方法
+   2. 引用数组的构造方法
+6. this::方法名
+7. super::方法名
+8. static 方法中不能直接用 1，要用 2
+
+
+### 异常
+```java
+
+
+```
+### File
+
+```java
+
+
+```
+### IO 
+```java
+
+
+```
+#### 字节流
+```java
+
+
+```
+#### 文件拷贝
+
+```java
+// 1. 创建对象
+FileInputStream fis=new FileInputStream("D:\\java\\movie.mp4");
+FileOutputStream fos=new FileOutputStream("mymodule\\files\\movie-copy.mp4");
+// 2. 拷贝，边读边写
+int b;
+while((b=fis.read())!=-1){
+   fos.write(b);
+}
+// 3. 释放资源：先开的最后关闭
+fos.close();
+fis.close();
+```
+
+1. FileInputStream一次读一个字节：`public int read()`
+2. FileInputStream一次读多个字节：`public int read(byte[] buffer)`，每次读取会尽可能把数组装满，一般用1024的整数倍，比如：`1024*1024*10`每次10MB。
+3. 
+4. 
+
+#### 字符集
+
+1. ASCII
+2. GBK
 
 ### 泛型
 
@@ -417,7 +549,7 @@ List 和 Set 有相同的遍历方式：3 种：
   1.  统一数据类型
   2.  把运行时期的问题提前到了编译期间，避免了强制类型转换可能出现的异常，因为在编译阶段类型就能确定下来。
 
-1. 泛型中不能写基本数据类型
+1. 泛型中**不能写基本数据类型**
 2. 指定泛型的具体类型之后，传递数据时，可以传入该类类型或者其子类类型
 3. 如果不写泛型，默认是 Object
 4. 泛型类、泛型方法、泛型接口

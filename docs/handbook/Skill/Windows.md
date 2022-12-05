@@ -23,3 +23,7 @@ date: "2022-05-21"
 ## 安装Java
 
 [参考这里](https://www.runoob.com/w3cnote/windows10-java-setup.html)
+
+## Chrome
+
+1. `chrome://flags/#tab-hover-cards`两个都设置为enable即可。
