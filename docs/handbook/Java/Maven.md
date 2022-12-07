@@ -408,9 +408,33 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.hibe
 
 2. Cargo是一组帮助用户操作Web容器的工具，能够实现自动化部署，并且支持几乎所有的Web容器，如Tomcat、JBoss、Jetty和Glassfish等。Cargo通过`cargo-maven2/3-plugin`提供了Maven集成，可以使用该插件将Web项目部署到Web容器中。
 
+3. log4j2
+
+```xml
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-core</artifactId>
+    <version>${log4j2.version}</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-api</artifactId>
+    <version>${log4j2.version}</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-slf4j-impl</artifactId>
+    <version>${log4j2.version}</version>
+</dependency>
+<dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-log4j12</artifactId>
+    <scope>test</scope>
+</dependency>
+```
 ### 解决数据库中文乱码
 
-1. 在setting->maven->Runner->VM Options一栏中填入 -Dfile.encoding=gb2312
+1. 在settings -> maven -> Runner -> VM Options 一栏中填入 `-Dfile.encoding=gb2312`
 2. 在pom.xml中添加：
 ```xml
 <properties>

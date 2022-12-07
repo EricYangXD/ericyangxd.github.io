@@ -25,12 +25,112 @@ eslint 可以保证项目的质量，prettier 可以保证项目的统一格式�
 1. 写代码的时候就能直接看到错误，然后就能直接随手改正错误。此时要对插件自定义配置的话需要修改 vscode 的`settings.json`。
 2. 虽然 vscode 插件也可以单独配置格式，但是如果项目中有`.eslintrc.js`文件，那么 eslint 插件会优先执行`.eslintrc.js`文件的配置。并且不是每个人都会装 eslint 的 vscode 插件。此时 eslint 的 npm 包就作为一个保障，并且里面的`.eslintrc.js`配置就作为标准配置。
 3. 装 vscode 插件只是为了方便自己开发而已。
-4. eslint 的`.eslintrc.js`配置 env 中不加上`node: true`的话，关于`module.exports`的代码，会显示报错，但实际上写得没有问题，只是 eslint 的问题。加上配置即可。
-5.
 
 #### 配置`.eslintrc.js`文件
 
 1.  rules:可以配置 quotes、semi、no-console、等，其中 value：0 是忽略，1 是警告，2 是报错
+2.  使用单独 Eslint **配置文件的形式**来整合你的相关配置，支持 JavaScript、JSON 或者 YAML 文件三种格式（.eslintrc.\*），当然也可以直接将配置写入项目的 package.json 中。在调用 EsLint 命令时，Eslint 会自动寻找对应的配置文件。
+3.  在 JavaScript 代码中直接使用 JS **注释的形式**将配置嵌入原代码中。
+4.  同时在 EsLint 中配置文件也支持向上查找的方式（层叠配置），层叠配置使用离要检测的文件最近的 .eslintrc 文件作为最高优先级，然后才是父目录里的配置文件。也就是说默认情况下，ESLint 会在所有父级目录里寻找配置文件，一直找到根目录--即配置是会继承的。
+5.  当寻找到项目根目录的 eslintrc.js 时，我们希望它停止向上查找。那么此时 Eslint 的配置文件也支持设置 `root: true` 的选项来停止这种层叠配置的查找机制。
+6.  eslint 的`.eslintrc.js`配置 env 中不加上`node: true`的话，关于`module.exports`的代码，会显示报错，但实际上写得没有问题，只是 eslint 的问题。加上配置即可。需要额外强调的是这里 env 中的 es6 和 parserOptions 中的 ecmaScript 区别：
+    - parserOptions 中的 ecmaScript 设置时（如果为 6 或者更高版本），仅表示 Lint 在检查时支持一些高版本的语法。比如 let、const、箭头函数等等。
+    - env 中的 es6 开启时，表示允许代码中使用高版本语法的 Api 比如：Promise、Set、Map 等全局相关模块。当然开启 `env: {es6:true}` 相当于同时设置了`ecmaVersion: 6`。
+7.  接上，EsLint 支持任何类型的 JavaScript 语言选项（比如 ES6、模块类型等等），默认不进行任何配置时 EsLint **默认检测规则为 ES5 代码**，通过配置中的 ParserOptions 选项来进行语言选项设置：
+
+```js
+parserOptions: { // 表示 EsLint 对于不同的 Parser（解析器）配置的语言检查规则。
+	env: { // 设置环境变量支持，从而支持一组通用的全局变量，比如window/document/global...
+		browser: true,
+		node: true,
+		es6: true,
+		'shared-node-browser': true, // 表示可以使用 Node 环境和浏览器环境下同时存在的全局变量，比如 console 相关。
+	},
+	ecmaVersion: 6, // 指定 EsLint 支持 ECMAScript 6 的语法检测，latest 表示最新的 ECMA 版本。
+	ecmaFeatures: { // 表示代码中可以使用的额外语言特性
+		jsx: true, // 允许 js 代码中使用 jsx
+		globalReturn: true, // 允许顶层 return
+		impliedStrict: true, // 启用全局严格模式。（ES 5以上有效）
+	},
+	sourceType: "module", // 表示应用代码中支持的模块规范，默认为 script。支持 script 和 module (ESM) 两种配置。
+	parser: "@typescript-eslint/parser", // 表示 Eslint 在解析代码时使用到的解析器。
+	// parser: 'espree', // 使用默认 espree 解析器
+	rules: {
+    'no-unused-vars': ['error'], // 定义规则禁止声明未使用的变量
+		quotes: ['error', 'single', { allowTemplateLiterals: true }],
+		'no-console': [1], // 对于 console 进行警告检测
+		'@typescript-eslint/array-type': 2, // 插件提供的补充规则
+  },
+	// 通过 globals 定义额外的全局变量
+  globals: {
+    iamok: true,
+  },
+	plugins:[
+		'@typescript-eslint/eslint-plugin',
+		"a-plugin", // processor例
+		], // 插件提供除内置的规则以外的校验规则，引入插件之后还需要手动在rules中声明对应的规则才会生效
+	// 别人配好的规则组合，我们直接拿来用即可，比如官方的、Airbnb的、Angular的等等
+	extends: [
+		// 直接从 EsLint 本身集成的规则继承
+    "eslint:recommended",
+    // 从一些第三方NPM包进行继承，比如 eslint-config-standard、eslint-config-airbnb 
+    // eslint-config-* 中 eslint-config- 可以省略 
+    "airbnb",
+		// 直接从插件继承规则，可以省略包名中的 `eslint-plugin`
+		// 通常格式为 `plugin:${pluginName}/${configName}`
+		"plugin:@typescript-eslint/recommended",
+	], 
+	overrides: [
+    // *.test.js 以及 *.spec.js 结尾的文件特殊定义某些规则
+    {
+      files: ['*-test.js', '*.spec.js'],
+      rules: {
+        'no-unused-expressions': 2,
+      },
+    },
+		{
+		// 针对于 .md 结尾的文件使用 a-plugin 的 processor 进行处理
+			"files": ["*.md"],
+			"processor": "a-plugin/markdown"
+		},
+		{
+		// 上述提到过本质上会将 .md 文件通过 processor 转化为一个个具名的代码块
+			"files": ["**/*.md/*.js"],
+			"rules": {
+				"strict": "off"
+			}
+		}
+  ],
+	"processor": "a-plugin/a-processor", // 由插件名和处理器名组成的串接字符串加上斜杠，代表启用插件 a-plugin 提供的处理器 a-processor
+},
+```
+
+1. ESLint 默认情况下使用 Espree 作为其解析器，当然我们也可以传入一些自定义的解析器。比如：Esprima、@typescript-eslint/parser 等等。Parser 选项简单来说就是表示我们以何种解析器来转译我们的代码。本质上，所有的解析器最终都需要讲代码转化为 espree 格式从而交给 Eslint 来检测。
+2. 在 Typescript 中我们可以通过 `*.d.ts` 声明文件来解决 Ts 对于自定义全局变量的支持。在 Eslint 同样，我们可以在配置文件中通过 globals 选项来支持自定义的全局变量。目的是在一个源文件里使用某些全局变量，同时避免 EsLint 发出错误`no-undef `警告。globals 中的值还支持：
+   - "writable"或者 true，表示变量可重写；
+   - "readonly"或者 false，表示变量不可重写；
+   - "off"，表示禁用该全局变量。
+3.  对于rules：
+	- "off" 或 0 表示关闭本条规则检测
+	- "warn" 或 1 表示开启规则检测，使用警告级别的错误：warn (不会导致程序退出)
+	- "error" 或 2 表示开启规则，使用错误级别的错误：error (当被触发的时候，程序会退出)、
+
+4.  在 rules 对象中，通常 key 为规则的名称，比如上述的 `no-console` 代表具体的规则名称，而 value 可以为一个数组。数组第一个项代表规则 ID ，通过 `0 1 2` 或者 `off warn error` 表示检测的等级，而其余参数代表规则的具体配置。
+5.  Rules 除了定义一些额外的规则配置的同时也支持在层叠配置下的覆盖（扩展）规则。
+    1.  改变继承的规则级别而不改变它的配置选项
+    2.  覆盖基础配置中的规则的选项
+
+6.  在某些特定条件下，内置的一些规则并不能满足我们的代码检查。所以此时我们就要基于该情况做一些特殊的拓展了，Plugin 的作用正是处理这些功能而生。通常在使用 Eslint 来检查代码时，需要将解析器替换为 `@typescript-eslint/parser` 的同时针对于一些 TypeScript 特定语法还需使用 `@typescript-eslint/eslint-plugin` 来支持一些特定的 TS 语法检查。当我们在 Plugins 中声明对应的插件后，就可以在 rules 配置中使用对应插件中声明的特殊规则限制了。
+7.  简单来说，所谓的 Plugin 正是对于 EsLint 内置规则的拓展，通过 Plugin 机制我们可以实现 EsLint 中自定义的 Rules。
+8.  利用 EsLint 中的 Extends 关键字来继承一些通用的配置。Extends 关键字可以理解为关于 Plugins 和 Rules 结合而来的最佳实践。简单来说就是在项目内继承于另一份 EsLint 配置文件而已。
+9.  关于 Rules 中的覆盖规则其实是完全和 config File 的层叠配置是完全一致的。
+    1.  改变继承的规则级别而不改变它的配置选项
+    2.  覆盖基础配置中的规则的选项
+10. 针对不同的文件进行不同的 Lint 配置，使用Overrides 选项来解决这个问题。还可以配置更多的规则，比如 excludedFiles、parser、parserOptioons 等等。
+11. 通常我们在编写 EsLint 插件时，如果是针对于非 Js 文件的话可以单独使用一个 Processor 来处理，处理器可以从另一种文件中提取 JavaScript 代码，然后让 ESLint 检测 JavaScript 代码。或者处理器可以在预处理中转换 JavaScript 代码。比如一个 .vue 文件中，并不单纯的由 JavaScript 组成。
+12. 简单来说处理器的原理是将我们的非 JS 文件经过处理成为一个一个具名的代码块，最终在将这些处理后的 js 文件当作原始文件的子文件交给 EsLint 处理。
+13. 快速生成 EsLint 插件模板：`npm i generator-eslint`，运行`js yo eslint:plugin`来快速创建一个 Plugin 模板。
+
 
 ### Prettier
 
@@ -246,4 +346,3 @@ stylelint 为 css 的 lint 工具。可格式化 css 代码，检查 css 语法�
    - ESLint 是处理配置、读写文件等，然后调用 Linter 进行 lint（中间的那层 CLIEngine 并没有暴露出来）
    - SourceCode 就是封装 AST 用的
    - RuleTester 是用于 rule 测试的一些 api。
-3.

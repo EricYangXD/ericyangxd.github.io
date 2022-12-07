@@ -416,7 +416,7 @@ List 和 Set 有相同的遍历方式：3 种：
 
 1. 在 List、Set、Map 接口中，都存在静态的 of 方法，可以获取一个不可变的集合--不能添加、删除和修改。
 2. 例：`List<String> list=List.of("1","2","3");`，`Set<String> set=Set.of("1","2","3");`，`Map<String,String> map=Map.of("k1","v1","k2","v2","k3","v3");// 两两成键值对`
-3. List直接用，Set元素不能重复，Map元素不能重复、键值对数量最多是10个，超过10个用ofEntries方法
+3. List 直接用，Set 元素不能重复，Map 元素不能重复、键值对数量最多是 10 个，超过 10 个用 ofEntries 方法
 
 ```java
 HashMap<String,String> hm = new HashMap<>();
@@ -443,23 +443,23 @@ Map<String,String> map3 = Map.copyOf(hm);
 
 #### Stream 流
 
-1. 链式调用，结合Lambda表达式，简化集合、数组的操作。
-2. 有 filter过滤、limit获取前几个元素、skip跳过前几个元素、distinct元素去重（依赖hashCode和equals方法）、concat合并ab两个流为一个流、map遍历、forEach遍历、count统计元素个数、toArray收集流中的数据放到数组中、collect收集流中的数据放到集合中等
-   1. 中间方法，返回新的Stream流，原来的Stream流只能使用一次，因此最好用链式编程
-   2. 修改Stream流中的数据，不会影响原来集合或数组中的数据
+1. 链式调用，结合 Lambda 表达式，简化集合、数组的操作。
+2. 有 filter 过滤、limit 获取前几个元素、skip 跳过前几个元素、distinct 元素去重（依赖 hashCode 和 equals 方法）、concat 合并 ab 两个流为一个流、map 遍历、forEach 遍历、count 统计元素个数、toArray 收集流中的数据放到数组中、collect 收集流中的数据放到集合中等
+   1. 中间方法，返回新的 Stream 流，原来的 Stream 流只能使用一次，因此最好用链式编程
+   2. 修改 Stream 流中的数据，不会影响原来集合或数组中的数据
 3. 中间方法：过滤、转换等：filter、limit、skip、distinct、concat、map
 4. 终结方法：统计、打印等：forEach、count、toArray
-5. 双列集合无法直接使用stream流，hashMap.ketSet/entrySet.stream()...
-6. 单列集合使用Collection中的默认方法，list.stream()...
-7. 数组使用Arrays工具类中的静态方法，Arrays.stream(arr)...
-8. 零散数据(需要是同类数据类型)使用Stream接口中的静态方法，Stream.of(1,2,3,4)...
-9.  注意：Stream接口中静态方法of的细节：方法的形参是一个可变参数，可以传递一堆零散的数据，也可以传递数组，但是数组必须是引用数据类型的，如果传递基本数据类型，则会把整个数组当成一个元素放到Stream当中。
-10. toArray方法的参数：`new IntFunction<>(){@Override public T apply(){...return T;}}`
-11. collect方法可以收集到Set、List、Map等：
-    1.  Collectors.toList()不去重
-    2.  Collectors.toSet()去重
-    3.  Collectors.toMap("key的规则","value的规则")，如果要收集到Map中，那么键名不能重复，否则报错。
-    4.  如下：Function泛型一：表示流里面的每一个数据的类型，泛型二表示Map集合中值的数据类型。方法apply形参：依次表示流里面的每一个数据，方法体：生成键/值的代码，返回值是已经生成的键/值。
+5. 双列集合无法直接使用 stream 流，hashMap.ketSet/entrySet.stream()...
+6. 单列集合使用 Collection 中的默认方法，list.stream()...
+7. 数组使用 Arrays 工具类中的静态方法，Arrays.stream(arr)...
+8. 零散数据(需要是同类数据类型)使用 Stream 接口中的静态方法，Stream.of(1,2,3,4)...
+9. 注意：Stream 接口中静态方法 of 的细节：方法的形参是一个可变参数，可以传递一堆零散的数据，也可以传递数组，但是数组必须是引用数据类型的，如果传递基本数据类型，则会把整个数组当成一个元素放到 Stream 当中。
+10. toArray 方法的参数：`new IntFunction<>(){@Override public T apply(){...return T;}}`
+11. collect 方法可以收集到 Set、List、Map 等：
+    1. Collectors.toList()不去重
+    2. Collectors.toSet()去重
+    3. Collectors.toMap("key 的规则","value 的规则")，如果要收集到 Map 中，那么键名不能重复，否则报错。
+    4. 如下：Function 泛型一：表示流里面的每一个数据的类型，泛型二表示 Map 集合中值的数据类型。方法 apply 形参：依次表示流里面的每一个数据，方法体：生成键/值的代码，返回值是已经生成的键/值。
 
 ```java
 list.stream().filter(...).collect(Collectors.toMap(
@@ -479,6 +479,7 @@ list.stream().filter(...).collect(Collectors.toMap(
 ```
 
 #### 方法引用
+
 引用处需要是函数式接口`@FunctionalInterface`；被引用的方法必须已经存在；被引用方法的形参和返回值需要跟抽象方法保持一致；被引用方法的功能要满足当前需求。
 
 1. 类名::方法名
@@ -495,28 +496,34 @@ list.stream().filter(...).collect(Collectors.toMap(
 7. super::方法名
 8. static 方法中不能直接用 1，要用 2
 
-
 ### 异常
+
 ```java
 
 
 ```
+
 ### File
 
 ```java
 
 
 ```
-### IO 
+
+### IO
+
 ```java
 
 
 ```
+
 #### 字节流
+
 ```java
 
 
 ```
+
 #### 文件拷贝
 
 ```java
@@ -533,10 +540,10 @@ fos.close();
 fis.close();
 ```
 
-1. FileInputStream一次读一个字节：`public int read()`
-2. FileInputStream一次读多个字节：`public int read(byte[] buffer)`，每次读取会尽可能把数组装满，一般用1024的整数倍，比如：`1024*1024*10`每次10MB。
-3. 
-4. 
+1. FileInputStream 一次读一个字节：`public int read()`
+2. FileInputStream 一次读多个字节：`public int read(byte[] buffer)`，每次读取会尽可能把数组装满，一般用 1024 的整数倍，比如：`1024*1024*10`每次 10MB。
+3.
+4.
 
 #### 字符集
 
@@ -646,4 +653,101 @@ fis.close();
    <!-- ... -->
 </build>
 <!-- ... -->
+```
+
+### HttpUtil 工具类
+
+参考自okhttp，OkHttpUtil 针对 OKHttp 做了一层封装，使 Http 请求变得无比简单。
+
+#### OKHttpUtil 功能
+
+- 根据 URL 自动判断是请求 HTTP 还是 HTTPS，不需要单独写多余的代码。
+- 默认情况下 Cookie 自动记录，比如可以实现模拟登录，即第一次访问登录 URL 后后续请求就是登录状态。
+- 自动识别 304 跳转并二次请求
+- 支持代理配置
+- 支持 referer 配置
+- 支持 User-Agent 配置
+- 自动识别并解压 Gzip 格式返回内容
+- 支持 springboot 配置文件
+- 极简的封装调用
+
+#### 引入
+
+```xml
+<dependency>
+    <groupId>io.github.admin4j</groupId>
+    <artifactId>http</artifactId>
+    <version>0.4.4</version>
+</dependency>
+```
+#### get
+
+```java
+Response response = HttpUtil.get("https://github.com/search", Pair.of("q", "okhttp"));
+System.out.println("response = " + response);
+```
+
+#### post
+
+```java
+// JSON 格式的body
+Response post = HttpUtil.post("https://oapi.dingtalk.com/robot/send?access_token=27f5954ab60ea8b2e431ae9101b1289c138e85aa6eb6e3940c35ee13ff8b6335", "{\"msgtype\": \"text\",\"text\": {\"content\":\"【反馈提醒】我就是我, 是不一样的烟火\"}}");
+System.out.println("post = " + post);
+
+// form 请求
+Map<String, Object> formParams = new HashMap<>(16);
+formParams.put("username", "admin");
+formParams.put("password", "admin123");
+Response response = HttpUtil.postForm("http://192.168.1.13:9100/auth/login", formParams);
+System.out.println("response = " + response);
+```
+
+#### HttpJsonUtil
+
+返回格式为 JSON 的 可以使用 HttpJsonUtil 自动返回 JsonObject。
+
+```java
+JSONObject object = HttpJsonUtil.get("https://github.com/search",
+                     Pair.of("q","http"),
+                     Pair.of("username","agonie201218")
+                  );
+System.out.println("object = " + object);
+```
+
+#### 文件上传
+
+```java
+File file=new File("C:\\Users\\andanyang\\Downloads\\Sql.txt");
+Map<String, Object> formParams = new HashMap<>();
+formParams.put("key","test");
+formParams.put("file",file);
+formParams.put("token","WXyUseb-D4sCum-EvTIDYL-mEehwDtrSBg-Zca7t:qgOcR2gUoKmxt-VnsNb657Oatzo=:eyJzY29wZSI6InpoYW56aGkiLCJkZWFkbGluZSI6MTY2NTMwNzUxNH0=");
+Response response = HttpUtil.upload("https://upload.qiniup.com/", formParams);
+System.out.println(response);
+```
+
+#### 文件下载
+
+```java
+HttpUtil.down("https://gitee.com/admin4j/common-http", "path/");
+```
+
+#### HttpRequest 链式请求
+
+```java
+// get
+Response response = HttpRequest.get("https://search.gitee.com/?skin=rec&type=repository")
+      .queryMap("q","admin4j")
+      .header(HttpHeaderKey.USER_AGENT,"admin4j")
+      .execute();
+      System.out.println("response = " + response);
+
+// post form
+Response response = HttpRequest.get("http://192.168.1.13:9100/auth/login")
+      .queryMap("q","admin4j")
+      .header(HttpHeaderKey.USER_AGENT,"admin4j")
+      .form("username","admin")
+      .form("password","admin123")
+      .execute();
+      System.out.println("response = " + response);
 ```

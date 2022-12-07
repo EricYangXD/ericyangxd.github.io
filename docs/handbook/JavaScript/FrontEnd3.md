@@ -162,31 +162,60 @@ const group = str.match(reg).groups;
 console.log(group.year);
 ```
 
-## css中html和body的区别
+## css 中 html 和 body 的区别
 
-1. 在html中，`<html>`包含`<body>`
-2. 在html文档中，`<html>`是根元素。
-3. 在css中有一个`:root`选择器，和`html`选择器作用一样，甚至`:root`具有更高的优先级！
-4. 以下内联属性Inline Attribute最初在规范spec中分配给了`<body>`：`background`、`bgcolor`、`marginbottom`、`marginleft`、`marginright`、`margintop`、`text`
+1. 在 html 中，`<html>`包含`<body>`
+2. 在 html 文档中，`<html>`是根元素。
+3. 在 css 中有一个`:root`选择器，和`html`选择器作用一样，甚至`:root`具有更高的优先级！
+4. 以下内联属性 Inline Attribute 最初在规范 spec 中分配给了`<body>`：`background`、`bgcolor`、`marginbottom`、`marginleft`、`marginright`、`margintop`、`text`
 5. 相应的 CSS 属性：`background`、`background/background-color`、`margin-bottom`、`margin-left`、`margin-right`、`margin-top`、`font`
 6. `rem` 单位是相对于文档根目录的。是相对于 `<html>` 元素的字体大小的。
 7. 如何将 `<html>` 上的字体大小设置为百分比，以便在使用 rem 单位时用作重置:[1](http://snook.ca/archives/html_and_css/font-size-with-rem)
-8. 在body上设置`background-color`，
-9. 在html上设置`background-color`，
+8. 在 body 上设置`background-color`，
+9. 在 html 上设置`background-color`，
 10. JavaScript 也存在差异。例如，html 是 `document.rootElement`，body 是 `document.body`。
-11. body 元素实际上没有浏览器窗口那么高。它只和里面的内容一样高，就像 div 或其他任何东西一样。所以在body上设置background时要特别注意，背景有可能撑不起来：如果 html 元素没有背景，body 背景将覆盖页面。如果 html 元素上有背景，则 body 背景的行为与任何其他元素一样。所以背景色要么设置在html上，要么给body设置一个高度，以防万一。
+11. body 元素实际上没有浏览器窗口那么高。它只和里面的内容一样高，就像 div 或其他任何东西一样。所以在 body 上设置 background 时要特别注意，背景有可能撑不起来：如果 html 元素没有背景，body 背景将覆盖页面。如果 html 元素上有背景，则 body 背景的行为与任何其他元素一样。所以背景色要么设置在 html 上，要么给 body 设置一个高度，以防万一。
 12. 将基本字体大小定义为 62.5%，以便以类似于使用 px 的方式方便地调整 rems 大小。
 
 ```css
 /* 不考虑兼容性 */
-html { font-size: 62.5%; } 
-body { font-size: 1.4rem; } /* =14px */
-h1   { font-size: 2.4rem; } /* =24px */
+html {
+	font-size: 62.5%;
+}
+body {
+	font-size: 1.4rem;
+} /* =14px */
+h1 {
+	font-size: 2.4rem;
+} /* =24px */
 
 /* 考虑兼容性 */
-html { font-size: 62.5%; } 
-body { font-size: 14px; font-size: 1.4rem; } /* =14px */
-h1   { font-size: 24px; font-size: 2.4rem; } /* =24px */
+html {
+	font-size: 62.5%;
+}
+body {
+	font-size: 14px;
+	font-size: 1.4rem;
+} /* =14px */
+h1 {
+	font-size: 24px;
+	font-size: 2.4rem;
+} /* =24px */
 ```
 
 13. 关键在于区分那些属性是可覆盖的，然后设置在不同的标签上
+
+## Why Not Iframe
+
+为什么不用 iframe，这几乎是所有微前端方案第一个会被 challenge 的问题。但是大部分微前端方案又不约而同放弃了 iframe 方案，自然是有原因的，并不是为了 "炫技" 或者刻意追求 "特立独行"。
+
+如果不考虑体验问题，iframe 几乎是最完美的微前端解决方案了。
+
+iframe 最大的特性就是提供了浏览器原生的硬隔离方案，不论是样式隔离、js 隔离这类问题统统都能被完美解决。但他的最大问题也在于他的隔离性无法被突破，导致应用间上下文无法被共享，随之带来的开发体验、产品体验的问题。
+
+- url 不同步。浏览器刷新 iframe url 状态丢失、后退前进按钮无法使用。
+- UI 不同步，DOM 结构不共享。想象一下屏幕右下角 1/4 的 iframe 里来一个带遮罩层的弹框，同时我们要求这个弹框要浏览器居中显示，还要浏览器 resize 时自动居中。
+- 全局上下文完全隔离，内存变量不共享。iframe 内外系统的通信、数据同步等需求，主应用的 cookie 要透传到根域名都不同的子应用中实现免- 登效果。
+- 慢。每次子应用进入都是一次浏览器上下文重建、资源重新加载的过程。
+
+其中有的问题比较好解决(问题 1)，有的问题我们可以睁一只眼闭一只眼(问题 4)，但有的问题我们则很难解决(问题 3)甚至无法解决(问题 2)，而这些无法解决的问题恰恰又会给产品带来非常严重的体验问题， 最终导致我们舍弃了 iframe 方案。

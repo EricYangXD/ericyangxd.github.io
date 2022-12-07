@@ -311,4 +311,22 @@ SpringMVC 技术与 Servlet 技术功能等同，均属于 web 层开发技术�
 4. 公共路径前缀通过在函数上添加注解`@RequestMapping("/commonPath")`实现简化。
 5. 同上`@ResponseBody`注解也可以提取到函数外面，前提是所有响应方法都需要这个注解。
 6. 在上面 4+5 中，可以用`@RestController`代替`@Controller`和`@ResponseBody`。
-7. `@RequestMapping(value="", method=RequestMethod.POST)`===`@PostMapping(...)`，其他几种都有类似简化书写方式
+7. `@RequestMapping(value="", method=RequestMethod.POST)`===`@PostMapping(...)`，其他几种都有类似简化书写方式。
+8. 设置对静态资源的访问放行：
+
+```java
+@Configuration
+public class SpringMvcSupport extends WebMvcConfigurationSupport{
+   @Override
+   protected void addResourceHandlers(ResourceHandlerRegistry registry){
+      // 当访问/pages/???的时候，走/pages目录下的内容
+      registry.addResourceHandler("/pages/**").addResourceLocations("/pages/");
+      registry.addResourceHandler("/js/**").addResourceLocations("/js/");
+      registry.addResourceHandler("/css/**").addResourceLocations("/css/");
+      registry.addResourceHandler("/plugins/**").addResourceLocations("/plugins/");
+   } 
+}
+```
+## SSM整合
+
+1. 
