@@ -24,3 +24,13 @@ meta:
 ## 插件
 
 1. PicGo：结合 GitHub+jsdelivr（免费 CDN）配置图床。[参考这篇](https://zhuanlan.zhihu.com/p/489236769)
+
+## 下载历史版本 vscode
+
+eg. 1.73.1。[see here](https://code.visualstudio.com/docs/supporting/faq#_previous-release-versions)
+
+| platform            | link                                                                   |
+| ------------------- | ---------------------------------------------------------------------- |
+| macOS Universal     | https://update.code.visualstudio.com/{version}/darwin-universal/stable |
+| macOS Intel chip    | https://update.code.visualstudio.com/{version}/darwin/stable           |
+| macOS Apple silicon | https://update.code.visualstudio.com/{version}/darwin-arm64/stable     |

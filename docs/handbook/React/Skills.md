@@ -773,3 +773,12 @@ React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和�
 	dangerouslySetInnerHTML={{ __html: formatedHtml }}
 />
 ```
+
+## 跨端调试
+
+1. Chrome 的设备检查功能`chrome://inspect/#devices`和 Vysor 的电脑远程控制投影手机功能都是类似手机直连电脑实时预览的解决方案
+2. 使用 USB 直连电脑，实现在 Android 设备上调试：`adb reverse tcp:8081 tcp:8081`，原理就是反向转发端口请求，比如手机访问 3000 端口就会直接转发给电脑上的 3000 端口代理，注意访问路径不能用 localhost，改用 127.0.0.1。
+3. 手机直连电脑：
+
+   - 电脑手机处于同一局域网，修改手机网络，服务器主机名设置成电脑 IP，服务器端口设置成电脑服务端口
+   - 手机浏览器打开`http://${电脑IP}:${电脑服务端口}`

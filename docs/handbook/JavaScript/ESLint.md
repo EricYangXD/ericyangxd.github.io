@@ -11,6 +11,28 @@ meta:
 
 eslint 可以保证项目的质量，prettier 可以保证项目的统一格式、风格。
 
+## use eslint
+
+1. 自动创建：`npm init @eslint/config`根据提示选择相应配置
+2. 手动创建：
+   1. 在项目中安装：`npm install eslint --save-dev`
+   2. 使用 eslint 创建一个配置文件：`./node_modules/.bin/eslint --init`
+   3. 然后在配置文件 .eslintrc.js 中 `extends:"eslint:recommended"` 就可以使用 ESLint 官方推荐的规则，也是非常方便的。也可以自定义需要的规则：
+      ```js
+      module.exports = {
+      	rules: {
+      		semi: ["error", "always"],
+      		quotes: ["error", "double"],
+      	},
+      };
+      ```
+   4. 使用 eslint 去校验文件：`./node_modules/.bin/eslint 文件路径/文件名.js`
+
+在平时项目开发中有两种方式去快速修复 ESLint 问题：
+
+- 命令行里运行 eslint 检查代码文件的同时加上 `--fix`
+- 在 VSCode 里安装 eslint 插件，进入项目 vscode 会自动检测项目的 eslint 配置文件 .eslintrc ，然后点击 allow 表示同意 eslint 作为默认的 formate 代码的配置。最后就可以愉快的使用 `format on save` 或者 `option+shift+F` 自动格式化了。
+
 ### 先有 npm 包，再有 vscode 插件
 
 1. 用法：先`npm init -y`，初始化包。
@@ -73,13 +95,13 @@ parserOptions: { // 表示 EsLint 对于不同的 Parser（解析器）配置的
 	extends: [
 		// 直接从 EsLint 本身集成的规则继承
     "eslint:recommended",
-    // 从一些第三方NPM包进行继承，比如 eslint-config-standard、eslint-config-airbnb 
-    // eslint-config-* 中 eslint-config- 可以省略 
+    // 从一些第三方NPM包进行继承，比如 eslint-config-standard、eslint-config-airbnb
+    // eslint-config-* 中 eslint-config- 可以省略
     "airbnb",
 		// 直接从插件继承规则，可以省略包名中的 `eslint-plugin`
 		// 通常格式为 `plugin:${pluginName}/${configName}`
 		"plugin:@typescript-eslint/recommended",
-	], 
+	],
 	overrides: [
     // *.test.js 以及 *.spec.js 结尾的文件特殊定义某些规则
     {
@@ -110,27 +132,28 @@ parserOptions: { // 表示 EsLint 对于不同的 Parser（解析器）配置的
    - "writable"或者 true，表示变量可重写；
    - "readonly"或者 false，表示变量不可重写；
    - "off"，表示禁用该全局变量。
-3.  对于rules：
-	- "off" 或 0 表示关闭本条规则检测
-	- "warn" 或 1 表示开启规则检测，使用警告级别的错误：warn (不会导致程序退出)
-	- "error" 或 2 表示开启规则，使用错误级别的错误：error (当被触发的时候，程序会退出)、
+3. 对于 rules：
 
-4.  在 rules 对象中，通常 key 为规则的名称，比如上述的 `no-console` 代表具体的规则名称，而 value 可以为一个数组。数组第一个项代表规则 ID ，通过 `0 1 2` 或者 `off warn error` 表示检测的等级，而其余参数代表规则的具体配置。
-5.  Rules 除了定义一些额外的规则配置的同时也支持在层叠配置下的覆盖（扩展）规则。
-    1.  改变继承的规则级别而不改变它的配置选项
-    2.  覆盖基础配置中的规则的选项
+   - "off" 或 0 表示关闭本条规则检测
+   - "warn" 或 1 表示开启规则检测，使用警告级别的错误：warn (不会导致程序退出)
+   - "error" 或 2 表示开启规则，使用错误级别的错误：error (当被触发的时候，程序会退出)、
 
-6.  在某些特定条件下，内置的一些规则并不能满足我们的代码检查。所以此时我们就要基于该情况做一些特殊的拓展了，Plugin 的作用正是处理这些功能而生。通常在使用 Eslint 来检查代码时，需要将解析器替换为 `@typescript-eslint/parser` 的同时针对于一些 TypeScript 特定语法还需使用 `@typescript-eslint/eslint-plugin` 来支持一些特定的 TS 语法检查。当我们在 Plugins 中声明对应的插件后，就可以在 rules 配置中使用对应插件中声明的特殊规则限制了。
-7.  简单来说，所谓的 Plugin 正是对于 EsLint 内置规则的拓展，通过 Plugin 机制我们可以实现 EsLint 中自定义的 Rules。
-8.  利用 EsLint 中的 Extends 关键字来继承一些通用的配置。Extends 关键字可以理解为关于 Plugins 和 Rules 结合而来的最佳实践。简单来说就是在项目内继承于另一份 EsLint 配置文件而已。
-9.  关于 Rules 中的覆盖规则其实是完全和 config File 的层叠配置是完全一致的。
-    1.  改变继承的规则级别而不改变它的配置选项
-    2.  覆盖基础配置中的规则的选项
-10. 针对不同的文件进行不同的 Lint 配置，使用Overrides 选项来解决这个问题。还可以配置更多的规则，比如 excludedFiles、parser、parserOptioons 等等。
+4. 在 rules 对象中，通常 key 为规则的名称，比如上述的 `no-console` 代表具体的规则名称，而 value 可以为一个数组。数组第一个项代表规则 ID ，通过 `0 1 2` 或者 `off warn error` 表示检测的等级，而其余参数代表规则的具体配置。
+5. Rules 除了定义一些额外的规则配置的同时也支持在层叠配置下的覆盖（扩展）规则。
+
+   1. 改变继承的规则级别而不改变它的配置选项
+   2. 覆盖基础配置中的规则的选项
+
+6. 在某些特定条件下，内置的一些规则并不能满足我们的代码检查。所以此时我们就要基于该情况做一些特殊的拓展了，Plugin 的作用正是处理这些功能而生。通常在使用 Eslint 来检查代码时，需要将解析器替换为 `@typescript-eslint/parser` 的同时针对于一些 TypeScript 特定语法还需使用 `@typescript-eslint/eslint-plugin` 来支持一些特定的 TS 语法检查。当我们在 Plugins 中声明对应的插件后，就可以在 rules 配置中使用对应插件中声明的特殊规则限制了。
+7. 简单来说，所谓的 Plugin 正是对于 EsLint 内置规则的拓展，通过 Plugin 机制我们可以实现 EsLint 中自定义的 Rules。
+8. 利用 EsLint 中的 Extends 关键字来继承一些通用的配置。Extends 关键字可以理解为关于 Plugins 和 Rules 结合而来的最佳实践。简单来说就是在项目内继承于另一份 EsLint 配置文件而已。
+9. 关于 Rules 中的覆盖规则其实是完全和 config File 的层叠配置是完全一致的。
+   1. 改变继承的规则级别而不改变它的配置选项
+   2. 覆盖基础配置中的规则的选项
+10. 针对不同的文件进行不同的 Lint 配置，使用 Overrides 选项来解决这个问题。还可以配置更多的规则，比如 excludedFiles、parser、parserOptioons 等等。
 11. 通常我们在编写 EsLint 插件时，如果是针对于非 Js 文件的话可以单独使用一个 Processor 来处理，处理器可以从另一种文件中提取 JavaScript 代码，然后让 ESLint 检测 JavaScript 代码。或者处理器可以在预处理中转换 JavaScript 代码。比如一个 .vue 文件中，并不单纯的由 JavaScript 组成。
 12. 简单来说处理器的原理是将我们的非 JS 文件经过处理成为一个一个具名的代码块，最终在将这些处理后的 js 文件当作原始文件的子文件交给 EsLint 处理。
 13. 快速生成 EsLint 插件模板：`npm i generator-eslint`，运行`js yo eslint:plugin`来快速创建一个 Plugin 模板。
-
 
 ### Prettier
 

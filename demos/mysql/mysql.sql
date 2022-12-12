@@ -773,6 +773,12 @@ DELIMITER ;
 call getTotal();
 
 
-
+CREATE TABLE `t_user` (
+  `id` int(11) NOT NULL,
+  `name` VARCHAR(20) NOT NULL,
+  `phone` VARCHAR(20) DEFAULT NULL,
+  `age` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = ascii ROW_FORMAT = COMPACT;
 
 
