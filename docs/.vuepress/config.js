@@ -210,9 +210,10 @@ module.exports = {
 				title: "CSS",
 				path: "/handbook/CSS/CSS1",
 				children: [
-					{ title: "CSS1", path: "/handbook/CSS/CSS1" },
-					{ title: "CSS2", path: "/handbook/CSS/CSS2" },
-					{ title: "SCSS", path: "/handbook/CSS/SCSS" },
+					{ title: "CSS Tips1", path: "/handbook/CSS/CSS1" },
+					{ title: "CSS Tips2", path: "/handbook/CSS/CSS2" },
+					{ title: "CSS Tips3", path: "/handbook/CSS/CSS3" },
+					{ title: "SCSS Tips", path: "/handbook/CSS/SCSS" },
 				],
 			},
 			{
