@@ -450,6 +450,8 @@ module.exports = CustomHtmlPlugin;
 
 ### 在项目中使用 babel
 
+[参考](https://mp.weixin.qq.com/s/qCJXhfd5ZBkpqV4bs_nY6w)
+
 1. 安装：`npm install --save-dev @babel/core @babel/cli @babel/preset-env`
    - Babel 的核心功能包含在 `@babel/core` 模块中。
    - `@babel/cli` 是一个能够从终端（命令行）使用的工具。
@@ -458,21 +460,48 @@ module.exports = CustomHtmlPlugin;
 
 ```json
 {
-	"presets": [
-		[
-			"@babel/preset-env",
-			{
-				"targets": {
-					"edge": "17",
-					"firefox": "60",
-					"chrome": "67",
-					"safari": "11.1"
-				},
-				"useBuiltIns": "usage",
-				"corejs": "3.6.5"
-			}
-		]
-	]
+  "presets": [
+    // runs from right to left
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": "usage", // transform new features & apis
+        "corejs": {
+          "version": 3,
+          "proposals": true // stage polyfill
+        },
+        "loose": true,
+        "targets": {
+          // "ie": "11",
+          // "edge": "17",
+          // "firefox": "60",
+          "chrome": "61"
+          // "safari": "11.1",
+          // "node": "12.19",
+          // "> 0.25%, not dead",
+        }
+      }
+    ],
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    // runs from left to right
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "corejs": 2
+      }
+    ]
+    // "@babel/plugin-proposal-class-properties"
+    // "@babel/plugin-proposal-object-rest-spread"
+
+    // npm install --save-dev @babel/plugin-transform-runtime
+    // @babel/runtime 是要安装到生产依赖的，因为新特性的编译需要从这个包里引用 polyfill
+    // 不错，它就是一个封装了 corejs 的 polyfill 包
+    // npm install --save @babel/runtime
+    // 引入的 polyfill 不再是全局范围内的了，而是模块作用域范围内的；
+    // 通过引用的方式，既解决了全局变量污染的问题，又减小了编译后包的体积。
+  ]
 }
 ```
 
@@ -482,10 +511,13 @@ const presets = [
 		"@babel/preset-env",
 		{
 			targets: {
+        "ie": "11",
 				edge: "17",
 				firefox: "60",
 				chrome: "67",
 				safari: "11.1",
+        node: "12.19",
+        "> 0.25%, not dead",
 			},
 			useBuiltIns: "usage", // 只引入用到的/需要的polyfill
 			corejs: "3.6.4",

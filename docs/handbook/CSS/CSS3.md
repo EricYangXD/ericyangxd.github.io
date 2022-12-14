@@ -48,3 +48,20 @@ input::placeholder {
 	opacity: 0.5;
 }
 ```
+
+### aspect-ratio
+
+可以设置图片的首选纵横比: `width/height`，宽高比更确切。
+
+```css
+.photos img {
+	width: 15%;
+	aspect-ratio: 3/2;
+	object-fit: contain;
+	mix-blend-mode: color-burn;
+	/* mix-blend-mode: color-dodge;
+	mix-blend-mode: color-burn;
+	mix-blend-mode: color;
+	mix-blend-mode: exclusion; */
+}
+```

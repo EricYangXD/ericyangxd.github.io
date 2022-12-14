@@ -8,11 +8,11 @@ date: "2022-01-12"
 
 ### babel 编译 jsx
 
--   Q:老版本的 React 中，为什么写 jsx 的文件要默认引入 React?
--   A:因为 jsx 在被 babel 编译后，写的 jsx 会变成上述 React.createElement 形式，所以需要引入 React，防止找不到 React 引起报错。
--   新版本 React 已经不需要引入 createElement ，这种模式来源于 `Automatic Runtime`，使用`@babel/plugin-syntax-jsx`插件向文件中提前注入了 `_jsxRuntime api`。不过这种模式下需要我们在 `.babelrc` 设置 `runtime: automatic` 。
+- Q:老版本的 React 中，为什么写 jsx 的文件要默认引入 React?
+- A:因为 jsx 在被 babel 编译后，写的 jsx 会变成上述 React.createElement 形式，所以需要引入 React，防止找不到 React 引起报错。
+- 新版本 React 已经不需要引入 createElement ，这种模式来源于 `Automatic Runtime`，使用`@babel/plugin-syntax-jsx`插件向文件中提前注入了 `_jsxRuntime api`。不过这种模式下需要我们在 `.babelrc` 设置 `runtime: automatic` 。
 
--   jsx 语法最终会被 babel 编译成为 React.createElement()方法
+- jsx 语法最终会被 babel 编译成为 React.createElement()方法
 
 比如：
 
@@ -75,15 +75,15 @@ React.createElement(
 
 > 这两种方式效果和原理是一模一样的，只是新版额外引入包去处理了引入。所以不需要单独进行引入 React。
 
--   React 之中 element 是构建 React 的最小单位,其实也就是虚拟 Dom 对象。
+- React 之中 element 是构建 React 的最小单位,其实也就是虚拟 Dom 对象。
 
--   本质上 jsx 执行时就是在执行函数调用，是一种工厂模式通过 React.createElement 返回一个元素。
+- 本质上 jsx 执行时就是在执行函数调用，是一种工厂模式通过 React.createElement 返回一个元素。
 
--   JSX 会先转换成 React.element，再转化成 React.fiber。
+- JSX 会先转换成 React.element，再转化成 React.fiber。
 
 ### React.createElement
 
--   React.createElement 用于生成虚拟 DOM 节点对象。
+- React.createElement 用于生成虚拟 DOM 节点对象。
 
 在我们平常使用 react 项目的时候，index.tsx 中总是会存在这样一段代码:
 
@@ -93,40 +93,40 @@ ReactDOM.render(<App />, document.getElementById("root"));
 
 结合上边我们所讲的 React.createElement，我们不难猜出 ReactDOM.render 这个方法它的作用其实就是按照 React.createElement 生成的虚拟 DOM 节点对象，生成真实 DOM 插入到对应节点中去，这就是简单的渲染过程。
 
--   react 中元素本身是不可变的。会报错：无法给一个只读属性 children 进行赋值，修改其他属性比如 type 之类同理也是不可以的。
+- react 中元素本身是不可变的。会报错：无法给一个只读属性 children 进行赋值，修改其他属性比如 type 之类同理也是不可以的。
 
 > not extensible 是 react17 之后才进行增加的。通过 Object.freeze()将对象进行处理元素。
 
 > 需要注意 Object.freeze()是一层浅冻结，在 react 内部进行了递归 Object.freeze()。
 
--   所以在 react 中元素本身是不可变的，当元素被创建后是无法修改的。只能通过重新创建一个新的元素来更新旧的元素。
+- 所以在 react 中元素本身是不可变的，当元素被创建后是无法修改的。只能通过重新创建一个新的元素来更新旧的元素。
 
--   你可以这样理解，在 react 中每一个元素类似于动画中的每一帧，都是不可以变得。
+- 你可以这样理解，在 react 中每一个元素类似于动画中的每一帧，都是不可以变得。
 
 ### React.cloneElement
 
 createElement 把 jsx 变成 element 对象; 而 cloneElement 的作用是以 element 元素为样板克隆并返回新的 React element 元素。返回元素的 props 是将新的 props 与原始元素的 props 浅层合并后的结果。
 
--   Q:React.createElement 和 React.cloneElement 到底有什么区别呢?
--   A:可以完全理解为，一个是用来创建 element 。另一个是用来修改 element，并返回一个新的 React.element 对象。也就是用途不一样。
+- Q:React.createElement 和 React.cloneElement 到底有什么区别呢?
+- A:可以完全理解为，一个是用来创建 element 。另一个是用来修改 element，并返回一个新的 React.element 对象。也就是用途不一样。
 
 ### ReactDOM.render
 
--   ReactDOM.render 把接收到的 VDOM 变成真实元素插入到对应的根节点上。
+- ReactDOM.render 把接收到的 VDOM 变成真实元素插入到对应的根节点上。
 
--   明确一个思想: ReactDOM.render()方法仅仅支持传入一个 VDOM 对象和 el。他的作用就是将 VDOM 生成真实 DOM 挂载在 el 上。此时如果 VDOM 存在一些 children，那么 ReactDOM.render 会递归他的 children，将 children 生成的 DOM 节点挂载在 parentDom 上。一层一层去挂载。
--   在 React 中 class 组件因为继承自 React.component,所以 class 组件的原型上会存在一个 isReactComponent 属性。这个属性仅有类组件独有，函数组件是没有的，这就可以区分 class 组件和函数式组件。
+- 明确一个思想: ReactDOM.render()方法仅仅支持传入一个 VDOM 对象和 el。他的作用就是将 VDOM 生成真实 DOM 挂载在 el 上。此时如果 VDOM 存在一些 children，那么 ReactDOM.render 会递归他的 children，将 children 生成的 DOM 节点挂载在 parentDom 上。一层一层去挂载。
+- 在 React 中 class 组件因为继承自 React.component,所以 class 组件的原型上会存在一个 isReactComponent 属性。这个属性仅有类组件独有，函数组件是没有的，这就可以区分 class 组件和函数式组件。
 
 1. 对于 class 组件：
-    - 经过 babel 之后得到的 vdom 的形式和函数组件类似，但是可以通过 type.prototype.isReactComponent 区分出来；
-    - 然后将他的 render 方法返回的 Vdom 对象通过 createDom 方法转化为真实 Dom 节点来进行挂载。
-    - `createDom(new type(props).render());`
+   - 经过 babel 之后得到的 vdom 的形式和函数组件类似，但是可以通过 type.prototype.isReactComponent 区分出来；
+   - 然后将他的 render 方法返回的 Vdom 对象通过 createDom 方法转化为真实 Dom 节点来进行挂载。
+   - `createDom(new type(props).render());`
 2. 对于函数组件 FC：
-    - 进入 ReactDOM.render 方法创建真实 DOM 时，在 createDom 时会判断传入的 vDom 的 type，发现是 FC 类型；
-    - 那么会传入自身 props 调用自身，运行这个函数组件后，得到 jsx，经过 babel 转化成对 React.createElement(FunctionCompoent,props,children)的调用，返回虚拟 DOM 对象；
-    - 拿到 vDom 对象后，通过之前的 createDom 方法将 vDom 转化成真实节点返回；
-    - 此时 render 方法就可以拿到对应生成的真实 DOM 对象，从而挂载在 DOM 元素上。
-    - `createDom(type(props));`
+   - 进入 ReactDOM.render 方法创建真实 DOM 时，在 createDom 时会判断传入的 vDom 的 type，发现是 FC 类型；
+   - 那么会传入自身 props 调用自身，运行这个函数组件后，得到 jsx，经过 babel 转化成对 React.createElement(FunctionCompoent,props,children)的调用，返回虚拟 DOM 对象；
+   - 拿到 vDom 对象后，通过之前的 createDom 方法将 vDom 转化成真实节点返回；
+   - 此时 render 方法就可以拿到对应生成的真实 DOM 对象，从而挂载在 DOM 元素上。
+   - `createDom(type(props));`
 3. 对于文本节点：直接`dom = document.createTextNode(props.content);`；
 4. 对于原生 DOM 节点：直接`dom = document.createElement(type);`。
 5. 无论是 FC 还是 CC 这两种组件，内部本质上还是基于普通 DOM 节点的封装，所以我们只需要递归调用他们直接返回基本的 DOM 节点之后进行挂载就 OK.
@@ -149,3 +149,7 @@ createElement 把 jsx 变成 element 对象; 而 cloneElement 的作用是以 el
 ### 自定义组件必须大写的原因:
 
 babel 在编译的过程中会判断 JSX 组件的首字母, 如果是小写, 则为原生 DOM 标签, 就编译成字符串. 如果是大写, 则认为是自定义组件. 编译成对象.
+
+### 在项目中使用 babel
+
+[参考](https://mp.weixin.qq.com/s/qCJXhfd5ZBkpqV4bs_nY6w)
