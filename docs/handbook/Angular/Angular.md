@@ -172,7 +172,8 @@ export class AppModule {}
 
 ```ts
 // app.component.ts
-import { Component } from "@angular/core";
+import { Component, ViewEncapsulation } from "@angular/core";
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
 	// 指定组件的使用方式, 当前为标记形式
@@ -188,8 +189,18 @@ import { Component } from "@angular/core";
 	// styleUrls : ['组件样式文件路径']
 	// styles : [`组件样式`]
 	styleUrls: ["./app.component.css"],
+	// 设置封装的样式“能进能出”，其实就是ng不会再给class增加属性选择器，这样使用innerHTML注入的dom就可以使用styles中的样式了
+	encapsulation: ViewEncapsulation.,// default: ViewEncapsulation.Emulate
 })
-export class AppComponent {}
+export class AppComponent {
+	html: SafeHtml;
+	constructor(private domSanitizer: DomSanitizer) {
+		// 处理style的时候用这个，处理class的时候用`encapsulation: ViewEncapsulation.None`
+		this.html = this.domSanitizer.bypassSecurityTrustHtml(
+			`<b style="color:red;">red</b>`
+		);
+	}
+}
 ```
 
 ```html
@@ -317,10 +328,10 @@ export class ProductComponent implements OnInit {
 
 通过绑定属性 innerHTML 来显示 html 片段。eg.`<div [innerHTML]="innerHTML"></div>`
 
-
 ### @types/node
 
 有时会报错，那么可以在`tsconfig.json > compilerOptions` 中注掉空`types`或者向空数组中添加`node/browser`等。
+
 ## 技巧
 
 ### 卸载@angular-cli
@@ -331,25 +342,143 @@ export class ProductComponent implements OnInit {
 2. `npm uninstall --save-dev angular-cli`
 3. `npm uninstall -g @angular/cli`
 4. `npm cache verify (低版本npm使用 npm cache clean [--force])`
-5. 然后执行`ng v`, 如果提示`command not found: ng`说明成功卸载，否则看看nvm下的各个版本里是否也有安装cli，依次删除
+5. 然后执行`ng v`, 如果提示`command not found: ng`说明成功卸载，否则看看 nvm 下的各个版本里是否也有安装 cli，依次删除
 6. `npm install -g @angular/cli@7.3.9 (现在推荐使用这个方式安装cli, 而不是npm uninstall -g angular-cli, 如果报错，可以使用cnpm代替npm)`
-
 
 ### 安装指定版本@angular-cli
 
 1. 卸载之前的版本 `npm uninstall -g @angular/cli`
-2. 清除缓存，确保卸载干净 `npm cache verify`，在低版本的nodejs里面清除缓存使用的命令是`npm cache clean`
+2. 清除缓存，确保卸载干净 `npm cache verify`，在低版本的 nodejs 里面清除缓存使用的命令是`npm cache clean`
 3. 检查是否卸载干净，输入命令 `ng v`，若显示"command not found"则卸载干净
 4. 全局安装指定版本 `npm install -g @angular/cli@7.3.9`
 5. 检查版本号 `ng v`
 
-### 在Angular项目中运行ngcc/ngc
+### 在 Angular 项目中运行 ngcc/ngc
 
-1. Angular项目的angular.json文件里有这么一行：`"aot": true,`，意思是使用Ivy编译， 即Angular 下一代编译和渲染管道的代号。 `ahead-of-time (AOT) compiler`
+1. Angular 项目的 angular.json 文件里有这么一行：`"aot": true,`，意思是使用 Ivy 编译， 即 Angular 下一代编译和渲染管道的代号。 `ahead-of-time (AOT) compiler`
 2. 从 Angular 的版本 9 开始，这个新的编译器和运行时指令集就代替了老的编译器和运行时（即视图引擎 View Engine）成为了默认值。
 3. 可以使用通过 View Engine 编译器创建的库来构建 Ivy 应用程序。此兼容性由称为 Angular 兼容性编译器（ ngcc ）的工具提供。CLI 命令在执行 Angular 构建时会根据需要运行 ngcc。
 4. 如果你是库作者，则应从版本 9 之后继续使用 View Engine 编译器。通过让所有库继续使用 View Engine，你将与使用 Ivy 的默认 v9 应用程序以及已选择的应用程序保持兼容性。
-5. ngcc即我们每次`ng serve`时看到的ngcc(worker):...
-6. Angular的AOT编译器会在构建阶段，在浏览器下载并运行这些代码之前，把Angular的HTML和TypeScript代码转换成高效的JavaScript代码。这是生产环境的最佳编译模式，与即时(JIT)编译相比，它可以减少加载时间并提高性能。
-7. 通过使用`ngc`命令行工具编译你的应用，你可以直接引导到模块工厂，所以你不需要在你的JavaScript包中包含Angular编译器。
+5. ngcc 即我们每次`ng serve`时看到的 ngcc(worker):...
+6. Angular 的 AOT 编译器会在构建阶段，在浏览器下载并运行这些代码之前，把 Angular 的 HTML 和 TypeScript 代码转换成高效的 JavaScript 代码。这是生产环境的最佳编译模式，与即时(JIT)编译相比，它可以减少加载时间并提高性能。
+7. 通过使用`ngc`命令行工具编译你的应用，你可以直接引导到模块工厂，所以你不需要在你的 JavaScript 包中包含 Angular 编译器。
 
+### 踩坑系列
+
+#### service 注册和使用
+
+1. service 可以在根 module 里引入（全局可用），也可以在其他 module 中引入（仅这个 module 可用），还能通过在 service 的@Injectable 中声明注入的 module。
+2. 如果service注册在root根模块中，那么所有的子模块使用的是同一个service实例（单例模式），除非在子注入器中配置了其他的providers。
+3. 如果service分别注册在不同的组件中，那么他们使用的则是不同的实例。
+4. 在某个注入器的范围内，服务是单例的。也就是说在指定的注入器中，最多只有某个服务的一个实例。
+5. 如果一个模块在应用程序启动时就加载（非懒加载），它的@NgModule.providers具有全应用级作用域！他们也可以用于整个应用的注入中！
+6. 如果要把服务的范围限制在模块中，那么就需要对该模块进行懒加载。惰性加载的模块拥有自己的注入器，是应用注入器的直属子级，该惰性加载模块的providers和他导入的模块的providers都会添加到他自己的注入器中且不受全局的相同providers的影响。当路由在惰性加载的环境中创建组件时，Angular优先使用惰性加载模块中的服务实例，而不是根注入器中的。
+7. 建议在service本身的@Injectable装饰器中指定使用它的模块，这样做还能发挥tree-shaking优势。
+
+#### ::ng-deep
+
+1. `::ng-deep`功能类似 Vue 中的`::v-deep`，比如在父组件对一些子组件样式进行穿透等（父组件的样式会没有 ng 生成的属性选择器）。可能会污染其他子组件的样式。
+2. 解决样式污染使用`:host`放在`::ng-deep`前面，这时样式又会获得属性封装，把属性留在组件树内部。
+
+#### [attr] vs attr
+
+1. attr 接收的是 string，传的变量都会变成 string。
+2. `[attr]`接收的是传入的变量。
+
+#### 自定义组件中使用 ngModel
+
+1. 自定义组件要实现`ControlValueAccessor`接口，并在`writeValue`方法中把父组件传入的值赋给自定义组件中对应的属性。
+
+```js
+@Component({
+  selector: 'product-list',
+  templateUrl: './product-list.component.html',
+  styleUrls: ['./product-list.component.css'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ProductListComponent),
+      multi: true,
+    },
+  ],
+})
+export class ProductListComponent implements ControlValueAccessor {
+ 	writeValue(n: number): void {
+    this.value = n;
+  }
+  registerOnChange: (fn: (value: number) => void) => void = (fn) =>
+    (this.onChange = fn);
+  registerOnTouched: (fn: () => void) => void = (fn) => (this.onTouched = fn);
+  setDisabledState?(isDisabled: boolean): void {}
+  onChange: (value: number) => void = () => null;
+  onTouched: () => void = () => null;
+
+  @Input() value: number = 0;
+
+// ...
+
+}
+```
+
+2. 自定义组件声明 providers
+3. 父组件调用子组件
+
+#### 生命周期钩子
+
+```ts
+	// 执行一次
+	ngOnInit() {
+		console.log('ngOnInit');
+	}
+	// 执行一次
+	ngAfterContentInit() {
+    console.log('ngAfterContentInit');
+  }
+	// 执行多次
+	ngAfterContentChecked() {
+    console.log('ngAfterContentChecked');
+  }
+	// 执行一次
+  ngAfterViewInit() {
+    console.log('ngAfterViewInit');
+  }
+  // 执行多次
+  ngAfterViewChecked() {
+    console.log('ngAfterViewChecked');
+  }
+	// 执行一次
+  ngOnDestroy() {
+    console.log('ngOnDestroy');
+  }
+	// 执行多次
+	ngDoCheck() {
+    console.log('ngDoCheck');
+  }
+	// 可以执行多次
+	ngOnChanges(sc: SimpleChanges): void {
+    console.log(sc);
+  }
+```
+
+1. checked结尾的钩子会执行多次，其余都执行一次。
+2. ngOnChanges只在输入属性变更时触发，且可以有一个参数，包含变更属性的信息。
+3. content钩子是父组件先执行，view钩子是子组件先执行。
+4. ngDoCheck钩子的调用频率最高，不要在当中实现过重的业务。
+5. 初始化的业务应该放在ngOnInit中，而不是构造函数中。
+
+#### 变更检查
+
+1. 单向数据流
+2. 触发变更检查的事件：Event、XHR、Timer等
+3. 解决`ExpressionChangedAfterItHasBeenCheckedError`报错的两个方法
+   1. 在父组件的ngAfterViewInit钩子中强制Angular进行变更检查：`this.changeDetectorRef.detectChanges()`
+   2. 在子组件中使用异步更新的方式修改父组件的内容（这其实是违背了单向数据流的原则，所以有错误并不奇怪）：`setTimeout(()=>...,0);`
+
+#### SharedModule
+
+1. 为那些可能会在应用中到处使用到的组件、指令和管道创建SharedModule，这种模块应该只包含declarations，并且应该导出几乎所有declarations里面的声明。
+2. SharedModule不应该带有providers。
+
+#### XSS
+
+1. 当iframe的src是变量时，需要用`this.domSanitizer.bypassSecurityTrustResourceUrl(url)`处理一下，方能正常加载。

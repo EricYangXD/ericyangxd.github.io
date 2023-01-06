@@ -395,6 +395,13 @@ export class AppComponent {
 
 #### 4.4 获取原生 DOM 对象
 
+#### 4.4.0 操作 DOM
+
+1. 原生 JS 获取 dom 对象并进行操作，注意需要/尽量在`ngAfterViewInit()`钩子中操作 dom。
+2. Angular 提供了更好的跨平台方式 Renderer2。引入 `import { Renderer2 } from '@angular/core';`，然后在 constructor 中注入`constructor(private render: Renderer2,...){}`，然后通过 Renderer2 的 api 进行操作，api 如下：
+
+![renderer2的api](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20230106115842.png)
+
 ##### 4.4.1 在组件模板中获取
 
 ```html
@@ -464,7 +471,7 @@ export class AppModule {}
 ```
 
 ```html
-<input type="text" [(ngModel)]="username" />
+<input type="text" [(ngModel)]="username" (ngModelChange)="ngModelChangeHandler()"/>
 <button (click)="change()">在组件类中更改 username</button>
 <div>username: {{ username }}</div>
 ```
@@ -474,6 +481,10 @@ export class AppComponent {
 	username: string = "";
 	change() {
 		this.username = "hello Angular";
+	}
+	// ngModel绑定的数据发生变化时触发
+	ngModelChangeHandler(){
+		//...
 	}
 }
 ```
