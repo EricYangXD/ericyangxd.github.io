@@ -381,7 +381,7 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.hibe
     <dependency>
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
-        <version>6.5.2</version>
+        <version>7.4.4</version>
     </dependency>
 </dependencies>
 

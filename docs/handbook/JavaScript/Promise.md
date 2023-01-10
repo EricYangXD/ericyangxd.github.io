@@ -836,3 +836,23 @@ const promiseObj = getPromiseWithAbort(promise);
 promiseObj.promise.then(/*...*/).catch(/*...*/);
 obj.abort("取消执行");
 ```
+
+### 为什么 Promise 中的错误不能被 try/catch？
+
+要提供 Promise 给外部使用，Promise 设计成在外面是没有办法获取 resolve 函数的，也就改变不了一个已有 Promise 的状态，我们只能基于已有 Promise 去生成新的 Promise。如果允许异常向外抛出，那我们该怎么恢复后续 Promise 的执行？比如 Promise a 出现异常了，异常向外抛出，外面是没办法改变 Promise a 的数据的。设计成在 Promise 里面发生任何错误时，都让当前 Promise 进入 rejected 状态，然后调用之后的 catch handler，catch handler 有能力返回新的 Promise，提供 fallback 方案，可以大大简化这其中的复杂度。
+
+简而言之，就是 Promise 内部消化了， 不会向外抛出，所以没办法被捕获，但是提供了 catch 方法进行捕获。try/catch 捕获同步任务。
+
+### 为什么 async/await 中的错误能被 try/catch？
+
+async/await 是基于生成器+Promise 的，生成器函数是一个带星号函数，而且是可以暂停执行和恢复执行的。
+
+生成器函数的具体使用方式：
+
+在生成器函数内部执行一段代码，如果遇到 yield 关键字，那么 V8 将返回关键字后面的内容给外部，并暂停该函数的执行。
+
+外部函数可以通过 next 方法恢复函数的执行。
+
+async 是一个通过异步执行并隐式返回 Promise 作为结果的函数。
+
+对于 await 来说，不管最终 Promise 是 resolve 还是 reject，都会返回给父协程，如果父协程收到的是一个 error，那么外围的 try/catch 就会执行。
