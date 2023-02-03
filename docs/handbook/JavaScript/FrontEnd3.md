@@ -339,3 +339,11 @@ function structuralClone(obj) {
 
 - 如果没有循环对象，并且不需要保留内置类型，则可以使用跨浏览器 `JSON.parse(JSON.stringify())` 获得最快的克隆性能。
 - 如果你想要一个适当的结构化克隆，`MessageChannel` 是你唯一可靠的跨浏览器的选择。
+
+### console.log 与内存泄漏
+
+1. `console.log` 在 devtools 打开的时候是有内存泄漏的，因为控制台打印的是对象引用，但是不打开 devtools 是不会有内存泄漏的。
+2. 通过`performance.memory.totalJSHeapSize/1024/1024`，配合 `console.log` 打印可以验证。
+3. `string` 基本类型因为常量池的存在，同样的字符串实际只会创建一次。而 `new String` 的话才会在堆中创建一个对象，然后指向常量池中的字符串字面量。
+4. nodejs 打印的是序列化后的对象，所以没有内存泄露。
+5. 生产环境是可以使用 `console.log` 的，没有内存泄漏问题。

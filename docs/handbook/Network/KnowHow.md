@@ -87,3 +87,49 @@ Windows 上的 clash 非常好用，Mac 上的 clashX 刚用起来有点不知�
 3. 订阅地址转换：[acl4ssr](https://acl4ssr-sub.github.io/)
 
 ## 1 分钟建站
+
+## 网络零散知识点
+
+### localhost/127.0.0.1/0.0.0.0 三者之间的关系
+
+1. `127.0.0.1`是回环地址，`localhost`是域名，但默认等于`127.0.0.1`。
+2. `ping`回环地址和`ping`本机地址，是一样的，走的是`lo0"假网卡"`，都会经过网络层和数据链路层等逻辑，最后在快要出网卡前`狠狠地拐了个弯`，将数据插入到一个`链表`中之后就`软中断`通知`ksoftirqd`来进行收数据的逻辑，压根就不出网络。所以断了网也能 `ping` 通回环地址。
+3. 如果服务器 `listen` 的是`0.0.0.0`，那么此时用`127.0.0.1`和本机地址`都可访`问到服务。
+4. 客户端`connect`时，不能用`0.0.0.0`，必须指明要连接哪个服务器 IP。
+
+```bash
+ping localhost                   
+PING localhost (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.038 ms
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.042 ms
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.046 ms
+64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.049 ms
+^C
+--- localhost ping statistics ---
+4 packets transmitted, 4 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 0.038/0.044/0.049/0.004 ms
+
+
+ping 127.0.0.1
+PING 127.0.0.1 (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.042 ms
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.104 ms
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.062 ms
+64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.065 ms
+^C
+--- 127.0.0.1 ping statistics ---
+4 packets transmitted, 4 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 0.042/0.068/0.104/0.022 ms
+
+
+ping 0.0.0.0  
+PING 0.0.0.0 (0.0.0.0): 56 data bytes
+ping: sendto: Socket is not connected
+ping: sendto: Socket is not connected
+Request timeout for icmp_seq 0
+ping: sendto: Socket is not connected
+Request timeout for icmp_seq 1
+^C
+--- 0.0.0.0 ping statistics ---
+3 packets transmitted, 0 packets received, 100.0% packet loss
+```
