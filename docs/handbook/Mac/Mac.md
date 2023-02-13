@@ -21,6 +21,15 @@ meta:
 - 先在「系统偏好设置」-「触控板」设置
 - 然后到「系统偏好设置」-「辅助功能」-「指针控制」-「鼠标与触控板」-「触控板选项」/「鼠标选项」，可以启用三指拖移功能以及调整鼠标速度
 
+## 修改鼠标滚轮方向
+
+1. 点击左上角苹果图标，选择菜单：系统偏好设置...。
+2. 打开系统偏好设置界面，点击"鼠标"。
+3. 取消"滚动方向：自然"的复选框即可。
+4. 此时触控板方向也会变，需要配合`Scroll Reverser`独立设置鼠标和触控板这两个设备的滚动方向。
+
+上述方法是个通用的办法，如果使用罗技鼠标，那么直接下载`Logi Options`，在`Point & Scroll`里设置滚动为`standard`即可。
+
 ## 安装 Java
 
 - https://www.azul.com/downloads/?version=java-17-lts&os=macos&architecture=arm-64-bit&package=jdk 下载 dmg 一键安装
@@ -270,6 +279,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 29. Grammarly
 30. Fastclip 剪切板管理
 31. FileZilla
+32. Scroll Reverser：独立设置鼠标和触控板这两个设备的滚动方向
 
 ### 安装 mactex
 

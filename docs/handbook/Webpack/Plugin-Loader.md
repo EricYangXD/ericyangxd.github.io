@@ -749,11 +749,13 @@ module.exports = {
 - 与 ts-loader 的主要区别：
   1.  更适合与 Babel 集成，使用 Babel 的转义和缓存。
   2.  不需要安装独立的插件，就可以把类型检查放在独立进程中。
+
+#### 错误提示不显示具体位置的处理
 - 对于某些版本，打包时只提示有 error 但是不显示具体 error 内容，需要手动修改 node_modules 中的代码，步骤如下：
 
   1. go to `node_modules/awesome-typescript-loader/dist/instance.js`
-  2. find statement: `console.error(colors.red("\n[" + instanceName + "] Checking finished with " + diags.length + " errors"));`
-  3. Add right below it (inside the same 'if'):
+  2. find statement: `console.error(colors.red("\n[" + instanceName + "] Checking finished with " + diags.length + " errors"));`，找到类似的这句，可能不同版本略有不同。
+  3. Add right below it (inside the same 'if'):在与上面这句相同的if判断里加上下面这句：
 
 ```js
 // diags.map( function (diag) {

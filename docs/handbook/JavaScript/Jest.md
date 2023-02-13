@@ -15,6 +15,7 @@ meta:
 2. 安装`jest npm install --save-dev jest`
 3. 运行`npx jest --init`命令，生成一份 jest 的配置文件`jest.config.js`
 4. 运行`npm i babel-jest @babel/core @babel/preset-env -D`安装 babel，并且配置`.babelrc`如下:
+5. 全局安装的 jest 可以直接使用`jest`命令
 
 ```json
 {
@@ -66,7 +67,10 @@ test("Array Set matchers", () => {
 });
 ```
 
-运行`npm test`命令，控制台会打印测试结果。
+1. 运行`npm test`命令，控制台会打印测试结果。
+2. 测试单个文件：`jest path/to/my-test.js`。
+3. VSCode 的`Jest Runner`插件。
+4. 使用配置`jest my-test --notify --config=config.json`
 
 ### 常用 jest matcher
 
