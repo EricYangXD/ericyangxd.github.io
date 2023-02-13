@@ -4,7 +4,7 @@ author: EricYangXD
 date: "2022-09-30"
 meta:
   - name: keywords
-    content: JAVA
+    content: JAVA,java
 ---
 
 ## Learn Java - Basic

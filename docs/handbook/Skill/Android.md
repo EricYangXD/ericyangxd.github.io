@@ -49,3 +49,7 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 3. 重启 AS 就可以了
 
 - 3. Android Studio > sidebar 控制显示隐藏：通过 view -> tool windows -> 控制
+
+## 红米手机
+
+进入工程模式：`*#*#6484#*#*`，用于调试屏幕等。
