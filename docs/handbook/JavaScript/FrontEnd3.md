@@ -347,3 +347,62 @@ function structuralClone(obj) {
 3. `string` 基本类型因为常量池的存在，同样的字符串实际只会创建一次。而 `new String` 的话才会在堆中创建一个对象，然后指向常量池中的字符串字面量。
 4. nodejs 打印的是序列化后的对象，所以没有内存泄露。
 5. 生产环境是可以使用 `console.log` 的，没有内存泄漏问题。
+
+### peerDependency
+
+peerDependency 可以避免核心依赖库被重复下载的问题。比如：
+
+```bash
+...
+├── helloWorld
+│   └── node_modules
+│       ├── packageA
+│       ├── plugin1
+│       │   └── nodule_modules
+│       │       └── packageA
+│       └── plugin2
+│       │   └── nodule_modules
+│       │       └── packageA
+...
+```
+
+1. 此时 helloWorld 本身已经安装了一次 packageA，但是因为因为在 plugin1 和 plugin2 中的 dependencies 也声明了 packageA，所以最后 packageA 会被安装三次，有两次安装是冗余的。
+2. 如果在 plugin1 和 plugin2 的 package.json 中使用 peerDependency 来声明核心依赖库，例如：
+
+```js
+// plugin1/package.json
+{
+	"peerDependencies": {
+		"packageA": "1.0.1"
+	}
+}
+// plugin2/package.json
+{
+  "peerDependencies": {
+    "packageA": "1.0.1"
+  }
+}
+// helloWorld/package.json
+{
+  "dependencies": {
+    "packageA": "1.0.1"
+  }
+}
+```
+
+3. 此时在主系统中执行 `npm install` 生成的依赖图就是这样的：可以看到这时候生成的依赖图是扁平的，packageA 也只会被安装一次。
+
+```bash
+...
+├── helloWorld
+│   └── node_modules
+│       ├── packageA
+│       ├── plugin1
+│       └── plugin2
+...
+```
+
+4. 总结：在插件使用 dependencies 声明依赖库的特点：
+   - 如果用户显式依赖了核心库，则可以忽略各插件的 peerDependency 声明；
+   - 如果用户没有显式依赖核心库，则按照插件 peerDependencies 中声明的版本将库安装到项目根目录中；
+   - 当用户依赖的版本、各插件依赖的版本之间不相互兼容，会报错让用户自行修复；

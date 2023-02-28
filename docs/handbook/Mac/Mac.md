@@ -296,7 +296,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 
 ### Parallels desktop for Mac
 
-需付费，或使用破解版
+需付费，或使用破解版，或某宝
 
 ### VMWare Fusion
 

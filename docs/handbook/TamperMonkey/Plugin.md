@@ -6,14 +6,34 @@ date: "2021-12-29"
 
 ## 油猴插件平台
 
--   [Greasy Fork](https://greasyfork.org/zh-CN)
--   [Sleazy Fork](https://sleazyfork.org/zh-CN)
+- [Greasy Fork](https://greasyfork.org/zh-CN)
+- [Sleazy Fork](https://sleazyfork.org/zh-CN)
 
 使用前请确保已先安装 [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)
 
 ## AC-baidu-重定向优化百度搜狗谷歌必应搜索*favicon*双列
 
+一般
+
 ## CSDN 广告完全过滤、人性化脚本优化
+
+功能单一
+
+## CSDN/知乎/哔哩哔哩/简书免登录去除弹窗广告 🛡
+
+可以
+
+## Yet Another Weibo Filter
+
+微博，可以
+
+## 网盘直链下载助手
+
+可以
+
+## 懒人专用，全网 VIP 视频免费破解去广告、全网音乐直接下载
+
+可以
 
 ## 115-helper 115 小助手
 
