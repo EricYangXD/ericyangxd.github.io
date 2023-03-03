@@ -501,7 +501,41 @@ $ loginctl show-user ruanyf
 3. 修改第二处，输入命令：`vim /etc/ssh/sshd_config`，找到 `#PermitRootLogin` 字样，去掉前面的 `#` 号；找到 `PasswordAuthentication no` 这行，把 `no` 改成 `yes` 。修改以后按 `Esc` 键退出编辑模式，`:wq` 回车保存。
 4. 到这一步基本完成，命令行输入`reboot` 重启 VPS 后用 root 密码登陆即可。
 
+## Linux 开启 ssh 并允许 root 登录
+
+### centos7
+
+1. 安装 openssh-server
+   `yum list installed | grep openssh-server`
+
+- 如果有输出，证明已经安装了 openssh-server，如果没有，需要安装`yum install openssh-server`
+
+2. 修改 sshd 服务配置文件
+
+- 编辑 sshd 服务配置文件`vim /etc/ssh/sshd_config` ，没有 vim 用 vi 或者`yum install -y vim` 安装
+- 开启监听端口
+
+```bash
+Port 22
+ListenAddress 0.0.0.0
+ListenAddress ::
+```
+
+- 允许远程登录`PermitRootLogin yes`
+- 使用用户名密码作为验证连接`PasswordAuthentication yes`
+
+3. 重启 sshd 服务
+
+- `service sshd start`
+- `service sshd restart`
+- 配置开机自启动
+- `systemctl enable sshd`
+
 ## Mac ssh 连接远程服务器，并实现文件的上传和下载
+
+### 使用 Filezilla
+
+一般通过 sftp 连接，可以通过密码或者密钥文件等方式登录。
 
 ### 使用 scp 命令实现上传下载
 

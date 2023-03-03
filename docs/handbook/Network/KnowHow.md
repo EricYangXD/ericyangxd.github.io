@@ -82,9 +82,10 @@ meta:
 
 Windows 上的 clash 非常好用，Mac 上的 clashX 刚用起来有点不知所措。
 
-1. 添加订阅链接：在工具栏左键点击 clashX 的图标，选择 config-》remote config-》manage，然后点击 add，粘贴上订阅地址即可。
+1. 添加订阅链接：在工具栏左键点击 clashX 的图标，选择 config-》remote config-》manage，然后点击 add，粘贴上订阅地址即可。删除也是在这里。
 2. 订阅地址转换：[subconverter](https://subconverter.speedupvpn.com/)
 3. 订阅地址转换：[acl4ssr](https://acl4ssr-sub.github.io/)
+4. 勾选「设为系统代理」可以开启代理。
 
 ## 1 分钟建站
 

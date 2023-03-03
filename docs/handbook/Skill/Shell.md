@@ -819,9 +819,21 @@ PID TTY           TIME CMD
    - < 一个高优先级进程。这可能会授予一个进程更多重要的资源，给它更多的 CPU 时间。 进程的这种属性叫做 niceness。具有高优先级的进程据说是 - 不好的（less nice），因为它占用了比较多的 CPU 时间，这样就给其它进程留下很少时间。
    - N 低优先级进程。一个低优先级进程，只有当其它高优先级进程被服务了之后，才会得到处理器时间。
 
-7. `ps aux`可以提供更多信息
+7. `ps aux`可以提供更多信息，例:`ps aux | grep springboot`
 8. top 显示结果由两部分组成： 最上面是系统概要，下面是进程列表，以 CPU 的使用率排序。
 9. 一个在后台运行的进程对一切来自键盘的输入都免疫，也不能用 Ctrl-c 来中断它。 为了让一个进程返回前台 (foreground)，这样使用 fg 命令：fg 命令之后，跟随着一个百分号和任务序号（叫做 jobspec ，如此处的 %1）。如果我们只有一个后台任务，那么 jobspec(job specification) 是可有可无的。
+10. 看端口使用情况：`netstat -tlun`
+11. 看某个端口使用情况：`netstat -tlunp | grep 8080`
+12. 查看某个文件内容：`more /home/tomcat/.jenkins/secrets/initialAdminPassword`
+13. 修改tomcat端口：`vim conf/server.xml`
+14. 检查防火墙是否放开了某个端口：`vim /etc/sysconfig/iptables`
+15. 重启防火墙：`service iptables restart`
+16. 将整个目录的所属权转移给tomcat用户、tomcat组`chown -R tomcat:tomcat /usr/local/apache-tomcat-9.0.8`
+17. 使用ssh登录其他主机并执行Shell时，不允许使用root账户：`ssh -T opc@192.168.31.22 'bash -s' < /root/demo/start.sh`
+18. 产生私钥​ `yum -y install openssh-clients​ ssh-keygen -t rsa`
+19. 执行某个jar包并保留log：`java -jar springboot-demo.jar >log 2>&1 &`
+20. nohup 的用途就是让提交的命令忽略 hangup 信号，那什么叫做hangup信号？这里给出了答案：`0：标准输入 1：标准输出，2：标准错误`
+21. 后台运行且不保留log：`nohup java -jar springboot-demo.jar > /dev/null 2>&1 &`
 
 ```bash
 [me@linuxbox ~]$ jobs
@@ -846,7 +858,6 @@ xlogo
 6. 登录 shell 会话`~/.bash_profile`/非登录 shell 会话`~/.bashrc`(最重要): 用户个人的启动文件。可以用来扩展或重写全局配置脚本中的设置。
 7. 按照通常的规则，添加目录到你的 PATH 变量或者是定义额外的环境变量，要把这些更改放置到 `.bash_profile` 文件中。 对于其它的更改，要放到 `.bashrc` 文件中。
 8. nano 中使用 `Ctrl-x` 来退出 nano， `Ctrl-o`保存修改。
-9.
 
 #### vi/vim(vi improved)
 

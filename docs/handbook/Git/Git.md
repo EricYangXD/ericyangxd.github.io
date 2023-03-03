@@ -89,25 +89,25 @@ PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名�
 
 ### git stash
 
-1. git stash save "commit msg"
-2. git stash apply SHA256/stash@{number}
-3. git stash pop
+1. `git stash save "commit msg"`
+2. `git stash apply SHA256/stash@{number}`
+3. `git stash pop`
    - 默认最近一次 stash
-4. git stash list
-5. git stash drop SHA256/stash@{number}
-6. 误操作 git stash drop 之后想恢复
-   - git fsck --lost-found 可以得到 SHA256 列表
-   - git show SHA256 可以查看详细信息
-   - git stash apply SHA256 应用
+4. `git stash list`
+5. `git stash drop SHA256/stash@{number}`
+6. 误操作 `git stash drop` 之后想恢复
+   - `git fsck --lost-found` 可以得到 SHA256 列表
+   - `git show SHA256` 可以查看详细信息
+   - `git stash apply SHA256` 应用
 
 ### git bisect
 
 使用 git bisect 二分法定位问题的基本步骤：
 
-1. git bisect start [最近的出错的 commitid] [较远的正确的 commitid]
+1. `git bisect start [最近的出错的 commitid] [较远的正确的 commitid]`
 2. 测试相应的功能
-3. git bisect good 标记正确
-4. 直到出现问题则 标记错误 git bisect bad
+3. `git bisect good` 标记正确
+4. 直到出现问题则 标记错误 `git bisect bad`
 5. 提示的 commitid 就是导致问题的那次提交
 6. 具体示例参考[这里](https://mp.weixin.qq.com/s/d0LvAd8cDQD_3KSX1fOpkQ)
 
