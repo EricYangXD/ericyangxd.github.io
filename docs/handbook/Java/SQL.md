@@ -9,6 +9,51 @@ meta:
 
 ## MySQL
 
+### 安装
+
+#### Centos7
+
+在 CentOS 中默认安装有 MariaDB，这个是 MySQL 的分支，但为了需要，还是要在系统中安装 MySQL，而且安装完成之后可以直接覆盖掉 MariaDB。
+
+1. 下载并安装 MySQL 官方的 Yum Repository
+   - `wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm`
+   - 直接 yum 安装: `yum -y install mysql57-community-release-el7-10.noarch.rpm`
+   - 安装 MySQL 服务器: `yum -y install mysql-community-server`
+   - 如果报错，可能是因为安装包签名问题，运行:`rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022`
+2. MySQL 数据库设置
+
+   - 启动 MySQL: `systemctl start mysqld.service`
+   - 查看 MySQL 运行状态: `systemctl status mysqld.service`
+   - 要想进入 MySQL 还得先找出此时 root 用户的密码: `grep "password" /var/log/mysqld.log`
+   - 进入数据库: `mysql -uroot -p`
+   - 输入初始密码,MySQL 默认必须修改密码之后才能操作数据库: `ALTER USER 'root'@'localhost' IDENTIFIED BY 'new password';`,密码设置必须要大小写字母数字和特殊符号（`,/';:`等）,不然不能配置成功.
+
+3. 开启 MySQL 的远程访问
+
+   - 开启远程访问限制（注意：下面命令开启的 IP 是 192.168.0.1，如要开启所有的，用%代替 IP）:`grant all privileges on *.* to 'root'@'192.168.0.1' identified by 'password' with grant option;`
+   - 再输入下面两行命令:`flush privileges;`,`exit`
+
+4. 为 firewalld 添加开放端口
+
+   - 添加 mysql 端口 3306 和 Tomcat 端口 8080:`firewall-cmd --zone=public --add-port=3306/tcp --permanent`
+   - 添加 mysql 端口 3306 和 Tomcat 端口 8080:`firewall-cmd --zone=public --add-port=8080/tcp --permanent`
+   - 重新载入:`firewall-cmd --reload`
+
+5. 更改 mysql 的语言
+
+   - 首先重新登录 mysql，然后输入`status`:可以看到，"Server/Db characterset"不是 utf-8，先退出 mysql，然后再到、etc 目录下的 my.cnf 文件下修改一下文件内容: `vi /etc/my.cnf`，新增四行代码：
+
+   ```bash
+     [client]
+     default-character-set=utf8
+     character-set-server=utf8
+     collation-server=utf8_general_cli
+   ```
+
+   - 保存更改后的 my.cnf 文件后，重启下 mysql，然后输入 status 再次查看，"Server/Db characterset"已经是 utf-8。
+
+6. 命令行启动：`mysql -h 192.168.0.124 -P 3306 -u root -p`，输入密码即可登录。
+
 ### Demos
 
 [示例](../../../demos/mysql/mysql.sql)
@@ -109,13 +154,13 @@ meta:
 
 这条记录上一个版本的指针。roll_pointer 是必需的，占用 7 个字
 
-我们存储字段类型为 varchar(n)  的数据时，其实分成了三个部分来存储：
+我们存储字段类型为 varchar(n) 的数据时，其实分成了三个部分来存储：
 
 - 真实数据
 - 真实数据占用的字节数
-- NULL 标识，如果不允许为NULL，这部分不需要
+- NULL 标识，如果不允许为 NULL，这部分不需要
 
-如果有多个字段的话，要保证所有字段的长度 + 变长字段字节数列表所占用的字节数 + NULL值列表所占用的字节数 <= 65535。
+如果有多个字段的话，要保证所有字段的长度 + 变长字段字节数列表所占用的字节数 + NULL 值列表所占用的字节数 <= 65535。
 
 ### 面试题记录
 

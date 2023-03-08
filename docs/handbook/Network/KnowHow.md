@@ -99,7 +99,7 @@ Windows 上的 clash 非常好用，Mac 上的 clashX 刚用起来有点不知�
 4. 客户端`connect`时，不能用`0.0.0.0`，必须指明要连接哪个服务器 IP。
 
 ```bash
-ping localhost                   
+ping localhost
 PING localhost (127.0.0.1): 56 data bytes
 64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.038 ms
 64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.042 ms
@@ -123,7 +123,7 @@ PING 127.0.0.1 (127.0.0.1): 56 data bytes
 round-trip min/avg/max/stddev = 0.042/0.068/0.104/0.022 ms
 
 
-ping 0.0.0.0  
+ping 0.0.0.0
 PING 0.0.0.0 (0.0.0.0): 56 data bytes
 ping: sendto: Socket is not connected
 ping: sendto: Socket is not connected
@@ -134,3 +134,16 @@ Request timeout for icmp_seq 1
 --- 0.0.0.0 ping statistics ---
 3 packets transmitted, 0 packets received, 100.0% packet loss
 ```
+
+## 微信接入 chatgpt
+
+1. 搞台 vps，比如装个 Centos7，然后在这个系统上操作：
+2. 安转 git：`sudo yum install git`
+3. 安装 golang：`sudo yum install golang`
+4. 安装 screen：`yum install screen`，类似 pm2
+5. 选择一个地方，获取项目：`git clone https://github.com/ZYallers/chatgpt_wechat_robot.git`
+6. 进入项目目录`chatgpt_wechat_robot`，编辑配置文件：`cp config.dev.json config.json`
+7. 去 openai[这里](https://platform.openai.com/account/api-keys)获取你的 key，然后复制到上一步的`config.json`中
+8. 启动守护进程：`screen -S chatgpt`
+9. 运行：`go run main.go`
+10. 复制命令行输出的微信登录 URL 到浏览器中，使用准备当机器人的微信扫码登录（据说可能会被封号），然后就可以和这个微信号对话了。

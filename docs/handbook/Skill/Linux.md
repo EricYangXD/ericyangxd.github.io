@@ -289,15 +289,15 @@ chown -R runoob:runoobgroup \*
 
 4. yum 可以用于运作 rpm 包，例如在 Fedora 系统上对某个软件的管理：
 
-- 安装：yum install
-- 卸载：yum remove
-- 更新：yum update
+- 安装：`yum install`
+- 卸载：`yum remove`
+- 更新：`yum update`
 
 5. apt-get 可以用于运作 deb 包，例如在 Ubuntu 系统上对某个软件的管理：
 
-- 安装：apt-get install
-- 卸载：apt-get remove
-- 更新：apt-get update
+- 安装：`apt-get install`
+- 卸载：`apt-get remove`
+- 更新：`apt-get update`
 
 6. wget 和 yum 的比较
 
