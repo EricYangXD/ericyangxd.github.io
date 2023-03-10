@@ -89,6 +89,8 @@ Windows 上的 clash 非常好用，Mac 上的 clashX 刚用起来有点不知�
 
 ## 1 分钟建站
 
+1. [https://www.lnmp.org/install.html](LNMP一键安装)，安装必备的一些软件工具
+2. TODO
 ## 网络零散知识点
 
 ### localhost/127.0.0.1/0.0.0.0 三者之间的关系

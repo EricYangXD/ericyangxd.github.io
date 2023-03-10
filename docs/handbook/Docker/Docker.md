@@ -31,9 +31,20 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
    - 安装 Docker Ce 社区版本：`yum install -y docker-ce.x86_64`
    - 设置开机启动：`systemctl enable docker`
    - 更新 xfsprogs：`yum -y update xfsprogs`
-   - 启动 docker：`systemctl start docker`
+   - 启动 docker：`sudo systemctl start docker`
    - 查看版本：`docker version`
    - 查看详细信息：`docker info`
+   - Centos7一键安装：`curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun`或`curl -sSL https://get.daocloud.io/docker | sh`
+   - 新主机上首次安装Docker Engine-Community之前，需要设置Docker仓库。此后可从仓库安装和更新Docker。
+     - `sudo yum install -y yum-utils \`
+     - `device-mapper-persistent-data \`
+     - `lvm2`
+     - `sudo yum-config-manager \`
+     - `--add-repo \`
+     - `https://download.docker.com/linux/centos/docker-ce.repo`
+   - 阿里云：`http:**//mirrors.aliyun.com/docker-ce/linux/centos/**docker-ce.repo`
+   - 清华大学源：`https:**//mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/**docker-ce.repo`
+   - 手动安装：`sudo yum install -y docker-ce docker-ce-cli containerd.io`
 
 ## Docker Daemon
 

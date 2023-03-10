@@ -64,12 +64,18 @@ meta:
    1. `-pl`：让您指定要构建的子模块
    2. `-am`：表示`also make`，它也将构建依赖模块
 10. `mvn -U`：有时，如果您的项目依赖于 SNAPSHOT 依赖项，Maven 不会使用最新的快照版本更新您的本地 Maven 存储库。如果你想确保 Maven 总是尝试下载最新的快照依赖版本，请使用 -U 开关调用它。
-11. `mvnw`：一些项目附带一个 `mvnw` 可执行文件，它不代表 Maven (on) Windows，而是代表 Maven 包装器。这意味着您不必在您的机器上安装 mvn 来构建您的项目 - 相反，mvn 嵌入在您的项目目录中，您可以使用 `mvnw` 可执行文件调用它。
-12. `mvn compile`：编译
-13. `mvn test`：测试
-14. `mvn package`：打包
+11. `-X`：打印出更详细的log
+12. `mvnw`：一些项目附带一个 `mvnw` 可执行文件，它不代表 Maven (on) Windows，而是代表 Maven 包装器。这意味着您不必在您的机器上安装 mvn 来构建您的项目 - 相反，mvn 嵌入在您的项目目录中，您可以使用 `mvnw` 可执行文件调用它。
+13. `mvn compile`：编译
+14. `mvn test`：测试
 15. `mvn clean`：清理
-16. `mvn install`：安装依赖到本地例，会把 pom.xml 中的依赖等下载到本地
+16. `mvn package`：打包
+17. `mvn install`：安装依赖到本地例，会把 pom.xml 中的依赖等下载到本地
+18. `mvn deploy`：安装依赖到本地例，会把 pom.xml 中的依赖等下载到本地
+19. 我们在用 maven 构建 java 项目时，最常用的打包命令有`mvn clean package`、`mvn clean install`、`mvn clean deploy`，这三个命令都可完成打 jar 包或 war（当然也可以是其它形式的包）的功能，但这三个命令还是有区别的。三者的区别在于包函的 maven 生命的阶段和执行目标(goal)不同。
+    - `mvn clean package`依次执行了 clean、resources、compile、testResources、testCompile、test、jar(打包)等７个阶段。package 命令完成了项目编译、单元测试、打包功能，但没有把打好的可执行 jar 包（war 包或其它形式的包）布署到本地 maven 仓库和远程 maven 私服仓库
+    - `mvn clean install`依次执行了 clean、resources、compile、testResources、testCompile、test、jar(打包)、install 等 8 个阶段。install 命令完成了项目编译、单元测试、打包功能，同时把打好的可执行 jar 包（war 包或其它形式的包）布署到本地 maven 仓库，但没有布署到远程 maven 私服仓库
+    - `mvn clean deploy`依次执行了 clean、resources、compile、testResources、testCompile、test、jar(打包)、install、deploy 等９个阶段。deploy 命令完成了项目编译、单元测试、打包功能，同时把打好的可执行 jar 包（war 包或其它形式的包）布署到本地 maven 仓库和远程 maven 私服仓库
 
 #### pom.xml
 
@@ -406,7 +412,7 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.hibe
 </build>
 ```
 
-2. Cargo是一组帮助用户操作Web容器的工具，能够实现自动化部署，并且支持几乎所有的Web容器，如Tomcat、JBoss、Jetty和Glassfish等。Cargo通过`cargo-maven2/3-plugin`提供了Maven集成，可以使用该插件将Web项目部署到Web容器中。
+2. Cargo 是一组帮助用户操作 Web 容器的工具，能够实现自动化部署，并且支持几乎所有的 Web 容器，如 Tomcat、JBoss、Jetty 和 Glassfish 等。Cargo 通过`cargo-maven2/3-plugin`提供了 Maven 集成，可以使用该插件将 Web 项目部署到 Web 容器中。
 
 3. log4j2
 
@@ -432,10 +438,12 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.hibe
     <scope>test</scope>
 </dependency>
 ```
+
 ### 解决数据库中文乱码
 
-1. 在settings -> maven -> Runner -> VM Options 一栏中填入 `-Dfile.encoding=gb2312`
-2. 在pom.xml中添加：
+1. 在 settings -> maven -> Runner -> VM Options 一栏中填入 `-Dfile.encoding=gb2312`
+2. 在 pom.xml 中添加：
+
 ```xml
 <properties>
     <!-- 文件拷贝时 -->
@@ -578,30 +586,32 @@ activeByDefault 为 true 的时候就表示当没有指定其他 profile 为激�
 
 - 使用-P 参数显示的激活一个 profile，如果一次要激活多个 profile，可以用逗号分开一起激活。
 
-我们在进行Maven操作时就可以使用-P参数显示的指定当前激活的是哪一个profile了。比如我们需要在对项目进行打包的时候使用id为profileTest1的profile，我们就可以这样做 (P后面可以有空格也可以没有)：
+我们在进行 Maven 操作时就可以使用-P 参数显示的指定当前激活的是哪一个 profile 了。比如我们需要在对项目进行打包的时候使用 id 为 profileTest1 的 profile，我们就可以这样做 (P 后面可以有空格也可以没有)：
 
 ```bash
 mvn package –P profileTest1
-mvn clean install -Pdev_env,test_evn 
+mvn clean install -Pdev_env,test_evn
 ```
-当我们使用activeByDefault或settings.xml中定义了处于激活的profile，但是当我们在进行某些操作的时候又不想它处于激活状态，这个时候我们可以这样做：
+
+当我们使用 activeByDefault 或 settings.xml 中定义了处于激活的 profile，但是当我们在进行某些操作的时候又不想它处于激活状态，这个时候我们可以这样做：
 
 ```bash
-mvn package –P !profileTest1 
+mvn package –P !profileTest1
 ```
-这里假设profileTest1是在settings.xml中使用activeProfile标记的处于激活状态的profile，那么当我们使用-P !profile的时候就表示在当前作中该profile将不处于激活状态。
 
-5. 查看当前处于激活状态的profile
+这里假设 profileTest1 是在 settings.xml 中使用 activeProfile 标记的处于激活状态的 profile，那么当我们使用-P !profile 的时候就表示在当前作中该 profile 将不处于激活状态。
 
-我们可以同时定义多个profile，那么在建立项目的过程中，到底激活的是哪一个profile呢？Maven为我们提供了一个指令可以查看当前处于激活状态的profile都有哪些，这个指定就是`mvn help:active-profiles`。查看所有的 profile`Mvn help:all-profiles`。
+5. 查看当前处于激活状态的 profile
 
-这里有个误区要特别注意: 同时激活的profile可以是多个, 它们可能是不同维度的. 如某个profile是用来管理repository的, 某个profile是管理某些properties的.
+我们可以同时定义多个 profile，那么在建立项目的过程中，到底激活的是哪一个 profile 呢？Maven 为我们提供了一个指令可以查看当前处于激活状态的 profile 都有哪些，这个指定就是`mvn help:active-profiles`。查看所有的 profile`Mvn help:all-profiles`。
+
+这里有个误区要特别注意: 同时激活的 profile 可以是多个, 它们可能是不同维度的. 如某个 profile 是用来管理 repository 的, 某个 profile 是管理某些 properties 的.
 
 6. 运行`mvn clean package (默认profile)` 或 `mvn clean package -Ptest (指定profie)` 打包
-7. idea中可以通过点击按钮实现不童环境的切换
+7. idea 中可以通过点击按钮实现不童环境的切换
 8. For showing your effective pom:
    1. `mvn help:effective-pom`
    2. IDEA in `Maven window` right click on your project node and select `show effective POM`(it depends on your IDE).
-9. maven项目执行main函数的时候需要两个插件:
-    1. `maven-compiler-plugin`：用来编译Java文件，指定JDK版本等
-    2. `exec-maven-plugin`：用来执行class文件，其中插件配置中需指明执行类的路径
+9. maven 项目执行 main 函数的时候需要两个插件:
+   1. `maven-compiler-plugin`：用来编译 Java 文件，指定 JDK 版本等
+   2. `exec-maven-plugin`：用来执行 class 文件，其中插件配置中需指明执行类的路径
