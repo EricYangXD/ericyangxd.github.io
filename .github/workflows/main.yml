@@ -46,7 +46,6 @@ jobs:
           pwd
       - name: Sync To Gitee & Github
         run: |
-          cd docs/.vuepress/dist
           git init
           git add -A
           git commit -m 'deploy'
@@ -57,7 +56,7 @@ jobs:
         run: |
           echo "Complete Successfully!"
           cd -
-            # 命名这个任务为发布Deploy
+      # 命名这个任务为发布Deploy
       - name: Deploy
         # 因为构建之后，需要把代码上传到服务器上，所以需要连接到ssh，并且做一个拷贝操作
         uses: cross-the-world/scp-pipeline@master
