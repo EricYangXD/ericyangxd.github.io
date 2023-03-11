@@ -28,15 +28,6 @@ date: "2021-12-28"
 ![EricYangXD's github stats](https://github-readme-stats.vercel.app/api?username=EricYangXD&show_icons=true&hide_title=true&count_private=true)
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=EricYangXD&layout=compact)
 
-- [【话费慢充】中国电信话费 92.99 充值 100 元 72 小时内到账](https://u.jd.com/ECcM5Ei)
-- [【话费慢充】中国电信话费 185.98 充值 200 元 72 小时内到账](https://u.jd.com/EIciPAT)
-
-- [【话费慢充】中国联通话费 90.99 充值 100 元 72 小时内到账](https://u.jd.com/EMcbbcE)
-- [【话费慢充】中国联通话费 181.98 充值 200 元 72 小时内到帐](https://u.jd.com/EwcuGcA)
-
-- [【话费慢充】全国移动联通电信三网话费 96.99 充值 100 元 72 小时内到账](https://u.jd.com/ECcGDMM)
-- [【话费慢充】全国移动联通电信三网话费 96.99 充值 100 元 72 小时内到账](https://u.jd.com/EIcqWsd)
-
 ### 免责声明
 
 1. 本仓库发布的项目中涉及的任何脚本，仅用于测试和学习研究，禁止用于商业用途，不能保证其合法性，准确性，完整性和有效性，请根据情况自行判断。

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2022 EricYangXD, All Rights Reserved.
+ * Copyright © 2011-2023 EricYangXD, All Rights Reserved.
  */
 
 // 配置网站的标题和描述，方便 SEO

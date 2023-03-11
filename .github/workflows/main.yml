@@ -1,0 +1,53 @@
+name: test-ci
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  # 任务ID
+  build:
+    # 运行环境
+    runs-on: ubuntu-latest
+    # 步骤
+    steps:
+      # 使用别人的action
+      - uses: actions/checkout@v2
+      # 步骤名称
+      - name: npm install
+        # 步骤执行指令
+        run: npm install
+      - name: npm run build
+        run: npm run docs:build
+      - name: copy demos and other files
+        run: |
+          cd docs/.vuepress/dist
+          cp -r ../../../.github ./
+          cp -r ../../../CNAME ./
+          cp -r ../../../demos ./
+      # 命名这个任务为发布Deploy
+      - name: Deploy
+        # 因为构建之后，需要把代码上传到服务器上，所以需要连接到ssh，并且做一个拷贝操作
+        uses: cross-the-world/scp-pipeline@master
+        env:
+          WELCOME: "ssh scp ssh pipelines"
+          LASTSSH: "Doing something after copying"
+        with:
+          host: ${{ secrets.USER_HOST_129_146_238_23 }}
+          user: ${{ secrets.USER_NAME_129_146_238_23 }}
+          pass: ${{ secrets.USER_PASS_129_146_238_23 }}
+          connect_timeout: 20s
+          local: "./dist/*"
+          remote: /home/blog/dist
+      - name: Sync To Gitee & Github
+        run: |
+          git init
+          git add -A
+          git commit -m 'deploy'
+          git push -f git@github.com:EricYangXD/ericyangxd.github.io.git master:gh-pages
+          git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master:gh-pages
+      - name: Done
+        run: |
+          echo "Complete successful!"
+          cd -
