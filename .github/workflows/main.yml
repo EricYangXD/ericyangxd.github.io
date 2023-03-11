@@ -12,8 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     # 步骤
     steps:
-      # 使用别人的action
+      # 使用别人的action:
+      # checkout@v3:拉代码
+      # setup-node@v3:设置特定nodejs版本
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
       # 步骤名称
       - name: npm install
         # 步骤执行指令
