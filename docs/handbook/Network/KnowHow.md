@@ -91,6 +91,132 @@ Windows 上的 clash 非常好用，Mac 上的 clashX 刚用起来有点不知�
 
 1. [https://www.lnmp.org/install.html](LNMP一键安装)，安装必备的一些软件工具
 2. TODO
+
+## 甲骨文云安装 x-ui 面板
+
+> [github 仓库](https://github.com/vaxilu/x-ui)
+
+1. 支持 Centos7+、Ubuntu16+、Debian8+
+2. 一键安装即可`bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)`
+3. 安装过程中需要设置用户名密码等
+4. 操作系统里设置放开端口，参考下面
+5. 对于甲骨文云，还要去实例控制面板这里添加入站规则，开放对应的端口。
+
+## CentOS 7 使用 firewalld 开放端口
+
+1. 开放端口
+
+```sh
+firewall-cmd --zone=public --add-port=5672/tcp --permanent   # 开放5672端口
+
+firewall-cmd --zone=public --remove-port=5672/tcp --permanent  #关闭5672端口
+
+firewall-cmd --reload   # 配置立即生效
+```
+
+2. 查看防火墙所有开放的端口
+
+`firewall-cmd --zone=public --list-ports`
+
+3. 关闭防火墙
+
+如果要开放的端口太多，嫌麻烦，可以关闭防火墙，安全性自行评估
+
+`systemctl stop firewalld.service`
+
+4. 查看防火墙状态
+
+`firewall-cmd --state`
+
+5. 查看监听的端口
+
+`netstat -lnpt`
+
+> PS: Centos7 默认没有 netstat 命令，需要安装 net-tools 工具，`yum install -y net-tools`
+
+6. 检查端口被哪个进程占用
+
+`netstat -lnpt |grep 5672`
+
+7. 查看进程的详细信息
+
+`ps 6832`
+
+8. 中止进程
+
+`kill -9 6832`
+
+## CentOS 7 使用 iptables 开放端口
+
+> CentOS 7.0 默认使用的是 firewall 作为防火墙，这里改为 iptables 防火墙。
+
+1. 关闭 firewall：
+
+```sh
+systemctl stop firewalld.service
+
+systemctl disable firewalld.service
+
+systemctl mask firewalld.service
+```
+
+2. 安装 iptables 防火墙:`yum install iptables-services -y`
+
+3. 启动设置防火墙
+
+   - `systemctl enable iptables`
+   - `systemctl start iptables`
+
+4. 查看防火墙状态:`systemctl status iptables`
+
+5. 编辑防火墙，增加端口:`vi /etc/sysconfig/iptables #编辑防火墙配置文件`
+
+```sh
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 3306 -j ACCEPT
+
+:wq! #保存退出
+```
+
+6. 重启配置，重启系统
+
+```sh
+systemctl restart iptables.service #重启防火墙使配置生效
+
+systemctl enable iptables.service #设置防火墙开机启动
+```
+
+7. 完整的防火墙配置信息
+
+[root@izm5e11fdcw9aa5w6w9mm2z ~]# more /etc/sysconfig/iptables
+
+```bash
+# sample configuration for iptables service
+# you can edit this manually or use system-config-firewall
+# please do not ask us to add additional ports/services to this default configuration
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+COMMIT
+```
+
+8. 注意开放端口的配置位置在 icmp-host-prohibited 这一行上面。
+
 ## 网络零散知识点
 
 ### localhost/127.0.0.1/0.0.0.0 三者之间的关系
