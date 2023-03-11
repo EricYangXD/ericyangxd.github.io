@@ -32,19 +32,19 @@ jobs:
       #     cp -r ../../../demos ./
       #     cd -
       #     pwd
-      - name: deploy with gh-pages
-        run: |
-          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          npm run gh-deploy -- -u "github-actions-bot <support+actions@github.com>"
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          GITHUB_REPOSITORY: react-demo-with-github-actions
+      # - name: deploy with gh-pages
+      #   run: |
+      #     git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+      #     npm run gh-deploy -- -u "github-actions-bot <support+actions@github.com>"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      #     GITHUB_REPOSITORY: ericyangxd.github.io
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./dist
       # - name: Sync To Gitee & Github
       #   run: |
 
