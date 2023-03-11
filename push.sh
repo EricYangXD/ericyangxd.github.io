@@ -7,4 +7,4 @@ git add -A
 git commit -m 'update'
 git push origin master -u
 
-cd -
+echo "Complete Successfully!"

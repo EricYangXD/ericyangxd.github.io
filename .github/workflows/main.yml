@@ -13,7 +13,7 @@ jobs:
     # 步骤
     steps:
       # 使用别人的action
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       # 步骤名称
       - name: npm install
         # 步骤执行指令
@@ -49,5 +49,5 @@ jobs:
           git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master:gh-pages
       - name: Done
         run: |
-          echo "Complete successful!"
+          echo "Complete Successfully!"
           cd -
