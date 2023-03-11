@@ -27,6 +27,7 @@
 		"update": "sh update.sh"
 	},
 	"dependencies": {
+		"gh-pages": "^5.0.0",
 		"moment": "^2.29.4",
 		"vuepress-theme-reco": "^1.6.11"
 	},
