@@ -506,15 +506,15 @@ module.exports = {
 		externalLinks: { target: "_blank", rel: "nofollow noopener noreferrer" },
 	},
 	plugins: [
-		// [
-		// 	"vuepress-plugin-nuggets-style-copy",
-		// 	{
-		// 		copyText: "复制代码",
-		// 		tip: {
-		// 			content: "复制成功",
-		// 		},
-		// 	},
-		// ],
+		[
+			"vuepress-plugin-nuggets-style-copy",
+			{
+				copyText: "复制代码",
+				tip: {
+					content: "复制成功",
+				},
+			},
+		],
 		[
 			"copyright",
 			{
