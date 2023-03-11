@@ -22,6 +22,7 @@
 		"docs:build": "vuepress build docs",
 		"build": "vuepress build docs",
 		"deploy": "sh deploy.sh",
+		"gh-deploy": "gh-pages -d build",
 		"push": "sh push.sh",
 		"update": "sh update.sh"
 	},
@@ -41,5 +42,5 @@
 	"bugs": {
 		"url": "https://github.com/EricYangXD/ericyangxd.github.io/issues"
 	},
-	"homepage": "https://github.com/EricYangXD/ericyangxd.github.io#readme"
+	"homepage": "https://ericyangxd.github.io"
 }

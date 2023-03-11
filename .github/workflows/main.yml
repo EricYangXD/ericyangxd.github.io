@@ -6,39 +6,40 @@ on:
       - master
 
 jobs:
-  # first_job:
-  #   name: build
   # 任务jobID
-  build1:
-    name: build1
-    # 运行环境
+  build:
     runs-on: ubuntu-latest
-    # 步骤
     steps:
       # 使用别人的action:
       # checkout@v3:拉代码
       # setup-node@v3:设置特定nodejs版本
       - uses: actions/checkout@v3
         with:
-          submodules: true # Fetch Hugo themes (true OR recursive)
+          submodules: true
           fetch-depth: 0 # Fetch all history for .GitInfo and .Lastmod
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      # 步骤名称
-      - name: npm install
-        # 步骤执行指令
+      - name: Install
         run: npm install
-      - name: npm run build
+      - name: Build
         run: npm run docs:build
-      - name: copy demos and other files
+      # - name: copy demos and other files
+      #   run: |
+      #     cd docs/.vuepress/dist
+      #     cp -r ../../../.github ./
+      #     cp -r ../../../CNAME ./
+      #     cp -r ../../../demos ./
+      #     cd -
+      #     pwd
+      - name: deploy with gh-pages
         run: |
-          cd docs/.vuepress/dist
-          cp -r ../../../.github ./
-          cp -r ../../../CNAME ./
-          cp -r ../../../demos ./
-          cd -
-          pwd
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          npm run gh-deploy -- -u "github-actions-bot <support+actions@github.com>"
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_REPOSITORY: react-demo-with-github-actions
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

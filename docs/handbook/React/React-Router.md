@@ -8,9 +8,9 @@ date: "2022-02-11"
 
 先用最简单的话来概括一下 `React-Router` 到底做了什么？
 
--   本质上， `React-Router` 就是在页面 URL 发生变化的时候，通过我们写的 path 去匹配，然后渲染对应的组件。
+- 本质上， `React-Router` 就是在页面 URL 发生变化的时候，通过我们写的 path 去匹配，然后渲染对应的组件。
 
--   核心库是 `react-router`。 `react-router-dom` 是在浏览器中使用的，`react-router-native` 是在 rn 中使用的。
+- 核心库是 `react-router`。 `react-router-dom` 是在浏览器中使用的，`react-router-native` 是在 rn 中使用的。
 
 ### 整体流程
 
@@ -23,13 +23,13 @@ date: "2022-02-11"
 
 正常情况下，当 URL 发生变化时，浏览器会像服务端发送请求，但使用以下 2 种办法不会向服务端发送请求：
 
--   基于 hash
--   基于 history
+- 基于 hash
+- 基于 history
 
 react-router 使用了 `history` 这个核心库。注意，当使用 history 模式时，生产环境刷新页面会 404。
 
--   Q:为什么开发环境中，使用 history 模式时，刷新浏览器仍然可以正常访问页面？
--   A:因为通常使用脚手架搭建项目的时候，脚手架里默认已经把`webpack-dev-server`里的`historyApiFallback.rewrites`做了相应的配置，使得浏览器的请求可以找到对应的配置好的页面。如果设置`historyApiFallback=false`而不配置 rewrites，那么浏览器会把我们这个当做是一次 get 请求，如果此时后端也没有对应的接口，那么就会报错：`Cannot get ...`。
+- Q:为什么开发环境中，使用 history 模式时，刷新浏览器仍然可以正常访问页面？
+- A:因为通常使用脚手架搭建项目的时候，脚手架里默认已经把`webpack-dev-server`里的`historyApiFallback.rewrites`做了相应的配置，使得浏览器的请求可以找到对应的配置好的页面。如果设置`historyApiFallback=false`而不配置 rewrites，那么浏览器会把我们这个当做是一次 get 请求，如果此时后端也没有对应的接口，那么就会报错：`Cannot get ...`。
 
 ### 如何监听 url 的变化
 
@@ -56,8 +56,8 @@ const FC = () => {
 
 可以分两部分理解:
 
--   是否匹配
--   渲染组件
+- 是否匹配
+- 渲染组件
 
 1. 是否匹配
 
@@ -139,7 +139,7 @@ examples
 1.  路径：`path: '/test/:type'`；
 2.  查询参数方式：`<Link to= '/home/article?id=9' />`，从 `location.search` 中接收；
 3.  对象写法：`<Link to={{ pathname: '/home/article', id:3 }} />`，从 `location.state` 接收；
-4.  对象写法：`<Link to={{ pathname: '/home/article', state: {id:3 , name:'eric'} }} />`，从 `location.state` 中接收；
+4.  对象写法：`<Link to={{ pathname: '/home/article', state: {id:3, name:'eric'} }} />`，从 `location.state` 中接收；
 ```
 
 #### location
@@ -194,7 +194,7 @@ path 中的参数
 
 例如：`path: '/test/:type'`。
 
--   useParams
+- useParams
 
 ```js
 import { useParams } from "react-router-dom";
@@ -206,7 +206,7 @@ const FC = () => {
 }
 ```
 
--   this.props.match
+- this.props.match
 
 ```js
 const { id } = this.props.match.params; // id = 1
@@ -216,8 +216,8 @@ const { id } = this.props.match.params; // id = 1
 
 例如：`path: '/myurl/:id/:name'`。
 
--   挨个添加解析：`const { id, name } = this.props.match.params;`
--   以对象的形式，一起添加解析：
+- 挨个添加解析：`const { id, name } = this.props.match.params;`
+- 以对象的形式，一起添加解析：
 
 ```js
 // 添加
@@ -234,7 +234,7 @@ const { id, name } = JSON.parse(manyParams);
 
 #### props.location
 
--   推荐 props.location，不要用 props.history.location，因为 props.location 更可靠，history is mutable，如果在生命周期函数中用 this.props.history.location 可能得不到你期望的值，它的值是变化之后的值。
+- 推荐 props.location，不要用 props.history.location，因为 props.location 更可靠，history is mutable，如果在生命周期函数中用 this.props.history.location 可能得不到你期望的值，它的值是变化之后的值。
 
 #### 通过 props.location.search 获取参数
 
@@ -387,24 +387,24 @@ const route = {
 1. history 是 `react-router` 的基础库
 2. history 整体是对浏览器 api 的二次封装，但是并没有太过深入的封装，仅仅是对每次页面跳转时做了抽象处理，并且加入了额外的监听与特殊的阻止跳转功能。
 
--   createBrowserHistory 基于浏览器 history 对象最新 api。
--   createHashHistory：基于浏览器 url 的 hash 参数。
--   createMemoryHistory：基于内存栈，不依赖任何平台。
+- createBrowserHistory 基于浏览器 history 对象最新 api。
+- createHashHistory：基于浏览器 url 的 hash 参数。
+- createMemoryHistory：基于内存栈，不依赖任何平台。
 
 上面三种方法创建的 history 对象在 `react-router` 中作为三种主要路由的导航器使用：
 
--   `BrowserRouter` 对应 createBrowserHistory，由 `react-router-dom` 提供。
--   `HashRouter` 对应 createHashHistory，由 `react-router-dom` 提供。
--   `MemoryRouter` 对应 createMemoryHistory，由 `react-router` 提供，主要用于 `react-native` 等基于内存的路由系统。
--   实际上与 `react-native` 相对应的包 `react-router-native` 使用的是 `NativeRouter`，但其实 NativeRouter 就是 MemoryRouter 的简单封装（改了下名字）。
--   在 `react-router-dom` 中其实还有一种路由 `StaticRouter`，不过是用在 `ssr` 中的，没有依赖 history 库，仅仅是对传入的 props 做了校验而已。`import { StaticRouter } from 'react-router-dom/server';`。
--   在 `react-router-dom` v6.1.1 时还新增了 `HistoryRouter`，不过该 Router 主要是帮助我们手动传入 history 实例。
+- `BrowserRouter` 对应 createBrowserHistory，由 `react-router-dom` 提供。
+- `HashRouter` 对应 createHashHistory，由 `react-router-dom` 提供。
+- `MemoryRouter` 对应 createMemoryHistory，由 `react-router` 提供，主要用于 `react-native` 等基于内存的路由系统。
+- 实际上与 `react-native` 相对应的包 `react-router-native` 使用的是 `NativeRouter`，但其实 NativeRouter 就是 MemoryRouter 的简单封装（改了下名字）。
+- 在 `react-router-dom` 中其实还有一种路由 `StaticRouter`，不过是用在 `ssr` 中的，没有依赖 history 库，仅仅是对传入的 props 做了校验而已。`import { StaticRouter } from 'react-router-dom/server';`。
+- 在 `react-router-dom` v6.1.1 时还新增了 `HistoryRouter`，不过该 Router 主要是帮助我们手动传入 history 实例。
 
 3. 总结：
-    - web 开发常用：`BrowserRouter`history 模式、`HashRouter`hash 模式
-    - 服务端渲染：`StaticRouter`
-    - `react-native`：`MemoryRouter`、`NativeRouter`
-    - `react-router-dom` v6.1.1 新增 `HistoryRouter`
+   - web 开发常用：`BrowserRouter`history 模式、`HashRouter`hash 模式
+   - 服务端渲染：`StaticRouter`
+   - `react-native`：`MemoryRouter`、`NativeRouter`
+   - `react-router-dom` v6.1.1 新增 `HistoryRouter`
 
 ### Router 内部原理
 
@@ -412,16 +412,16 @@ const route = {
 
 2. 两种常用 Router：HashRouter 和 BrowserRouter
 
--   HashRouter：使用 URL 的哈希值`location.hash`实现
+- HashRouter：使用 URL 的哈希值`location.hash`实现
 
-    -   原理：监听 window 的 hashchange 事件来实现的：`window.addEventListener('hashchange',cb)`或`window.onhashchange = cb`。
+  - 原理：监听 window 的 hashchange 事件来实现的：`window.addEventListener('hashchange',cb)`或`window.onhashchange = cb`。
 
--   （推荐）BrowserRouter：使用 H5 的 `history.pushState()`、`history.replaceState()` API 实现
+- （推荐）BrowserRouter：使用 H5 的 `history.pushState()`、`history.replaceState()` API 实现
 
-    -   原理：监听 window 的 popstate 事件来实现的：`window.addEventListener('popstate',cb)`或`window.onpopstate = cb`。
+  - 原理：监听 window 的 popstate 事件来实现的：`window.addEventListener('popstate',cb)`或`window.onpopstate = cb`。
 
--   需要注意的是调用 history.pushState()或 history.replaceState()不会触发 popstate 事件。只有在做出浏览器动作时，才会触发该事件，如用户点击浏览器的回退按钮（或者在 Javascript 代码中调用 history.back()或者 history.forward()方法）。
--   不同的浏览器在加载页面时处理 popstate 事件的形式存在差异。页面加载时 Chrome 和 Safari 通常会触发(emit )popstate 事件，但 Firefox 则不会。
+- 需要注意的是调用 history.pushState()或 history.replaceState()不会触发 popstate 事件。只有在做出浏览器动作时，才会触发该事件，如用户点击浏览器的回退按钮（或者在 Javascript 代码中调用 history.back()或者 history.forward()方法）。
+- 不同的浏览器在加载页面时处理 popstate 事件的形式存在差异。页面加载时 Chrome 和 Safari 通常会触发(emit )popstate 事件，但 Firefox 则不会。
 
 ## 常用组件简介
 
@@ -434,16 +434,16 @@ web 端一般用 `react-router-dom` 库，这个包提供了三个核心的组�
 1. 使用 HashRouter/BrowserRouter 包裹整个应用，一个项目中只会有一个 Router.
 2. `<BrowserRouter>` 使用 HTML5 history API（pushState、replaceState 和 popstate 事件）来保持 UI 与 URL 同步。
 3. `<BrowserRouter>`:
-    - basename：为全部 location 设置 base url。
-    - getUserConfirmation：用于确认导航的功能。默认使用 window.confirm。
-    - forceRefresh：页面切换时强制刷新。
-    - keyLength：The length of location.key. Defaults to 6.
-    - children：The child elements to render.
+   - basename：为全部 location 设置 base url。
+   - getUserConfirmation：用于确认导航的功能。默认使用 window.confirm。
+   - forceRefresh：页面切换时强制刷新。
+   - keyLength：The length of location.key. Defaults to 6.
+   - children：The child elements to render.
 4. `<HashRouter>` 使用 URL 的 hash 部分（即 window.location.hash）来保持 UI 与 URL 同步。**不支持 location.key 或 location.state**!
-    - basename：为全部 location 设置 base url。
-    - getUserConfirmation：用于确认导航的功能。默认使用 window.confirm。
-    - hashType: "slash" - "#/sunshine" | "noslash" - "#sunshine" | "hashbang" - "#!/sunshine"，默认"slash"。
-    - children：A single child element to render.
+   - basename：为全部 location 设置 base url。
+   - getUserConfirmation：用于确认导航的功能。默认使用 window.confirm。
+   - hashType: "slash" - "#/sunshine" | "noslash" - "#sunshine" | "hashbang" - "#!/sunshine"，默认"slash"。
+   - children：A single child element to render.
 5. `<MemoryRouter>`将你的“URL”历史保存在内存中（不读取或写入地址栏）。在测试和非浏览器环境（如 React Native）中很有用。
 
 ### Router
@@ -456,8 +456,8 @@ web 端一般用 `react-router-dom` 库，这个包提供了三个核心的组�
 4. `<NativeRouter>`
 5. `<StaticRouter>`：一个永远不会改变位置的 `<Router>`。用于 SSR。
 
--   history: object，A history object to use for navigation.
--   children: node，A child element to render.
+- history: object，A history object to use for navigation.
+- children: node，A child element to render.
 
 使用低级 `<Router>` 的最常见用例是将自定义 history 与 Redux 或 Mobx 等状态管理库同步。
 
@@ -491,26 +491,26 @@ web 端一般用 `react-router-dom` 库，这个包提供了三个核心的组�
 
 1. 模糊匹配规则
 
--   只要 pathname 以 path 开头就算匹配成功
--   匹配成功就加载对应组件；
--   整个匹配过程是逐一匹配，一个匹配成功了，并不会停止匹配。
+- 只要 pathname 以 path 开头就算匹配成功
+- 匹配成功就加载对应组件；
+- 整个匹配过程是逐一匹配，一个匹配成功了，并不会停止匹配。
 
 2. 模糊匹配和精确匹配
 
--   默认是模糊匹配的!!!
--   补充 exact 可以设置成精确匹配
+- 默认是模糊匹配的!!!
+- 补充 exact 可以设置成精确匹配
 
 3. Route render methods：
 
--   `<Route component>`
--   `<Route render>`
--   `<Route children>` function
+- `<Route component>`
+- `<Route render>`
+- `<Route children>` function
 
 4. Route props：
 
--   match
--   location
--   history
+- match
+- location
+- history
 
 5. exact: bool
 
@@ -632,12 +632,12 @@ match 对象包含有关 `<Route path>` 如何匹配 URL 的信息: {params, isE
 
 可以访问不同位置的 match 对象：
 
--   Route component as this.props.match
--   Route render as ({ match }) => ()
--   Route children as ({ match }) => ()
--   withRouter as this.props.match
--   matchPath as the return value
--   useRouteMatch as the return value
+- Route component as this.props.match
+- Route render as ({ match }) => ()
+- Route children as ({ match }) => ()
+- withRouter as this.props.match
+- matchPath as the return value
+- useRouteMatch as the return value
 
 “解析” URL 的默认方法是将 match.url 字符串连接到“相对”路径。无路径 `<Route>`从其父级继承其匹配对象。如果他们的父匹配为空，那么他们的匹配也将为空。
 
@@ -672,5 +672,5 @@ const match = matchPath("/users/123", {
 
 withRouter 不像 React Redux 的 connect 那样订阅 location 更改来进行状态更改。相反，在 location 更改从 `<Router>` 组件传播出去后重新渲染。这意味着 withRouter 不会在路由转换时重新渲染，除非其父组件重新渲染。
 
--   Component.WrappedComponent: 除其他外，被包装的组件作为返回组件上的静态属性 WrappedComponent 暴露出来，可用于单独测试组件。
--   wrappedComponentRef: func：将作为 ref 属性传递给包装组件的函数。
+- Component.WrappedComponent: 除其他外，被包装的组件作为返回组件上的静态属性 WrappedComponent 暴露出来，可用于单独测试组件。
+- wrappedComponentRef: func：将作为 ref 属性传递给包装组件的函数。
