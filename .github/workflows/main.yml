@@ -43,8 +43,21 @@ jobs:
           cp -r ../../../.github ./
           cp -r ../../../CNAME ./
           cp -r ../../../demos ./
+          pwd
+      - name: Sync To Gitee & Github
+        run: |
+          cd docs/.vuepress/dist
+          git init
+          git add -A
+          git commit -m 'deploy'
+          git push -f git@github.com:EricYangXD/ericyangxd.github.io.git master:gh-pages
+          git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master
+          git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master:gh-pages
+      - name: Done
+        run: |
+          echo "Complete Successfully!"
           cd -
-      # 命名这个任务为发布Deploy
+            # 命名这个任务为发布Deploy
       - name: Deploy
         # 因为构建之后，需要把代码上传到服务器上，所以需要连接到ssh，并且做一个拷贝操作
         uses: cross-the-world/scp-pipeline@master
@@ -58,15 +71,3 @@ jobs:
           connect_timeout: 30s
           local: "./dist/*"
           remote: /home/blog/dist
-      - name: Sync To Gitee & Github
-        run: |
-          git init
-          git add -A
-          git commit -m 'deploy'
-          git push -f git@github.com:EricYangXD/ericyangxd.github.io.git master:gh-pages
-          git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master
-          git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master:gh-pages
-      - name: Done
-        run: |
-          echo "Complete Successfully!"
-          cd -
