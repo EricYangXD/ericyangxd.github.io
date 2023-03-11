@@ -19,18 +19,12 @@ jobs:
       # checkout@v3:拉代码
       # setup-node@v3:设置特定nodejs版本
       - uses: actions/checkout@v3
+        with:
+          submodules: true # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0 # Fetch all history for .GitInfo and .Lastmod
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: Yikun/hub-mirror-action@master
-        with:
-          src: "github/EricYangXD"
-          dst: "gitee/EricYangXD"
-          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
-          dst_token: ${{ secrets.GITEE_TOKEN }}
-          static_list: "my-vuepress-blog"
-          force_update: true
-          debug: true
       # 步骤名称
       - name: npm install
         # 步骤执行指令
@@ -43,19 +37,32 @@ jobs:
           cp -r ../../../.github ./
           cp -r ../../../CNAME ./
           cp -r ../../../demos ./
+          cd -
           pwd
-      - name: Sync To Gitee & Github
-        run: |
-          git init
-          git add -A
-          git commit -m 'deploy'
-          git push -f git@github.com:EricYangXD/ericyangxd.github.io.git master:gh-pages
-          git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master
-          git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master:gh-pages
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+      # - name: Sync To Gitee & Github
+      #   run: |
+
+      #     git push -f git@github.com:EricYangXD/ericyangxd.github.io.git master:gh-pages
+      #     git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master
+      #     git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master:gh-pages
+      - uses: Yikun/hub-mirror-action@master
+        with:
+          src: "github/EricYangXD"
+          dst: "gitee/EricYangXD"
+          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
+          dst_token: ${{ secrets.GITEE_TOKEN }}
+          mappings: "ericyangxd.github.io=>my-vuepress-blog"
+          static_list: "ericyangxd.github.io"
+          force_update: true
+          debug: true
       - name: Done
         run: |
           echo "Complete Successfully!"
-          cd -
       # 命名这个任务为发布Deploy
       - name: Deploy
         # 因为构建之后，需要把代码上传到服务器上，所以需要连接到ssh，并且做一个拷贝操作

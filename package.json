@@ -7,12 +7,12 @@
 	"devDependencies": {
 		"@vuepress-reco/vuepress-plugin-bgm-player": "^1.1.4",
 		"@vuepress-reco/vuepress-plugin-extract-code": "^1.0.4",
+		"hard-source-webpack-plugin": "^0.13.1",
+		"uglifyjs-webpack-plugin": "^2.2.0",
 		"vuepress": "^1.9.7",
 		"vuepress-plugin-copyright": "^1.0.2",
 		"vuepress-plugin-cursor-effects": "^1.1.4",
 		"vuepress-plugin-nuggets-style-copy": "^1.0.3",
-		"uglifyjs-webpack-plugin": "^2.2.0",
-		"hard-source-webpack-plugin": "^0.13.1",
 		"vuepress-plugin-seo": "^0.1.4",
 		"vuepress-plugin-sitemap": "^2.3.1"
 	},
