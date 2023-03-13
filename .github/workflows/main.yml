@@ -40,11 +40,11 @@ jobs:
       - name: Copy demos and other files to dist
         run: |
           pwd
-          cd /home/runner/work/ericyangxd.github.io/ericyangxd.github.io/dist
-          cp -r ../CNAME ./
-          cp -r ../demos ./
-          cd -
+          cd ./docs/.vuepress/dist
+          cp -r ../../../CNAME ./
+          cp -r ../../../demos ./
           pwd
+          ll -la
 
       # 使用gh-pages发布
       # - name: deploy with gh-pages
