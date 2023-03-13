@@ -566,7 +566,7 @@ plugins: [
 ];
 ```
 
-```zsh
+```bash
 # 开启和关闭gzip模式
 gzip on;
 # gizp压缩起点，文件大于1k才进行压缩

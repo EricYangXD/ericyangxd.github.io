@@ -44,7 +44,7 @@ jobs:
           cp -r ../../../CNAME ./
           cp -r ../../../demos ./
           pwd
-          ll -la
+          ls
 
       # 使用gh-pages发布
       # - name: deploy with gh-pages
