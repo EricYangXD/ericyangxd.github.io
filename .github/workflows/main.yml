@@ -60,7 +60,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:
-          email: username@domain.tld
+          email: ericyangxinde@gmail.com
           build_dir: dist # optional
           branch: master # optional
           cname: ericyangxd.top # optional
@@ -68,7 +68,8 @@ jobs:
           commit_message: "deploy" # optional
 
       # 把代码同步到Gitee
-      - uses: Yikun/hub-mirror-action@master
+      - name: Sync to Gitee
+        uses: Yikun/hub-mirror-action@master
         with:
           src: "github/EricYangXD"
           dst: "gitee/EricYangXD"
