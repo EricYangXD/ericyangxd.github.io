@@ -62,10 +62,10 @@ jobs:
         with:
           email: ericyangxinde@gmail.com
           build_dir: "docs/.vuepress/dist" # optional
-          branch: master # optional
+          branch: gh-pages # optional
           cname: ericyangxd.top # optional
           jekyll: no # optional
-          commit_message: "deploy" # optional
+          commit_message: "deploy gh-pages" # optional
 
       # 把代码同步到Gitee
       - name: Sync to Gitee
