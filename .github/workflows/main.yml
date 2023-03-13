@@ -17,21 +17,36 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0 # Fetch all history for .GitInfo and .Lastmod
+
+      # 设置nodejs版本
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      # 安装依赖
       - name: Install
         run: npm install
+
+      # 更新browserslist
+      - name: Update-browserslist
+        run: npx browserslist@latest --update-db
+
+      # 构建打包
       - name: Build
         run: npm run docs:build
-      - name: copy demos and other files
+
+      # 把一些其他文件也拷贝到dist文件夹下
+      - name: Copy demos and other files to dist
         run: |
+          pwd
           cd docs/.vuepress/dist
           cp -r ../../../.github ./
           cp -r ../../../CNAME ./
           cp -r ../../../demos ./
           cd -
           pwd
+
+      # 使用gh-pages发布
       - name: deploy with gh-pages
         run: |
           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
@@ -40,17 +55,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           GITHUB_REPOSITORY: ericyangxd.github.io
 
-      # - name: Deploy
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.ACCESS_TOKEN }}
-      #     publish_dir: ./dist
-      # - name: Sync To Gitee & Github
-      #   run: |
-
-      #     git push -f git@github.com:EricYangXD/ericyangxd.github.io.git master:gh-pages
-      #     git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master
-      #     git push -f git@gitee.com:EricYangXD/my-vuepress-blog.git master:gh-pages
+      # 把代码同步到Gitee
       - uses: Yikun/hub-mirror-action@master
         with:
           src: "github/EricYangXD"
@@ -61,11 +66,9 @@ jobs:
           static_list: "ericyangxd.github.io"
           force_update: true
           debug: true
-      - name: Done
-        run: |
-          echo "Complete Successfully!"
-      # 命名这个任务为发布Deploy
-      - name: Deploy
+
+      # 发布到云服务器上
+      - name: Deploy to server
         # 因为构建之后，需要把代码上传到服务器上，所以需要连接到ssh，并且做一个拷贝操作
         uses: cross-the-world/scp-pipeline@master
         env:
@@ -78,3 +81,8 @@ jobs:
           connect_timeout: 30s
           local: "./dist/*"
           remote: /home/blog/dist
+
+      # 全流程结束
+      - name: Done
+        run: |
+          echo "Complete Successfully!"

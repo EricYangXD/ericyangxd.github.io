@@ -22,7 +22,7 @@
 		"docs:build": "vuepress build docs",
 		"build": "vuepress build docs",
 		"deploy": "sh deploy.sh",
-		"gh-deploy": "gh-pages -d build",
+		"gh-deploy": "gh-pages -d dist",
 		"push": "sh push.sh",
 		"update": "sh update.sh"
 	},
