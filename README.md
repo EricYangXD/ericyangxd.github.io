@@ -1,4 +1,6 @@
-# ericyangxd.top
+# ericyangxd.top/wefoundi.top
+
+> Record Everything Here
 
 Personal Blog Repository
 
@@ -22,4 +24,4 @@ Personal Blog Repository
 
 9. 任何擅自改变计算机信息网络数据属于违法行为，本项目不提供成品可运行程序，仅做学习研究使用。
 
-`您使用或者复制了本仓库且本人制作的任何代码或项目，则视为已接受此声明，请仔细阅读。`
+**您使用或者复制了本仓库且本人制作的任何代码或项目，则视为已接受此声明，请仔细阅读。**

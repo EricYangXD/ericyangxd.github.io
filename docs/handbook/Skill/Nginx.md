@@ -95,7 +95,7 @@ location 的定义分为两种：
 
 Nginx 内置了 ngx_http_gzip_module 模块，该模块会拦截请求，并对需要做 Gzip 压缩的文件做压缩。因为是内部集成，所以我们只用修改 Nginx 的配置，就可以直接开启。
 
-```nginx
+```bash
 # 登陆服务器
 ssh -v root@8.147.xxx.xxx
 
@@ -218,7 +218,7 @@ tips test
 - 入口 html 文件中 js 已经使用 hash 后缀方式加载
 - 缺点：需要前端人员会配置 nginx
 
-```nginx
+```bash
 location ~ .*\.(htm|html)?$ {
   # 原来这样设置的不管用
   # expires -1;
@@ -238,7 +238,7 @@ location ~ .*\.(htm|html)?$ {
 
 在一台 NGINX 机器上通过多端口多域名来配置实现同时跑多个项目。
 
-```nginx
+```bash
 server {
   # 这里默认监听80端口，可根据项目需要自行设置需要监听的端口号
   listen 80;
