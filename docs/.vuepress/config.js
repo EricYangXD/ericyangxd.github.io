@@ -238,8 +238,12 @@ module.exports = {
 			},
 			{
 				title: "Webpack",
-				path: "/handbook/Webpack/Plugin-Loader",
+				path: "/handbook/Webpack/Basic",
 				children: [
+					{
+						title: "Webpack基础知识",
+						path: "/handbook/Webpack/Basic",
+					},
 					{
 						title: "常用插件和Loader",
 						path: "/handbook/Webpack/Plugin-Loader",

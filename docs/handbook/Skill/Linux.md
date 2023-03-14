@@ -521,15 +521,14 @@ ListenAddress 0.0.0.0
 ListenAddress ::
 ```
 
-- 允许远程登录`PermitRootLogin yes`
+- 允许远程 root 登录`PermitRootLogin yes`
 - 使用用户名密码作为验证连接`PasswordAuthentication yes`
 
 3. 重启 sshd 服务
 
 - `service sshd start`
 - `service sshd restart`
-- 配置开机自启动
-- `systemctl enable sshd`
+- 配置开机自启动：`systemctl enable sshd`
 
 ## Mac ssh 连接远程服务器，并实现文件的上传和下载
 

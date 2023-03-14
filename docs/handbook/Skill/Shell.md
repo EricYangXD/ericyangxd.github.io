@@ -823,17 +823,17 @@ PID TTY           TIME CMD
 8. top 显示结果由两部分组成： 最上面是系统概要，下面是进程列表，以 CPU 的使用率排序。
 9. 一个在后台运行的进程对一切来自键盘的输入都免疫，也不能用 Ctrl-c 来中断它。 为了让一个进程返回前台 (foreground)，这样使用 fg 命令：fg 命令之后，跟随着一个百分号和任务序号（叫做 jobspec ，如此处的 %1）。如果我们只有一个后台任务，那么 jobspec(job specification) 是可有可无的。
 10. 看端口使用情况：`netstat -tlun`
-11. 看某个端口使用情况：`netstat -tlunp | grep 8080`
+11. 看某个端口使用情况：`netstat -tlunp | grep 8080`/`lsof -i -P | grep 443`
 12. 查看某个文件内容：`more /home/tomcat/.jenkins/secrets/initialAdminPassword`
-13. 修改tomcat端口：`vim conf/server.xml`
+13. 修改 tomcat 端口：`vim conf/server.xml`
 14. 检查防火墙是否放开了某个端口：`vim /etc/sysconfig/iptables`
 15. 重启防火墙：`service iptables restart`
-16. 将整个目录的所属权转移给tomcat用户、tomcat组`chown -R tomcat:tomcat /usr/local/apache-tomcat-9.0.8`
-17. 使用ssh登录其他主机并执行Shell时，不允许使用root账户：`ssh -T opc@192.168.31.22 'bash -s' < /root/demo/start.sh`
-18. 产生私钥​ `yum -y install openssh-clients​ ssh-keygen -t rsa`
-19. 执行某个jar包并保留log：`java -jar springboot-demo.jar >log 2>&1 &`
-20. nohup 的用途就是让提交的命令忽略 hangup 信号，那什么叫做hangup信号？这里给出了答案：`0：标准输入 1：标准输出，2：标准错误`
-21. 后台运行且不保留log：`nohup java -jar springboot-demo.jar > /dev/null 2>&1 &`
+16. 将整个目录的所属权转移给 tomcat 用户、tomcat 组`chown -R tomcat:tomcat /usr/local/apache-tomcat-9.0.8`
+17. 使用 ssh 登录其他主机并执行 Shell 时，不允许使用 root 账户：`ssh -T opc@192.168.31.22 'bash -s' < /root/demo/start.sh`
+18. 产生私钥 ​ `yum -y install openssh-clients​ ssh-keygen -t rsa`
+19. 执行某个 jar 包并保留 log：`java -jar springboot-demo.jar >log 2>&1 &`
+20. nohup 的用途就是让提交的命令忽略 hangup 信号，那什么叫做 hangup 信号？这里给出了答案：`0：标准输入 1：标准输出，2：标准错误`
+21. 后台运行且不保留 log：`nohup java -jar springboot-demo.jar > /dev/null 2>&1 &`
 
 ```bash
 [me@linuxbox ~]$ jobs
@@ -867,7 +867,8 @@ xlogo
 4. 按下"i"键进入插入模式。
 5. 退出插入模式返回命令模式，按下 Esc 按键。
 6. 保存：`:w`
-7. 光标移动按键
+7. 保存并退出：`:wq`
+8. 光标移动按键
    - l or 右箭头 向右移动一个字符
    - h or 左箭头 向左移动一个字符
    - j or 下箭头 向下移动一行
@@ -883,10 +884,10 @@ xlogo
    - Ctrl-b or Page Up 向上翻一页
    - numberG 移动到第 number 行。例如，1G 移动到文件的第一行。
    - G 移动到文件末尾。
-8. 按下"u" 按键，当在命令模式下，vi 将会撤销你所做的最后一次修改。
-9. "A" 命令非常有用，因为它在进入到插入模式前，先将光标移到了行尾。
-10. 插入文本的另一种方式是"另起（open）"一行: "O"--当前行的上方另起一行。"o"--当前行的下方另起一行。
-11. x 按键会删除光标位置的一个字符。可以在 x 命令之前带上一个数字，来指明要删除的字符个数。 d 按键更通用一些。跟 x 命令一样，d 命令之前可以带上一个数字，来指定要执行的删除次数。另外， d 命令之后总是带上一个移动命令，用来控制删除的范围。
+9. 按下"u"按键，当在命令模式下，vi 将会撤销你所做的最后一次修改。
+10. "A" 命令非常有用，因为它在进入到插入模式前，先将光标移到了行尾。
+11. 插入文本的另一种方式是"另起（open）"一行: "O"--当前行的上方另起一行。"o"--当前行的下方另起一行。
+12. x 按键会删除光标位置的一个字符。可以在 x 命令之前带上一个数字，来指明要删除的字符个数。 d 按键更通用一些。跟 x 命令一样，d 命令之前可以带上一个数字，来指定要执行的删除次数。另外， d 命令之后总是带上一个移动命令，用来控制删除的范围。
 
     - x 当前字符
     - 3x 当前字符及其后的两个字符。
@@ -899,9 +900,9 @@ xlogo
     - dG 从当前行到文件的末尾。
     - d20G 从当前行到文件的第 20 行。
 
-12. 真正的 vi 只是支持单层的 undo 命令。vim 则支持多层的。
-13. 每次我们使用 d 命令，删除的部分被复制到一个 粘贴缓冲区中（看作剪切板）。过后我们执行小 p 命令把剪切板中的文本粘贴到光标位置之后， 或者是大 P 命令把文本粘贴到光标之前。
-14. y 命令用来“拉”（复制）文本，和 d 命令剪切文本的方式差不多。
+13. 真正的 vi 只是支持单层的 undo 命令。vim 则支持多层的。
+14. 每次我们使用 d 命令，删除的部分被复制到一个 粘贴缓冲区中（看作剪切板）。过后我们执行小 p 命令把剪切板中的文本粘贴到光标位置之后， 或者是大 P 命令把文本粘贴到光标之前。
+15. y 命令用来“拉”（复制）文本，和 d 命令剪切文本的方式差不多。
 
 - yy 当前行。
 - 5yy 当前行及随后的四行文本。
