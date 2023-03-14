@@ -94,7 +94,7 @@ jobs:
           username: ${{ secrets.USER_NAME_129_146_238_23 }}
           password: ${{ secrets.USER_PASS_129_146_238_23 }}
           port: ${{ secrets.SSH_PORT_22 }}
-          source: "./docs/.vuepress/dist/*"
+          source: "docs/.vuepress/dist/*"
           target: "/home/blog/dist/"
 
       # 全流程结束
