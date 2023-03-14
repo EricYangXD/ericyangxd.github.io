@@ -85,7 +85,7 @@ jobs:
           user: ${{ secrets.USER_NAME_129_146_238_23 }}
           pass: ${{ secrets.USER_PASS_129_146_238_23 }}
           connect_timeout: 30s
-          local: "/dist/*"
+          local: "./docs/.vuepress/dist/*"
           remote: /home/blog/dist/
 
       # 全流程结束
