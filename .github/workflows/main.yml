@@ -28,7 +28,7 @@ jobs:
         run: npm install
 
       # 更新browserslist
-      - name: Update-browserslist
+      - name: Update Browsers List
         run: npx browserslist@latest --update-db
 
       # 构建打包
@@ -37,14 +37,11 @@ jobs:
 
       # 把一些其他文件也拷贝到dist文件夹下
       # cp -r ../../../.github ./
-      - name: Copy demos and other files to dist
+      - name: Copy demos/ and the other files to dist/
         run: |
-          pwd
           cd ./docs/.vuepress/dist
           cp -r ../../../CNAME ./
           cp -r ../../../demos ./
-          pwd
-          ls
 
       # 发布到gh-pages
       - name: Deploy to GitHub Pages
@@ -74,31 +71,31 @@ jobs:
           debug: true
 
       # 发布到云服务器上
-      - name: Deploy to server
-        # 因为构建之后，需要把代码上传到服务器上，所以需要连接到ssh，并且做一个拷贝操作
-        uses: cross-the-world/scp-pipeline@master
-        env:
-          WELCOME: "ssh scp ssh pipelines"
-          LASTSSH: "Doing something after copying"
-        with:
-          host: ${{ secrets.USER_HOST_129_146_238_23 }}
-          user: ${{ secrets.USER_NAME_129_146_238_23 }}
-          pass: ${{ secrets.USER_PASS_129_146_238_23 }}
-          port: ${{ secrets.SSH_PORT_22 }}
-          connect_timeout: 15s
-          local: "./docs/.vuepress/dist/*"
-          remote: "/home/blog/dist/"
-
-      # 发布到云服务器上
-      # - name: Deploy to server
-      #   uses: appleboy/scp-action@master
+      # - name: Deploy to Oracle Cloud Server
+      #   # 因为构建之后，需要把代码上传到服务器上，所以需要连接到ssh，并且做一个拷贝操作
+      #   uses: cross-the-world/scp-pipeline@master
+      #   env:
+      #     WELCOME: "ssh scp ssh pipelines"
+      #     LASTSSH: "Doing something after copying"
       #   with:
       #     host: ${{ secrets.USER_HOST_129_146_238_23 }}
-      #     username: ${{ secrets.USER_NAME_129_146_238_23 }}
-      #     password: ${{ secrets.USER_PASS_129_146_238_23 }}
+      #     user: ${{ secrets.USER_NAME_129_146_238_23 }}
+      #     pass: ${{ secrets.USER_PASS_129_146_238_23 }}
       #     port: ${{ secrets.SSH_PORT_22 }}
-      #     source: "./docs/.vuepress/dist/*"
-      #     target: "/home/blog/dist/"
+      #     connect_timeout: 15s
+      #     local: "./docs/.vuepress/dist/*"
+      #     remote: "/home/blog/dist/"
+
+      # 发布到云服务器上
+      - name: Deploy to Oracle Cloud Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.USER_HOST_129_146_238_23 }}
+          username: ${{ secrets.USER_NAME_129_146_238_23 }}
+          password: ${{ secrets.USER_PASS_129_146_238_23 }}
+          port: ${{ secrets.SSH_PORT_22 }}
+          source: "./docs/.vuepress/dist/*"
+          target: "/home/blog/dist/"
 
       # 全流程结束
       - name: Done

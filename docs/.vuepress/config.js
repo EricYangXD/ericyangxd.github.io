@@ -1,12 +1,12 @@
 /**
- * Copyright © 2011-2023 EricYangXD, All Rights Reserved.
+ * Copyright © 2011-2099 By EricYangXD, All Rights Reserved.
  */
 
 // 配置网站的标题和描述，方便 SEO
 module.exports = {
 	title: "木易的OT",
 	description:
-		"前端面试,React,Vue,JavaScript,CSS,HTML,HTTP,TCP,Webpack,算法,数据结构,LeetCode,小程序,油猴,计算机网络,NodeJs,Vite,Antdesign,EricYangXD,Eric,Chrome,Android,V8,Mac,git,网络安全,开发技巧,路由,router,话费,充值,诗歌,金句,源码,面试,docker",
+		"前端面试,React,Vue,JavaScript,CSS,HTML,HTTP,TCP,Webpack,算法,数据结构,LeetCode,小程序,油猴,计算机网络,NodeJs,Vite,Antdesign,EricYangXD,Eric,Chrome,Android,V8,Mac,git,网络安全,开发技巧,路由,router,诗歌,金句,源码,面试,Docker",
 	// 路径名为 "/<REPO>/"
 	base: "/",
 	locales: {
@@ -74,7 +74,7 @@ module.exports = {
 			},
 			{
 				title: "React",
-				path: "/handbook/React/SourceCode",
+				// path: "/handbook/React/SourceCode",
 				children: [
 					{ title: "React源码", path: "/handbook/React/SourceCode" },
 					{
@@ -92,7 +92,7 @@ module.exports = {
 					},
 					{
 						title: "React+TypeScript Cheatsheets",
-						path: "/handbook/React/React-TS-CheatSheet-README",
+						path: "/handbook/React/React-TS-CheatSheet",
 					},
 					{
 						title: "JSX原理",
@@ -106,7 +106,7 @@ module.exports = {
 			},
 			{
 				title: "Vue",
-				path: "/handbook/Vue/SourceCode",
+				// path: "/handbook/Vue/SourceCode",
 				children: [
 					{ title: "Vue源码", path: "/handbook/Vue/SourceCode" },
 					{
@@ -121,7 +121,7 @@ module.exports = {
 			},
 			{
 				title: "LeetCode",
-				path: "/handbook/LeetCode/BinaryTree",
+				// path: "/handbook/LeetCode/BinaryTree",
 				children: [
 					{
 						title: "二叉树",
@@ -151,7 +151,7 @@ module.exports = {
 			},
 			{
 				title: "JavaScript",
-				path: "/handbook/JavaScript/FrontEnd1",
+				// path: "/handbook/JavaScript/FrontEnd1",
 				children: [
 					{
 						title: "前端开发技巧(1)",
@@ -204,11 +204,15 @@ module.exports = {
 						title: "ESLint+Prettier",
 						path: "/handbook/JavaScript/ESLint",
 					},
+					{
+						title: "Jest",
+						path: "/handbook/JavaScript/Jest",
+					},
 				],
 			},
 			{
 				title: "CSS",
-				path: "/handbook/CSS/CSS1",
+				// path: "/handbook/CSS/CSS1",
 				children: [
 					{ title: "CSS Tips1", path: "/handbook/CSS/CSS1" },
 					{ title: "CSS Tips2", path: "/handbook/CSS/CSS2" },
@@ -238,7 +242,7 @@ module.exports = {
 			},
 			{
 				title: "Webpack",
-				path: "/handbook/Webpack/Basic",
+				// path: "/handbook/Webpack/Basic",
 				children: [
 					{
 						title: "Webpack基础知识",
@@ -256,7 +260,7 @@ module.exports = {
 			},
 			{
 				title: "开发技巧",
-				path: "/handbook/Skill/DevelopmentSkills",
+				// path: "/handbook/Skill/DevelopmentSkills",
 				children: [
 					{
 						title: "前端常用开发技巧",
@@ -275,8 +279,8 @@ module.exports = {
 						path: "/handbook/Skill/Python",
 					},
 					{
-						title: "Emoji表情",
-						path: "/handbook/Skill/Emoji",
+						title: "Shell笔记",
+						path: "/handbook/Skill/Shell",
 					},
 					{
 						title: "微前端",
@@ -295,14 +299,22 @@ module.exports = {
 						path: "/handbook/Skill/VSCode",
 					},
 					{
-						title: "问题记录",
+						title: "Bugs问题记录",
 						path: "/handbook/Skill/FixBugs",
+					},
+					{
+						title: "摄影笔记",
+						path: "/handbook/Skill/Photograph",
+					},
+					{
+						title: "Emoji表情",
+						path: "/handbook/Skill/Emoji",
 					},
 				],
 			},
 			{
 				title: "Angular",
-				path: "/handbook/Angular/Angular",
+				// path: "/handbook/Angular/Angular",
 				children: [
 					{
 						title: "Angular",
@@ -315,7 +327,7 @@ module.exports = {
 				],
 			},
 			{
-				title: "Backend",
+				title: "Backend（Java Based）",
 				children: [
 					{
 						title: "Learn Java",
@@ -332,6 +344,14 @@ module.exports = {
 					{
 						title: "Spring",
 						path: "/handbook/Java/Spring",
+					},
+					{
+						title: "MySQL笔记",
+						path: "/handbook/Java/SQL",
+					},
+					{
+						title: "Groovy笔记",
+						path: "/handbook/Java/Groovy",
 					},
 				],
 			},
@@ -356,7 +376,7 @@ module.exports = {
 			},
 			{
 				title: "计算机网络",
-				path: "/handbook/Network/Http",
+				// path: "/handbook/Network/Http",
 				children: [
 					{
 						title: "Http(s)协议相关知识",
@@ -401,11 +421,15 @@ module.exports = {
 						title: "Web安全相关知识点",
 						path: "/handbook/WebSecurity/WebSecurity",
 					},
+					{
+						title: "Spectre攻击",
+						path: "/handbook/WebSecurity/Spectre",
+					},
 				],
 			},
 			{
 				title: "Google Chrome V8",
-				path: "/handbook/Chrome/V8",
+				// path: "/handbook/Chrome/V8",
 				children: [
 					{
 						title: "GeekTime 图解 Google V8",
@@ -414,6 +438,10 @@ module.exports = {
 					{
 						title: "在浏览器中输入URL后发生了什么",
 						path: "/handbook/Chrome/Url",
+					},
+					{
+						title: "DevTools Tips",
+						path: "/handbook/Chrome/Tips",
 					},
 				],
 			},
@@ -439,8 +467,12 @@ module.exports = {
 				title: "文章诗句",
 				children: [
 					{
-						title: "记录一些文章诗句",
+						title: "记录一些文章诗句1",
 						path: "/handbook/Poem/Poem",
+					},
+					{
+						title: "记录一些文章诗句2",
+						path: "/handbook/Poem/Article",
 					},
 				],
 			},
@@ -496,7 +528,7 @@ module.exports = {
 		// 项目开始时间
 		// startYear: "2015",
 		// 腾讯公益
-		// noFoundPageByTencent: false,
+		noFoundPageByTencent: true,
 	},
 	// devServer: {
 	// 	proxy: {

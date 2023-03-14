@@ -58,7 +58,7 @@ CPU 执行了这个不应该被执行的命令后，CPU 认为它需要看一下
 
 #### 缓存推荐设置
 
-1. 为了防止中间层缓存，建议设置：Cache-Control: private
+1. 为了防止中间层缓存，建议设置：`Cache-Control: private`
 2. 建议设置适当的二级缓存 key：如果我们请求的响应是跟请求的 Cookie 相关的，建议设置：Vary: Cookie
 
 #### 禁用高分辨率计时器
