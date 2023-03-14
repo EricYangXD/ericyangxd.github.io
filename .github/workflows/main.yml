@@ -96,6 +96,7 @@ jobs:
           port: ${{ secrets.SSH_PORT_22 }}
           source: "docs/.vuepress/dist/*"
           target: "/home/blog/dist/"
+          strip_components: 3
 
       # 全流程结束
       - name: Done
