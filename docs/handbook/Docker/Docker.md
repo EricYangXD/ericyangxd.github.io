@@ -34,8 +34,8 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
    - 启动 docker：`sudo systemctl start docker`
    - 查看版本：`docker version`
    - 查看详细信息：`docker info`
-   - Centos7一键安装：`curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun`或`curl -sSL https://get.daocloud.io/docker | sh`
-   - 新主机上首次安装Docker Engine-Community之前，需要设置Docker仓库。此后可从仓库安装和更新Docker。
+   - Centos7 一键安装：`curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun`或`curl -sSL https://get.daocloud.io/docker | sh`
+   - 新主机上首次安装 Docker Engine-Community 之前，需要设置 Docker 仓库。此后可从仓库安装和更新 Docker。
      - `sudo yum install -y yum-utils \`
      - `device-mapper-persistent-data \`
      - `lvm2`
@@ -227,6 +227,11 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 10. 从容器上拷贝数据到主机上
 
 `docker cp 容器id:容器内路径 主机路径`
+
+11. 查看一个容器中 Linux 的版本
+
+- 1. `docker exec -it [containerId/containerName] /bin/sh`
+- 2. `cat /etc/*-release`
 
 ## Dockerfile 的指令
 

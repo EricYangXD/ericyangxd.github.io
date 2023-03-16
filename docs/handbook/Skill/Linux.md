@@ -2,6 +2,9 @@
 title: 记录一些Linux命令
 author: EricYangXD
 date: "2021-12-29"
+meta:
+  - name: keywords
+    content: linux,Linux,CentOS
 ---
 
 ## 打包/解压 & 加密打包/解密解压

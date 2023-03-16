@@ -96,7 +96,7 @@ jobs:
           port: ${{ secrets.SSH_PORT_22 }}
           source: "docs/.vuepress/dist/*"
           target: "/home/blog/dist/"
-          strip_components: 3
+          strip_components: 3 # 打包是以"docs/.vuepress/dist/*"整体打包的，解压的时候需要往上回退3层，才能解压到"/home/blog/dist"下面
 
       # 全流程结束
       - name: Done

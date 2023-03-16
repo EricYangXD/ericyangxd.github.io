@@ -2,6 +2,9 @@
 title: Nginx基础知识
 author: EricYangXD
 date: "2022-05-09"
+meta:
+  - name: keywords
+    content: nginx,Nginx,NGINX
 ---
 
 ## Nginx 是什么
@@ -174,10 +177,7 @@ tips test
 - 缺点：每次请求页面都要重新请求，我们还是希望有缓存的
 
 ```html
-<meta
-	http-equiv="Cache-Control"
-	content="no-cache, no-store, must-revalidate"
-/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Cache" content="no-cache" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -190,25 +190,21 @@ tips test
 
 ```html
 <link
-	rel="stylesheet"
-	type="text/css"
-	href="${pageContext.request.contextPath}/static/plugins/layui-v2.5.5/layui/css/layui.css?v=20200110052406"
-/>
+  rel="stylesheet"
+  type="text/css"
+  href="${pageContext.request.contextPath}/static/plugins/layui-v2.5.5/layui/css/layui.css?v=20200110052406" />
 <link
-	rel="stylesheet"
-	type="text/css"
-	href="${pageContext.request.contextPath}/static/css/style.css?v=20200110052406"
-/>
+  rel="stylesheet"
+  type="text/css"
+  href="${pageContext.request.contextPath}/static/css/style.css?v=20200110052406" />
 <link
-	rel="stylesheet"
-	type="text/css"
-	href="${pageContext.request.contextPath}/static/css/addStyle.css?v=20200110052406"
-/>
+  rel="stylesheet"
+  type="text/css"
+  href="${pageContext.request.contextPath}/static/css/addStyle.css?v=20200110052406" />
 <link
-	rel="stylesheet"
-	type="text/css"
-	href="${pageContext.request.contextPath}/static/css/template/addStyle.css?v=20200110052406"
-/>
+  rel="stylesheet"
+  type="text/css"
+  href="${pageContext.request.contextPath}/static/css/template/addStyle.css?v=20200110052406" />
 ```
 
 4. 修改 nginx 配置。（满足以下条件后有缓存可以修改 nginx 配置文件）背景：
@@ -273,3 +269,7 @@ server {
   }
 }
 ```
+
+## Nginx 日志
+
+Nginx 存储主要活动日志的目录可能位于 `/var/log/nginx/`或 `/usr/local/nginx/logs/` 这两个位置。
