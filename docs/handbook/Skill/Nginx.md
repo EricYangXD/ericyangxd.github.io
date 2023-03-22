@@ -37,7 +37,7 @@ Nginx 的服务管理思路延续了当时的流行做法，使用磁盘上的�
 
 ### 动静分离
 
-常用的 Web 服务器有：TomCat、Nginx。动静分离即把静态资源（如 html、css、图片等）放在一台服务器，把动态资源（后端服务等）放在另外的服务器。
+常用的 Web 服务器有：Tomcat、Nginx。动静分离即把静态资源（如 html、css、图片等）放在一台服务器，把动态资源（后端服务等）放在另外的服务器。
 
 ### 常用的命令
 
@@ -66,26 +66,26 @@ Nginx 的服务管理思路延续了当时的流行做法，使用磁盘上的�
 
 注意:
 
-- 如果 url 包含正则表达式，则不需要 ~ 作为开头表示
+- 如果 url 包含正则表达式，则不需要 `~` 作为开头表示
 - nginx 的匹配具有优先顺序，一旦匹配上就会立马退出，不再进行向下匹配
 
 location 的定义分为两种：
 
 - 前缀字符串（prefix string）
-- 正则表达式（regular expression），具体为前面带 ~\* 和 ~ 修饰符的
+- 正则表达式（regular expression），具体为前面带 `~*` 和 `~` 修饰符的
 
 而匹配 location 的顺序为：
 
 1. 检查使用前缀字符串的 locations，在使用前缀字符串的 locations 中选择最长匹配的，并将结果进行储存
-2. 如果符合带有 = 修饰符的 URI，则立刻停止匹配
-3. 如果符合带有 ^~ 修饰符的 URI，则也立刻停止匹配。
+2. 如果符合带有 `=` 修饰符的 URI，则立刻停止匹配
+3. 如果符合带有 `^~` 修饰符的 URI，则也立刻停止匹配。
 4. 然后按照定义文件的顺序，检查正则表达式，匹配到就停止
 5. 当正则表达式匹配不到的时候，使用之前储存的前缀字符串
 
 再总结一下就是：
 
 1. 在顺序上，前缀字符串顺序不重要，按照匹配长度来确定，正则表达式则按照定义顺序。
-2. 在优先级上，= 修饰符最高，^~ 次之，再者是正则，最后是前缀字符串匹配。
+2. 在优先级上，`=` 修饰符最高，`^~` 次之，再者是`正则`，最后是`前缀字符串`匹配。
 
 ### root 与 alias 的区别
 
@@ -273,3 +273,35 @@ server {
 ## Nginx 日志
 
 Nginx 存储主要活动日志的目录可能位于 `/var/log/nginx/`或 `/usr/local/nginx/logs/` 这两个位置。
+
+## CentOS设置Nginx开机启动
+
+1. 在系统服务目录里创建`nginx.service`文件，`vi /usr/lib/systemd/system/nginx.service`，内容如下：
+```sh
+[Unit]
+Description=The nginx HTTP and reverse proxy server
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+PIDFile=/run/nginx.pid
+# Nginx will fail to start if /run/nginx.pid already exists but has the wrong
+# SELinux context. This might happen when running `nginx -t` from the cmdline.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1268621
+ExecStartPre=/usr/bin/rm -f /run/nginx.pid
+ExecStartPre=/usr/sbin/nginx -t
+ExecStart=/usr/sbin/nginx
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/usr/sbin/nginx -s quit
+KillSignal=SIGQUIT
+TimeoutStopSec=5
+KillMode=mixed
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+2. 设置开机自启动: `systemctl enable nginx.service`
+3. 查看nginx状态: `systemctl status nginx.service`
+4. 杀死nginx重启nginx: `pkill -9 nginx`,`ps aux | grep nginx`,`systemctl start nginx`
