@@ -117,3 +117,9 @@ Chrome DevTools 提供了一个实验性的字体编辑器工具，可以用来�
 2. 点击右上角设置图标 -> 选中左侧 `Experiments` -> 勾选 `Enable the Full accessibility tree view in the Elements pane`；
 3. 重启浏览器的 DevTools；
 4. 在 Elements 面板中点击右上角的无障碍按钮，将元素视图模式切换为无障碍树视图。
+
+
+## Chrome保存密码漏洞
+
+![Chrome保存密码漏洞](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/WechatIMG389.jpeg)
+

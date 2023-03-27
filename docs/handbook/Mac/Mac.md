@@ -66,6 +66,36 @@ ls -la /dev/tty.usbserial*
 
 - 「系统偏好设置」-「键盘」-「快捷键」-「App 快捷键」-取消「显示帮助菜单」勾选
 
+## 不安全目录
+
+今天装完 node 以及 nvm、nrm 后发现打开命令工具或者执行 `source ~/.zshrc` 命令 时会出现下提醒，需要输入 y，这样太不方便了
+
+```sh
+zsh compinit: insecure directories, run compaudit for list.
+Ignore insecure directories and continue [y] or abort compinit [n]?
+```
+
+出现这个原因就是提示又不安全的目录，是否忽略。原因可能不较多，解决方法都一样:
+
+1. 执行: `compaudit`
+2. 得到，例如:
+
+```sh
+There are insecure directories:
+/usr/local/share/zsh/site-functions
+/usr/local/share/zsh
+```
+
+3. 执行以下语句给对应的目录赋权限即可:
+
+```sh
+cd /usr/local/share/zsh
+sudo chmod -R 755 ./site-functions
+
+cd ../
+sudo chmod -R 755 zsh
+```
+
 ## 取消 Chrome 自动升级
 
 ### 原理
@@ -186,7 +216,9 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 苹果 macOS Catalina 系统打开软件出现：无法打开“XXXX”，因为 Apple 无法检查其是否包含恶意软件。怎么解决?
 
-`sudo spctl --master-disable`
+先`sudo spctl --master-disable`
+
+然后`sudo xattr -r -d com.apple.quarantine ./路径/app名`
 
 ### m1 MacBook 安装 adb
 
@@ -202,7 +234,7 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 ### 给一个.sh 文件赋执行权限
 
-1. `xattr -d com.apple.quarantine ./路径/文件名`，去掉「Apple 隔离扩展属性」，查看该属性：`xattr -l ./路径/文件名`
+1. `sudo xattr -d com.apple.quarantine ./路径/文件名`，去掉「Apple 隔离扩展属性」，查看该属性：`xattr -l ./路径/文件名`
 2. `chmod 777 ./路径/文件名`
 
 ### 关闭 SIP（System Integrity Protection）

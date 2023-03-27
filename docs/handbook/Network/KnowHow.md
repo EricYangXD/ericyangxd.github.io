@@ -33,6 +33,13 @@ meta:
 
 ### 师夷长技以制夷
 
+#### 举例
+
+1. [HOTSPOT shield](https://www.hotspotshield.com/)
+2. [Hide.me](https://hide.me/)
+3. [Windscribe](https://windscribe.com/)
+4. [PrivadoVPN](https://privadovpn.com/)
+5. [ProtonVPN](https://protonvpn.com/)
 #### 常用协议
 
 - PPTP：点对点隧道协议。以 GRE 协议做点对点传输，并由 TCP 1723 端口来发起和管理 GRE，本身没有加密和身份验证功能，仅依靠点对点协议（即 PTP）的隧道传输通道实现安全功能，所以速度快，但是由于安全性能低，早已不建议使用。
@@ -52,6 +59,12 @@ meta:
 - 安全性： OpenVPN > L2TP > PPTP
 - 稳定性： OpenVPN > L2TP > PPTP
 - 网络适用性：OpenVPN > PPTP > L2TP
+
+#### Tools
+
+![SSR,V2Ray,Clash概览](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/WechatIMG330.png)
+
+- shadowrocket
 
 #### 小米路由器刷机救砖
 
@@ -293,3 +306,8 @@ Request timeout for icmp_seq 1
 8. 启动守护进程：`screen -S chatgpt`
 9. 运行：`go run main.go`
 10. 复制命令行输出的微信登录 URL 到浏览器中，使用准备当机器人的微信扫码登录（据说可能会被封号），然后就可以和这个微信号对话了。
+
+
+## 猜谜
+
+[NAZO](https://nazo.one-story.cn/nazo-1)

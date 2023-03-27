@@ -395,3 +395,152 @@ git config --global https.proxy http://127.0.0.1:port
     - 2. 在`.gitsubmodule` 文件中把其他不需要更新的模块先注释掉然后使用命令：`git submodule update --recusive`
 
 13. 把子模块添加到指定目录：在第一次拉取的时候使用这个命令`git add submodule -f xxxx.git [目标路径]`，一定要用-f，表示强制
+
+## 报奇怪的错误
+
+### known_hosts
+
+```sh
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the RSA key sent by the remote host is
+SHA256:uNiVztksCsDhcc0u9e8BujQXVUpKZIDTMczCvj3tD2s.
+Please contact your system administrator.
+Add correct host key in /Users/eric/.ssh/known_hosts to get rid of this message.
+Offending RSA key in /Users/eric/.ssh/known_hosts:1
+RSA host key for github.com has changed and you have requested strict checking.
+Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+```
+
+解决办法：去`~/.ssh`下面把`known_hosts`文件给删了，然后重新 pull/push 代码即可。
+
+### rebase 冲突解决
+
+```sh
+Git: warning: Pulling without specifying how to reconcile divergent branches is
+# 不建议在没有为偏离分支指定合并策略时执行pull 操作
+```
+
+设置为 rebase：`git config pull.rebase false`
+
+## GitHub Actions
+
+记录本 repo 的打包、同步码云以及推送到服务器的各个步骤，具体看注释。重点是使用的那几个别人发布的action，以及设置secrets。
+
+```yml
+# workflow name
+name: test-ci
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  # 任务jobID
+  build:
+   # 运行环境
+    runs-on: ubuntu-latest
+    steps:
+      # 使用别人的action:
+      # checkout@v3:拉代码
+      # setup-node@v3:设置特定nodejs版本
+      - uses: actions/checkout@v3
+        with:
+          submodules: true # 子模块也一并pull下来
+          fetch-depth: 0 # Fetch all history for .GitInfo and .Lastmod
+
+      # 设置nodejs版本
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # 安装依赖
+      - name: Install
+        run: npm install
+
+      # 更新browserslist
+      - name: Update Browsers List
+        run: npx browserslist@latest --update-db
+
+      # 构建打包
+      - name: Build
+        run: npm run docs:build
+
+      # 把一些其他文件也拷贝到dist文件夹下
+      # 重点是搞清楚当前的目录结构，然后就好操作了
+      # cp -r ../../../.github ./
+      - name: Copy demos/ and the other files to dist/
+        run: |
+          cd ./docs/.vuepress/dist
+          cp -r ../../../CNAME ./
+          cp -r ../../../demos ./
+
+      # 发布到gh-pages
+      - name: Deploy to GitHub Pages
+        uses: Cecilapp/GitHub-Pages-deploy@v3
+        env:
+          # 要自己在当前repo中设置，但是这个token需要先在user->settings里生成，同理，下面的各个secret都要提前设置好。具体可以谷歌
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        with:
+          email: xxx@gmail.com
+          build_dir: "docs/.vuepress/dist" # 打包生成产物的存放文件夹路径，optional
+          branch: gh-pages # 要部署的分支，optional
+          cname: domain.name # 生成CNAME文件，optional
+          jekyll: no # 是否使用的jekyll，optional
+          commit_message: "deploy gh-pages" # msg，optional
+
+      # 把代码同步到Gitee
+      - name: Sync to Gitee
+        uses: Yikun/hub-mirror-action@master
+        with:
+          src: "github/EricYangXD"
+          dst: "gitee/EricYangXD"
+          dst_key: ${{ secrets.xxx }}
+          dst_token: ${{ secrets.xxx }}
+          mappings: "ericyangxd.github.io=>my-vuepress-blog"
+          static_list: "ericyangxd.github.io"
+          force_update: true
+          debug: true
+
+      # 发布到云服务器上
+      # - name: Deploy to Oracle Cloud Server
+      #   # 因为构建之后，需要把代码上传到服务器上，所以需要连接到ssh，并且做一个拷贝操作
+      #   uses: cross-the-world/scp-pipeline@master
+      #   env:
+      #     WELCOME: "ssh scp ssh pipelines"
+      #     LASTSSH: "Doing something after copying"
+      #   with:
+      #     host: ${{ secrets.xxx }}
+      #     user: ${{ secrets.xxx }}
+      #     pass: ${{ secrets.xxx }}
+      #     port: ${{ secrets.xxx }}
+      #     connect_timeout: 15s
+      #     local: "./docs/.vuepress/dist/*"
+      #     remote: "/home/xxx/xxx/"
+
+      # 发布到云服务器上
+      - name: Deploy to Your Cloud Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.xxx }} # 注意，换成你自己的secrets
+          username: ${{ secrets.xxx }} # 注意，换成你自己的secrets
+          password: ${{ secrets.xxx }} # 注意，换成你自己的secrets
+          port: ${{ secrets.xxx }} # 注意，换成你自己的secrets
+          source: "docs/.vuepress/dist/*" # # 注意，换成你自己的生成文件路径，需要配合下面的strip_components
+          target: "/home/zzz/xxx/" # 注意，换成你自己的nginx或其他服务器配置的资源地址
+          strip_components: 3 # 打包是以"docs/.vuepress/dist/*"整体打包的，解压的时候需要往上回退3层，才能解压到"/home/zzz/xxx"下面
+
+      # 全流程结束
+      - name: Done
+        run: |
+          echo "Complete Successfully!"
+```

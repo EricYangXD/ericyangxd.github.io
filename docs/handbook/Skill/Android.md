@@ -53,3 +53,39 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 ## 红米手机
 
 进入工程模式：`*#*#6484#*#*`，用于调试屏幕等。
+
+## debug
+
+1. 查看 APP 的 SHA1、SHA256 和 MD5 值: `keytool -list -v -keystore C:/Users/uia68502/.android/debug.keystore -alias androiddebugkey password: android`
+
+2. APP name 以`app/build.gradle` 中的`applicationId`为准，`AndroidManifest.xml`为辅。
+3. `Error running second Activity: The activity must be exported or contain an intent-filter`编译能成功，但是在虚拟机或真机上面调试时，弹出这个错误，后来查了一下，要在 AndroidManifest.xml 中，把每个窗口都加上一句：`android:exported="true"`
+
+比如：
+
+```xml
+<activity android:name=".MainActivity"
+    android:exported="true">
+</activity>
+<activity android:name=".TextView_Paomadeng"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+</activity>
+```
+
+这样就可以调试成功了。
+
+4. MacOSX 修改 Android Studio 使用本地 gradle, `gradle-wrapper.properties: distributionUrl=file:/Users/eric/.gradle/wrapper/dists/gradle-5.6.4-all/ankdp27end7byghfw1q2sw75f/gradle-5.6.4-all.zip`
+
+## ijkplayer 编译 so 库
+
+[ijkplayer 编译 so 库](https://juejin.cn/post/6844903554084241415)
+
+
+## adb
+
+`D:\>adb pull /sdcard/AIUI/cfg/aiui.cfg aiui.cfg`

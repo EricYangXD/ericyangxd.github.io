@@ -18,217 +18,212 @@ const REJECTED = "rejected";
 
 // 新建 MyPromise 类
 class MyPromise {
-	constructor(executor) {
-		// executor 是一个执行器，进入会立即执行
-		// 并传入resolve和reject方法
-		try {
-			executor(this.resolve, this.reject);
-		} catch (error) {
-			this.reject(error);
-		}
-	}
+  constructor(executor) {
+    // executor 是一个执行器，进入会立即执行
+    // 并传入resolve和reject方法
+    try {
+      executor(this.resolve, this.reject);
+    } catch (error) {
+      this.reject(error);
+    }
+  }
 
-	// 储存状态的变量，初始值是 pending
-	status = PENDING;
-	// 成功之后的值
-	value = null;
-	// 失败之后的原因
-	reason = null;
+  // 储存状态的变量，初始值是 pending
+  status = PENDING;
+  // 成功之后的值
+  value = null;
+  // 失败之后的原因
+  reason = null;
 
-	// 存储成功回调函数
-	onFulfilledCallbacks = [];
-	// 存储失败回调函数
-	onRejectedCallbacks = [];
+  // 存储成功回调函数
+  onFulfilledCallbacks = [];
+  // 存储失败回调函数
+  onRejectedCallbacks = [];
 
-	// 更改成功后的状态
-	resolve = (value) => {
-		// 只有状态是等待，才执行状态修改
-		if (this.status === PENDING) {
-			// 状态修改为成功
-			this.status = FULFILLED;
-			// 保存成功之后的值
-			this.value = value;
-			// resolve里面将所有成功的回调拿出来执行
-			while (this.onFulfilledCallbacks.length) {
-				// Array.shift() 取出数组第一个元素，然后（）调用，shift不是纯函数，取出后，数组将失去该元素，直到数组为空
-				this.onFulfilledCallbacks.shift()(value);
-			}
-		}
-	};
+  // 更改成功后的状态
+  resolve = (value) => {
+    // 只有状态是等待，才执行状态修改
+    if (this.status === PENDING) {
+      // 状态修改为成功
+      this.status = FULFILLED;
+      // 保存成功之后的值
+      this.value = value;
+      // resolve里面将所有成功的回调拿出来执行
+      while (this.onFulfilledCallbacks.length) {
+        // Array.shift() 取出数组第一个元素，然后（）调用，shift不是纯函数，取出后，数组将失去该元素，直到数组为空
+        this.onFulfilledCallbacks.shift()(value);
+      }
+    }
+  };
 
-	// 更改失败后的状态
-	reject = (reason) => {
-		// 只有状态是等待，才执行状态修改
-		if (this.status === PENDING) {
-			// 状态成功为失败
-			this.status = REJECTED;
-			// 保存失败后的原因
-			this.reason = reason;
-			// resolve里面将所有失败的回调拿出来执行
-			while (this.onRejectedCallbacks.length) {
-				this.onRejectedCallbacks.shift()(reason);
-			}
-		}
-	};
+  // 更改失败后的状态
+  reject = (reason) => {
+    // 只有状态是等待，才执行状态修改
+    if (this.status === PENDING) {
+      // 状态成功为失败
+      this.status = REJECTED;
+      // 保存失败后的原因
+      this.reason = reason;
+      // resolve里面将所有失败的回调拿出来执行
+      while (this.onRejectedCallbacks.length) {
+        this.onRejectedCallbacks.shift()(reason);
+      }
+    }
+  };
 
-	then(onFulfilled, onRejected) {
-		const realOnFulfilled =
-			typeof onFulfilled === "function" ? onFulfilled : (value) => value;
-		const realOnRejected =
-			typeof onRejected === "function"
-				? onRejected
-				: (reason) => {
-						throw reason;
-				  };
+  then(onFulfilled, onRejected) {
+    const realOnFulfilled = typeof onFulfilled === "function" ? onFulfilled : (value) => value;
+    const realOnRejected =
+      typeof onRejected === "function"
+        ? onRejected
+        : (reason) => {
+            throw reason;
+          };
 
-		// 为了链式调用这里直接创建一个 MyPromise，并在后面 return 出去
-		const promise2 = new MyPromise((resolve, reject) => {
-			const fulfilledMicrotask = () => {
-				// 创建一个微任务等待 promise2 完成初始化
-				queueMicrotask(() => {
-					try {
-						// 获取成功回调函数的执行结果
-						const x = realOnFulfilled(this.value);
-						// 传入 resolvePromise 集中处理
-						resolvePromise(promise2, x, resolve, reject);
-					} catch (error) {
-						reject(error);
-					}
-				});
-			};
+    // 为了链式调用这里直接创建一个 MyPromise，并在后面 return 出去
+    const promise2 = new MyPromise((resolve, reject) => {
+      const fulfilledMicrotask = () => {
+        // 创建一个微任务等待 promise2 完成初始化
+        queueMicrotask(() => {
+          try {
+            // 获取成功回调函数的执行结果
+            const x = realOnFulfilled(this.value);
+            // 传入 resolvePromise 集中处理
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        });
+      };
 
-			const rejectedMicrotask = () => {
-				// 创建一个微任务等待 promise2 完成初始化
-				queueMicrotask(() => {
-					try {
-						// 调用失败回调，并且把原因返回
-						const x = realOnRejected(this.reason);
-						// 传入 resolvePromise 集中处理
-						resolvePromise(promise2, x, resolve, reject);
-					} catch (error) {
-						reject(error);
-					}
-				});
-			};
-			// 判断状态
-			if (this.status === FULFILLED) {
-				fulfilledMicrotask();
-			} else if (this.status === REJECTED) {
-				rejectedMicrotask();
-			} else if (this.status === PENDING) {
-				// 等待
-				// 因为不知道后面状态的变化情况，所以将成功回调和失败回调存储起来
-				// 等到执行成功失败函数的时候再传递
-				this.onFulfilledCallbacks.push(fulfilledMicrotask);
-				this.onRejectedCallbacks.push(rejectedMicrotask);
-			}
-		});
+      const rejectedMicrotask = () => {
+        // 创建一个微任务等待 promise2 完成初始化
+        queueMicrotask(() => {
+          try {
+            // 调用失败回调，并且把原因返回
+            const x = realOnRejected(this.reason);
+            // 传入 resolvePromise 集中处理
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        });
+      };
+      // 判断状态
+      if (this.status === FULFILLED) {
+        fulfilledMicrotask();
+      } else if (this.status === REJECTED) {
+        rejectedMicrotask();
+      } else if (this.status === PENDING) {
+        // 等待
+        // 因为不知道后面状态的变化情况，所以将成功回调和失败回调存储起来
+        // 等到执行成功失败函数的时候再传递
+        this.onFulfilledCallbacks.push(fulfilledMicrotask);
+        this.onRejectedCallbacks.push(rejectedMicrotask);
+      }
+    });
 
-		return promise2;
-	}
+    return promise2;
+  }
 
-	// resolve 静态方法
-	static resolve(parameter) {
-		// 如果传入 MyPromise 就直接返回
-		if (parameter instanceof MyPromise) {
-			return parameter;
-		}
+  // resolve 静态方法
+  static resolve(parameter) {
+    // 如果传入 MyPromise 就直接返回
+    if (parameter instanceof MyPromise) {
+      return parameter;
+    }
 
-		// 转成常规方式
-		return new MyPromise((resolve) => {
-			resolve(parameter);
-		});
-	}
+    // 转成常规方式
+    return new MyPromise((resolve) => {
+      resolve(parameter);
+    });
+  }
 
-	// reject 静态方法
-	static reject(reason) {
-		return new MyPromise((resolve, reject) => {
-			reject(reason);
-		});
-	}
+  // reject 静态方法
+  static reject(reason) {
+    return new MyPromise((resolve, reject) => {
+      reject(reason);
+    });
+  }
 }
 // 不符合规范
 function resolvePromise(promise2, x, resolve, reject) {
-	// 如果相等了，说明return的是自己，抛出类型错误并返回
-	if (promise2 === x) {
-		return reject(
-			new TypeError("Chaining cycle detected for promise #<Promise>")
-		);
-	}
-	// 判断x是不是 MyPromise 实例对象
-	if (x instanceof MyPromise) {
-		// 执行 x，调用 then 方法，目的是将其状态变为 fulfilled 或者 rejected
-		// x.then(value => resolve(value), reason => reject(reason))
-		// 简化之后
-		x.then(resolve, reject);
-	} else {
-		// 普通值
-		resolve(x);
-	}
+  // 如果相等了，说明return的是自己，抛出类型错误并返回
+  if (promise2 === x) {
+    return reject(new TypeError("Chaining cycle detected for promise #<Promise>"));
+  }
+  // 判断x是不是 MyPromise 实例对象
+  if (x instanceof MyPromise) {
+    // 执行 x，调用 then 方法，目的是将其状态变为 fulfilled 或者 rejected
+    // x.then(value => resolve(value), reason => reject(reason))
+    // 简化之后
+    x.then(resolve, reject);
+  } else {
+    // 普通值
+    resolve(x);
+  }
 }
 
 // 符合规范
 function resolvePromise(promise, x, resolve, reject) {
-	// 如果相等了，说明return的是自己，抛出类型错误并返回
-	if (promise === x) {
-		return reject(
-			new TypeError("The promise and the return value are the same")
-		);
-	}
+  // 如果相等了，说明return的是自己，抛出类型错误并返回
+  if (promise === x) {
+    return reject(new TypeError("The promise and the return value are the same"));
+  }
 
-	if (typeof x === "object" || typeof x === "function") {
-		// x 为 null 直接返回，走后面的逻辑会报错
-		if (x === null) {
-			return resolve(x);
-		}
+  if (typeof x === "object" || typeof x === "function") {
+    // x 为 null 直接返回，走后面的逻辑会报错
+    if (x === null) {
+      return resolve(x);
+    }
 
-		let then;
-		try {
-			// 把 x.then 赋值给 then
-			then = x.then;
-		} catch (error) {
-			// 如果取 x.then 的值时抛出错误 error ，则以 error 为据因拒绝 promise
-			return reject(error);
-		}
+    let then;
+    try {
+      // 把 x.then 赋值给 then
+      then = x.then;
+    } catch (error) {
+      // 如果取 x.then 的值时抛出错误 error ，则以 error 为据因拒绝 promise
+      return reject(error);
+    }
 
-		// 如果 then 是函数
-		if (typeof then === "function") {
-			let called = false;
-			try {
-				then.call(
-					x, // this 指向 x
-					// 如果 resolvePromise 以值 y 为参数被调用，则运行 [[Resolve]](promise, y)
-					(y) => {
-						// 如果 resolvePromise 和 rejectPromise 均被调用，
-						// 或者被同一参数调用了多次，则优先采用首次调用并忽略剩下的调用
-						// 实现这条需要前面加一个变量 called
-						if (called) return;
-						called = true;
-						resolvePromise(promise, y, resolve, reject);
-					},
-					// 如果 rejectPromise 以据因 r 为参数被调用，则以据因 r 拒绝 promise
-					(r) => {
-						if (called) return;
-						called = true;
-						reject(r);
-					}
-				);
-			} catch (error) {
-				// 如果调用 then 方法抛出了异常 error：
-				// 如果 resolvePromise 或 rejectPromise 已经被调用，直接返回
-				if (called) return;
+    // 如果 then 是函数
+    if (typeof then === "function") {
+      let called = false;
+      try {
+        then.call(
+          x, // this 指向 x
+          // 如果 resolvePromise 以值 y 为参数被调用，则运行 [[Resolve]](promise, y)
+          (y) => {
+            // 如果 resolvePromise 和 rejectPromise 均被调用，
+            // 或者被同一参数调用了多次，则优先采用首次调用并忽略剩下的调用
+            // 实现这条需要前面加一个变量 called
+            if (called) return;
+            called = true;
+            resolvePromise(promise, y, resolve, reject);
+          },
+          // 如果 rejectPromise 以据因 r 为参数被调用，则以据因 r 拒绝 promise
+          (r) => {
+            if (called) return;
+            called = true;
+            reject(r);
+          }
+        );
+      } catch (error) {
+        // 如果调用 then 方法抛出了异常 error：
+        // 如果 resolvePromise 或 rejectPromise 已经被调用，直接返回
+        if (called) return;
 
-				// 否则以 error 为据因拒绝 promise
-				reject(error);
-			}
-		} else {
-			// 如果 then 不是函数，以 x 为参数执行 promise
-			resolve(x);
-		}
-	} else {
-		// 如果 x 不为对象或者函数，以 x 为参数执行 promise
-		resolve(x);
-	}
+        // 否则以 error 为据因拒绝 promise
+        reject(error);
+      }
+    } else {
+      // 如果 then 不是函数，以 x 为参数执行 promise
+      resolve(x);
+    }
+  } else {
+    // 如果 x 不为对象或者函数，以 x 为参数执行 promise
+    resolve(x);
+  }
 }
 
 module.exports = MyPromise;
@@ -262,47 +257,47 @@ module.exports = MyPromise;
 
 ```js
 class Schedule {
-	constructor(maxNum) {
-		this.list = [];
-		this.maxNum = maxNum;
-		this.workingNum = 0;
-	}
+  constructor(maxNum) {
+    this.list = [];
+    this.maxNum = maxNum;
+    this.workingNum = 0;
+  }
 
-	add(promiseCreator) {
-		this.list.push(promiseCreator);
-	}
+  add(promiseCreator) {
+    this.list.push(promiseCreator);
+  }
 
-	start() {
-		for (let index = 0; index < this.maxNum; index++) {
-			this.doNext();
-		}
-	}
+  start() {
+    for (let index = 0; index < this.maxNum; index++) {
+      this.doNext();
+    }
+  }
 
-	doNext() {
-		if (this.list.length && this.workingNum < this.maxNum) {
-			this.workingNum++;
-			const promise = this.list.shift();
-			promise().then(() => {
-				this.workingNum--;
-				this.doNext();
-			});
-		}
-	}
+  doNext() {
+    if (this.list.length && this.workingNum < this.maxNum) {
+      this.workingNum++;
+      const promise = this.list.shift();
+      promise().then(() => {
+        this.workingNum--;
+        this.doNext();
+      });
+    }
+  }
 }
 
 const timeout = (time) =>
-	new Promise((resolve) => {
-		setTimeout(resolve, time);
-	});
+  new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
 
 const schedule = new Schedule(2);
 
 const addTask = (time, order) => {
-	schedule.add(() =>
-		timeout(time).then(() => {
-			console.log(order);
-		})
-	);
+  schedule.add(() =>
+    timeout(time).then(() => {
+      console.log(order);
+    })
+  );
 };
 
 addTask(1000, 1);
@@ -315,56 +310,56 @@ schedule.start();
 
 ```js
 async function asyncPool(poolLimit, array, iteratorFn) {
-	const ret = []; // 存储所有的异步任务
-	const executing = []; // 存储正在执行的异步任务
-	for (const item of array) {
-		// 调用iteratorFn函数创建异步任务
-		const p = Promise.resolve().then(() => iteratorFn(item, array));
-		ret.push(p); // 保存新的异步任务
+  const ret = []; // 存储所有的异步任务
+  const executing = []; // 存储正在执行的异步任务
+  for (const item of array) {
+    // 调用iteratorFn函数创建异步任务
+    const p = Promise.resolve().then(() => iteratorFn(item, array));
+    ret.push(p); // 保存新的异步任务
 
-		// 当poolLimit值小于或等于总任务个数时，进行并发控制
-		if (poolLimit <= array.length) {
-			// 当任务完成后，从正在执行的任务数组中移除已完成的任务
-			const e = p.then(() => executing.splice(executing.indexOf(e), 1));
-			executing.push(e); // 保存正在执行的异步任务
-			if (executing.length >= poolLimit) {
-				await Promise.race(executing); // 等待较快的任务执行完成
-			}
-		}
-	}
-	return Promise.all(ret);
+    // 当poolLimit值小于或等于总任务个数时，进行并发控制
+    if (poolLimit <= array.length) {
+      // 当任务完成后，从正在执行的任务数组中移除已完成的任务
+      const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+      executing.push(e); // 保存正在执行的异步任务
+      if (executing.length >= poolLimit) {
+        await Promise.race(executing); // 等待较快的任务执行完成
+      }
+    }
+  }
+  return Promise.all(ret);
 }
 ```
 
 ```js
 function asyncPool(poolLimit, array, iteratorFn) {
-	let i = 0;
-	const ret = []; // 存储所有的异步任务
-	const executing = []; // 存储正在执行的异步任务
-	const enqueue = function () {
-		if (i === array.length) {
-			return Promise.resolve();
-		}
-		const item = array[i++]; // 获取新的任务项
-		const p = Promise.resolve().then(() => iteratorFn(item, array));
-		ret.push(p);
+  let i = 0;
+  const ret = []; // 存储所有的异步任务
+  const executing = []; // 存储正在执行的异步任务
+  const enqueue = function () {
+    if (i === array.length) {
+      return Promise.resolve();
+    }
+    const item = array[i++]; // 获取新的任务项
+    const p = Promise.resolve().then(() => iteratorFn(item, array));
+    ret.push(p);
 
-		let r = Promise.resolve();
+    let r = Promise.resolve();
 
-		// 当poolLimit值小于或等于总任务个数时，进行并发控制
-		if (poolLimit <= array.length) {
-			// 当任务完成后，从正在执行的任务数组中移除已完成的任务
-			const e = p.then(() => executing.splice(executing.indexOf(e), 1));
-			executing.push(e);
-			if (executing.length >= poolLimit) {
-				r = Promise.race(executing);
-			}
-		}
+    // 当poolLimit值小于或等于总任务个数时，进行并发控制
+    if (poolLimit <= array.length) {
+      // 当任务完成后，从正在执行的任务数组中移除已完成的任务
+      const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+      executing.push(e);
+      if (executing.length >= poolLimit) {
+        r = Promise.race(executing);
+      }
+    }
 
-		// 正在执行任务列表 中较快的任务执行完成之后，才会从array数组中获取新的待办任务
-		return r.then(() => enqueue());
-	};
-	return enqueue().then(() => Promise.all(ret));
+    // 正在执行任务列表 中较快的任务执行完成之后，才会从array数组中获取新的待办任务
+    return r.then(() => enqueue());
+  };
+  return enqueue().then(() => Promise.all(ret));
 }
 ```
 
@@ -450,48 +445,48 @@ const http = require("http");
 const fork = require("child_process").fork;
 
 const server = http.createServer((req, res) => {
-	if (req.url === "/xxx") {
-		console.log(process.pid);
+  if (req.url === "/xxx") {
+    console.log(process.pid);
 
-		// 开启子进程
-		const computeProcess = fork("./compute.js");
-		computeProcess.send("start");
-		computeProcess.on("message", (data) => {
-			console.log(data);
-			res.end("compute = " + data);
-		});
-		computeProcess.on("close", () => {
-			console.log("close");
-			computeProcess.kill();
-			res.end("error");
-		});
-		// res.end(
-		// 	JSON.stringify({
-		// 		code: 1,
-		// 		data: { msg: "hello" },
-		// 		message: "success",
-		// 		success: true,
-		// 	})
-		// );
-	}
+    // 开启子进程
+    const computeProcess = fork("./compute.js");
+    computeProcess.send("start");
+    computeProcess.on("message", (data) => {
+      console.log(data);
+      res.end("compute = " + data);
+    });
+    computeProcess.on("close", () => {
+      console.log("close");
+      computeProcess.kill();
+      res.end("error");
+    });
+    // res.end(
+    // 	JSON.stringify({
+    // 		code: 1,
+    // 		data: { msg: "hello" },
+    // 		message: "success",
+    // 		success: true,
+    // 	})
+    // );
+  }
 });
 
 server.listen(3000, () => {
-	console.log("listen 3000");
+  console.log("listen 3000");
 });
 
 // compute.js
 function compute() {
-	// ...
+  // ...
 }
 
 process.on("message", (data) => {
-	console.log(process.pid);
-	console.log(data);
+  console.log(process.pid);
+  console.log(data);
 
-	const res = compute();
-	// 发送消息给主进程
-	process.send(sum);
+  const res = compute();
+  // 发送消息给主进程
+  process.send(sum);
 });
 ```
 
@@ -505,20 +500,20 @@ const cluster = require("cluster");
 const cpuCoreLength = require("os").cpus().length;
 
 if (cluster.isMaster) {
-	for (let i = 0; i < cpuCoreLength; i++) {
-		cluster.fork(); // 开启子进程
-	}
-	cluster.on("exit", (worker) => {
-		console.log("子进程exit");
-		cluster.fork(); // 进程守护，工作中使用pm2
-	});
+  for (let i = 0; i < cpuCoreLength; i++) {
+    cluster.fork(); // 开启子进程
+  }
+  cluster.on("exit", (worker) => {
+    console.log("子进程exit");
+    cluster.fork(); // 进程守护，工作中使用pm2
+  });
 } else {
-	const server = http.createServer((req, res) => {
-		res.writeHead(200);
-		res.end("done");
-	});
-	// 多个子进程会共享一个TCP链接，提供一份网络服务
-	server.listen(3000);
+  const server = http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end("done");
+  });
+  // 多个子进程会共享一个TCP链接，提供一份网络服务
+  server.listen(3000);
 }
 ```
 
@@ -529,6 +524,58 @@ if (cluster.isMaster) {
 1. requestAnimationFrame：每次渲染完都会执行，高优先级
 2. requestIdleCallback：浏览器空闲的时候才执行，执行时间最长不超过某个阈值，以免影响后续渲染啥的，低优先级
 3. 优先级：setTimeout > requestAnimationFrame > requestIdleCallback
+
+### requestAnimationFrame 比起 setTimeout、setInterval 的优势主要有两点：
+
+1. requestAnimationFrame 会把每一帧中的所有 DOM 操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒 60 帧。
+
+2. 在隐藏或不可见的元素中，requestAnimationFrame 将不会进行重绘或回流，这当然就意味着更少的的 cpu，gpu 和内存使用量。
+
+像 setTimeout、setInterval 一样，requestAnimationFrame 是一个全局函数。调用 requestAnimationFrame 后，它会要求浏览器根据自己的频率进行一次重绘，它接收一个回调函数作为参数，在即将开始的浏览器重绘时，会调用这个函数，并会给这个函数传入调用回调函数时的时间作为参数。由于 requestAnimationFrame 的功效只是一次性的，所以若想达到动画效果，则必须连续不断的调用 requestAnimationFrame，就像我们使用 setTimeout 来实现动画所做的那样。
+
+requestAnimationFrame 函数会返回一个资源标识符，可以把它作为参数传入 cancelAnimationFrame 函数来取消 requestAnimationFrame 的回调。怎么样，是不是也跟 setTimeout 的 clearTimeout 很相似啊。
+
+所以，可以这么说，requestAnimationFrame 就是一个性能优化版、专为动画量身打造的 setTimeout，不同的是 requestAnimationFrame 不是自己指定回调函数运行的时间，而是跟着浏览器内建的刷新频率来执行回调，这当然就能达到浏览器所能实现动画的最佳效果了。
+
+使用 setTimeout 模拟：
+
+```js
+window.requestAnimFrame = (function () {
+  return (
+    window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function (/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
+      return window.setTimeout(callback, 1000 / 60);
+    }
+  );
+})();
+```
+
+或：
+
+```js
+window.requestAnimFrame = (function () {
+  return (
+    window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function (callback) {
+      window.setTimeout(callback, 1000 / 60);
+    }
+  );
+})();
+
+// 使用
+(function animate() {
+  requestAnimationFrame(animate);
+  //动画
+})();
+```
 
 ### JS 异步解决方案的发展历程以及优缺点
 
@@ -563,8 +610,8 @@ async、await 是异步的终极解决方案
 ```js
 let a = 0;
 let b = async () => {
-	a = a + (await 10);
-	console.log("2", a); // -> '2' 10
+  a = a + (await 10);
+  console.log("2", a); // -> '2' 10
 };
 b();
 a++;
@@ -576,14 +623,14 @@ console.log("1", a); // -> '1' 1
 ```javascript
 var a = 0;
 var b = () => {
-	var temp = a; // 这时候会把temp=0存在调用栈里
-	Promise.resolve(10)
-		.then((r) => {
-			a = temp + r;
-		})
-		.then(() => {
-			console.log("2", a);
-		});
+  var temp = a; // 这时候会把temp=0存在调用栈里
+  Promise.resolve(10)
+    .then((r) => {
+      a = temp + r;
+    })
+    .then(() => {
+      console.log("2", a);
+    });
 };
 b();
 a++; // 同步代码，这时候a还是0
@@ -594,11 +641,11 @@ console.log("1", a); // 同步代码，这时候a变成1
 
 ```javascript
 async function test() {
-	// 以下代码没有依赖性的话，完全可以使用 Promise.all 的方式
-	// 如果有依赖性的话，其实就是解决回调地狱的例子了
-	await fetch("XXX1");
-	await fetch("XXX2");
-	await fetch("XXX3");
+  // 以下代码没有依赖性的话，完全可以使用 Promise.all 的方式
+  // 如果有依赖性的话，其实就是解决回调地狱的例子了
+  await fetch("XXX1");
+  await fetch("XXX2");
+  await fetch("XXX3");
 }
 ```
 
@@ -609,14 +656,14 @@ async function test() {
 
 ```javascript
 async function test() {
-	// 这样不会阻塞性能
-	let a = fetch("XXX1");
-	let b = fetch("XXX2");
-	let c = fetch("XXX3");
-	let aa = await a;
-	let bb = await b;
-	let cc = await c;
-	console.log(aa, bb, cc);
+  // 这样不会阻塞性能
+  let a = fetch("XXX1");
+  let b = fetch("XXX2");
+  let c = fetch("XXX3");
+  let aa = await a;
+  let bb = await b;
+  let cc = await c;
+  console.log(aa, bb, cc);
 }
 ```
 
@@ -628,14 +675,14 @@ Promise 构造函数是同步执行，而`.then`、`.catch` 等都是异步（�
 
 ```javascript
 Promise.prototype.finally = function (callback) {
-	let P = this.constructor;
-	return this.then(
-		(value) => P.resolve(callback()).then(() => value),
-		(reason) =>
-			P.resolve(callback()).then(() => {
-				throw reason;
-			})
-	);
+  let P = this.constructor;
+  return this.then(
+    (value) => P.resolve(callback()).then(() => value),
+    (reason) =>
+      P.resolve(callback()).then(() => {
+        throw reason;
+      })
+  );
 };
 ```
 
@@ -653,36 +700,36 @@ Promise.prototype.finally = function (callback) {
 
 ```js
 function promiseAll(promises) {
-	return new Promise(function (resolve, reject) {
-		if (!Array.isArray(promises)) {
-			return reject(new TypeError("argument must be an array!"));
-		}
-		var countNum = 0;
-		var promiseNum = promises.length;
-		var resolvedvalue = new Array(promiseNum);
-		for (let i = 0; i < promiseNum; i++) {
-			(function (i) {
-				Promise.resolve(promises[i]).then(
-					function (value) {
-						countNum++;
-						resolvedvalue[i] = value;
-						if (countNum === promiseNum) {
-							return resolve(resolvedvalue);
-						}
-					},
-					function (reason) {
-						return reject(reason);
-					}
-				);
-			})(i);
-		}
-	});
+  return new Promise(function (resolve, reject) {
+    if (!Array.isArray(promises)) {
+      return reject(new TypeError("argument must be an array!"));
+    }
+    var countNum = 0;
+    var promiseNum = promises.length;
+    var resolvedvalue = new Array(promiseNum);
+    for (let i = 0; i < promiseNum; i++) {
+      (function (i) {
+        Promise.resolve(promises[i]).then(
+          function (value) {
+            countNum++;
+            resolvedvalue[i] = value;
+            if (countNum === promiseNum) {
+              return resolve(resolvedvalue);
+            }
+          },
+          function (reason) {
+            return reject(reason);
+          }
+        );
+      })(i);
+    }
+  });
 }
 var p1 = Promise.resolve(1),
-	p2 = Promise.resolve(2),
-	p3 = Promise.resolve(3);
+  p2 = Promise.resolve(2),
+  p3 = Promise.resolve(3);
 promiseAll([p1, p2, p3]).then(function (value) {
-	console.log(value);
+  console.log(value);
 });
 ```
 
@@ -692,11 +739,11 @@ promiseAll([p1, p2, p3]).then(function (value) {
 
 ```js
 const _race = (ps) => {
-	return new Promise((resolve, reject) => {
-		ps.forEach((item) => {
-			Promise.resolve(item).then(resolve, reject);
-		});
-	});
+  return new Promise((resolve, reject) => {
+    ps.forEach((item) => {
+      Promise.resolve(item).then(resolve, reject);
+    });
+  });
 };
 ```
 
@@ -707,35 +754,35 @@ const _race = (ps) => {
 ```js
 // any：一个成功就成功，全部失败才失败
 function any(promises) {
-	const rejectedArr = []; // 记录失败的结果
-	let rejectedTimes = 0; // 记录失败的次数
-	return new Promise((resolve, reject) => {
-		if (promises == null || promises.length == 0) {
-			reject("无效的 any");
-		}
-		for (let i = 0; i < promises.length; i++) {
-			let p = promises[i];
-			// 处理 promise
-			if (p && typeof p.then === "function") {
-				p.then(
-					(data) => {
-						resolve(data); // 使用最先成功的结果
-					},
-					(err) => {
-						// 如果失败了，保存错误信息；当全失败时，any 才失败
-						rejectedArr[i] = err;
-						rejectedTimes++;
-						if (rejectedTimes === promises.length) {
-							reject(rejectedArr);
-						}
-					}
-				);
-			} else {
-				// 处理普通值，直接成功
-				resolve(p);
-			}
-		}
-	});
+  const rejectedArr = []; // 记录失败的结果
+  let rejectedTimes = 0; // 记录失败的次数
+  return new Promise((resolve, reject) => {
+    if (promises == null || promises.length == 0) {
+      reject("无效的 any");
+    }
+    for (let i = 0; i < promises.length; i++) {
+      let p = promises[i];
+      // 处理 promise
+      if (p && typeof p.then === "function") {
+        p.then(
+          (data) => {
+            resolve(data); // 使用最先成功的结果
+          },
+          (err) => {
+            // 如果失败了，保存错误信息；当全失败时，any 才失败
+            rejectedArr[i] = err;
+            rejectedTimes++;
+            if (rejectedTimes === promises.length) {
+              reject(rejectedArr);
+            }
+          }
+        );
+      } else {
+        // 处理普通值，直接成功
+        resolve(p);
+      }
+    }
+  });
 }
 ```
 
@@ -746,39 +793,39 @@ function any(promises) {
 ```js
 // allSettled：全部执行完成后，返回全部执行结果（成功+失败）
 function allSettled(promises) {
-	if (!Array.isArray(promises)) {
-		throw new TypeError("need an array");
-		return;
-	}
-	const result = new Array(promises.length); // 记录执行的结果：用于返回直接结果
-	let times = 0; // 记录执行完成的次数：判断是否完成
-	return new Promise((resolve, reject) => {
-		for (let i = 0; i < promises.length; i++) {
-			let p = promises[i];
-			if (p && typeof p.then === "function") {
-				p.then((data) => {
-					result[i] = { status: "fulfilled", value: data };
-					times++;
-					if (times === promises.length) {
-						resolve(result);
-					}
-				}).catch((err) => {
-					result[i] = { status: "rejected", reason: err };
-					times++;
-					if (times === promises.length) {
-						resolve(result);
-					}
-				});
-			} else {
-				// 普通值，加入
-				result[i] = { status: "fulfilled", value: p };
-				times++;
-				if (times === promises.length) {
-					resolve(result);
-				}
-			}
-		}
-	});
+  if (!Array.isArray(promises)) {
+    throw new TypeError("need an array");
+    return;
+  }
+  const result = new Array(promises.length); // 记录执行的结果：用于返回直接结果
+  let times = 0; // 记录执行完成的次数：判断是否完成
+  return new Promise((resolve, reject) => {
+    for (let i = 0; i < promises.length; i++) {
+      let p = promises[i];
+      if (p && typeof p.then === "function") {
+        p.then((data) => {
+          result[i] = { status: "fulfilled", value: data };
+          times++;
+          if (times === promises.length) {
+            resolve(result);
+          }
+        }).catch((err) => {
+          result[i] = { status: "rejected", reason: err };
+          times++;
+          if (times === promises.length) {
+            resolve(result);
+          }
+        });
+      } else {
+        // 普通值，加入
+        result[i] = { status: "fulfilled", value: p };
+        times++;
+        if (times === promises.length) {
+          resolve(result);
+        }
+      }
+    }
+  });
 }
 ```
 
@@ -790,24 +837,24 @@ function allSettled(promises) {
 
 ```js
 function getPromise(callback) {
-	let _resolve, _reject;
-	const promise = new Promise((res, rej) => {
-		_resolve = res;
-		_reject = rej;
-		callback && callback(res, rej);
-	});
-	return {
-		promise,
-		abort: () => {
-			_reject({ message: "promise aborted" });
-		},
-	};
+  let _resolve, _reject;
+  const promise = new Promise((res, rej) => {
+    _resolve = res;
+    _reject = rej;
+    callback && callback(res, rej);
+  });
+  return {
+    promise,
+    abort: () => {
+      _reject({ message: "promise aborted" });
+    },
+  };
 }
 
 function runCallback(resolve, reject) {
-	setTimeout(() => {
-		resolve(12345);
-	}, 5000);
+  setTimeout(() => {
+    resolve(12345);
+  }, 5000);
 }
 const { promise, abort } = getPromise(runCallback);
 promise.then(/*...*/).catch(/*...*/);
@@ -820,17 +867,17 @@ abort();
 
 ```js
 function getPromiseWithAbort(p) {
-	let obj = {};
-	let p1 = new Promise((resolve, reject) => {
-		obj.abort = reject;
-	});
-	obj.promise = Promise.race([p, p1]);
-	return obj;
+  let obj = {};
+  let p1 = new Promise((resolve, reject) => {
+    obj.abort = reject;
+  });
+  obj.promise = Promise.race([p, p1]);
+  return obj;
 }
 const promise = new Promise((resolve, reject) => {
-	setTimeout(() => {
-		resolve(12345);
-	}, 5000);
+  setTimeout(() => {
+    resolve(12345);
+  }, 5000);
 });
 const promiseObj = getPromiseWithAbort(promise);
 promiseObj.promise.then(/*...*/).catch(/*...*/);

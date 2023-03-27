@@ -52,13 +52,13 @@ date: "2022-02-23"
 
 ```js
 Module.prototype.require = function (id) {
-	if (typeof id !== "string") {
-		throw new ERR_INVALID_ARG_TYPE("id", "string", id);
-	}
-	if (id === "") {
-		throw new ERR_INVALID_ARG_VALUE("id", id, "must be a non-empty string");
-	}
-	return Module._load(id, this, /* isMain */ false);
+  if (typeof id !== "string") {
+    throw new ERR_INVALID_ARG_TYPE("id", "string", id);
+  }
+  if (id === "") {
+    throw new ERR_INVALID_ARG_VALUE("id", id, "must be a non-empty string");
+  }
+  return Module._load(id, this, /* isMain */ false);
 };
 ```
 
@@ -66,36 +66,36 @@ Module.prototype.require = function (id) {
 
 ```js
 Module._load = function (request, parent, isMain) {
-	if (parent) {
-		debug("Module._load REQUEST %s parent: %s", request, parent.id);
-	}
+  if (parent) {
+    debug("Module._load REQUEST %s parent: %s", request, parent.id);
+  }
 
-	var filename = Module._resolveFilename(request, parent, isMain);
+  var filename = Module._resolveFilename(request, parent, isMain);
 
-	var cachedModule = Module._cache[filename];
-	if (cachedModule) {
-		updateChildren(parent, cachedModule, true);
-		return cachedModule.exports;
-	}
+  var cachedModule = Module._cache[filename];
+  if (cachedModule) {
+    updateChildren(parent, cachedModule, true);
+    return cachedModule.exports;
+  }
 
-	if (NativeModule.nonInternalExists(filename)) {
-		debug("load native module %s", request);
-		return NativeModule.require(filename);
-	}
+  if (NativeModule.nonInternalExists(filename)) {
+    debug("load native module %s", request);
+    return NativeModule.require(filename);
+  }
 
-	// Don't call updateChildren(), Module constructor already does.
-	var module = new Module(filename, parent);
+  // Don't call updateChildren(), Module constructor already does.
+  var module = new Module(filename, parent);
 
-	if (isMain) {
-		process.mainModule = module;
-		module.id = ".";
-	}
+  if (isMain) {
+    process.mainModule = module;
+    module.id = ".";
+  }
 
-	Module._cache[filename] = module;
+  Module._cache[filename] = module;
 
-	tryModuleLoad(module, filename);
+  tryModuleLoad(module, filename);
 
-	return module.exports;
+  return module.exports;
 };
 ```
 
@@ -181,9 +181,9 @@ nodejs 中的 `protobufjs` 库包含一个 `toObject` 方法，该方法提供�
 
 ### path.join vs path.resolve with `__dirname`
 
-1. `const absolutePath = path.join(__dirname, some, dir);`:`path.join` 将连接 `__dirname`--它是当前文件的目录名，与 some 和 dir 的值连接，带有特定于平台的分隔符。(从左向右进行拼接)，返回相对路径。参数都是string
-2. `const absolutePath = path.resolve(__dirname, some, dir);`:`path.resolve` 将处理 `__dirname`、some 和 dir，即从左到右处理，如果第一个参数不是绝对路径或`__dirname`，那么默认使用当前路径的绝对路径，也就是说，如果三个（全部）参数都是相对路径，那么默认使用当前路径的绝对路径作为第0个参数，然后依次拼接后续参数，返回绝对路径。如果 some 或 dir 的任何值对应于根路径(以`/`开头？)，则先前的路径将被省略，并通过将其视为根来处理--即从右往左找到第一个绝对路径，以他为根，再向右拼接其余相对路径。
-3. `__dirname`:**`__dirname`** 是包含正在执行的源文件的目录的**绝对路径**，而不是当前工作目录*current working directory*。(在Shell中`pwd`命令即打印当前工作路径)
+1. `const absolutePath = path.join(__dirname, some, dir);`:`path.join` 将连接 `__dirname`--它是当前文件的目录名，与 some 和 dir 的值连接，带有特定于平台的分隔符。(从左向右进行拼接)，返回相对路径。参数都是 string
+2. `const absolutePath = path.resolve(__dirname, some, dir);`:`path.resolve` 将处理 `__dirname`、some 和 dir，即从左到右处理，如果第一个参数不是绝对路径或`__dirname`，那么默认使用当前路径的绝对路径，也就是说，如果三个（全部）参数都是相对路径，那么默认使用当前路径的绝对路径作为第 0 个参数，然后依次拼接后续参数，返回绝对路径。如果 some 或 dir 的任何值对应于根路径(以`/`开头？)，则先前的路径将被省略，并通过将其视为根来处理--即从右往左找到第一个绝对路径，以他为根，再向右拼接其余相对路径。
+3. `__dirname`:**`__dirname`** 是包含正在执行的源文件的目录的**绝对路径**，而不是当前工作目录*current working directory*。(在 Shell 中`pwd`命令即打印当前工作路径)
 4. `path.join()`将所有给定的路径段连接在一起，使用平台特定的分隔符作为分隔符，然后将得到的路径规范化。而`path.resolve()`从右到左处理路径序列，每一个后续的路径都会被预置，直到构造出一个绝对路径。
 
 ```javascript
@@ -193,14 +193,17 @@ console.log("path.join() : ", path.join());
 console.log("path.resolve : ", path.resolve());
 // path.resolve :  /Users/valtechwh/workspace/my-blog     // 打印绝对路径
 
-path.resolve('/a', 'b', 'c');     // returns:    '/a/b/c'
-path.resolve('/a', '/b', 'c');    // returns:    '/b/c'
-path.resolve('/a', '/b', '/c');   // returns:    '/c'
+path.resolve("/a", "b", "c"); // returns:    '/a/b/c'
+path.resolve("/a", "/b", "c"); // returns:    '/b/c'
+path.resolve("/a", "/b", "/c"); // returns:    '/c'
 
-path.join("/a", "b", "/c", "d");  // returns:    '/a/b/c/d'
+path.join("/a", "b", "/c", "d"); // returns:    '/a/b/c/d'
 ```
-
 
 ### process
 
 进程对象提供有关当前 Node.js 进程的信息并对其进行控制。
+
+### nvm
+
+[refer](https://juejin.cn/post/6932302283958910984)

@@ -63,50 +63,50 @@ const ext = file.name.substring(file.name.lastIndexOf(".") + 1);
 ```html
 <input id="file" type="file" />
 <script>
-	file.addEventListener("change", async (e) => {
-		const file = e.target.files[0];
-		const flag = await isImage(file);
-		if (flag) {
-			alert("上传格式通过！");
-		} else {
-			alert("请上传正确的格式！");
-		}
-	});
-	// 判断是否为图片
-	async function isImage(file) {
-		return (await isGif(file)) || (await isPng(file)) || (await isJpg(file));
-	}
-	// 判断是否为 jpg 格式
-	async function isJpg(file) {
-		const res = await blobToString(file.slice(0, 3));
-		return res === "FF D8 FF";
-	}
-	// 判断是否为 png 格式
-	async function isPng(file) {
-		const res = await blobToString(file.slice(0, 4));
-		return res === "89 50 4E 47";
-	}
-	// 判断是否为 gif 格式
-	async function isGif(file) {
-		const res = await blobToString(file.slice(0, 4));
-		return res === "47 49 46 38";
-	}
-	// 将文件转为十六进制字符串
-	async function blobToString(blob) {
-		return new Promise((resolve) => {
-			const reader = new FileReader();
-			reader.onload = function () {
-				const res = reader.result
-					.split("") // 将读取结果分割为数组
-					.map((v) => v.charCodeAt()) // 转为 Unicode 编码
-					.map((v) => v.toString(16).toUpperCase()) // 转为十六进制，再转大写
-					.map((v) => v.padStart(2, "0")) // 个位数补0
-					.join(" "); // 转为字符串
-				resolve(res);
-			};
-			reader.readAsBinaryString(blob); // 将文件读取为二进制字符串
-		});
-	}
+  file.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    const flag = await isImage(file);
+    if (flag) {
+      alert("上传格式通过！");
+    } else {
+      alert("请上传正确的格式！");
+    }
+  });
+  // 判断是否为图片
+  async function isImage(file) {
+    return (await isGif(file)) || (await isPng(file)) || (await isJpg(file));
+  }
+  // 判断是否为 jpg 格式
+  async function isJpg(file) {
+    const res = await blobToString(file.slice(0, 3));
+    return res === "FF D8 FF";
+  }
+  // 判断是否为 png 格式
+  async function isPng(file) {
+    const res = await blobToString(file.slice(0, 4));
+    return res === "89 50 4E 47";
+  }
+  // 判断是否为 gif 格式
+  async function isGif(file) {
+    const res = await blobToString(file.slice(0, 4));
+    return res === "47 49 46 38";
+  }
+  // 将文件转为十六进制字符串
+  async function blobToString(blob) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = function () {
+        const res = reader.result
+          .split("") // 将读取结果分割为数组
+          .map((v) => v.charCodeAt()) // 转为 Unicode 编码
+          .map((v) => v.toString(16).toUpperCase()) // 转为十六进制，再转大写
+          .map((v) => v.padStart(2, "0")) // 个位数补0
+          .join(" "); // 转为字符串
+        resolve(res);
+      };
+      reader.readAsBinaryString(blob); // 将文件读取为二进制字符串
+    });
+  }
 </script>
 ```
 
@@ -155,24 +155,24 @@ const txt = `Good Luck Infinity Co. ericyangxd.top ${new Date().toLocaleDateStri
 const canvasWidth = 500;
 const canvasHeight = 500;
 if (canvas.getContext) {
-	// drawing code here
-	canvas.width = canvasWidth;
-	canvas.height = canvasHeight;
-	const ctx = canvas.getContext("2d");
-	// 通过把像素设置为透明以达到擦除一个矩形区域的目的。
-	// 请确保在调用 clearRect()之后绘制新内容前调用beginPath() 。
-	// 清除整个画布
-	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-	// 文字填充颜色
-	ctx.fillStyle = "#000";
-	// 文字透明度
-	ctx.globalAlpha = 0.8;
-	// 同CSS font，至少包含font-size和font-family
-	ctx.font = "bold 20px 微软雅黑";
-	// 旋转弧度
-	ctx.rotate((Math.PI / 180) * angle);
-	// -280： 文字向左偏移； 380：文字向下偏移； strokeText：中空字体； fillText：实线字体
-	ctx.fillText(txt, -280, 380);
+  // drawing code here
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  const ctx = canvas.getContext("2d");
+  // 通过把像素设置为透明以达到擦除一个矩形区域的目的。
+  // 请确保在调用 clearRect()之后绘制新内容前调用beginPath() 。
+  // 清除整个画布
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  // 文字填充颜色
+  ctx.fillStyle = "#000";
+  // 文字透明度
+  ctx.globalAlpha = 0.8;
+  // 同CSS font，至少包含font-size和font-family
+  ctx.font = "bold 20px 微软雅黑";
+  // 旋转弧度
+  ctx.rotate((Math.PI / 180) * angle);
+  // -280： 文字向左偏移； 380：文字向下偏移； strokeText：中空字体； fillText：实线字体
+  ctx.fillText(txt, -280, 380);
 }
 ```
 
@@ -184,7 +184,7 @@ if (canvas.getContext) {
 
 ```js
 function f() {
-	conssole.log(arguments);
+  conssole.log(arguments);
 }
 
 var a = `world`;
@@ -233,9 +233,9 @@ f`Hello ${a}!`;
 var xhr = new XMLHttpRequest();
 xhr.open("GET", "http://xyz.example.com/secret/file.txt");
 xhr.onreadystatechange = function (e) {
-	if (xhr.readyState === 4) {
-		console.log("got result: ", xhr.responseText);
-	}
+  if (xhr.readyState === 4) {
+    console.log("got result: ", xhr.responseText);
+  }
 };
 xhr.send();
 ```
@@ -249,7 +249,7 @@ xhr.send();
 $(ele).attr("href", "javascript:void(0);");
 // 2
 $(ele).onclick = function () {
-	return false;
+  return false;
 };
 // 3
 $(ele).attr("target", "");
@@ -263,42 +263,42 @@ $(ele).attr("target", "");
 // PHP 中，bin2hex() 函数把 ASCII 字符的字符串转换为十六进制值。字符串可通过使用 pack() 函数再转换回去
 // 下面是PHP 的 bin2hex 的 JavaScript 实现
 function bin2hex(s) {
-	let n,
-		o = "";
-	s += "";
-	for (let i = 0, l = s.length; i < l; i++) {
-		n = s.charCodeAt(i).toString(16);
-		o += n.length < 2 ? "0" + n : n;
-	}
+  let n,
+    o = "";
+  s += "";
+  for (let i = 0, l = s.length; i < l; i++) {
+    n = s.charCodeAt(i).toString(16);
+    o += n.length < 2 ? "0" + n : n;
+  }
 
-	return o;
+  return o;
 }
 
 // 获取指纹UUID
 function getUUID(domain) {
-	// 创建 <canvas> 元素
-	let canvas = document.createElement("canvas");
-	// getContext() 方法可返回一个对象，该对象提供了用于在画布上绘图的方法和属性
-	let ctx = canvas.getContext("2d");
-	// 设置在绘制文本时使用的当前文本基线
-	ctx.textBaseline = "top";
-	// 设置文本内容的当前字体属性
-	ctx.font = "14px 'Arial'";
-	// 设置用于填充绘画的颜色、渐变或模式
-	ctx.fillStyle = "#f60";
-	// 绘制"被填充"的矩形
-	ctx.fillRect(125, 1, 62, 20);
-	ctx.fillStyle = "#069";
-	// 在画布上绘制"被填充的"文本
-	ctx.fillText(domain, 2, 15);
-	ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
-	ctx.fillText(domain, 4, 17);
+  // 创建 <canvas> 元素
+  let canvas = document.createElement("canvas");
+  // getContext() 方法可返回一个对象，该对象提供了用于在画布上绘图的方法和属性
+  let ctx = canvas.getContext("2d");
+  // 设置在绘制文本时使用的当前文本基线
+  ctx.textBaseline = "top";
+  // 设置文本内容的当前字体属性
+  ctx.font = "14px 'Arial'";
+  // 设置用于填充绘画的颜色、渐变或模式
+  ctx.fillStyle = "#f60";
+  // 绘制"被填充"的矩形
+  ctx.fillRect(125, 1, 62, 20);
+  ctx.fillStyle = "#069";
+  // 在画布上绘制"被填充的"文本
+  ctx.fillText(domain, 2, 15);
+  ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+  ctx.fillText(domain, 4, 17);
 
-	// toDataURL返回一个包含图片展示的 data URI
-	let b64 = canvas.toDataURL().replace("data:image/png;base64,", "");
-	// atob() 方法用于解码使用 base-64 编码的字符串；base-64 编码使用方法是 btoa()，这俩都是window全局方法
-	let crc = bin2hex(atob(b64).slice(-16, -12));
-	return crc;
+  // toDataURL返回一个包含图片展示的 data URI
+  let b64 = canvas.toDataURL().replace("data:image/png;base64,", "");
+  // atob() 方法用于解码使用 base-64 编码的字符串；base-64 编码使用方法是 btoa()，这俩都是window全局方法
+  let crc = bin2hex(atob(b64).slice(-16, -12));
+  return crc;
 }
 
 // 调用时，你可以传入任何你想传的字符串，并不局限于传递domain，这里只是为了便于区分站点
@@ -321,6 +321,27 @@ console.log(getUUID("https://www.baidu.com/"));
 
 `\n`是匹配一个换行符，`\r`是匹配一个回车符。`\0`表示匹配 NULL（U+0000）字符，空字符（Null character）又称结束符，缩写 NUL，是一个数值为 0 的控制字符。
 
+## js 遍历方法
+
+![js遍历方法](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/WechatIMG290.jpeg)
+
+## js 事件委托
+
+![js事件委托](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/WechatIMG289.png)
+
+## Function
+
+原理：
+
+```js
+function f() {
+  console.log(arguments);
+}
+
+var a = "world";
+f`Hello ${a}!`; // [["Hello", "!"], world]
+```
+
 ## React 源码中的位运算
 
 ### 按位与（&）、或（|）、非（～）
@@ -334,7 +355,7 @@ console.log(getUUID("https://www.baidu.com/"));
 // 1. lanes取反（~lanes）
 // 2. 加1
 function getHighestPriorityLane(lanes) {
-	return lanes & -lanes;
+  return lanes & -lanes;
 }
 ```
 

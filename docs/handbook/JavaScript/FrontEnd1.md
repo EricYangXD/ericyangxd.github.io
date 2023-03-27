@@ -85,8 +85,8 @@ open -a "Google Chrome" --args --disable-features=SameSiteByDefaultCookies
 ```js
 const rimraf = require("rimraf");
 rimraf("./test.txt", function (err) {
-	// 删除当前目录下的 test.txt
-	console.log(err);
+  // 删除当前目录下的 test.txt
+  console.log(err);
 });
 ```
 
@@ -116,11 +116,11 @@ const code = `
 const ast = parser.parse(code);
 
 traverse(ast, {
-	FunctionDeclaration(path) {
-		if (path.get("id.name").node === "func3") {
-			console.log(path.scope.dump());
-		}
-	},
+  FunctionDeclaration(path) {
+    if (path.get("id.name").node === "func3") {
+      console.log(path.scope.dump());
+    }
+  },
 });
 ```
 
@@ -249,11 +249,11 @@ PS: 对于 AWS ECS 中的文件预览，需要做相应配置！[参考](https:/
 ```js
 // 实际测试貌似依然不可，尤其是针对文件服务器还需要鉴权时
 fetch("xxx.pdf")
-	.then((resp) => resp.blob())
-	.then((blob) => {
-		var url = URL.createObjectURL(blob);
-		document.querySelector("object").data = url;
-	});
+  .then((resp) => resp.blob())
+  .then((blob) => {
+    var url = URL.createObjectURL(blob);
+    document.querySelector("object").data = url;
+  });
 ```
 
 4. **注意事项：当 url 是同源（同域名、同协议、同端口号）时，这时如果给 a 标签加上了 download 属性，那么 download 属性会指示浏览器该下载而不是打开该文件，同时该属性值即下载时的文件名，哪怕此时的 href 只是个普通链接，也会下载这个 HTML 页面；**
@@ -265,58 +265,53 @@ fetch("xxx.pdf")
 
 ```tsx
 const useWindowWidth = () => {
-	const [width, setWidth] = useState(window.innerWidth);
+  const [width, setWidth] = useState(window.innerWidth);
 
-	useEffect(() => {
-		const handleResize = () => setWidth(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
 
-		window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
 
-		return () => {
-			window.removeEventListener("resize", handleResize);
-		};
-	}, []);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
-	return width;
+  return width;
 };
 
 const MyApp = () => {
-	const width = useWindowWidth();
-	const [numPages, setNumPages] = useState(null);
+  const width = useWindowWidth();
+  const [numPages, setNumPages] = useState(null);
 
-	const onDocumentLoadSuccess = ({ numPages: page }) => {
-		Toast.hide();
-		setNumPages(page);
-	};
-	const onDocumentLoadError = (error) => {
-		Toast.fail("加载失败，请重试", 3);
-	};
-	const onLoading = () => {
-		Toast.loading("努力加载中...");
-	};
+  const onDocumentLoadSuccess = ({ numPages: page }) => {
+    Toast.hide();
+    setNumPages(page);
+  };
+  const onDocumentLoadError = (error) => {
+    Toast.fail("加载失败，请重试", 3);
+  };
+  const onLoading = () => {
+    Toast.loading("努力加载中...");
+  };
 
-	return (
-		<PageWrapper>
-			<Header title="详情" />
-			<PDFWrapper>
-				<Document
-					style={{ width: "100%" }}
-					file={history.location?.state?.pdfurl}
-					onLoadSuccess={onDocumentLoadSuccess}
-					onLoadError={onDocumentLoadError}
-					loading={onLoading}
-				>
-					{Array.from(new Array(numPages), (el, index) => (
-						<Page
-							key={`page_${index + 1}`}
-							pageNumber={index + 1}
-							width={width}
-						/>
-					))}
-				</Document>
-			</PDFWrapper>
-		</PageWrapper>
-	);
+  return (
+    <PageWrapper>
+      <Header title="详情" />
+      <PDFWrapper>
+        <Document
+          style={{ width: "100%" }}
+          file={history.location?.state?.pdfurl}
+          onLoadSuccess={onDocumentLoadSuccess}
+          onLoadError={onDocumentLoadError}
+          loading={onLoading}>
+          {Array.from(new Array(numPages), (el, index) => (
+            <Page key={`page_${index + 1}`} pageNumber={index + 1} width={width} />
+          ))}
+        </Document>
+      </PDFWrapper>
+    </PageWrapper>
+  );
 };
 ```
 
@@ -440,40 +435,40 @@ export default App;
 ```js
 // 默认情况下数据是这样的
 var signInfo = [
-	{
-		fieldId: 539,
-		value: undefined,
-	},
-	{
-		fieldId: 539,
-		value: "",
-	},
-	{
-		fieldId: 539,
-		value: null,
-	},
-	{
-		fieldId: 539,
-		value: "undefined",
-	},
-	{
-		fieldId: 539,
-		value: "null",
-	},
-	{
-		fieldId: 540,
-		value: Symbol("555"),
-	},
-	{
-		fieldId: 540,
-		value: Symbol.for("555"),
-	},
-	{
-		fieldId: 546,
-		value: function () {
-			console.log(1110);
-		},
-	},
+  {
+    fieldId: 539,
+    value: undefined,
+  },
+  {
+    fieldId: 539,
+    value: "",
+  },
+  {
+    fieldId: 539,
+    value: null,
+  },
+  {
+    fieldId: 539,
+    value: "undefined",
+  },
+  {
+    fieldId: 539,
+    value: "null",
+  },
+  {
+    fieldId: 540,
+    value: Symbol("555"),
+  },
+  {
+    fieldId: 540,
+    value: Symbol.for("555"),
+  },
+  {
+    fieldId: 546,
+    value: function () {
+      console.log(1110);
+    },
+  },
 ];
 // 经过JSON.stringify之后的数据,少了value key,导致后端无法读取value值进行报错
 // 具体原因是`undefined`、`任意的函数`以及`symbol值`，出现在`非数组对象`的属性值中时在序列化过程中会被忽略
@@ -482,13 +477,13 @@ console.log(JSON.stringify(signInfo1));
 
 // 对于数组
 var arr = [
-	undefined,
-	"undefined",
-	null,
-	"null",
-	function () {
-		console.log(1110);
-	},
+  undefined,
+  "undefined",
+  null,
+  "null",
+  function () {
+    console.log(1110);
+  },
 ];
 console.log(JSON.stringify(arr));
 // [null,"undefined",null,"null",null]
@@ -499,13 +494,11 @@ console.log(JSON.stringify(arr));
 ```js
 //语音播报
 function voiceAnnouncements(str) {
-	// 百度语音合成：或者使用新版地址https://tsn.baidu.com/text2audio
-	var url =
-		"http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=5&text=" +
-		encodeURI(str);
-	var n = new Audio(url);
-	n.src = url;
-	n.play();
+  // 百度语音合成：或者使用新版地址https://tsn.baidu.com/text2audio
+  var url = "http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=5&text=" + encodeURI(str);
+  var n = new Audio(url);
+  n.src = url;
+  n.play();
 }
 voiceAnnouncements(`
 秋名山上路人稀，常有车手较高低；
@@ -558,13 +551,13 @@ import _ from "lodash";
 import axios, { AxiosRequestConfig } from "axios";
 
 interface axiosDownloadParams {
-	url: string;
-	params: any;
-	method: "GET" | "POST" | "get" | "post";
-	pFileName?: string;
-	baseURL: string;
-	failCallback?: (error: { code: number; message: string }) => void;
-	successCallback?: () => void;
+  url: string;
+  params: any;
+  method: "GET" | "POST" | "get" | "post";
+  pFileName?: string;
+  baseURL: string;
+  failCallback?: (error: { code: number; message: string }) => void;
+  successCallback?: () => void;
 }
 
 /**
@@ -579,77 +572,66 @@ const getRegex = /^get$/i;
  * @param method 请求方法
  */
 const axiosDownload =
-	({
-		url,
-		params,
-		method,
-		baseURL,
-		pFileName,
-		failCallback,
-		successCallback,
-	}: axiosDownloadParams) =>
-	() => {
-		// ajax 参数类型
-		const axiosConfig: AxiosRequestConfig = {
-			method,
-			url,
-			baseURL,
-			responseType: "blob",
-		};
-		if (getRegex.test(method)) {
-			axiosConfig.params = params || {};
-		} else {
-			axiosConfig.data = params || {};
-		}
-		// 发起ajax请求
-		axios(axiosConfig).then((res) => {
-			// 获取响应数据
-			const { data, headers } = res || {};
-			if (data.type === "application/json") {
-				const reader = new FileReader();
-				reader.readAsText(data, "utf-8");
-				reader.onload = () => {
-					const error = JSON.parse(reader.result as string);
-					if (failCallback) {
-						failCallback(error);
-					} else {
-						message.error(error.message);
-					}
-				};
-			} else {
-				// 获取【文件信息头】
-				const disposition = _.get(headers, "content-disposition");
-				// 获取【文件名称】
-				const fileName =
-					decodeURIComponent(_.last(_.split(disposition, "=")) || "") ||
-					pFileName ||
-					"file.xlsx";
-				// 获取【文件内容】
-				const content = data as BlobPart;
-				// 构建文件【二进制内容】
-				const blob = new Blob([content], {
-					type: "application/octet-stream",
-				});
-				// 如果是非IE下载
-				if ("download" in document.createElement("a")) {
-					// 非IE下载
-					const elink = document.createElement("a");
-					elink.download = fileName;
-					elink.style.display = "none";
-					elink.href = URL.createObjectURL(blob);
-					document.body.appendChild(elink);
-					elink.click();
-					URL.revokeObjectURL(elink.href); // 释放URL 对象
-					document.body.removeChild(elink);
-					// elink.remove();
-				} else {
-					// IE10+下载
-					navigator.msSaveBlob && navigator.msSaveBlob(blob, fileName);
-				}
-				successCallback?.();
-			}
-		});
-	};
+  ({ url, params, method, baseURL, pFileName, failCallback, successCallback }: axiosDownloadParams) =>
+  () => {
+    // ajax 参数类型
+    const axiosConfig: AxiosRequestConfig = {
+      method,
+      url,
+      baseURL,
+      responseType: "blob",
+    };
+    if (getRegex.test(method)) {
+      axiosConfig.params = params || {};
+    } else {
+      axiosConfig.data = params || {};
+    }
+    // 发起ajax请求
+    axios(axiosConfig).then((res) => {
+      // 获取响应数据
+      const { data, headers } = res || {};
+      if (data.type === "application/json") {
+        const reader = new FileReader();
+        reader.readAsText(data, "utf-8");
+        reader.onload = () => {
+          const error = JSON.parse(reader.result as string);
+          if (failCallback) {
+            failCallback(error);
+          } else {
+            message.error(error.message);
+          }
+        };
+      } else {
+        // 获取【文件信息头】
+        const disposition = _.get(headers, "content-disposition");
+        // 获取【文件名称】
+        const fileName = decodeURIComponent(_.last(_.split(disposition, "=")) || "") || pFileName || "file.xlsx";
+        // 获取【文件内容】
+        const content = data as BlobPart;
+        // 构建文件【二进制内容】
+        const blob = new Blob([content], {
+          type: "application/octet-stream",
+        });
+        // 如果是非IE下载
+        if ("download" in document.createElement("a")) {
+          // 非IE下载
+          const elink = document.createElement("a");
+          elink.download = fileName;
+          elink.style.display = "none";
+          elink.href = URL.createObjectURL(blob);
+          document.body.appendChild(elink);
+          elink.click();
+          URL.revokeObjectURL(elink.href); // 释放URL 对象
+          document.body.removeChild(elink);
+          // elink.remove();
+        } else {
+          // IE10+下载
+          navigator.msSaveBlob && navigator.msSaveBlob(blob, fileName);
+        }
+        successCallback?.();
+      }
+    });
+  };
 
 export default axiosDownload;
 ```
@@ -658,11 +640,11 @@ export default axiosDownload;
 
 ```js
 const uploadService = (file: FormData) =>
-	axios("/web/xxx", {
-		method: "POST",
-		data: file,
-		headers: { "Content-Type": "multipart/form-data" },
-	}).then((res) => res.data);
+  axios("/web/xxx", {
+    method: "POST",
+    data: file,
+    headers: { "Content-Type": "multipart/form-data" },
+  }).then((res) => res.data);
 ```
 
 ## `#!/usr/bin node` 和 `#!/usr/bin/env node` 两者的区别
@@ -914,13 +896,13 @@ X-Frame-Options 有三个可能的值：
 var iframe = document.createElement("iframe");
 iframe.src = "https://ericyangxd.top";
 if (iframe.attachEvent) {
-	iframe.attachEvent("onload", function () {
-		alert("Local iframe is now loaded.");
-	});
+  iframe.attachEvent("onload", function () {
+    alert("Local iframe is now loaded.");
+  });
 } else {
-	iframe.onload = function () {
-		alert("Local iframe is now loaded.");
-	};
+  iframe.onload = function () {
+    alert("Local iframe is now loaded.");
+  };
 }
 document.body.appendChild(iframe);
 ```
@@ -935,9 +917,9 @@ document.body.appendChild(iframe);
 
 ```js
 const getStringLength = function (string) {
-	const regex = /(\P{Mark})(\p{Mark}+)/gu;
-	const str = string.replace(regex, ($0, $1, $2) => $1);
-	return Array.from(str).length;
+  const regex = /(\P{Mark})(\p{Mark}+)/gu;
+  const str = string.replace(regex, ($0, $1, $2) => $1);
+  return Array.from(str).length;
 };
 export default getStringLength;
 ```
@@ -946,7 +928,7 @@ export default getStringLength;
 
 ```js
 const getReverseString = function (string) {
-	return Array.from(string).reverse().join("");
+  return Array.from(string).reverse().join("");
 };
 export default getReverseString;
 ```
@@ -957,7 +939,7 @@ export default getReverseString;
 
 ```js
 for (let item of "𠮷") {
-	console.log(item); // '𠮷'
+  console.log(item); // '𠮷'
 }
 ```
 
@@ -967,9 +949,9 @@ for (let item of "𠮷") {
 ```js
 // 现代浏览器的精写版本：
 function sieOfLS() {
-	return Object.entries(localStorage)
-		.map((v) => v.join(""))
-		.join("").length;
+  return Object.entries(localStorage)
+    .map((v) => v.join(""))
+    .join("").length;
 }
 ```
 
@@ -1058,11 +1040,39 @@ console.log(BigInt(9007199254740991) + BigInt(2)); // 9007199254740993n
 ```js
 // 四舍五入
 export const toFixed = function (number, decimalLength = 0) {
-	var times = Math.pow(10, decimalLength);
-	var fixed = number * times + 0.5;
-	return parseInt(fixed) / times;
+  var times = Math.pow(10, decimalLength);
+  var fixed = number * times + 0.5;
+  return parseInt(fixed) / times;
 };
 ```
+
+### parseInt
+
+> 1. 不建议使用 parseInt，应该使用 Number 来转换 string 到数字
+
+`Number()`和`parseInt`有什么区别呢？
+
+- `Number(string)`函数评估整个字符串并将其转换为数字，如果这个字符串不是一个数字，就返回 NaN。
+- 而`parseInt(string, [radix])`会尝试在传递的字符串中找到第一个数字，将其转换为传递的基数，默认为`10`，只有在找不到任何数字时才会返回`NaN`。
+- 这意味着如果你传递一个像`5e2`这样的字符串，那么，`parseInt`会在看到`e`时停止，因此只返回`5`，而`Number`则评估整个字符串并返回正确的值`500`。
+- `Number`性能优于`parseInt`
+- 在某些用例中使用`parseInt`是有益的，比如你想从浮点数中推断出一个整数，那么`parseInt`比`Math.round()`快 50%。
+- 如果你想将一个带有像素的字符串转换为数字，比如`32px`转换为`32`，那么你应该使用`parseInt`，但大多数时候你最好还是使用`Number`。
+- 如果你想将数字从十进制系统转换为其他进制的数字，也可以用`parseInt`。
+- 除非在某些特定情况下，parseInt 能返回你所需要的东西而 Number 不能，那才选择 parseInt。在 99%的用例中，你最好还是选择 Number。
+
+> 2. 为什么 parseInt(0.0000005) === 5 ?
+
+- 传入字符串 `'0.0000005'`时，一切正常，得到 0
+- 实际上，parseInt 的第一个参数如果不是一个字符串，则将其转换为字符串(使用 ToString 抽象操作)，意思就是说：parseInt 会将参数自动转换成字符串，再去做取整操作
+- 将浮点数手动转换为字符串：`String(0.000005); // => '0.000005'`
+- 将浮点数手动转换为字符串：`String(0.0000005); // => '5e-7'`
+- `parseInt(0.0000005); // => 5`
+- `parseInt(5e-7); // => 5`
+- `parseInt('5e-7'); // => 5`
+- `parseInt()`总是将其第一个参数转换为字符串，所以小于`10e-6`的浮点数将以指数表示法编写。然后 `parseInt()`从 float 的指数表示法中提取整数！
+- 为了安全地提取浮点数的整数部分，建议使用`Math.floor()`函数: `Math.floor(0.0000005); // => 0`
+- `parseInt(999999999999999999999)` 等于 1，原因同上。
 
 ## Boolean
 
@@ -1091,20 +1101,20 @@ export const toFixed = function (number, decimalLength = 0) {
 
 ```js
 function Animal(type) {
-	this.type = type;
+  this.type = type;
 }
 Animal.prototype.getType = function () {
-	return this.type;
+  return this.type;
 };
 
 function People(name) {
-	Animal.call(this, "people"); // 继承属性type
-	this.name = name; // 自己的属性name
+  Animal.call(this, "people"); // 继承属性type
+  this.name = name; // 自己的属性name
 }
 People.prototype = Object.create(Animal.prototype); // 继承方法getType及原型
 People.prototype.getName = function () {
-	// 定义自己的方法
-	return this.name;
+  // 定义自己的方法
+  return this.name;
 };
 
 const human = new People("Eric"); // 生成实例

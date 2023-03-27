@@ -34,7 +34,7 @@ meta:
 
 ```js
 var data = JSON.stringify({
-	time: performance.now(),
+  time: performance.now(),
 });
 
 const img = new Image();
@@ -53,18 +53,18 @@ img.src = `http://api.wangxiaokai.vip/test?${JSON.stringify(data)}`;
 
 ```js
 function reportEvent() {
-	const url = "http://api.wangxiaokai.vip/test";
-	const data = JSON.stringify({
-		time: performance.now(),
-	});
+  const url = "http://api.wangxiaokai.vip/test";
+  const data = JSON.stringify({
+    time: performance.now(),
+  });
 
-	navigator.sendBeacon(url, data);
+  navigator.sendBeacon(url, data);
 }
 
 document.addEventListener("visibilitychange", function () {
-	if (document.visiblityState === "hidden") {
-		reportEvent();
-	}
+  if (document.visiblityState === "hidden") {
+    reportEvent();
+  }
 });
 ```
 
@@ -93,16 +93,16 @@ document.addEventListener("visibilitychange", function () {
 ```js
 const url = "http://api.wangxiaokai.vip/test";
 const data = JSON.stringify({
-	time: performance.now(),
+  time: performance.now(),
 });
 
 fetch(url, {
-	method: "POST",
-	body: data,
-	headers: {
-		"Content-Type": "application/json",
-	},
-	keepalive: true,
+  method: "POST",
+  body: data,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  keepalive: true,
 });
 ```
 
@@ -112,11 +112,11 @@ fetch(url, {
 
 ```js
 function test(value) {
-	let undefined = "hello world";
-	if (value === undefined) {
-		return `value is undefined`;
-	}
-	return `value is not undefined`;
+  let undefined = "hello world";
+  if (value === undefined) {
+    return `value is undefined`;
+  }
+  return `value is not undefined`;
 }
 let value;
 test(value); // 'value is not undefined'
@@ -134,20 +134,20 @@ void 运算符是对给定的表达式进行求值，然后返回 undefined 。�
  被缓存返回true，没被缓存返回false
  */
 function testCache(url) {
-	alert("执行");
-	var url = "http://www.8chedao.com/page/images/webIndex-logo.png";
-	var myImg = new Image();
-	myImg.src = url;
-	if (myImg.complete) {
-		alert("图片被缓存");
-		return true;
-	} else {
-		alert("图片没被缓存");
-		myImg.onload = function () {
-			alert("图片已经下载成功!");
-		};
-		return false;
-	}
+  alert("执行");
+  var url = "http://www.8chedao.com/page/images/webIndex-logo.png";
+  var myImg = new Image();
+  myImg.src = url;
+  if (myImg.complete) {
+    alert("图片被缓存");
+    return true;
+  } else {
+    alert("图片没被缓存");
+    myImg.onload = function () {
+      alert("图片已经下载成功!");
+    };
+    return false;
+  }
 }
 ```
 
@@ -180,26 +180,26 @@ console.log(group.year);
 ```css
 /* 不考虑兼容性 */
 html {
-	font-size: 62.5%;
+  font-size: 62.5%;
 }
 body {
-	font-size: 1.4rem;
+  font-size: 1.4rem;
 } /* =14px */
 h1 {
-	font-size: 2.4rem;
+  font-size: 2.4rem;
 } /* =24px */
 
 /* 考虑兼容性 */
 html {
-	font-size: 62.5%;
+  font-size: 62.5%;
 }
 body {
-	font-size: 14px;
-	font-size: 1.4rem;
+  font-size: 14px;
+  font-size: 1.4rem;
 } /* =14px */
 h1 {
-	font-size: 24px;
-	font-size: 2.4rem;
+  font-size: 24px;
+  font-size: 2.4rem;
 } /* =24px */
 ```
 
@@ -228,7 +228,7 @@ iframe 最大的特性就是提供了浏览器原生的硬隔离方案，不论�
 
 ```javascript
 function mutate(obj) {
-	obj.a = true;
+  obj.a = true;
 }
 
 const obj = { a: false };
@@ -243,7 +243,7 @@ console.log(obj.a); // 输出 true
 
 ```javascript
 function mutateDeepObject(obj) {
-	obj.a.thing = true;
+  obj.a.thing = true;
 }
 
 const obj = { a: { thing: false } };
@@ -406,3 +406,11 @@ peerDependency 可以避免核心依赖库被重复下载的问题。比如：
    - 如果用户显式依赖了核心库，则可以忽略各插件的 peerDependency 声明；
    - 如果用户没有显式依赖核心库，则按照插件 peerDependencies 中声明的版本将库安装到项目根目录中；
    - 当用户依赖的版本、各插件依赖的版本之间不相互兼容，会报错让用户自行修复；
+
+## WebGL
+
+[DEMO 网站](http://js1k.com/2016-elemental/demo/2552)
+
+## Vue3diff
+
+[Vue3 diff](https://blog.csdn.net/zl_Alien/article/details/106595459)
