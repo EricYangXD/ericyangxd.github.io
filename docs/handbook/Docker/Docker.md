@@ -450,3 +450,14 @@ Dockerfile 是一个文本文件，包含了用于构建 Docker 镜像的指令�
 现在主流的**虚拟化技术**就是 docker 了，它是**基于容器的虚拟化技术**。
 
 **它可以在一台机器上跑多个容器，每个容器都有独立的操作系统环境，比如文件系统、网络端口等**。
+
+
+## 
+
+- hi, I want to pull a docker image from remote repo and change sth of this image, and then push the changed image to the remote repo, how to make it?
+
+1. `docker pull <remote_repo>/<image_name>:<tag>`
+2. `docker run -it <remote_repo>/<image_name>:<tag> /bin/bash`
+3. make changes to the image.
+4. `docker commit <container_id> <remote_repo>/<image_name>:<new_tag>`
+5. `docker push <remote_repo>/<image_name>:<new_tag>`
