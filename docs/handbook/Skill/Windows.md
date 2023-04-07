@@ -27,3 +27,20 @@ date: "2022-05-21"
 ## Chrome
 
 1. `chrome://flags/#tab-hover-cards`两个都设置为enable即可。
+
+
+## 远程桌面
+
+1. windows自带的，需要设置里开启一下，Mac上也叫`Microsoft Remote Desktop`，外区appstore里可以下载安装
+2. Parsec
+3. ToDesk
+4. Chrome Remote Desktop
+5. TeamViewer
+6. 向日葵
+
+
+## 异地组网
+
+1. 蒲公英
+2. ZeroTier
+3. Tailscale
