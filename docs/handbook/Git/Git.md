@@ -4,7 +4,7 @@ author: EricYangXD
 date: "2022-01-13"
 meta:
   - name: keywords
-    content: Git,git,rebase,merge,revert,stash
+    content: Git,git,rebase,merge,revert,stash,cherry-pick,fetch,,tag
 ---
 
 ## Git 命令
@@ -128,11 +128,33 @@ PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名�
   3. 检查一下要从远程仓库转移的提交，获取它的哈希值：`git log target/master`
   4. 使用 git cherry-pick 命令转移提交：`git cherry-pick <commitHash>`
 
+### git show-ref
+
+1. `git show-ref refs/heads/gh-pages`/`git show-ref gh-pages`: 检查本地是否存在某个分支
+
+### git ls-remote
+
+1. `git ls-remote origin refs/heads/gh-pages`/`git ls-remote origin gh-pages`: 检查远程仓库里是否有某个分支
+
+### git checkout
+
+1. 从远程拉一个本地不存在的新分支并切换到这个新分支上：
+
+```git
+git fetch origin
+git checkout -b new-feature origin/new-feature
+```
+### git branch
+
+1. 列出本地分支：`git branch`
+2. 设置本地分支跟踪远程仓库分支，后续直接`git pull`或`git push`即可：`git branch --set-upstream-to=origin/feature my-feature`
+3. 还可以使用`git config`命令配置Git，在默认情况下自动设置对新分支的跟踪。你可以设置`branch.autoSetupMerge`配置选项为`always`，使Git在创建新分支时创建跟踪分支。
+
 ## 修改 git commit msg
 
-1. 修改最近一次的 commit 信息 git commit --amend
-2. git reset --soft HEAD^ 重新提交
-3. git log --oneline -5 查看最近 5 次 commit 的简要信息
+1. 修改最近一次的 commit 信息 `git commit --amend`
+2. `git reset --soft HEAD^` 重新提交
+3. `git log --oneline -5` 查看最近 5 次 commit 的简要信息
 4. 比如要修改的 commit 是倒数第三条，使用下述命令：
 
 ```bash
@@ -215,14 +237,14 @@ git push gitee master
 正在开发某个 feature，老板突然跳出来说让你做生产上的 hotfix，面对这种情况，使用 Git 的我们通常有两种解决方案：
 
 1. 草草提交未完成的 feature，然后切换分支到 hotfix
-2. git stash | git stash pop 暂存工作内容，然后再切换到 hotfix
-3. git clone 多个 repo
+2. `git stash | git stash pop` 暂存工作内容，然后再切换到 hotfix
+3. `git clone` 多个 repo
 
-使用 git-worktree，仅需维护一个 repo，又可以同时在多个 branch 上工作，互不影响！！！
+使用 `git-worktree`，仅需维护一个 repo，又可以同时在多个 branch 上工作，互不影响！！！
 
 常用的其实只有下面这四个命令：
 
-```bash
+```git
 # 添加一个worktree
 git worktree add [-f] [--detach] [--checkout] [--lock] [-b <new-branch>] <path> [<commit-ish>]
 # 列出当前的worktree，在任意一个worktree下都可用
@@ -433,7 +455,7 @@ Git: warning: Pulling without specifying how to reconcile divergent branches is
 
 ## GitHub Actions
 
-记录本 repo 的打包、同步码云以及推送到服务器的各个步骤，具体看注释。重点是使用的那几个别人发布的action，以及设置secrets。
+记录本 repo 的打包、同步码云以及推送到服务器的各个步骤，具体看注释。重点是使用的那几个别人发布的 action，以及设置 secrets。
 
 ```yml
 # workflow name
@@ -447,7 +469,7 @@ on:
 jobs:
   # 任务jobID
   build:
-   # 运行环境
+    # 运行环境
     runs-on: ubuntu-latest
     steps:
       # 使用别人的action:

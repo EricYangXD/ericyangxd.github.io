@@ -230,3 +230,18 @@ changefocus(){
 ### 邮箱页面布局
 
 大多数人看到过手机或者qq网易等等各种邮箱。有的莫名其妙的邮件收件箱看到的页面全是裂图，邮箱页面布局要写原始table布局法
+
+### Angular中使用material-design
+
+#### 分页
+
+1. paginator初始化时机
+2. paginator实例的length能否直接修改赋值
+3. 不使用paginator也可以正常分页
+4. html中`[length]`属性控制总数
+
+
+#### 排序
+
+1. sorter实例初始化
+
