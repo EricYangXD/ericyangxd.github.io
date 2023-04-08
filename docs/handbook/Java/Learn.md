@@ -498,23 +498,73 @@ list.stream().filter(...).collect(Collectors.toMap(
 
 ### 异常
 
-```java
+程序出现的问题。
 
-
-```
+1. Java.lang.Throwable:
+    - Error：严重的错误，开发不用管
+    - Exception：异常，需要处理
+      - RuntimeException: 编译时不会提示，运行时会提示
+      - 其他异常：编译时异常：在编译阶段必须手动处理，否则代码报错，红色波浪线
+2. 异常的作用：
+    - 是用来查询bug的重要参考信息
+    - 可以作为方法内部的一种特殊返回值，以便通知调用者底层的执行情况
+3. 异常的处理方式：
+   1. JVM默认的处理方式：把异常的名称原因及出现的位置等信息输出在控制台；程序停止执行
+   2. 自己处理（捕获异常）：`try..catch`，对于多种异常，可以通过写多个catch来分别捕获（JDK7中可以把多个写在一个语句里`|`），注意，如果多个异常之间存在父子关系，那么要把父类写在子类后面。没有捕获到的就交个JVM默认处理。
+   3. 抛出异常：
+      1. throws: 写在方法定义处，表示声明一个异常，告诉调用者，使用本方法可能会有哪些异常
+      2. throw: 写在方法内，结束方法，手动抛出异常对象，交给调用者，方法中下面的代码不再执行了
+4. `e.printStackTrace();e.toString();e.getMessage();`
+5. 常见的几种运行时异常：NullPointerException, ArrayIndexOutOfBoundsException, NumberFormatException, IOException, ...
+6. 自定义异常：`extends RuntimeException`/`extends Exception`，定义异常类，写继承关系，空参构造，带参构造
 
 ### File
+0. File对象表示路径，可以是文件也可以是文件夹，这个路径可以存在也可以是不存在的
+1. 3个函数方法
 
 ```java
-
-
+public File(String pathname)// 根据文件路径创建文件对象
+public File(String parent, String child)// 根据父路径名字符串和子路径名字符串创建文件对象
+public File(File parent, String child)// 根据父路径对应文件对象和子路径名字符串创建文件对象
 ```
+2. 路径分隔符：Windows用反斜线`\\`，MacOS/Linux用斜线`/`
+3. 对路径的拼接一般用构造方法更稳妥
+4. File中的常见的方法：
+   1. `public static File[] listRoots()`: 列出可用的文件系统根
+   2. `public String[] list()`: 获取当前该路径下所有内容
+   3. `public String[] list(FilenameFilter filter)`: 利用文件名过滤器获取当前该路径下所有内容
+   4. `public File[] listFiles()`: 获取当前该路径下所有内容
+   5. `public File[] listFiles(FileFilter filter)`: 利用文件名过滤器获取当前该路径下所有内容
+   6. `public File[] listFiles(FilenameFilter filter)`: 利用文件名过滤器获取当前该路径下所有内容
+   7. isDirectory(), isFile(), exists(), length(), getAbsolutePath(), getPath(), getName(), lastModified()
+   8. createNewFile(), mkdir(), mkdirs(), delete()
 
 ### IO
 
+存储和读取数据的解决方案。
+
+1. 按流的方向划分：IO流分为输入流（读取）和输出流（写出）
+2. 按操作文件类型划分：IO流可以分为字节流（可以操作所有类型文件）和字符流（智能操作纯文件文本--可以被记事本直接打开并且没有乱码的，比如txt、md）
+3. 字节流：
+    - InputStream -> FileInputStream
+    - OutputStream -> FileOutputStream
+4. 字符流：
+    - Reader -> FileReader
+    - Writer -> FileWriter
+#### FileOutputStream
+
+1. 创建字节输出流对象：参数是字符串表示的路径或者File对象都是可以的；如果文件不存在会创建新的文件，但是要保证父级路径是存在的；如果文件已经存在，则会清空文件。
+2. 写数据：write方法的参数是整数，但是实际上写到本地文件中的是整数在ASCII上对应的字符。
+3. 释放资源：每次使用完流之后都要释放资源。
+4. `void write(int b)`: 一次写一个字节数据
+5. `void write(byte[] b)`: 一次写一个字节数组数据
+6. `void write(byte[] b, int off, int len)`: 一次写一个字节数组的部分数据
+
+
 ```java
-
-
+FileOutputStream fos=new FileOutputStream("workspace\\a.txt");
+fos.write(97);// 'a'
+fos.close();
 ```
 
 #### 字节流
