@@ -562,10 +562,60 @@ public File(File parent, String child)// 根据父路径对应文件对象和子
 
 
 ```java
-FileOutputStream fos=new FileOutputStream("workspace\\a.txt");
+FileOutputStream fos = new FileOutputStream("workspace\\a.txt");
+// byte[] bs = str.getBytes();
 fos.write(97);// 'a'
 fos.close();
 ```
+
+7. 换行：`\r\n`(windows)/`\n`(linux)/`\r`(macos)，Java会默认自动补全
+8. 续写：`FileOutputStream fos = new FileOutputStream("workspace\\a.txt", true);`：true表示开启append，默认false不会续写
+
+#### FileInputStream
+
+1. 如果文件不存在就直接报错；一次读一个字节，读出来的是数据在ASCII上对应的数字；读到文件末尾，read方法返回-1；每次使用完流必须要释放资源
+2. 循环读取：
+
+```java
+FileInputStream fis = new FileInputStream("workspace\\a.txt");
+// byte[] bs = str.getBytes();
+int b1 = fis.read();
+// System.out.println(char(b1));// 转成字符串
+// 循环读取
+int str;
+while((str = fis.read()) != -1){
+   System.out.print(char(str));
+}
+
+fis.close();
+```
+
+#### 文件拷贝
+
+1. read方法不传参默认一次读一个字节
+2. read方法传参数：表示一次读取多个字节
+
+```java
+FileInputStream fis = new FileInputStream("workspace\\a.txt");
+FileOutputStream fos = new FileOutputStream("workspace\\b.txt");
+// read方法不传参默认一次读一个字节
+int b;
+while((b=fis.read())!=-1){
+   fos.write(b);
+}
+long start = System.currentTimeMillis();
+// read方法传参数：表示一次读取多个字节
+byte[] bytes = new byte[2];
+int len=fis.read(bytes);// 返回本次读取了几个字节，读到的字节放在bytes中
+Stirng str=new String(bytes,0,len);// 防止读到最后出现问题
+System.out.print(str);
+long end = System.currentTimeMillis();
+
+fos.close();
+// 先开的流，后关闭
+fis.close();
+```
+
 
 #### 字节流
 
