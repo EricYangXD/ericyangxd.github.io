@@ -44,3 +44,22 @@ date: "2022-05-21"
 1. 蒲公英
 2. ZeroTier
 3. Tailscale
+
+## 常用cmd命令
+
+1. ipconfig
+2. win+S，以管理员运行
+3. win+R，以本地用户运行
+4. `ping www.baidu.com -t`：查看网络波动
+5. `ipconfig /flushdns`：刷新本机dns
+6. `nslookup www.baidu.com`：查看与某个网站的连接情况
+7. `netsh winsock reset`：重置winsock目录至初始状态
+8. `netsh advfirewall set allprofiles state [off/on]`：关闭/打开防火墙
+9. `sfc /scannow`：验证系统文件的完整性
+10. `DISM /Online /Cleanup-image /ScanHealth`：强力扫描电脑内的所有系统文件，检查是否与官方的系统文件是否一致
+11. `DISM /Online /Cleanup-image /RestoreHealth`：修复上一步的错误
+12. `powercfg /energy`：生成电源报告
+13. `powercfg /batteryreport`：生成电池报告
+14. `netsh wlan show wlanreport`：生成无线网卡报告
+15. 
+16. 
