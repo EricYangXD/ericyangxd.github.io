@@ -14,16 +14,35 @@ date: "2021-12-28"
 
 **Languages:**
 
-<code><img height="20" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/html/html.png" alt="html" /></code>
-<code><img height="20" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/css/css.png" alt="css" /></code>
-<code><img height="20" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/javascript/javascript.png" alt="javascript" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/w3_html5/w3_html5-icon.svg" alt="html" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/w3_css/w3_css-official.svg" alt="css" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/javascript/javascript-icon.svg" alt="javascript" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/typescriptlang/typescriptlang-icon.svg" alt="typescript" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/java/java-icon.svg" alt="java" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/mysql/mysql-official.svg" alt="mysql" /></code>
+<code><img height="20" src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/groovy-lang/groovy-lang-icon.svg" alt="groovy" /></code>
 
 **Frameworks and Tools:**
 
-<code><img height="20" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/react/react.png" alt="react" /></code>
-<code><img height="20" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/vue/vue.png" alt="vue" /></code>
-<code><img height="20" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/git/git.png" alt="git" /></code>
-<code><img height="20" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/visual-studio-code/visual-studio-code.png" alt="visual-studio-code" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/reactjs/reactjs-icon.svg" alt="react" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/vuejs/vuejs-icon.svg" alt="vue" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/angular/angular-icon.svg" alt="angular" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="git" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/jenkins/jenkins-icon.svg" alt="jenkins" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/springio/springio-icon.svg" alt="spring" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/sass-lang/sass-lang-icon.svg" alt="sass" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/nginx/nginx-icon.svg" alt="nginx" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/js_webpack/js_webpack-icon.svg" alt="webpack" /></code>
+<code><img height="20" src="https://vitejs.dev/logo.svg" alt="vite" /></code>
+<code><img height="20" src="https://raw.githubusercontent.com/devicons/devicon/master/icons/redux/redux-original.svg" alt="redux" /></code>
+<code><img height="20" src="https://raw.githubusercontent.com/devicons/devicon/master/icons/linux/linux-original.svg" alt="linux" /></code>
+<code><img height="20" src="https://raw.githubusercontent.com/devicons/devicon/master/icons/gulp/gulp-plain.svg" alt="gulp" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/babeljs/babeljs-icon.svg" alt="babel" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/apache_tomcat/apache_tomcat-icon.svg" alt="tomcat" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/jestjsio/jestjsio-icon.svg" alt="jest" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/lesscss/lesscss-icon.svg" alt="less" /></code>
+<code><img height="20" src="https://www.vectorlogo.zone/logos/stylus-lang/stylus-lang-icon.svg" alt="stylus" /></code>
 
 ![EricYangXD's github stats](https://github-readme-stats.vercel.app/api?username=EricYangXD&show_icons=true&hide_title=true&count_private=true)
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=EricYangXD&layout=compact)
