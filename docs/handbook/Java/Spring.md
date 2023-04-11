@@ -329,4 +329,30 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
 ```
 ## SSM整合
 
-1. 
+
+
+
+
+
+
+## 学透Spring
+
+### sdkman
+
+管理Java版本，类似nvm？也可以管理Maven、groovy等。
+
+1. `curl -s "https://get.sdkman.io" | bash`: 安装sdkman
+2. `source "$HOME/.sdkman/bin/sdkman-init.sh"`: 刷新环境变量
+3. `sdk version`
+4. `sdk list java`: 获取当前操作系统可用的JDK信息
+5. `sdk install java 11.0.18`: 安装特定版本JDK
+6. `sdk install java 14.0.1 /Library/Java/JavaVirtualMachines/jdk-14.0.1.jdk/Contents/Home`: 关联本地已安装JDK
+7. `sdk default java 11.0.18`: 设置默认版本（感觉并不管用，还得去改.zshrc才会生效）
+8. `sdk use java 11.0.18`: 使用某个jdk版本
+9. `sdk install maven`: 安装Maven，安装前要确保以正确安装JDK
+10. Maven镜像仓库，阿里云：`https://maven.aliyun.com/`，按使用指南修改Maven安装目录下的`conf/settings.xml`文件；也可以在用户目录的`.m2`子目录中创建`settings.xml`文件，并设置相应配置内容。
+11. `/Users/eric/.sdkman/candidates/maven/3.9.1/conf/settings.xml`: 配置举例
+12. `brew cask install intellij-idea-ce`: 安装idea社区版或直接去官网下载
+13. `IDEA->Help->Edit Custom VW Options`，在打开的idea.vmoptions文件中调整-Xms和-Xmx等JVM相关参数，让ide流畅运行
+14. 通过[Spring Initializr](https://start.spring.io)创建工程，打开网页，填写项目信息，点击生成，下载helloworld.zip压缩包
+15. 
