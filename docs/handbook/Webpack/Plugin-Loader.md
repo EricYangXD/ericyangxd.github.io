@@ -754,7 +754,7 @@ module.exports = {
 - 对于某些版本，打包时只提示有 error 但是不显示具体 error 内容，需要手动修改 node_modules 中的代码，步骤如下：
 
   1. go to `node_modules/awesome-typescript-loader/dist/instance.js`
-  2. find statement: `console.error(colors.red("\n[" + instanceName + "] Checking finished with " + diags.length + " errors"));`，找到类似的这句，可能不同版本略有不同。
+  2. find statement: `console.error(colors.red("\n[" + instanceName + "] Checking finished with " + diags.length + " errors"));`，找到类似的这句，可能不同版本略有不同。(可以搜`chalk_1.default.red`试试先)
   3. Add right below it (inside the same 'if'):在与上面这句相同的if判断里加上下面这句：
 
 ```js
