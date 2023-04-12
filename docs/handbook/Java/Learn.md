@@ -220,14 +220,12 @@ meta:
 #### BigInteger
 
 1. 对象一旦创建，内部记录的值就不能再变。
-2. new BigInteger("13412")：常用，字符串中必须是整数
-3. BigInteger.valueOf(1232L)：常用，参考 6，有优化。
-4. new BigInteger("13453",2 进制)
-5. new BigInteger(int num, Random rnd):获取指定范围的随机大整数 2^num
-6. 对-16~16 的数字做了优化，多次创建都是同一个对象。
-7. BigInteger 方法：
-
-   1. add, subtract, multiply, divide, divideAndRemainder, equals, pow, max, min, intValue, doubleValue
+2. `new BigInteger("13412")`：常用，字符串中必须是整数
+3. `BigInteger.valueOf(1232L)`：常用，参考 6，有优化。
+4. `new BigInteger("13453",2 进制)`
+5. `new BigInteger(int num, Random rnd)`:获取指定范围的随机大整数 2^num
+6. 对`-16~16`的数字做了优化，多次创建都是同一个对象。
+7. BigInteger 方法：`add, subtract, multiply, divide, divideAndRemainder, equals, pow, max, min, intValue, doubleValue`
 
 8. 存储上限：
 
@@ -241,12 +239,12 @@ meta:
 
 用于表示位数较多的小数，以及解决小数精度失真的问题，是计算结果更精确。
 
-1. BigDecimal.valueOf(number/string)：常用（没有超出 int 表示范围）
-2. new BigDecimal(string)：常用
+1. `BigDecimal.valueOf(number/string)`：常用（没有超出 int 表示范围）
+2. `new BigDecimal(string)`：常用
 3. 对 0~10 之间的整数，会返回已经创建好的对象，不会重新 new
 4. 舍入模式，四舍五入。一般使用 `RoundingMode.HALF_UP`
 5. 存储方式：遍历每个字符，转换为对应的 ASCII 码，然后存储到数组中`byte[]`，负数还会存储一个负号。
-6. add, subtract, multiply, divide
+6. `add, subtract, multiply, divide`
 
 ### 正则表达式
 
@@ -280,7 +278,7 @@ meta:
 - `(?i)` : 忽略后面字符的大小写
 - `a((?i)b)c` : 只忽略 a 后面字符 b 的大小写
 
-1. 正则表达式-预定义字符
+3. 正则表达式-预定义字符
 
 语法示例：
 
@@ -361,10 +359,10 @@ Collection 是单列集合的顶层接口，它的功能是全部单列集合都
    3. Vector 实现类：已彻底淘汰
 2. Set 接口：添加的元素是无序（添加的顺序）、不重复、无索引
    1. HashSet 实现类: 无序（添加的顺序）、不重复、无索引，底层使用哈希表存储数据，增删改查性能都较好。JDK8 之前：数组+链表==哈希表，新元素存入数组，老元素挂在新元素下面。JDK8 开始：数组+链表+红黑树==哈希表，新元素直接挂在老元素下面。加载因子会影响数组的扩容时机。JDK8 以后，当链表长度超过 8，而且数组长度大于等于 64 时，自动转换为红黑树。如果集合中存储的是自定义对象，那么必须要重写 hashCode 和 equals 方法。
-      1. LinkedHashSet 实现类: 有序（添加的顺序）、不重复、无索引，底层是哈希表，但是每个元素额外多了一个双链表的机制记录存储的顺序。
+       - LinkedHashSet 实现类: 有序（添加的顺序）、不重复、无索引，底层是哈希表，但是每个元素额外多了一个双链表的机制记录存储的顺序。
    2. TreeSet 实现类: 可排序、不重复、无索引。默认规则：对于数值类型：Integer、Double，默认按照从小到大的顺序进行排列。对于字符、字符串类型：按照字符在 ASCII 码表中的数字升序进行排列。基于红黑树实现的。自定义排序规则有两种：一是 JavaBean 类实现 Comparable 接口，制定比较规则；二是创建集合时，自定义 Comparable 比较器对象，指定比较规则。
 
-List 和 Set 有相同的遍历方式：3 种：
+List 和 Set 有相同的遍历方式 3 种：
 
 1. 迭代器对象：`Iterator<String> it = set/list.iterator();`
 
@@ -447,18 +445,18 @@ Map<String,String> map3 = Map.copyOf(hm);
 2. 有 filter 过滤、limit 获取前几个元素、skip 跳过前几个元素、distinct 元素去重（依赖 hashCode 和 equals 方法）、concat 合并 ab 两个流为一个流、map 遍历、forEach 遍历、count 统计元素个数、toArray 收集流中的数据放到数组中、collect 收集流中的数据放到集合中等
    1. 中间方法，返回新的 Stream 流，原来的 Stream 流只能使用一次，因此最好用链式编程
    2. 修改 Stream 流中的数据，不会影响原来集合或数组中的数据
-3. 中间方法：过滤、转换等：filter、limit、skip、distinct、concat、map
-4. 终结方法：统计、打印等：forEach、count、toArray
-5. 双列集合无法直接使用 stream 流，hashMap.ketSet/entrySet.stream()...
-6. 单列集合使用 Collection 中的默认方法，list.stream()...
-7. 数组使用 Arrays 工具类中的静态方法，Arrays.stream(arr)...
-8. 零散数据(需要是同类数据类型)使用 Stream 接口中的静态方法，Stream.of(1,2,3,4)...
+3. 中间方法：过滤、转换等：`filter、limit、skip、distinct、concat、map`
+4. 终结方法：统计、打印等：`forEach、count、toArray`
+5. 双列集合无法直接使用 stream 流，`hashMap.ketSet/entrySet.stream()...`
+6. 单列集合使用 Collection 中的默认方法，`list.stream()...`
+7. 数组使用 Arrays 工具类中的静态方法，`Arrays.stream(arr)...`
+8. 零散数据(需要是同类数据类型)使用 Stream 接口中的静态方法，`Stream.of(1,2,3,4)...`
 9. 注意：Stream 接口中静态方法 of 的细节：方法的形参是一个可变参数，可以传递一堆零散的数据，也可以传递数组，但是数组必须是引用数据类型的，如果传递基本数据类型，则会把整个数组当成一个元素放到 Stream 当中。
 10. toArray 方法的参数：`new IntFunction<>(){@Override public T apply(){...return T;}}`
 11. collect 方法可以收集到 Set、List、Map 等：
-    1. Collectors.toList()不去重
-    2. Collectors.toSet()去重
-    3. Collectors.toMap("key 的规则","value 的规则")，如果要收集到 Map 中，那么键名不能重复，否则报错。
+    1. `Collectors.toList()`不去重
+    2. `Collectors.toSet()`去重
+    3. `Collectors.toMap("key 的规则","value 的规则")`，如果要收集到 Map 中，那么键名不能重复，否则报错。
     4. 如下：Function 泛型一：表示流里面的每一个数据的类型，泛型二表示 Map 集合中值的数据类型。方法 apply 形参：依次表示流里面的每一个数据，方法体：生成键/值的代码，返回值是已经生成的键/值。
 
 ```java
@@ -501,16 +499,16 @@ list.stream().filter(...).collect(Collectors.toMap(
 程序出现的问题。
 
 1. Java.lang.Throwable:
-    - Error：严重的错误，开发不用管
-    - Exception：异常，需要处理
-      - RuntimeException: 编译时不会提示，运行时会提示
-      - 其他异常：编译时异常：在编译阶段必须手动处理，否则代码报错，红色波浪线
+   - Error：严重的错误，开发不用管
+   - Exception：异常，需要处理
+     - RuntimeException: 编译时不会提示，运行时会提示
+     - 其他异常：编译时异常：在编译阶段必须手动处理，否则代码报错，红色波浪线
 2. 异常的作用：
-    - 是用来查询bug的重要参考信息
-    - 可以作为方法内部的一种特殊返回值，以便通知调用者底层的执行情况
+   - 是用来查询 bug 的重要参考信息
+   - 可以作为方法内部的一种特殊返回值，以便通知调用者底层的执行情况
 3. 异常的处理方式：
-   1. JVM默认的处理方式：把异常的名称原因及出现的位置等信息输出在控制台；程序停止执行
-   2. 自己处理（捕获异常）：`try..catch`，对于多种异常，可以通过写多个catch来分别捕获（JDK7中可以把多个写在一个语句里`|`），注意，如果多个异常之间存在父子关系，那么要把父类写在子类后面。没有捕获到的就交个JVM默认处理。
+   1. JVM 默认的处理方式：把异常的名称原因及出现的位置等信息输出在控制台；程序停止执行
+   2. 自己处理（捕获异常）：`try..catch`，对于多种异常，可以通过写多个 catch 来分别捕获（JDK7 中可以把多个写在一个语句里`|`），注意，如果多个异常之间存在父子关系，那么要把父类写在子类后面。没有捕获到的就交个 JVM 默认处理。
    3. 抛出异常：
       1. throws: 写在方法定义处，表示声明一个异常，告诉调用者，使用本方法可能会有哪些异常
       2. throw: 写在方法内，结束方法，手动抛出异常对象，交给调用者，方法中下面的代码不再执行了
@@ -519,17 +517,19 @@ list.stream().filter(...).collect(Collectors.toMap(
 6. 自定义异常：`extends RuntimeException`/`extends Exception`，定义异常类，写继承关系，空参构造，带参构造
 
 ### File
-0. File对象表示路径，可以是文件也可以是文件夹，这个路径可以存在也可以是不存在的
-1. 3个函数方法
+
+1. File 对象表示路径，可以是文件也可以是文件夹，这个路径可以存在也可以是不存在的
+2. 3 个函数方法
 
 ```java
 public File(String pathname)// 根据文件路径创建文件对象
 public File(String parent, String child)// 根据父路径名字符串和子路径名字符串创建文件对象
 public File(File parent, String child)// 根据父路径对应文件对象和子路径名字符串创建文件对象
 ```
-2. 路径分隔符：Windows用反斜线`\\`，MacOS/Linux用斜线`/`
+
+2. 路径分隔符：Windows 用反斜线`\\`，MacOS/Linux 用斜线`/`
 3. 对路径的拼接一般用构造方法更稳妥
-4. File中的常见的方法：
+4. File 中的常见的方法：
    1. `public static File[] listRoots()`: 列出可用的文件系统根
    2. `public String[] list()`: 获取当前该路径下所有内容
    3. `public String[] list(FilenameFilter filter)`: 利用文件名过滤器获取当前该路径下所有内容
@@ -543,23 +543,23 @@ public File(File parent, String child)// 根据父路径对应文件对象和子
 
 存储和读取数据的解决方案。
 
-1. 按流的方向划分：IO流分为输入流（读取）和输出流（写出）
-2. 按操作文件类型划分：IO流可以分为字节流（可以操作所有类型文件）和字符流（智能操作纯文件文本--可以被记事本直接打开并且没有乱码的，比如txt、md）
+1. 按流的方向划分：IO 流分为输入流（读取）和输出流（写出）
+2. 按操作文件类型划分：IO 流可以分为字节流（可以操作所有类型文件）和字符流（智能操作纯文件文本--可以被记事本直接打开并且没有乱码的，比如 txt、md）
 3. 字节流：
-    - InputStream -> FileInputStream
-    - OutputStream -> FileOutputStream
+   - InputStream -> FileInputStream
+   - OutputStream -> FileOutputStream
 4. 字符流：
-    - Reader -> FileReader
-    - Writer -> FileWriter
+   - Reader -> FileReader
+   - Writer -> FileWriter
+
 #### FileOutputStream
 
-1. 创建字节输出流对象：参数是字符串表示的路径或者File对象都是可以的；如果文件不存在会创建新的文件，但是要保证父级路径是存在的；如果文件已经存在，则会清空文件。
-2. 写数据：write方法的参数是整数，但是实际上写到本地文件中的是整数在ASCII上对应的字符。
+1. 创建字节输出流对象：参数是字符串表示的路径或者 File 对象都是可以的；如果文件不存在会创建新的文件，但是要保证父级路径是存在的；如果文件已经存在，则会清空文件。
+2. 写数据：write 方法的参数是整数，但是实际上写到本地文件中的是整数在 ASCII 上对应的字符。
 3. 释放资源：每次使用完流之后都要释放资源。
 4. `void write(int b)`: 一次写一个字节数据
 5. `void write(byte[] b)`: 一次写一个字节数组数据
 6. `void write(byte[] b, int off, int len)`: 一次写一个字节数组的部分数据
-
 
 ```java
 FileOutputStream fos = new FileOutputStream("workspace\\a.txt");
@@ -568,12 +568,12 @@ fos.write(97);// 'a'
 fos.close();
 ```
 
-7. 换行：`\r\n`(windows)/`\n`(linux)/`\r`(macos)，Java会默认自动补全
-8. 续写：`FileOutputStream fos = new FileOutputStream("workspace\\a.txt", true);`：true表示开启append，默认false不会续写
+7. 换行：`\r\n`(windows)/`\n`(linux)/`\r`(macos)，Java 会默认自动补全
+8. 续写：`FileOutputStream fos = new FileOutputStream("workspace\\a.txt", true);`：true 表示开启 append，默认 false 不会续写
 
 #### FileInputStream
 
-1. 如果文件不存在就直接报错；一次读一个字节，读出来的是数据在ASCII上对应的数字；读到文件末尾，read方法返回-1；每次使用完流必须要释放资源
+1. 如果文件不存在就直接报错；一次读一个字节，读出来的是数据在 ASCII 上对应的数字；读到文件末尾，read 方法返回-1；每次使用完流必须要释放资源
 2. 循环读取：
 
 ```java
@@ -592,8 +592,8 @@ fis.close();
 
 #### 文件拷贝
 
-1. read方法不传参默认一次读一个字节
-2. read方法传参数：表示一次读取多个字节
+1. read 方法不传参默认一次读一个字节
+2. read 方法传参数：表示一次读取多个字节
 
 ```java
 FileInputStream fis = new FileInputStream("workspace\\a.txt");
@@ -615,7 +615,6 @@ fos.close();
 // 先开的流，后关闭
 fis.close();
 ```
-
 
 #### 字节流
 
@@ -757,7 +756,7 @@ fis.close();
 
 ### HttpUtil 工具类
 
-参考自okhttp，OkHttpUtil 针对 OKHttp 做了一层封装，使 Http 请求变得无比简单。
+参考自 okhttp，OkHttpUtil 针对 OKHttp 做了一层封装，使 Http 请求变得无比简单。
 
 #### OKHttpUtil 功能
 
@@ -780,6 +779,7 @@ fis.close();
     <version>0.4.4</version>
 </dependency>
 ```
+
 #### get
 
 ```java

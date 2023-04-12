@@ -199,4 +199,192 @@ Compressed 和 Dynamic 这两种格式采用完全的行溢出方式，记录的
 
 #### MVCC 机制
 
-####
+## 入门知识
+
+### 服务管理
+
+1. 查看mysql服务进程：`ps -ef | grep mysql`
+2. service服务管理：`cp -a mysql.server /etc/rc.d/init.d/mysql`
+3. 启动命令：`service mysql start`
+4. 关闭命令：`service mysql stop`
+5. 重新启动命令：`service mysql restart`
+6. 查看状态命令：`service mysql status`
+7. 登录管理： `ln -s /usr/local/mysql/bin/*  /bin`
+8. 登录命令：`mysql -uroot -p`
+9. 默认端口号：`3306`
+10. 配置文件：`/etc/my.cnf`
+11. 登录命令：`mysql -u用户 -p密码`
+12. 退出命令：`exit;  quit;`
+
+### 库表深入解析
+
+1. 什么是库？顾名思义就是数据仓库的意思，存储着一定数据结构的数据，一个数据库中可能包含着若干个表，我们可以
+通过数据库提供的多种方法来管理数据库里边的数据。本质上mysql数据库是一个关系型数据服务管理系统
+2. 什么是表？我们所说的表就是数据表，每一张表是由行和列组成，每记录一条数据，数据表就增加一行。列是由字段名
+与字段数据属性组成，我们称之列为字段，每一个字段有着多个属性。例如是否允许为空、长度、类型等等
+3. 数据库：database
+4. 数据表：table
+5. 字段（列）：column
+6. 行：row
+
+## sql各类语句精讲
+
+操作语句分为四类：
+1. DDL 数据定义语言 (Data Definition Language) 例如：建库，建表
+2. DML 数据操纵语言(Data Manipulation Language) 例如：对表中的数据进行增删改操作
+3. DQL 数据查询语言(Data Query Language) 例如：对数据进行查询
+4. DCL 数据控制语言(Data Control Language) 例如：对用户的权限进行设置
+
+
+### DDL数据定义语言
+
+#### 创建、查看以及使用/切换
+
+1. 直接创建数据库 db1: `create database db1;`
+2. 查看当前在哪个库里边: `select database();`
+3. 进入库的操作: `use 库名;`
+4. 判断是否存在，如果不存在则创建数据库 db2: `create database if not exists db2;`
+5. 创建数据库并指定字符集为 gbk: `create database db3 default character set gbk;`
+6. 查看某个库是什么字符集: `show create database XD;`
+7. 查看当前mysql使用的字符集: `show variables like 'character%';`
+
+#### 常用数据类型
+
+1. 数据类型是指列、存储过程参数、表达式和局部变量的数据特征，它决定了数据的存储格式，代表了不同的信息类型。有一些数据是要存储为数字的，数字当中有些是要存储为整数、小数、日期型等...
+2. mysql常见数据类型:
+
+```text
+<1>整数型
+     类型      大小      范围（有符号）               范围（无符号unsigned）    用途
+     TINYINT   1 字节    (-128，127)                (0，255)                 小整数值
+     SMALLINT  2 字节    (-32768，32767)            (0，65535)               大整数值
+     MEDIUMINT 3 字节    (-8388608，8388607)        (0，16777215)            大整数值
+     INT       4 字节    (-2147483648，2147483647)  (0，4294967295)          大整数值
+     BIGINT    8 字节     （）                       (0，2的64次方减1)        极大整数值
+​
+<2>浮点型
+ FLOAT(m,d）  4 字节    单精度浮点型  备注：m代表总个数，d代表小数位个数
+ DOUBLE(m,d） 8 字节    双精度浮点型  备注：m代表总个数，d代表小数位个数
+ 
+ <3>定点型
+ DECIMAL(m,d）    依赖于M和D的值    备注：m代表总个数，d代表小数位个数
+ 
+ <4>字符串类型 
+ 类型          大小              用途
+ CHAR          0-255字节         定长字符串
+ VARCHAR       0-65535字节       变长字符串
+ TINYTEXT      0-255字节         短文本字符串
+ TEXT          0-65535字节       长文本数据
+ MEDIUMTEXT    0-16777215字节    中等长度文本数据
+ LONGTEXT      0-4294967295字节  极大文本数据
+ 
+ char的优缺点：存取速度比varchar更快，但是比varchar更占用空间
+ varchar的优缺点：比char省空间。但是存取速度没有char快
+ 
+ <5>时间型
+ 数据类型    字节数            格式                    备注
+ date        3                yyyy-MM-dd              存储日期值
+ time        3                HH:mm:ss                存储时分秒
+ year        1                yyyy                    存储年
+ datetime    8                yyyy-MM-dd HH:mm:ss     存储日期+时间
+ timestamp   4                yyyy-MM-dd HH:mm:ss     存储日期+时间，可作时间戳
+
+```
+3. eg.
+
+```sql
+create table test_time (
+            date_value date,
+            time_value time,
+            year_value year,
+            datetime_value datetime,
+            timestamp_value timestamp
+         ) engine = innodb charset = utf8;
+
+insert into test_time values(now(), now(), now(), now(), now());
+```
+
+#### 创建表
+1. 语法：
+```sql
+CREATE TABLE 表名 (
+                  字段名1 字段类型1 约束条件1 说明1,
+                  字段名2 字段类型2 约束条件2 说明2,
+                  字段名3 字段类型3 约束条件3 说明3
+                  );
+create table 新表名 as select * from 旧表名 where 1=2;(注意：建议这种创建表的方式用于日常测试，因  为可能索引什么的会复制不过来)
+create table 新表名 like 旧表名;
+
+```
+2. 约束条件：
+
+```sql
+comment         ----说明解释
+not null        ----不为空
+default         ----默认值
+unsigned        ----无符号（即正数）
+auto_increment  ----自增
+zerofill        ----自动填充
+unique key      ----唯一值
+```
+
+3. 创建sql
+
+```sql
+CREATE TABLE student (
+                    id tinyint(5) zerofill auto_increment  not null comment '学生学号',
+                    name varchar(20) default null comment '学生姓名',
+                    age  tinyint  default null comment '学生年龄',
+                    class varchar(20) default null comment '学生班级',
+                    sex char(5) not null comment '学生性别',
+                    unique key (id)
+                    )engine=innodb charset=utf8;;
+​
+CREATE TABLE student (
+                    id tinyint(5)  auto_increment  default null comment '学生学号',
+                    name varchar(20) default null comment '学生姓名',
+                    age  tinyint  default null comment '学生年龄',
+                    class varchar(20) default null comment '学生班级',
+                    sex char(5) not null comment '学生性别',
+                    unique key (id)
+                    )engine=innodb charset=utf8;;
+```
+
+#### 查看
+
+- 查看数据库中的所有表：`show tables;`
+- 查看表结构：`desc 表名;`
+- 查看创建表的sql语句：`show create table 表名;`
+- `\G` ：有结束sql语句的作用，还有把显示的数据纵向旋转90度
+- `\g` ：有结束sql语句的作用
+
+#### 查看
+
+```sql
+
+```
+#### 查看
+
+```sql
+
+```
+
+### DML数据操纵语言
+
+```sql
+
+
+```
+### DQL数据查询语言
+
+```sql
+
+
+```
+### DCL数据控制语言
+
+```sql
+
+
+```
+### 

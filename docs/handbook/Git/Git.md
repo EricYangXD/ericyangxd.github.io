@@ -144,11 +144,12 @@ PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名�
 git fetch origin
 git checkout -b new-feature origin/new-feature
 ```
+
 ### git branch
 
 1. 列出本地分支：`git branch`
 2. 设置本地分支跟踪远程仓库分支，后续直接`git pull`或`git push`即可：`git branch --set-upstream-to=origin/feature my-feature`
-3. 还可以使用`git config`命令配置Git，在默认情况下自动设置对新分支的跟踪。你可以设置`branch.autoSetupMerge`配置选项为`always`，使Git在创建新分支时创建跟踪分支。
+3. 还可以使用`git config`命令配置 Git，在默认情况下自动设置对新分支的跟踪。你可以设置`branch.autoSetupMerge`配置选项为`always`，使 Git 在创建新分支时创建跟踪分支。
 
 ## 修改 git commit msg
 
@@ -450,6 +451,17 @@ and the repository exists.
 Git: warning: Pulling without specifying how to reconcile divergent branches is
 # 不建议在没有为偏离分支指定合并策略时执行pull 操作
 ```
+
+### 如何 Sync 那些 fork 过来的项目
+
+当源项目有更新和自己的修改发生冲突时，通常无法直接 Sync 代码，（如果不想把自己的改动丢掉）此时需要手动操作：
+
+1. `git checkout -b Yidadaa-main mainYours`: 先从你的最新的（要合并的）分支中 checkout 一个新分支
+2. `git pull git@github.com:Yidadaa/ChatGPT-Next-Web.git mainYours`: 把源项目的最新改动分支拉到你的项目中，这些操作都是在你自己的项目中操作的，注意！
+3. `git checkout mainYours`: 切换到你自己的最新（主）分支中
+4. `git merge --no-ff Yidadaa-main`: 合并源仓库的最新（主）分支到你的主分支上
+5. 解决代码冲突并 commit
+6. `git push origin mainYours`: 把你的最新（主）分支推送到远程仓库。over。
 
 设置为 rebase：`git config pull.rebase false`
 

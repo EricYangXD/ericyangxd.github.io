@@ -71,6 +71,22 @@ Tomcat 环境变量配置：
 4. 在 classpath 中加入`%CATALINA_HOME%\common\lib\servlet-api.jar;`（注意加的时候在原变量值后加英文状态下的`;`）
 5. 在 path 中加入`%CATALINA_HOME%\bin;`（注意加的时候在原变量值后加英文状态下的`;`）
 
+### IDEA VM Options
+
+根据机器情况修改 idea.vmoptions 配置，可以提高 idea 的运行流畅度。
+
+```bash
+-Xms1024m
+-Xmx2048m
+-XX:+UseConcMarkSweepGC
+-Djava.net.preferIPv4Stack=true
+-Dfile.encoding=UTF-8
+```
+
+### 修改 IDEA 中 Tomcat 运行端口号
+
+在`application.properties`配置文件中设置`server.port=8080`即可。
+
 ## MySQL 一行记录是怎么存储的？
 
 1. MySQL 的数据都是保存在磁盘的，那具体是保存在哪个文件呢：MySQL 存储的行为是由存储引擎实现的，MySQL 支持多种存储引擎，不同的存储引擎保存的文件自然也不同。InnoDB 是我们常用的存储引擎，也是 MySQL 默认的存储引擎。所以，本文主要以 InnoDB 存储引擎展开讨论。

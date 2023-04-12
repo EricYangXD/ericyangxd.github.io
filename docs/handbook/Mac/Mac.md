@@ -371,3 +371,9 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
   - then the `Keys` tab with its sub-tab `Key Mappings`
   - Click `Load Preset`...
   - and choose `Natural Text Editing`
+
+## Commands
+
+### 查看某个端口的占用情况
+
+`sudo lsof -i :8080`
