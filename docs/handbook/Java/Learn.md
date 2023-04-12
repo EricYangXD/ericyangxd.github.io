@@ -615,7 +615,49 @@ fos.close();
 // 先开的流，后关闭
 fis.close();
 ```
+3. AutoCloseable接口：实现之后在特定情况下可以自动关闭流
+4. 异常捕获：finally
+5. 字符集：
+    - ASCII基本一个字符一个字节即可
+    - GB2312-80
+    - GBK包含GB13000-1中的全部中日韩汉字和BIG5中的所有汉字，Windows默认显示ANSI
+    - BIG5
+    - Unicode
+    - UTF-8:不是字符集，是一种编码格式。Unicode Transfer Format，使用1~4个字节可变长度编码，省空间（相对于UTF-16和UTF-32），ASCII1个字节，中日韩3个字节...
+6. 乱码：
+    - 读取数据是未读完整个汉字
+    - 编解码方式不统一
+7. 避免乱码：
+    - 不要用字节流读取文本文件
+    - 编码解码时使用同一个码表，同一个编码方式
 
+8. 编码方式：
+    - `getBytes()/getBytes(String charsetName)`: 前者使用默认方式编码（IDEA-UTF-8,Eclipse-GBK），后者使用指定的编码方式编码
+9. 解码方式：
+    - `String(byte[] bytes)/String(byte[] bytes, String charsetName)`: 前者使用默认方式解码，后者使用指定方式解码
+
+3. AutoCloseable接口：实现之后在特定情况下可以自动关闭流
+4. 异常捕获：finally
+5. 字符集：
+    - ASCII基本一个字符一个字节即可
+    - GB2312-80
+    - GBK包含GB13000-1中的全部中日韩汉字和BIG5中的所有汉字，Windows默认显示ANSI
+    - BIG5
+    - Unicode
+    - UTF-8:不是字符集，是一种编码格式。Unicode Transfer Format，使用1~4个字节可变长度编码，省空间（相对于UTF-16和UTF-32），ASCII1个字节，中日韩3个字节...
+6. 乱码：
+    - 读取数据是未读完整个汉字
+    - 编解码方式不统一
+7. 避免乱码：
+    - 不要用字节流读取文本文件
+    - 编码解码时使用同一个码表，同一个编码方式
+
+8. 编码方式：
+    - `getBytes()/getBytes(String charsetName)`: 前者使用默认方式编码（IDEA-UTF-8,Eclipse-GBK），后者使用指定的编码方式编码
+9. 解码方式：
+    - `String(byte[] bytes)/String(byte[] bytes, String charsetName)`: 前者使用默认方式解码，后者使用指定方式解码
+
+10. 
 #### 字节流
 
 ```java
