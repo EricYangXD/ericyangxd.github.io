@@ -355,4 +355,12 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
 12. `brew cask install intellij-idea-ce`: 安装idea社区版或直接去官网下载
 13. `IDEA->Help->Edit Custom VW Options`，在打开的idea.vmoptions文件中调整-Xms和-Xmx等JVM相关参数，让ide流畅运行
 14. 通过[Spring Initializr](https://start.spring.io)创建工程，打开网页，填写项目信息，点击生成，下载helloworld.zip压缩包
-15. 
+15. Maven设置sdkman的settings.xml为全局公用配置：
+    1.  在`.zshrc`中设置环境变量：一般来说sdkman默认安装的位置都是一样的
+      ```sh
+      export SDKMAN_DIR=$HOME/.sdkman
+      export M2_HOME=$SDKMAN_DIR/candidates/maven/current
+      ```
+    2. `mkdir -p $M2_HOME/conf`，如果没有权限则`sudo chown -R $USER $M2_HOME`
+    3. `cp /path/to/your/settings.xml $M2_HOME/conf/`
+    4. 这样当你切换Maven版本之后，也依然会使用公用的settings

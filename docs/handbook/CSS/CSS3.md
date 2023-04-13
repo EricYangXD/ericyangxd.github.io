@@ -19,33 +19,33 @@ meta:
 
 ```less
 dialog::backdrop {
-	background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .list li::marker {
-	color: red;
-	content: "😄";
-	/* content:url("./selected.svg"); */
+  color: red;
+  content: "😄";
+  /* content:url("./selected.svg"); */
 }
 
 p::selection {
-	background-color: yellow;
-	color: green;
-	text-shadow: 1px 1px 3px deeppink;
+  background-color: yellow;
+  color: green;
+  text-shadow: 1px 1px 3px deeppink;
 }
 
 input[type="file"]::file-selector-button {
-	border: 1px solid grey;
-	border-radius: 4px;
-	cursor: pointer;
-	&:hover {
-		background-color: white;
-	}
+  border: 1px solid grey;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: white;
+  }
 }
 
 input::placeholder {
-	color: blue;
-	opacity: 0.5;
+  color: blue;
+  opacity: 0.5;
 }
 ```
 
@@ -55,13 +55,21 @@ input::placeholder {
 
 ```css
 .photos img {
-	width: 15%;
-	aspect-ratio: 3/2;
-	object-fit: contain;
-	mix-blend-mode: color-burn;
-	/* mix-blend-mode: color-dodge;
+  width: 15%;
+  aspect-ratio: 3/2;
+  object-fit: contain;
+  mix-blend-mode: color-burn;
+  /* mix-blend-mode: color-dodge;
 	mix-blend-mode: color-burn;
 	mix-blend-mode: color;
 	mix-blend-mode: exclusion; */
 }
 ```
+
+### :first-of-type
+
+like `:first-child`
+
+### 合并子级连结符
+
+合并子级连结符，例：`.top > * + *`，该规则现在仅适用于 `.top` 的直接子级。
