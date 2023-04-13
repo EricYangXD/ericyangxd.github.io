@@ -12,8 +12,8 @@ meta:
 ```css
 scrollbar-width: none;
 &::-webkit-scrollbar {
-	display: none;
-	width: 0;
+  display: none;
+  width: 0;
 }
 scroll-behavior: smooth;
 ```
@@ -96,9 +96,9 @@ let style = window.getComputedStyle(elem1, null);
 
 ```css
 #container::after {
-	content: "";
-	display: block;
-	clear: both;
+  content: "";
+  display: block;
+  clear: both;
 }
 ```
 
@@ -135,7 +135,7 @@ console.log('styles', styles.primaryColor);
 
 ```css
 html * {
-	outline: 1px solid red;
+  outline: 1px solid red;
 }
 ```
 
@@ -189,9 +189,9 @@ html * {
 
 ```css
 @media print {
-	body {
-		display: none !important;
-	}
+  body {
+    display: none !important;
+  }
 }
 ```
 
@@ -230,9 +230,9 @@ img {
 
 ```css
 img {
-	position: relative;
-	left: -8000px;
-	filter: drop-shadow(8000px 0px red);
+  position: relative;
+  left: -8000px;
+  filter: drop-shadow(8000px 0px red);
 }
 ```
 
@@ -240,17 +240,17 @@ img {
 
 ```html
 <html>
-	<head>
-		<script src="svg-inject.min.js"></script>
-		<style>
-			.svg-img g {
-				fill: blue;
-			}
-		</style>
-	</head>
-	<body>
-		<img class="svg-img" src="image1.svg" onload="SVGInject(this)" />
-	</body>
+  <head>
+    <script src="svg-inject.min.js"></script>
+    <style>
+      .svg-img g {
+        fill: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <img class="svg-img" src="image1.svg" onload="SVGInject(this)" />
+  </body>
 </html>
 ```
 
@@ -266,10 +266,10 @@ img {
 
 ```css
 div {
-	width: 0;
-	height: 0;
-	border: 40px solid;
-	border-color: orange blue red green;
+  width: 0;
+  height: 0;
+  border: 40px solid;
+  border-color: orange blue red green;
 }
 ```
 
@@ -281,11 +281,11 @@ div {
 
 ```css
 div {
-	width: 0;
-	height: 0;
-	border: 40px solid;
-	border-color: transparent transparent red;
-	border-right-width: 0;
+  width: 0;
+  height: 0;
+  border: 40px solid;
+  border-color: transparent transparent red;
+  border-right-width: 0;
 }
 ```
 
@@ -347,23 +347,23 @@ css 有一系列的伪元素，如`:before`，`:after`，`:first-line`，`:first
 ```css
 // 1.
 .block::after {
-	clear: both;
-	content: "\0020";
-	display: block;
-	height: 0;
-	overflow: hidden;
+  clear: both;
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
 }
 
 // 2.
 .clear-fix {
-	*overflow: hidden;
-	*zoom: 1;
+  *overflow: hidden;
+  *zoom: 1;
 }
 .clear-fix::after {
-	display: table;
-	content: "";
-	width: 0;
-	clear: both;
+  display: table;
+  content: "";
+  width: 0;
+  clear: both;
 }
 ```
 
@@ -410,11 +410,11 @@ css 有一系列的伪元素，如`:before`，`:after`，`:first-line`，`:first
 
 ```css
 body {
-	counter-reset: section;
+  counter-reset: section;
 }
 h2::before {
-	counter-increment: section;
-	content: "Chapter" counter(section) ".";
+  counter-increment: section;
+  content: "Chapter" counter(section) ".";
 }
 ```
 
@@ -425,13 +425,13 @@ h2::before {
 
 ```css
 blockquote::before {
-	content: open-quote;
-	position: absolute;
-	z-index: -1;
-	color: #ddd;
-	font-size: 120px;
-	font-family: serif;
-	font-weight: bolder;
+  content: open-quote;
+  position: absolute;
+  z-index: -1;
+  color: #ddd;
+  font-size: 120px;
+  font-family: serif;
+  font-weight: bolder;
 }
 ```
 
@@ -536,7 +536,7 @@ CSS 伪类 是添加到选择器的关键字，指定要选择的元素的特殊
 $primary-color: #f40;
 
 :export {
-	primaryColor: $primary-color;
+  primaryColor: $primary-color;
 }
 ```
 
@@ -554,22 +554,22 @@ console.log(style.primaryColor); // #F40
 
 ```tsx
 const Button = styled.button`
-	/* Adapt the colors based on primary prop */
-	background: ${(props) => (props.primary ? "palevioletred" : "white")};
-	color: ${(props) => (props.primary ? "white" : "palevioletred")};
+  /* Adapt the colors based on primary prop */
+  background: ${(props) => (props.primary ? "palevioletred" : "white")};
+  color: ${(props) => (props.primary ? "white" : "palevioletred")};
 
-	font-size: 1em;
-	margin: 1em;
-	padding: 0.25em 1em;
-	border: 2px solid palevioletred;
-	border-radius: 3px;
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border: 2px solid palevioletred;
+  border-radius: 3px;
 `;
 
 render(
-	<div>
-		<Button>Normal</Button>
-		<Button primary>Primary</Button>
-	</div>
+  <div>
+    <Button>Normal</Button>
+    <Button primary>Primary</Button>
+  </div>
 );
 ```
 
@@ -577,19 +577,19 @@ render(
 
 ```tsx
 const StyledLoader = styled.div<{ fullScreen?: boolean }>`
-	display: block;
-	background-color: #fff;
-	width: 100%;
-	position: ${({ fullScreen }) => (fullScreen ? "fixed" : "absolute")};
-	top: 0;
-	bottom: 0;
-	left: 0;
-	z-index: 100000;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	opacity: 1;
-	text-align: center;
+  display: block;
+  background-color: #fff;
+  width: 100%;
+  position: ${({ fullScreen }) => (fullScreen ? "fixed" : "absolute")};
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  text-align: center;
 `;
 ```
 
@@ -625,13 +625,13 @@ to{
 `;
 
 const LoaderWrap = styled.div`
-	display: inline-block;
-	vertical-align: middle;
-	animation: ${rotate} 1s linear infinite;
-	img {
-		width: 16px;
-		height: 16px;
-	}
+  display: inline-block;
+  vertical-align: middle;
+  animation: ${rotate} 1s linear infinite;
+  img {
+    width: 16px;
+    height: 16px;
+  }
 `;
 ```
 
@@ -672,6 +672,13 @@ const LoaderWrap = styled.div`
 6. 关系选择器/通配符选择器（0000）
 
 带!important 标记的样式属性优先级最高； 样式表的来源相同时：!important > 行内样式 > ID 选择器 > 类选择器 > 标签 > 通配符 > 继承 > 浏览器默认属性
+
+PS：活动的动画和过渡规则类型比普通规则具有更高的重要性。在过渡重要性高于 !important 规则类型的情况下。这是因为当动画或过渡变为活动状态时，其预期行为是改变视觉状态。
+
+The `:not()` pseudo-class itself adds nothing to the specificity calculation. However, the selectors passed in as arguments do get added to the specificity calculation.
+
+![优先级参考](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202304131832765.png)
+得分相同的话，后者覆盖前者。
 
 ## BFC
 
@@ -721,25 +728,25 @@ href 表示超文本引用，用在 link 和 a 等元素上，href 是引用和�
 
 ```html
 <style>
-	/* 纯三角形 */
-	.triangle {
-		position: relative;
-		width: 0;
-		height: 0;
-		border-width: 0 50px 50px;
-		border-style: solid;
-		border-color: transparent transparent red;
-	}
-	/* 利用伪元素，画三角形的边 */
-	.triangle::after {
-		content: "";
-		position: absolute;
-		top: 1px;
-		left: -48px;
-		border-width: 0 48px 48px;
-		border-style: solid;
-		border-color: transparent transparent black;
-	}
+  /* 纯三角形 */
+  .triangle {
+    position: relative;
+    width: 0;
+    height: 0;
+    border-width: 0 50px 50px;
+    border-style: solid;
+    border-color: transparent transparent red;
+  }
+  /* 利用伪元素，画三角形的边 */
+  .triangle::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: -48px;
+    border-width: 0 48px 48px;
+    border-style: solid;
+    border-color: transparent transparent black;
+  }
 </style>
 <div class="triangle"></div>
 ```
@@ -748,32 +755,32 @@ href 表示超文本引用，用在 link 和 a 等元素上，href 是引用和�
 
 ```html
 <style>
-	/* 1 */
-	.square {
-		position: relative;
-		padding: 50%;
-	}
-	.c {
-		position: absolute;
-		background: yellowgreen;
-		/* transform: translate3d(-50%, -50%, 0); */
-		left: 0;
-		top: 0;
-		width: 200px;
-		height: 200px;
-	}
+  /* 1 */
+  .square {
+    position: relative;
+    padding: 50%;
+  }
+  .c {
+    position: absolute;
+    background: yellowgreen;
+    /* transform: translate3d(-50%, -50%, 0); */
+    left: 0;
+    top: 0;
+    width: 200px;
+    height: 200px;
+  }
 
-	/* 2 */
-	.square {
-		background-color: green;
-		border: 1px solid black;
-		width: 100px;
-		height: 0;
-		padding-bottom: 100px;
-	}
+  /* 2 */
+  .square {
+    background-color: green;
+    border: 1px solid black;
+    width: 100px;
+    height: 0;
+    padding-bottom: 100px;
+  }
 </style>
 <div class="square">
-	<div class="c"></div>
+  <div class="c"></div>
 </div>
 ```
 
@@ -788,45 +795,45 @@ background-clip: padding-box; // 使用paddingbox
 
 ```css
 .yin-yang {
-	height: 200px;
-	width: 200px;
-	position: relative;
-	background: rgb(255, 255, 255);
-	background: linear-gradient(
-		90deg,
-		rgba(255, 255, 255, 1) 0%,
-		rgba(255, 255, 255, 1) 50%,
-		rgba(0, 0, 0, 1) 50%,
-		rgba(0, 0, 0, 1) 100%
-	);
-	border-radius: 50%;
-	box-sizing: border-box;
-	border: 4px solid black;
+  height: 200px;
+  width: 200px;
+  position: relative;
+  background: rgb(255, 255, 255);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(0, 0, 0, 1) 50%,
+    rgba(0, 0, 0, 1) 100%
+  );
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 4px solid black;
 }
 .yin-yang::before {
-	content: "";
-	position: absolute;
-	height: 96px;
-	width: 96px;
-	border-radius: 50%;
-	box-sizing: border-box;
-	background: black;
-	border: 38px solid white;
-	left: 50%;
-	transform: translatex(-50%);
+  content: "";
+  position: absolute;
+  height: 96px;
+  width: 96px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background: black;
+  border: 38px solid white;
+  left: 50%;
+  transform: translatex(-50%);
 }
 .yin-yang::after {
-	content: "";
-	position: absolute;
-	height: 96px;
-	width: 96px;
-	border-radius: 50%;
-	box-sizing: border-box;
-	background: white;
-	border: 38px solid black;
-	left: 50%;
-	bottom: 0;
-	transform: translatex(-50%);
+  content: "";
+  position: absolute;
+  height: 96px;
+  width: 96px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background: white;
+  border: 38px solid black;
+  left: 50%;
+  bottom: 0;
+  transform: translatex(-50%);
 }
 ```
 
@@ -834,8 +841,8 @@ background-clip: padding-box; // 使用paddingbox
 
 ```css
 @font-face {
-	font-family: myFirstFont; /* 必需的 */
-	src: url("xxx.ttf") [, url(xxx.xyz), ...]; /* 必需的 */
+  font-family: myFirstFont; /* 必需的 */
+  src: url("xxx.ttf") [, url(xxx.xyz), ...]; /* 必需的 */
 }
 ```
 
