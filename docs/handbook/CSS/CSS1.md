@@ -680,6 +680,25 @@ The `:not()` pseudo-class itself adds nothing to the specificity calculation. Ho
 ![优先级参考](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202304131832765.png)
 得分相同的话，后者覆盖前者。
 
+### 继承inherit/unset
+
+1. 明确哪些属性可以继承，哪些不可以
+2. 如果一个属性是可继承的，`unset`关键字将与`inherit`相同。如果该属性不可继承，`unset`关键字就等于`initial`。
+3. `all: unset;`全部重置/继承。
+4. `rgb()/hsl()`可以有逗号也可以用空格和`/`代替逗号，hsl后两个值必须是百分比%
+5. transparent是一种完全透明的颜色。它也是背景色的初始值。
+6. currentColor是颜色属性的上下文计算的动态值。如果你有一个红色的文本颜色，然后将边框颜色设置为currentColor，它也将是红色。如果你定义currentColor的元素没有定义颜色值，currentColor将由级联计算。
+7. 一个ch单元，它等于渲染的字体中"0"字符在其计算大小时的宽度。
+8. 为行高使用一个无单位的值（实际相当于百分比：`1.5===150%`），而不是指定一个单位，这是一个好主意。正如你在继承模块中学到的，字体大小可以被继承。
+9. 如果你把margin或padding设置为百分比，它们将是父元素宽度的一部分，与方向无关。
+10. `vi`:在根元素的内联轴上，占视口尺寸的1%。
+11. `vb`:在根元素的块轴上，视口尺寸的1%。
+12. vmin/vmax:1% of the viewport's smaller/larger dimension.
+13. 把一列分成多列展示：`column-count: 4; column-gap: 1em;`
+14. 
+
+
+
 ## BFC
 
 - BFC 全称为块级格式化上下文 (Block Formatting Context) 。

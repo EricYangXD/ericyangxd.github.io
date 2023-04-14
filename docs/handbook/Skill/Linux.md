@@ -494,7 +494,7 @@ $ loginctl show-user ruanyf
   - 使用第三方工具 putty 等
 - MacOS 上：
   - `brew install telnet`
-  - 使用 terminus 等工具
+  - 使用 termius 等工具
 - 以上主要是用作客户端的一些知识
 
 ## 修改密码并改 SSH 秘钥登录为密码登录

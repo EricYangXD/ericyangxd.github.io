@@ -356,7 +356,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 
 跨平台，免费，中文支持。[download](https://www.filezilla.cn/download/client)
 
-#### Terminus
+#### Termius
 
 有免费版本，可以 Telnet、ssh、ftp 等，[download](https://www.termius.com/mac-os)
 
