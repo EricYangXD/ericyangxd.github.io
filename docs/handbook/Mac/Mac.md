@@ -372,6 +372,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
   - Click `Load Preset`...
   - and choose `Natural Text Editing`
 
+- 设置 Status bar: 显示网速、CPU、内存等：点击 `Configure Status bar` 进入配置页面，这里将想要的 `Status bar` 拖入下面的方框即可。这里还推荐选择 `Auto-Rainbow`，这样 `Status bar` 就是以彩色的形式展示了。
 ## Commands
 
 ### 查看某个端口的占用情况

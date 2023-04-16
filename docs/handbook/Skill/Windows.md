@@ -61,5 +61,5 @@ date: "2022-05-21"
 12. `powercfg /energy`：生成电源报告
 13. `powercfg /batteryreport`：生成电池报告
 14. `netsh wlan show wlanreport`：生成无线网卡报告
-15. 
+15. win+R，输入`netplwiz`，取消勾选登录时需要密码，即可取消开机密码
 16. 

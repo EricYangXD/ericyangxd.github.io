@@ -359,7 +359,7 @@ Collection 是单列集合的顶层接口，它的功能是全部单列集合都
    3. Vector 实现类：已彻底淘汰
 2. Set 接口：添加的元素是无序（添加的顺序）、不重复、无索引
    1. HashSet 实现类: 无序（添加的顺序）、不重复、无索引，底层使用哈希表存储数据，增删改查性能都较好。JDK8 之前：数组+链表==哈希表，新元素存入数组，老元素挂在新元素下面。JDK8 开始：数组+链表+红黑树==哈希表，新元素直接挂在老元素下面。加载因子会影响数组的扩容时机。JDK8 以后，当链表长度超过 8，而且数组长度大于等于 64 时，自动转换为红黑树。如果集合中存储的是自定义对象，那么必须要重写 hashCode 和 equals 方法。
-       - LinkedHashSet 实现类: 有序（添加的顺序）、不重复、无索引，底层是哈希表，但是每个元素额外多了一个双链表的机制记录存储的顺序。
+      - LinkedHashSet 实现类: 有序（添加的顺序）、不重复、无索引，底层是哈希表，但是每个元素额外多了一个双链表的机制记录存储的顺序。
    2. TreeSet 实现类: 可排序、不重复、无索引。默认规则：对于数值类型：Integer、Double，默认按照从小到大的顺序进行排列。对于字符、字符串类型：按照字符在 ASCII 码表中的数字升序进行排列。基于红黑树实现的。自定义排序规则有两种：一是 JavaBean 类实现 Comparable 接口，制定比较规则；二是创建集合时，自定义 Comparable 比较器对象，指定比较规则。
 
 List 和 Set 有相同的遍历方式 3 种：
@@ -592,13 +592,15 @@ fis.close();
 
 #### 文件拷贝
 
-1. read 方法不传参默认一次读一个字节
-2. read 方法传参数：表示一次读取多个字节
+- read 方法不传参默认一次读一个字节
+- read 方法传参数：表示一次读取多个字节
 
 ```java
+// 1. 创建对象
 FileInputStream fis = new FileInputStream("workspace\\a.txt");
 FileOutputStream fos = new FileOutputStream("workspace\\b.txt");
 // read方法不传参默认一次读一个字节
+// 2. 拷贝，边读边写
 int b;
 while((b=fis.read())!=-1){
    fos.write(b);
@@ -610,86 +612,80 @@ int len=fis.read(bytes);// 返回本次读取了几个字节，读到的字节�
 Stirng str=new String(bytes,0,len);// 防止读到最后出现问题
 System.out.print(str);
 long end = System.currentTimeMillis();
-
+// 3. 释放资源：先开的最后关闭
 fos.close();
 // 先开的流，后关闭
 fis.close();
 ```
-3. AutoCloseable接口：实现之后在特定情况下可以自动关闭流
-4. 异常捕获：finally
-5. 字符集：
-    - ASCII基本一个字符一个字节即可
-    - GB2312-80
-    - GBK包含GB13000-1中的全部中日韩汉字和BIG5中的所有汉字，Windows默认显示ANSI
-    - BIG5
-    - Unicode
-    - UTF-8:不是字符集，是一种编码格式。Unicode Transfer Format，使用1~4个字节可变长度编码，省空间（相对于UTF-16和UTF-32），ASCII1个字节，中日韩3个字节...
-6. 乱码：
-    - 读取数据是未读完整个汉字
-    - 编解码方式不统一
-7. 避免乱码：
-    - 不要用字节流读取文本文件
-    - 编码解码时使用同一个码表，同一个编码方式
-
-8. 编码方式：
-    - `getBytes()/getBytes(String charsetName)`: 前者使用默认方式编码（IDEA-UTF-8,Eclipse-GBK），后者使用指定的编码方式编码
-9. 解码方式：
-    - `String(byte[] bytes)/String(byte[] bytes, String charsetName)`: 前者使用默认方式解码，后者使用指定方式解码
-
-3. AutoCloseable接口：实现之后在特定情况下可以自动关闭流
-4. 异常捕获：finally
-5. 字符集：
-    - ASCII基本一个字符一个字节即可
-    - GB2312-80
-    - GBK包含GB13000-1中的全部中日韩汉字和BIG5中的所有汉字，Windows默认显示ANSI
-    - BIG5
-    - Unicode
-    - UTF-8:不是字符集，是一种编码格式。Unicode Transfer Format，使用1~4个字节可变长度编码，省空间（相对于UTF-16和UTF-32），ASCII1个字节，中日韩3个字节...
-6. 乱码：
-    - 读取数据是未读完整个汉字
-    - 编解码方式不统一
-7. 避免乱码：
-    - 不要用字节流读取文本文件
-    - 编码解码时使用同一个码表，同一个编码方式
-
-8. 编码方式：
-    - `getBytes()/getBytes(String charsetName)`: 前者使用默认方式编码（IDEA-UTF-8,Eclipse-GBK），后者使用指定的编码方式编码
-9. 解码方式：
-    - `String(byte[] bytes)/String(byte[] bytes, String charsetName)`: 前者使用默认方式解码，后者使用指定方式解码
-
-10. 
-#### 字节流
-
-```java
-
-
-```
-
-#### 文件拷贝
-
-```java
-// 1. 创建对象
-FileInputStream fis=new FileInputStream("D:\\java\\movie.mp4");
-FileOutputStream fos=new FileOutputStream("mymodule\\files\\movie-copy.mp4");
-// 2. 拷贝，边读边写
-int b;
-while((b=fis.read())!=-1){
-   fos.write(b);
-}
-// 3. 释放资源：先开的最后关闭
-fos.close();
-fis.close();
-```
-
 1. FileInputStream 一次读一个字节：`public int read()`
 2. FileInputStream 一次读多个字节：`public int read(byte[] buffer)`，每次读取会尽可能把数组装满，一般用 1024 的整数倍，比如：`1024*1024*10`每次 10MB。
-3.
-4.
+3. AutoCloseable 接口：实现之后在特定情况下可以自动关闭流
+4. 异常捕获：finally
+5. 字符集：
+   - ASCII 基本一个字符一个字节即可
+   - GB2312-80
+   - GBK 包含 GB13000-1 中的全部中日韩汉字和 BIG5 中的所有汉字，Windows 默认显示 ANSI
+   - BIG5
+   - Unicode
+   - UTF-8:不是字符集，是一种编码格式。Unicode Transfer Format，使用 1~4 个字节可变长度编码，省空间（相对于 UTF-16 和 UTF-32），ASCII1 个字节，中日韩 3 个字节...
+6. 乱码：
+   - 读取数据是未读完整个汉字
+   - 编解码方式不统一
+7. 避免乱码：
+   - 不要用字节流读取文本文件
+   - 编码解码时使用同一个码表，同一个编码方式
+8. 编码方式：
+   - `getBytes()/getBytes(String charsetName)`: 前者使用默认方式编码（IDEA-UTF-8,Eclipse-GBK），后者使用指定的编码方式编码
+9. 解码方式：
+   - `String(byte[] bytes)/String(byte[] bytes, String charsetName)`: 前者使用默认方式解码，后者使用指定方式解码
+10. AutoCloseable 接口：实现之后在特定情况下可以自动关闭流
+11. 异常捕获：finally
+12. 字符集：
+    - ASCII 基本一个字符一个字节即可
+    - GB2312-80
+    - GBK 包含 GB13000-1 中的全部中日韩汉字和 BIG5 中的所有汉字，Windows 默认显示 ANSI
+    - BIG5
+    - Unicode
+    - UTF-8:不是字符集，是一种编码格式。Unicode Transfer Format，使用 1~4 个字节可变长度编码，省空间（相对于 UTF-16 和 UTF-32），ASCII1 个字节，中日韩 3 个字节...
+13. 乱码：
+    - 读取数据是未读完整个汉字
+    - 编解码方式不统一
+14. 避免乱码：
+    - 不要用字节流读取文本文件
+    - 编码解码时使用同一个码表，同一个编码方式
+15. 编码方式：
+    - `getBytes()/getBytes(String charsetName)`: 前者使用默认方式编码（IDEA-UTF-8,Eclipse-GBK），后者使用指定的编码方式编码
+16. 解码方式：
+    - `String(byte[] bytes)/String(byte[] bytes, String charsetName)`: 前者使用默认方式解码，后者使用指定方式解码
 
-#### 字符集
+#### 字符流
 
-1. ASCII
-2. GBK
+底层还是字节流。
+
+1. FileReader:操作本地文件的输入流
+   - 按字节进行读取，一次读一个字节，遇到中文时，一次读多个字节，读取后解码，返回一个整数
+   - 读到文件末尾了，read 方法返回-1
+   - `read()`默认一次读一个字节，读取之后还会转成十进制，最终返回这个十进制的值
+   - `read(char[] buffer)` 把读取数据，解码，强转三步合并了，会把强转后的字符放到数组当中
+2. FileWriter:操作本地文件的输出流
+    - 基本同字节输出流
+    - 如果write方法的参数是整数，但是实际上写到本地文件中的是整数在字符集上对应的字符
+3. 字符流原理：
+   - 创建字符流输入对象：底层：关联文件并创建缓冲区（长度为8192的字节数组）
+   - 读取数据：底层：
+       - 判断缓冲区中是否有数据可以读取
+       - 缓冲区没有数据：就从文件中获取数据，装到缓冲区中，每次尽可能装满缓冲区，如果文件中也没有数据了，返回-1
+       - 缓冲区有数据：就从缓冲区读取
+4. close之后不能继续写出数据，flush之后如果缓冲区还有数据，那么仍然可以写出。
+
+
+#### 字节缓冲流
+
+1. 
+```java
+
+
+```
 
 ### 泛型
 

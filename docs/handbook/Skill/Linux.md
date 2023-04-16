@@ -665,6 +665,55 @@ magedu  ALL=(ALL)   ALL  ###添加此行
 5. `sudo touch /root/abc.txt`:可以在 root 下创建文件
 6. `sudo ls /root`:可以列出 root 下的内容
 
+#### Oracle计算实例保活
+
+安装一个lookbusy，配置几个参数，达到oracle的要求即可，以CentOS8为例：
+
+1. 依次执行，如果已经安装了curl则不必再次安装
+```sh
+yum install curl build-essential
+curl -L http://www.devin.com/lookbusy/download/lookbusy-1.4.tar.gz -o lookbusy-1.4.tar.gz
+tar -xzvf lookbusy-1.4.tar.gz
+cd lookbusy-1.4/
+./configure
+make
+make install
+```
+2. 新建systemd服务：`systemctl edit --full --force lookbusy.service`，这一步可能会报错：
+   1. `systemctl list-units --type=service`先查看一下有没有这个服务，如果有的话再执行
+   2. 如果没有就等会。或者`systemctl daemon-reload`
+   3. 如果依然不行，那么直接：`sudo vim /etc/systemd/system/lookbusy.service`创建一个。
+3. 第2步新建的文件里写入：参数-c指cpu使用率，-m指内存使用率。可以根据自己的实例配置来适当配置。
+```sh
+[Unit]
+Description=lookbusy service
+ 
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/lookbusy -c 20 -m 5120MB
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+ 
+[Install]
+WantedBy=multi-user.target
+```
+4. 启动并设置lookbusy开机自启：`systemctl enable --now lookbusy.service`
+5. `top`: 查看当前机器的cpu、内存、负载情况，确定超过甲骨文规定的10%即可
+
+
+#### 几条查看CPU、内存命令
+
+1. 查看CPU型号：`dmidecode -s processor-version`/`cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c`/`more /proc/cpuinfo | grep "model name"`
+2. 查看物理CPU: `cat /proc/cpuinfo | grep "physical id" | sort | uniq|wc -l`
+3. 查看CPU详情: `cat /proc/cpuinfo`/`lscpu`
+4. 查看物理CPU核数: `cat /proc/cpuinfo | grep “cores”|uniq`
+5. 查看逻辑CPU: `cat /proc/cpuinfo | grep “processor” |wc -l`
+6. 查看内存占用: `free -h`
+7. 查看磁盘分区: `lsblk`
+8. 查看磁盘使用详情: `df -h`
+
+
 ### 每次通过密码链接 vps 时都会提示有 xx 次失败记录
 
 可能是爬虫或者恶意攻击，解决方法有至少两个：
