@@ -238,9 +238,9 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 比如：1 和 9 宽度是不一样的。
 
-- font-variant-numeric: CSS 属性控制数字，分数和序号标记的替代字形的使用；
-- tabular-nums: 启用表格数字显示。使数字等宽，易于像表格那样对齐。等同于 OpenType 特性 tnum。
-- 也可以通过 font-feature-settings: "tnum";来实现相同的功能，兼容性更好。
+- `font-variant-numeric`: CSS 属性控制数字，分数和序号标记的替代字形的使用；
+- `tabular-nums`: 启用表格数字显示。使数字等宽，易于像表格那样对齐。等同于 OpenType 特性 tnum。
+- 也可以通过 `font-feature-settings: "tnum";`来实现相同的功能，兼容性更好。
 
 ### font-variant
 
@@ -448,7 +448,15 @@ root.inner = `
 
 ### flex-wrap
 
-控制 flex 容器内元素所占空间超出 flex 容器空间时是否折行。flex-wrap 属性默认是不折行的，容易忽略多元素溢出兜底；为兜底，请设置`flex-wrap: wrap;`
+控制 flex 容器内元素所占空间超出 flex 容器空间时是否折行。flex-wrap 属性默认是不折行的，容易忽略多元素溢出兜底；为兜底，请设置`flex-wrap: wrap;`。`flex-wrap` 属性的初始值为 `nowrap`。这意味着，如果容器中没有足够的空间，项目就会溢出。
+
+### gap
+
+`gap: 1rem;`
+
+### flex-flow
+
+使用速记 `flex-flow` 来设置 `flex-direction` 和 `flex-wrap` 属性
 
 ### margin 间距
 
@@ -589,7 +597,7 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
    - `flex-end`：垂直方向从下往上排列
    - `stretch`：会将子元素高度拉伸父元素一致(子元素未设置高度)
    - `baseline`：基线对齐
-7. `justify-content`：主要影响水平主轴的排列顺序。
+7. `justify-content`：主要影响水平主轴的排列顺序。沿主轴分配空间。要使 `justify-content` 属性起作用，您必须在容器中主轴方向上留出空闲空间。如果您的项目填满了该轴，没有可供分配的空间，那么该属性不会执行任何操作。
    - `flex-start`：左对齐排列
    - `center`：居中排列
    - `flex-end`：居右排列
@@ -597,12 +605,15 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
    - `space-around`：间隔相等排列
 8.  `flex-wrap`：默认`nowrap`。
 9.  `flex-flow`：这个属性主要是`flex-direction`与`flex-wrap`的结合体。默认`row nowrap`。
+10. `align-content`：沿横轴分配空间。初始值为 `stretch`。
+11. `place-content: align justify`：用于同时设置`align-content`和`justify-content`属性的速记。
+12. `flex-direction`的方向就是主轴的方向，所以主轴和横轴实际上是相对的。
 
 - item属性
 1.  `order`：决定子项目的顺序，order越小，越是排列在最前面。
-2.  `flex-basis`：设置当前的item的固定宽度。
-3.  `flex-grow`：该属性是决定当前item的放大比例，默认是0。
-4.  `flex-shrink`：当前item的缩小比例，默认的是0。
+2.  `flex-grow`：该属性是决定当前item的放大比例，默认是0项目不放大。
+3.  `flex-shrink`：当前item的缩小比例，默认的是0。
+4.  `flex-basis`：设置当前的item的固定宽度。
 5.  `align-self`：这个属性可以单独控制当前元素的位置。`flex-start`、`center`、`flex-end`。
 
 ### grid 属性

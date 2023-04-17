@@ -151,6 +151,10 @@ git checkout -b new-feature origin/new-feature
 2. 设置本地分支跟踪远程仓库分支，后续直接`git pull`或`git push`即可：`git branch --set-upstream-to=origin/feature my-feature`
 3. 还可以使用`git config`命令配置 Git，在默认情况下自动设置对新分支的跟踪。你可以设置`branch.autoSetupMerge`配置选项为`always`，使 Git 在创建新分支时创建跟踪分支。
 
+### git status
+
+- `git status --porcelain .`: 命令将以紧凑的"porcelain"格式显示Git存储库中的文件状态。
+
 ## 修改 git commit msg
 
 1. 修改最近一次的 commit 信息 `git commit --amend`

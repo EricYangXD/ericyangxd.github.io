@@ -695,9 +695,11 @@ The `:not()` pseudo-class itself adds nothing to the specificity calculation. Ho
 11. `vb`:在根元素的块轴上，视口尺寸的1%。
 12. vmin/vmax:1% of the viewport's smaller/larger dimension.
 13. 把一列分成多列展示：`column-count: 4; column-gap: 1em;`
-14. 
 
+### 文字方向
 
+- `direction: rtl;` 文字方向从右到左
+- `writing-mode: vertical-rl;` 文字方向从上到下
 
 ## BFC
 
