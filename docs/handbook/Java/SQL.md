@@ -509,16 +509,18 @@ drop > truncate > delete
 ```
 
 #### 中文乱码问题
-- 查看当前mysql使用的字符集：`show variables like 'character%';`
-    - character_set_client：客户端请求数据的字符集
-    - character_set_connection：客户端与服务器连接的字符集
-    - character_set_database：数据库服务器中某个库使用的字符集设定，如果建库时没有指明，将默认使用配置上的字符集
-    - character_set_results：返回给客户端的字符集(从数据库读取到的数据是什么编码的)
-    - character_set_server：为服务器安装时指定的默认字符集设定。
-    - character_set_system：系统字符集(修改不了的，就是utf8)
-    - character_sets_dir：mysql字符集文件的保存路径
+
+- 查看当前 mysql 使用的字符集：`show variables like 'character%';`
+  - character_set_client：客户端请求数据的字符集
+  - character_set_connection：客户端与服务器连接的字符集
+  - character_set_database：数据库服务器中某个库使用的字符集设定，如果建库时没有指明，将默认使用配置上的字符集
+  - character_set_results：返回给客户端的字符集(从数据库读取到的数据是什么编码的)
+  - character_set_server：为服务器安装时指定的默认字符集设定。
+  - character_set_system：系统字符集(修改不了的，就是 utf8)
+  - character_sets_dir：mysql 字符集文件的保存路径
 - 临时：`set names gbk;`
-- 永久：修改配置文件my.cnf里边的
+- 永久：修改配置文件 my.cnf 里边的
+
 ```sql
 [client]
 default-character-set=gbk
@@ -528,9 +530,9 @@ default-character-set=gbk
 character_set_server=gbk
 作用于内部，会作用于创建库表时默认字符集
 ```
+
 - 修改库的字符集编码: `alter database xiaoxiao default character set gbk;`
 - 修改表的字符集编码: `alter table employee default character set utf8;`
-
 
 ### DQL 数据查询语言
 
@@ -590,16 +592,17 @@ INSERT INTO salgrade VALUES (4, 20010, 30000);
 INSERT INTO salgrade VALUES (5, 30010, 99990);
 ```
 
-
-#### where条件查询
+#### where 条件查询
 
 - 简单查询
+
 ```sql
 select * from employee;
 select empno,ename,job as ename_job from employee;
 ```
 
 - 精确条件查询
+
 ```sql
 select * from employee where ename='后裔';
 select * from employee where sal != 50000;
@@ -608,34 +611,39 @@ select * from employee where sal > 10000;
 ```
 
 - 模糊条件查询
+
 ```sql
-show variables like '%aracter%'; 
+show variables like '%aracter%';
 select * from employee  where ename like '林%';
 ```
 
 - 范围查询
+
 ```sql
 select * from employee where sal between 10000 and 30000;
 select * from employee where hiredate between '2011-01-01' and '2017-12-1';
 ```
 
 - 离散查询
+
 ```sql
 select * from employee where ename in ('猴子','林俊杰','小红','小胡');
 ```
 
 - 清除重复值
+
 ```sql
 select distinct(job) from employee;
 ```
 
 - 统计查询（聚合函数）:
+
 ```sql
 -- count(code)或者count(*)
 select count(*) from employee;
 select count(ename) from employee;
 
--- sum()  计算总和 
+-- sum()  计算总和
 select sum(sal) from employee;
 
 -- max()    计算最大值
@@ -651,22 +659,24 @@ select * from employee where sal= (select  min(sal) from employee);
 select concat(ename,' 是 ',job) as aaaa from employee;
 ```
 
-
 #### `group by`分组查询（分组）
+
 - 作用：把行 按 字段 分组
-- 语法：group by 列1，列2....列N
+- 语法：group by 列 1，列 2....列 N
 - 适用场合：常用于统计场合，一般和聚合函数连用
+
 ```sql
 -- eg:
 select deptnu,count(*) from employee group by deptnu;
 select deptnu,job,count(*) from employee group by deptnu,job;
 select job,count(*) from employee group by job;
 ```
-#### having条件查询（筛选）
+
+#### having 条件查询（筛选）
 
 - 作用：对查询的结果进行筛选操作
 - 语法：having 条件 或者 having 聚合函数 条件
-- 适用场合：一般跟在group by之后
+- 适用场合：一般跟在 group by 之后
 
 ```sql
 -- eg:
@@ -674,11 +684,13 @@ select job,count(*) from employee group by job having job ='文员';
 select  deptnu,job,count(*) from employee group by deptnu,job having count(*)>=2;
 select  deptnu,job,count(*) as 总数 from employee group by deptnu,job having 总数>=2;
 ```
+
 #### `order by`排序查询（排序）
 
 - 作用：对查询的结果进行排序操作
-- 语法：order by 字段1,字段2 .....
+- 语法：order by 字段 1,字段 2 .....
 - 适用场合：一般用在查询结果的排序
+
 ```sql
 -- eg:
 select * from employee order by sal;
@@ -687,22 +699,25 @@ select  deptnu,job,count(*) as 总数 from employee group by deptnu,job having �
 select  deptnu,job,count(*) as 总数 from employee group by deptnu,job having 总数>=2 order by deptnu asc;
 select  deptnu,job,count(*) as 总数 from employee group by deptnu,job having 总数>=2 order by deptnu;
 ​
--- 顺序：where ---- group by ----- having ------ order by 
+-- 顺序：where ---- group by ----- having ------ order by
 ```
-#### limit限制查询（限制）
+
+#### limit 限制查询（限制）
 
 - 作用：对查询结果起到限制条数的作用
-- 语法：limit n，m n:代表起始条数值，不写默认为0；m代表：取出的条数
+- 语法：limit n，m n:代表起始条数值，不写默认为 0；m 代表：取出的条数
 - 适用场合：数据量过多时，可以起到限制作用
 
 ```sql
 -- eg:
 select * from XD.employee limit 4,5;
 ```
-#### exists型子查询
 
-- exists型子查询后面是一个受限的select查询语句
-- exists子查询，如果exists后的内层查询能查出数据，则返回 TRUE 表示存在；为空则返回 FLASE则不存在。
+#### exists 型子查询
+
+- exists 型子查询后面是一个受限的 select 查询语句
+- exists 子查询，如果 exists 后的内层查询能查出数据，则返回 TRUE 表示存在；为空则返回 FLASE 则不存在。
+
 ```sql
 -- 分为2种：exists跟 not exists
 ​
@@ -713,29 +728,35 @@ select * from 表名 a where exists (select 1 from 表名2 where 条件);
 select * from dept a where exists (select 1 from employee b where a.deptnu=b.deptnu);
 select * from dept a where not exists (select 1 from employee b where a.deptnu=b.deptnu);
 ```
+
 #### 左连接查询与右连接查询
 
 - 左连接称之为左外连接 右连接称之为右外连接 这俩个连接都是属于外连接
 - 左连接关键字：`left join 表名 on 条件` / `left outer 表名 join on 条件` 右连接关键字：`right join 表名 on 条件`/ `right outer 表名 join on 条件`
-- 左连接说明： `left join` 是`left outer join`的简写，左(外)连接，左表(a_table)的记录将会全部表示出来， 而右表(b_table)只会显示符合搜索条件的记录。右表记录不足的地方均为NULL。
-- 右连接说明：`right join`是`right outer join`的简写，与左(外)连接相反，右(外)连接，左表(a_table)只会显示符合搜索条件的记录，而右表(b_table)的记录将会全部表示出来。左表记录不足的地方均为NULL。
+- 左连接说明： `left join` 是`left outer join`的简写，左(外)连接，左表(a_table)的记录将会全部表示出来， 而右表(b_table)只会显示符合搜索条件的记录。右表记录不足的地方均为 NULL。
+- 右连接说明：`right join`是`right outer join`的简写，与左(外)连接相反，右(外)连接，左表(a_table)只会显示符合搜索条件的记录，而右表(b_table)的记录将会全部表示出来。左表记录不足的地方均为 NULL。
+
 ```sql
 -- eg:列出部门名称和这些部门的员工信息，同时列出那些没有的员工的部门
 --   dept，employee
 select a.dname,b.* from dept a  left join employee b on a.deptnu=b.deptnu;
 select b.dname,a.* from employee a  right join  dept b on b.deptnu=a.deptnu;
 ```
+
 #### 内连接查询与联合查询
 
 - 内连接：获取两个表中字段匹配关系的记录
 - 主要语法：`INNER JOIN 表名 ON 条件;`
+
 ```sql
 -- eg:想查出员工张飞的所在部门的地址
 select a.addr from dept a inner join employee b on a.deptnu=b.deptnu and b.ename='张飞';
 select a.addr from dept a,employee b where a.deptnu=b.deptnu and b.ename='张飞';
 ```
-- 联合查询：就是把多个查询语句的查询结果结合在一起，主要语法1：`... UNION ... （去除重复） 主要语法2：... UNION ALL ...（不去重复）`
-- union查询的注意事项：
+
+- 联合查询：就是把多个查询语句的查询结果结合在一起，主要语法 1：`... UNION ... （去除重复） 主要语法2：... UNION ALL ...（不去重复）`
+- union 查询的注意事项：
+
 ```sql
 -- (1)两个select语句的查询结果的“字段数”必须一致；
 -- (2)通常，也应该让两个查询语句的字段类型具有一致性；
@@ -744,6 +765,7 @@ select a.addr from dept a,employee b where a.deptnu=b.deptnu and b.ename='张飞
 -- eg:对销售员的工资从低到高排序，而文员的工资从高到低排序
 (select * from employee a where a.job = '销售员'  order by a.sal limit 999999 ) union  (select * from employee b where b.job = '文员' order by b.sal desc limit 999999);
 ```
+
 #### 项目高级查询实战(一)
 
 - 查出至少有一个员工的部门。显示部门编号、部门名称、部门位置、部门人数。
@@ -753,28 +775,38 @@ select a.addr from dept a,employee b where a.deptnu=b.deptnu and b.ename='张飞
 语句：select deptnu,count(*) from employee group by deptnu
 语句：select a.deptnu,a.dname,a.addr, b.zongshu from dept a,(select deptnu,count(*) as zongshu from employee group by deptnu) b where a.deptnu=b.deptnu;
 ```
+
 - 列出薪金比安琪拉高的所有员工。
+
 ```sql
 涉及表：employee
 语句：select * from  employee where sal > (select sal from employee where ename='安琪拉');
 ```
+
 - 列出所有员工的姓名及其直接上级的姓名。
+
 ```sql
 涉及表：employee
 语句：select a.ename,ifnull(b.ename,'BOSS') as leader from employee a left join employee b on a.mgr=b.empno;
 ```
+
 - 列出受雇日期早于直接上级的所有员工的编号、姓名、部门名称。
+
 ```sql
 涉及表：employee dept
 条件：a.hiredate < b.hiredate
 语句：select a.empno,a.ename,c.dname from employee a left join employee b on a.mgr=b.empno left join dept c on a.deptnu=c.deptnu where a.hiredate < b.hiredate;
 ```
+
 - 列出部门名称和这些部门的员工信息，同时列出那些没有员工的部门。
+
 ```sql
 涉及表：dept employee
 语句：select a.dname,b.* from dept a left join employee b on a.deptnu=b.deptnu;
 ```
+
 - 列出所有文员的姓名及其部门名称，所在部门的总人数。
+
 ```sql
 涉及表：employee dept
 条件：job='文员'
@@ -784,60 +816,75 @@ select a.addr from dept a,employee b where a.deptnu=b.deptnu and b.ename='张飞
 
 #### 项目高级查询实战(二)
 
-- 列出最低薪金大于15000的各种工作及从事此工作的员工人数。
+- 列出最低薪金大于 15000 的各种工作及从事此工作的员工人数。
 
 ```sql
 涉及表：employee
-条件：min(sal) > 15000 
+条件：min(sal) > 15000
 语句：select job,count(*) from employee group by job having min(sal) > 15000;
 ```
+
 - 列出在销售部工作的员工的姓名，假定不知道销售部的部门编号。
 
 ```sql
 涉及表：employee dept
 select  ename  from employee where deptnu=(select deptnu from dept where dname='销售部');
 ```
+
 - 列出与诸葛亮从事相同工作的所有员工及部门名称。
+
 ```sql
 涉及表：employee dept
 语句：select a.ename,b.dname from employee a,dept b where a.deptnu=b.deptnu and a.job= (select job from employee where ename='诸葛亮');
 语句：select a.ename,b.dname from employee a left join dept b on a.deptnu=b.deptnu where a.job=(select job from employee where ename='诸葛亮');
 ```
-- 列出薪金比 在部门30工作的员工的薪金 还高的员工姓名和薪金、部门名称。
+
+- 列出薪金比 在部门 30 工作的员工的薪金 还高的员工姓名和薪金、部门名称。
+
 ```sql
 涉及表：employee dept
 语句：select a.ename,a.sal,b.dname from employee a ,dept b where a.deptnu=b.deptnu and sal > (select max(sal) from employee where deptnu=30);
 ```
+
 - 列出每个部门的员工数量、平均工资。
+
 ```sql
 涉及表：employee
 语句：select deptnu , count(*) ,avg (sal) from employee group by deptnu;
 ```
+
 - 列出薪金高于公司平均薪金的所有员工信息，所在部门名称，上级领导，工资等级。
+
 ```sql
 涉及表：employee dept salgrade
 条件：select avg(sal) from employee
 语句：elect a.*,c.dname,b.ename,d.grade from employee a,employee b,dept c ,salgrade d where a.mgr=b.empno and a.deptnu =c.deptnu and a.sal > (select avg(sal) from employee) and a.sal  between d.lowsal and d.higsal;
 ```
 
-
 ### DCL 数据控制语言（对用户权限的设置）
 
-- 什么是DCL数据控制语言？
+- 什么是 DCL 数据控制语言？
 
-数据控制语言（DCL：Data Control Language）是用来设置或者更改数据库用户或角色权限的语句，这些语句包括GRANT、DENY、REVOKE等语句。
-#### 限制root用户指定ip登录
-如何从安全角度出发限制root用户指定ip登录
+数据控制语言（DCL：Data Control Language）是用来设置或者更改数据库用户或角色权限的语句，这些语句包括 GRANT、DENY、REVOKE 等语句。
 
-- 查看root用户可以在哪台机器登录
+#### 限制 root 用户指定 ip 登录
+
+如何从安全角度出发限制 root 用户指定 ip 登录
+
+- 查看 root 用户可以在哪台机器登录
+
 ```sql
 select user,host from mysql.user where user='root';
 ```
-- 修改mysql库里边的user表
+
+- 修改 mysql 库里边的 user 表
+
 ```sql
 update mysql.user set host='localhost' where user='root';
 ```
+
 - 刷新权限
+
 ```sql
 flush privileges;
 ```
@@ -845,43 +892,56 @@ flush privileges;
 #### 用户密码
 
 修改用户密码分三种方法：
+
 - 第一种：set password for 用户@ip = password('密码');
+
 ```sql
 set password for root@localhost = password('root');
 ```
-- 第二种：mysqladmin -u用户 -p旧密码 password 新密码;
+
+- 第二种：mysqladmin -u 用户 -p 旧密码 password 新密码;
+
 ```sql
 mysqladmin -urootmysqladmin -uroot -proot password;
 ```
+
 - 第三种：update mysql.user set authentication_string=password('密码') where user='用户' and host='ip';
+
 ```sql
 update mysql.user set authentication_string=password('root') where user='root' and host='localhost';
 ```
 
 忘记密码:
 
-- 第一步：修改配置文件my.cnf (默认在/etc/my.cnf)，在[mysqld]下面加上 skip-grant-tables （跳过权限的意思）
-- 第二步：重启mysql服务
+- 第一步：修改配置文件 my.cnf (默认在/etc/my.cnf)，在[mysqld]下面加上 skip-grant-tables （跳过权限的意思）
+- 第二步：重启 mysql 服务
 - 第三步：mysql -uroot -p 无需密码登录进入
 - 第四步：修改密码
 
-#### 创建新用户并限制ip网段登录
+#### 创建新用户并限制 ip 网段登录
 
 - 创建用户的语法：create user 'username'@'host' identified by 'password';
+
 ```sql
 username：你将创建的用户名
 host：指定该用户在哪个主机上可以登陆，如果是本地用户可用localhost，如果想让该用户可以从任意远程主机    登陆，可以使用通配符%
 password：该用户的登陆密码，密码可以为空，如果为空则该用户可以不需要密码登陆服务器
 ```
-- 创建用户语法：创建一个pig用户，并指定登录密码：123456，可以在任何一台远程主机都可以登录
+
+- 创建用户语法：创建一个 pig 用户，并指定登录密码：123456，可以在任何一台远程主机都可以登录
+
 ```sql
 create user 'pig'@'%' identified by '123456';
 ```
-- 创建一个pig用户，并指定登录密码：为空，指定在120网段的机器登录
+
+- 创建一个 pig 用户，并指定登录密码：为空，指定在 120 网段的机器登录
+
 ```sql
 create user 'pig'@'120.%.%.%' identified by '';
 ```
+
 - 查看权限：
+
 ```sql
 select * from mysql.user where user='pig'\G
 mysql> show grants for 'pig'@'%';
@@ -899,19 +959,25 @@ mysql> show grants for 'root'@'localhost';
 +---------------------------------------------------------------------+
 WITH GRANT OPTION:表示这个用户拥有grant权限，即可以对其他用户授权
 ```
+
 - 删除用户语法：drop user 'username'@'host';
+
 ```sql
 drop user 'pig'@'%';
 delete from mysql.user where user='pig';
 ```
+
 #### 库表权限授权与回收
 
-- 授权语法：grant 权限1,权限2..... on 数据库对象 to '用户'
+- 授权语法：grant 权限 1,权限 2..... on 数据库对象 to '用户'
+
 ```sql
 grant 权限1,权限2..... on 数据库对象 to '用户'@'host' identified by 'password';
 ```
+
 - all privileges:代表所有权限
 - . :代表所有库所有表
+
 ```sql
 对现有用户进行授权：对现有用户pig授予所有库所有表所有权限。
 grant all privileges on *.*  to 'pig';
@@ -931,7 +997,9 @@ grant select,update on XD.employee to 'cat'@'%' identified by '123456'
 对没有的用户进行授权：对用户cat授予XD库的employee表insert 权限，登录密码123456，任何一台主机登录
 grant insert on XD.employee to 'cat'@'%' identified by '123456';
 ```
-- 回收语法：revoke 权限1,权限2..... on 数据库对象 from '用户'@'host';
+
+- 回收语法：revoke 权限 1,权限 2..... on 数据库对象 from '用户'@'host';
+
 ```sql
 回收pig用户的所有权限（注意：并没有回收它的登录权限）
 revoke all privileges on *.*  from 'pig' @ '%';
@@ -943,33 +1011,33 @@ flush privileges;
 delete from mysql.user where user='pig';
 flush privileges;
 ```
+
 ```sql
 回收cat用户对XD库的employee的查与修改权限
 revoke select,update on XD.employee from 'cat'@'%';
 flush privileges;
 ```
 
-
 ### 事务实战，视图，触发器，以及存储过程
 
 #### 事务的详细解析
+
 - 什么是事务?
 - 答：数据库事务通常指对数据库进行读或写的一个操作过程。有两个目的，第一个是为数据库操作提供了一个从失败中恢复到正常状态的方法，同时提供了数据库即使在异常状态下仍能保持一致性的方法；第二个是当多个应用程序在并发访问数据库时，可以在这些应用程序之间提供一个隔离方法，以防止彼此的操作互相干扰。
 - 事务的特性（ACID）：
-   - 原子性(Atomicity)：事务必须是原子工作单元，一个事务中的所有语句，应该做到：要么全做，要么一个都不做；
-   - 一致性(Consistency):让数据保持逻辑上的“合理性”，比如：小明给小红打10000块钱，既要让小明的账户减少10000，又要让小红的账户上增加10000块钱；
-   - 隔离性(Isolation)：如果多个事务同时并发执行，但每个事务就像各自独立执行一样。
-   - 持久性(Durability)：一个事务执行成功，则对数据来说应该是一个明确的硬盘数据更改（而不仅仅是内存中的变化）。
--  **要使用事务的话，表的引擎要为innodb引擎**
-   
+  - 原子性(Atomicity)：事务必须是原子工作单元，一个事务中的所有语句，应该做到：要么全做，要么一个都不做；
+  - 一致性(Consistency):让数据保持逻辑上的“合理性”，比如：小明给小红打 10000 块钱，既要让小明的账户减少 10000，又要让小红的账户上增加 10000 块钱；
+  - 隔离性(Isolation)：如果多个事务同时并发执行，但每个事务就像各自独立执行一样。
+  - 持久性(Durability)：一个事务执行成功，则对数据来说应该是一个明确的硬盘数据更改（而不仅仅是内存中的变化）。
+- **要使用事务的话，表的引擎要为 innodb 引擎**
 
+#### 事务实战
 
-
-#### 事务实战   
 - 事务的开启与提交：
-   - 事务的开启：begin; start transaction;
-   - 事务的提交：commit;
-   - 事务的回滚：rollback;
+  - 事务的开启：begin; start transaction;
+  - 事务的提交：commit;
+  - 事务的回滚：rollback;
+
 ```sql
 创建一个账户表模拟转账
 create table account (
@@ -979,9 +1047,11 @@ create table account (
                          primary key (id)
                          )engine=innodb charset=utf8;
 ```
-- 开启autocommit（临时生效）：
+
+- 开启 autocommit（临时生效）：
 
 OFF（0）：表示关闭 ON （1）：表示开启
+
 ```sql
 mysql> set autocommit=0;
 Query OK, 0 rows affected (0.00 sec)
@@ -994,25 +1064,29 @@ mysql> show variables like 'autocommit';
 +---------------+-------+
 mysql> set autocommit=1;
 Query OK, 0 rows affected (0.00 sec)
-mysql> 
+mysql>
 mysql> show variables like 'autocommit';
 +---------------+-------+
 | Variable_name | Value |
 +---------------+-------+
 | autocommit    | ON    |
 ```
-- 开启autocommit（永久生效）：
+
+- 开启 autocommit（永久生效）：
 
 修改配置文件：vi /etc/my.cnf 在[mysqld]下面加上：autocommit=1 记得重启服务才会生效
 
-
 #### 视图的应用
+
 - 什么是视图？视图的作用是什么？
+
 ```sql
 视图（view）是一种虚拟存在的表，是一个逻辑表，它本身是不包含数据的。作为一个select语句保存在数据字典中的。
 通过视图，可以展现基表（用来创建视图的表叫做基表base table）的部分数据，说白了视图的数据就是来自于基表
 ```
+
 - 视图的优点是：
+
 ```sql
 1）简单：使用视图的用户完全不需要关心后面对应的表的结构、关联条件和筛选条件，对用户来说已经是过滤好的复合条件的结果集。
 ​
@@ -1024,147 +1098,172 @@ mysql> show variables like 'autocommit';
 ​
 总而言之，使用视图的大部分情况是为了保障数据安全性，提高查询效率。
 ```
+
 - 视图的创建以及修改
+
 ```sql
 创建的基本语法是：
 create view <视图名称> as select 语句;
 create view <视图名称> (字段) as select 语句;
 create or replace view <视图名称>;
 ```
+
 ```sql
 修改的语法是：
 alter view <视图名称> as select 语句;
 ```
+
 ```sql
 视图删除语法：
 drop view <视图名称> ;
 ```
+
 - 视图的缺点
+
 ```sql
  1)性能差：sql server必须把视图查询转化成对基本表的查询，如果这个视图是由一个复杂的多表查询所定义，那么，即使是视图的一个简单查询，sql server也要把它变成一个复杂的结合体，需要花费一定的时间。
- 
+
  2)修改限制：当用户试图修改试图的某些信息时，数据库必须把它转化为对基本表的某些信息的修改，对于简单的试图来说，这是很方便的，但是，对于比较复杂的试图，可能是不可修改的。
 ```
-####  触发器介绍  
+
+#### 触发器介绍
 
 - 什么是触发器？
 - 触发器就是监视某种情况，并触发某种操作
 
 - 创建触发器的语法:
+
 ```sql
-create trigger 触发器名称  after/before   insert/update/delete on 表名  
+create trigger 触发器名称  after/before   insert/update/delete on 表名
    for each row
    begin
    sql语句;
    end
 ```
+
 ```sql
 after/before:可以设置为事件发生前或后
 insert/update/delete:它们可以在执行insert、update或delete的过程中触发
 for each row:每隔一行执行一次动作
 ```
+
 - 删除触发器的语法:
+
 ```sql
 drop trigger 触发器名称;
 ```
+
 - 演示：
+
 ```sql
 创建一个员工迟到表：
- create table work_time_delay(
-            empno int not null comment '雇员编号',
-            ename varchar(50) comment '雇员姓名',
-            status int comment '状态'
-            );
-
+create table work_time_delay(
+   empno int not null comment '雇员编号',
+   ename varchar(50) comment '雇员姓名',
+   status int comment '状态'
+);
 ```
+
 ```sql
 delimiter // 自定义语句的结束符号
 ​
-    mysql> delimiter //
-    mysql> 
-    mysql> create trigger trig_work after insert on work_time_delay
-        -> for each row
-        -> begin
-        -> update employee set sal=sal-100 where empno=new.empno;
-        -> end
-        -> //
-    Query OK, 0 rows affected (0.01 sec)
+mysql> delimiter //
+mysql>
+mysql> create trigger trig_work after insert on work_time_delay
+-> for each row
+-> begin
+-> update employee set sal=sal-100 where empno=new.empno;
+-> end
+-> // Query OK, 0 rows affected (0.01 sec)
 ​
 new：指的是事件发生before或者after保存的新数据
 ```
-#### 存储过程介绍
-- 什么是存储过程？
-- 存储过程就是把复杂的一系列操作，封装成一个过程。类似于shell，python脚本等。
-- 存储过程的优缺点
-```sql
- 优点是：
-        1)复杂操作，调用简单
-        2)速度快
-        
-    缺点是：
-        1）封装复杂
-        2) 没有灵活性
 
+#### 存储过程介绍
+
+- 什么是存储过程？
+- 存储过程就是把复杂的一系列操作，封装成一个过程。类似于 shell，python 脚本等。
+- 存储过程的优缺点
+
+```sql
+优点是：
+   1)复杂操作，调用简单
+   2)速度快
+
+缺点是：
+   1）封装复杂
+   2) 没有灵活性
 ```
+
 - 创建存储过程语法：
+
 ```sql
 create procedure 名称 (参数....)
-        begin
+         begin
          过程体;
          过程体;
          end
 ```
+
 ```sql
-参数：in|out|inout 参数名称 类型（长度）
-        in：表示调用者向过程传入值（传入值可以是字面量或变量）
-        out：表示过程向调用者传出值(可以返回多个值)（传出值只能是变量）
-        inout：既表示调用者向过程传入值，又表示过程向调用者传出值（值只能是变量）
+参数：
+in|out|inout 参数名称 类型（长度）
+in：表示调用者向过程传入值（传入值可以是字面量或变量）
+out：表示过程向调用者传出值(可以返回多个值)（传出值只能是变量）
+inout：既表示调用者向过程传入值，又表示过程向调用者传出值（值只能是变量）
 ```
+
 - 声明变量：declare 变量名 类型(长度) default 默认值;
 - 给变量赋值：set @变量名=值;
 - 调用存储命令：call 名称(@变量名);
 - 删除存储过程命令：drop procedure 名称;
 - 查看创建的存储过程命令：
+
 ```sql
 show create procedure 名称\G;
 ```
+
 ```sql
 创建一个简单的存储过程：
-    mysql> delimiter //
-    mysql> create procedure  name(in n int)
-        ->             begin
-        ->             select * from employee limit n;
-        ->             end
-        -> //
-    Query OK, 0 rows affected (0.00 sec)
+mysql> delimiter //
+mysql> create procedure  name(in n int)
+->     begin
+->     select * from employee limit n;
+->     end
+-> //  Query OK, 0 rows affected (0.00 sec)
 ​
-    mysql> set @n=5;
-        -> //
-    Query OK, 0 rows affected (0.00 sec)
+mysql> set @n=5;
+-> // Query OK, 0 rows affected (0.00 sec)
 ​
-    mysql> 
-    mysql> call name(@n);
+mysql>
+mysql> call name(@n);
 ```
+
 ```sql
-  mysql>         create procedure  name()
-        ->             begin
-        ->             declare  n int default 6;
-        ->             select * from employee limit n;
-        ->             end
-        -> //
-    Query OK, 0 rows affected (0.00 sec)
+mysql> create procedure  name()
+->     begin
+->     declare n int default 6;
+->     select * from employee limit n;
+->     end
+-> //  Query OK, 0 rows affected (0.00 sec)
 ​
-    mysql> call name();
+mysql> call name();
 ```
-### 8索引与存储引擎的介绍
+
+### 8 索引与存储引擎的介绍
+
 ```sql
 
 ```
-#### 
+
+####
+
 ```sql
 
 ```
-#### 
+
+####
+
 ```sql
 
 ```

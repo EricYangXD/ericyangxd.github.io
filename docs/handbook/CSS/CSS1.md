@@ -447,7 +447,7 @@ blockquote::before {
 
 ```css
 ::after (:after)
-::backdrop
+::backdrop // 如果你有一个以全屏模式呈现的元素，如`<dialog>`或`<video>`，你可以用`::backdrop`伪元素来设计背景--该元素和页面其他部分之间的空间
 ::before (:before)
 ::cue (:cue)
 ::first-letter (:first-letter)
@@ -483,32 +483,32 @@ CSS 伪类 是添加到选择器的关键字，指定要选择的元素的特殊
 :fullscreen
 :future (en-US)
 :focus
-:focus-visible
-:focus-within
+:focus-visible：使用tab时会focus。
+:focus-within：如果你的元素的一个子元素收到焦点，你也可以用`:focus-within`来反应。
 :has()
 :host
 :host()
 :host-context()
 :hover
 :indeterminate
-:in-range
-:invalid
-:is()
+:in-range：校验min-max是否在范围之内
+:invalid：校验邮箱等是否有效
+:is()：选某种或几种特定的类型
 :lang()
 :last-child
-:last-of-type
+:last-of-type：注意区分和last-child的区别
 :left
-:link
+:link：可以应用于任何具有href值且尚未被访问的`<a>`元素。
 :local-link (en-US)
-:not()
+:not()：排除某些dom类型或dom属性
 :nth-child()
 :nth-col() (en-US)
 :nth-last-child()
 :nth-last-col() (en-US)
 :nth-last-of-type()
-:nth-of-type()
-:only-child
-:only-of-type
+:nth-of-type()：选择某一类的第几个元素
+:only-child：选择没有兄弟姐妹的元素。
+:only-of-type：只选择这种元素
 :optional
 :out-of-range
 :past (en-US)
@@ -519,14 +519,17 @@ CSS 伪类 是添加到选择器的关键字，指定要选择的元素的特殊
 :right
 :root
 :scope
-:target
+:target：会选择一个id与URL片段匹配的元素。可用于索引和段落间的跳转
 :target-within (en-US)
 :user-invalid (en-US)
-:valid
+:valid：校验邮箱等是否有效
 :visited
 :where()
 ```
 
+如果你定义了一个 `:visited` 样式，它可以被一个链接伪类覆盖，至少有同等的特殊性。正因为如此，我们建议你使用`LVHA`规则，以特定的顺序为链接伪类设置样式：`:link`, `:visited`, `:hover`, `:active`。
+
+为了安全起见，你只能用:visited伪类来改变由:link或unvisited状态定义的样式，所以确保你首先定义可改变的样式是很重要的。坚持LVHA规则会对此有所帮助。
 ## 实现 CSS 与 JS 变量共享
 
 ### :export 关键字

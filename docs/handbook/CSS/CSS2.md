@@ -11,7 +11,7 @@ meta:
 
 ### 设置阴影
 
-当使用透明图像时，可以使用 `filter: drop-shadow()` 函数在图像上创建阴影，而不是使用 `box-shadow` 属性在元素的整个框后面创建矩形阴影.
+当使用透明图像时，可以使用 `filter: drop-shadow()` 函数在图像上创建阴影，而不是使用 `box-shadow` 属性在元素的整个框后面创建矩形阴影。值与`box-shadow`相同，但不允许使用`inset`关键字和扩散值。可以随心所欲地添加阴影，通过在`filter`属性中添加多个`drop-shadow`值的实例。每个阴影将使用前一个阴影作为定位参考点。
 
 ```css
 .drop-shadow {
@@ -19,9 +19,29 @@ meta:
 }
 ```
 
+`box-shadow`的值的顺序如下：
+
+- 水平偏移：一个正数将它从左边推开，一个负数将它从右边推开。
+- 垂直偏移：一个正数将它从顶部推下来，一个负数将它从底部推上去。
+- 模糊半径：一个较大的数字产生一个更模糊的阴影，而一个较小的数字产生一个更清晰的阴影。
+- 展开半径（可选）：一个较大的数字会增加阴影的大小，一个较小的数字会减少阴影的大小，如果它被设置为 0，则会使它与模糊半径的大小相同。
+- 颜色：任何有效的颜色值。如果没有定义这个，将使用计算出的文本颜色。
+- 要使一个盒子的阴影成为内阴影，而不是默认的外阴影，请在其他属性之前添加一个 inset 关键字。
+- 通过`,`可以添加多个 shadow 样式
+- `border-radius`会影响`box-shadow`
+- 父元素如果设置了`overflow: hidden;`会影响`box-shadow`
+- `text-shadow`属性与`box-shadow`属性非常相似。它只对文本节点起作用。
+- `text-shadow`的值与`box-shadow`相同，而且顺序相同。唯一不同的是，`text-shadow`没有扩散值，也没有`inset`关键字。
+- 同样也可以给 `text-shadow`添加多个 shadow
+-
+
 ### 平滑滚动
 
 无需 JavaScript 即可实现平滑滚动，只需一行 CSS：`scroll-behavior: smooth；`.
+
+### scroll-margin-top
+
+该属性定义了用于将这个盒子抓取到`snapport`的滚动抓取区域的顶部边距。滚动抓取区域的确定方法是：取变换后的边框，找到它的矩形边框（在滚动容器的坐标空间中轴对齐），然后加上指定的外框。点击索引跳转到正文时，正文区域滚动到离顶部的边距。
 
 ### 自定义光标
 
@@ -723,11 +743,32 @@ footer {
 
 ### border 属性
 
-CSS `border`属性是`border-width`，`border-style`和`border-color`这 3 个 CSS 属性的缩写，当`border`属性设置了 1 个值或 2 个值的时候，**剩下的属性值一定是默认值**，例如：
+CSS `border`属性是`border-width`(default:`medium`)，`border-style`和`border-color`(default:`currentColor`)这 3 个 CSS 属性的缩写，当`border`属性设置了 1 个值或 2 个值的时候，**剩下的属性值一定是默认值**，例如：
 
 - `border:2px`等同于`border:2px none currentColor`，也就是此时`border-style`是默认值`none`，`border-color`的计算值是当前的色值；
 - `border:#fff`等同于`border:medium none #fff`，也就是此时`border-width`是默认值`medium`；
 - `border:solid`等同于`border:medium solid currentColor`。
+- border 默认使用的是 contentTextColor。如果你只声明边框属性，如宽度，颜色将是那个计算值，除非你明确地设置它。
+- `border-inline-end`:`border-right-width`+`border-right-color`
+- `border-radius: 95px 155px 148px 103px / 48px 95px 130px 203px;`你可以在`border-radius`中定义这些值，在标准值之后用`/`来定义椭圆的值。这使你能够发挥创意，做出一些复杂的形状。
+- `border-image`:`border-image-width`和`border-width`一样：它是你设置边界图像宽度的方式。`border-image-outset`属性让你设置边界图像和它所环绕的盒子之间的距离。
+
+```css
+.my-element {
+  border-image-source: url(https://assets.codepen.io/174183/border-image-frame.jpg);
+  border-image-slice: 61 58 51 48;
+  border-image-width: 20px 20px 20px 20px;
+  border-image-outset: 0px 0px 0px 0px;
+  border-image-repeat: stretch stretch;
+}
+```
+
+- `border-image-slice`属性是一个有用的属性，它允许你将一个图像切成 9 个部分，由 4 条分割线组成。它的作用类似于 margin 速记，你可以定义顶部、右侧、底部和左侧的偏移值。
+- `border-image-repeat`:
+  - 初始值是`stretch`，它拉伸源图像以尽可能地填充可用空间。
+  - `repeat`是尽可能多地铺设源图像的边缘，并可能通过剪切边缘区域来实现这一目的。
+  - `round`与`repeat`相同，但它不是剪切图像边缘区域以尽可能多地适应，而是拉伸图像以及重复图像以实现无缝重复。
+  - `space`与重复相同，但这个值在每个边缘区域之间增加空间，以创造一个无缝的图案。
 
 ### 为什么 padding/margin 的百分比单位是基于父元素的宽度而不是高度
 
