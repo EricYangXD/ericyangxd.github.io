@@ -15,7 +15,7 @@ meta:
 
 ```css
 .drop-shadow {
-	filter: drop-shadow(2px 4px 8px #585858);
+  filter: drop-shadow(2px 4px 8px #585858);
 }
 ```
 
@@ -29,13 +29,13 @@ meta:
 
 ```css
 .tile-image-cursor {
-	background-color: #1da1f2;
-	cursor: url(https://picsum.photos/20/20), auto;
+  background-color: #1da1f2;
+  cursor: url(https://picsum.photos/20/20), auto;
 }
 .tile-emoji-cursor {
-	background-color: #4267b2;
-	cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>🚀</text></svg>"),
-		auto;
+  background-color: #4267b2;
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>🚀</text></svg>"),
+    auto;
 }
 ```
 
@@ -45,12 +45,12 @@ meta:
 
 ```css
 div {
-	width: 200px;
-	background-color: #fff;
-	padding: 15px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  width: 200px;
+  background-color: #fff;
+  padding: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 ```
 
@@ -58,11 +58,11 @@ div {
 
 ```css
 div {
-	width: 200px;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
-	overflow: hidden;
+  width: 200px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 ```
 
@@ -72,8 +72,8 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ```css
 .custom-highlighting::selection {
-	background-color: #8e44ad;
-	color: #fff;
+  background-color: #8e44ad;
+  color: #fff;
 }
 ```
 
@@ -87,16 +87,16 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ```css
 .box {
-	display: inline-block;
-	background: #999;
-	border: 1px solid #585858;
-	height: 200px;
-	width: 200px;
-	margin-right: 15px;
+  display: inline-block;
+  background: #999;
+  border: 1px solid #585858;
+  height: 200px;
+  width: 200px;
+  margin-right: 15px;
 }
 
 .box:empty {
-	background: #fff;
+  background: #fff;
 }
 ```
 
@@ -106,19 +106,19 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ```css
 .tile-custom-scrollbar::-webkit-scrollbar {
-	width: 12px;
-	background-color: #eff1f5;
+  width: 12px;
+  background-color: #eff1f5;
 }
 
 .tile-custom-scrollbar::-webkit-scrollbar-track {
-	border-radius: 3px;
-	background-color: transparent;
+  border-radius: 3px;
+  background-color: transparent;
 }
 
 .tile-custom-scrollbar::-webkit-scrollbar-thumb {
-	border-radius: 5px;
-	background-color: #515769;
-	border: 2px solid #eff1f5;
+  border-radius: 5px;
+  background-color: #515769;
+  border: 2px solid #eff1f5;
 }
 ```
 
@@ -128,63 +128,58 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ```html
 <h1>HTML/CSS tooltip</h1>
+<p>Hover <span class="tooltip" data-tooltip="Tooltip Content">Here</span> to see the tooltip.</p>
 <p>
-	Hover <span class="tooltip" data-tooltip="Tooltip Content">Here</span> to see
-	the tooltip.
-</p>
-<p>
-	You can also hover
-	<span class="tooltip" data-tooltip="This is another Tooltip Content"
-		>here</span
-	>
-	to see another example.
+  You can also hover
+  <span class="tooltip" data-tooltip="This is another Tooltip Content">here</span>
+  to see another example.
 </p>
 ```
 
 ```css
 .tooltip {
-	position: relative;
-	border-bottom: 1px dotted black;
+  position: relative;
+  border-bottom: 1px dotted black;
 }
 
 .tooltip:before {
-	content: attr(data-tooltip);
-	position: absolute;
-	width: 100px;
-	background-color: #062b45;
-	color: #fff;
-	text-align: center;
-	padding: 10px;
-	line-height: 1.2;
-	border-radius: 6px;
-	z-index: 1;
-	opacity: 0;
-	transition: opacity 0.6s;
-	bottom: 125%;
-	left: 50%;
-	margin-left: -60px;
-	font-size: 0.75em;
-	visibility: hidden;
+  content: attr(data-tooltip);
+  position: absolute;
+  width: 100px;
+  background-color: #062b45;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  line-height: 1.2;
+  border-radius: 6px;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.6s;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  font-size: 0.75em;
+  visibility: hidden;
 }
 
 .tooltip:after {
-	content: "";
-	position: absolute;
-	bottom: 75%;
-	left: 50%;
-	margin-left: -5px;
-	border-width: 5px;
-	border-style: solid;
-	opacity: 0;
-	transition: opacity 0.6s;
-	border-color: #062b45 transparent transparent transparent;
-	visibility: hidden;
+  content: "";
+  position: absolute;
+  bottom: 75%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  opacity: 0;
+  transition: opacity 0.6s;
+  border-color: #062b45 transparent transparent transparent;
+  visibility: hidden;
 }
 
 .tooltip:hover:before,
 .tooltip:hover:after {
-	opacity: 1;
-	visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 ```
 
@@ -196,21 +191,20 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ```css
 .gradient-border {
-	border: solid 5px transparent;
-	border-radius: 10px;
-	background-image: linear-gradient(white, white), linear-gradient(315deg, #833ab4, #fd1d1d
-				50%, #fcb045);
-	background-origin: border-box;
-	background-clip: content-box, border-box;
+  border: solid 5px transparent;
+  border-radius: 10px;
+  background-image: linear-gradient(white, white), linear-gradient(315deg, #833ab4, #fd1d1d 50%, #fcb045);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
 }
 
 .box {
-	width: 350px;
-	height: 100px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: 100px auto;
+  width: 350px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 100px auto;
 }
 ```
 
@@ -220,7 +214,7 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ```css
 .gray {
-	filter: grayscale(100%);
+  filter: grayscale(100%);
 }
 ```
 
@@ -228,9 +222,9 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ```css
 @media print {
-	@page {
-		margin: 2cm;
-	}
+  @page {
+    margin: 2cm;
+  }
 }
 ```
 
@@ -268,7 +262,7 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ```css
 input {
-	caret-color: red;
+  caret-color: red;
 }
 ```
 
@@ -276,9 +270,9 @@ input {
 
 ```css
 div {
-	-webkit-user-select: none; /* Safari */
-	-ms-user-select: none; /* IE 10 and IE 11 */
-	user-select: none; /* Standard syntax */
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 }
 ```
 
@@ -311,18 +305,18 @@ place-items: center stretch;
 
 ```css
 .mod_banner {
-	position: relative;
-	/* 使用padding-top 实现宽高比为 100:750 的图片区域 */
-	padding-top: percentage(100/750);
-	height: 0;
-	overflow: hidden;
-	img {
-		width: 100%;
-		height: auto;
-		position: absolute;
-		left: 0;
-		top: 0;
-	}
+  position: relative;
+  /* 使用padding-top 实现宽高比为 100:750 的图片区域 */
+  padding-top: percentage(100/750);
+  height: 0;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
 }
 ```
 
@@ -344,18 +338,18 @@ CSS Module 的原理：它的使用很简单，在 CSS 文件加一个后缀`.mo
 // src/Demo.js
 import styles from "./demo.module.css";
 export default function Demo() {
-	return (
-		<div className={styles.myWrapper}>
-			<Calendar />
-		</div>
-	);
+  return (
+    <div className={styles.myWrapper}>
+      <Calendar />
+    </div>
+  );
 }
 ```
 
 ```css
 /* src/demo.module.css */
 .myWrapper {
-	border: 5px solid black;
+  border: 5px solid black;
 }
 ```
 
@@ -363,9 +357,9 @@ export default function Demo() {
 
 ```html
 <style>
-	.demo_myWrapper__Hd9Qg {
-		border: 5px solid black;
-	}
+  .demo_myWrapper__Hd9Qg {
+    border: 5px solid black;
+  }
 </style>
 <div class="demo_myWrapper__Hd9Qg">...</div>
 ```
@@ -373,16 +367,14 @@ export default function Demo() {
 React 给我们提供了一个语法`:global`。它生效范围内的样式会被当作全局 CSS。具体使用如下，在 CSS 文件中，使用`:global`包裹希望全局生效的样式，`:global`作用域下的样式编译过后都不会加上哈希：
 
 ```css
-:global(.ant-picker-calendar-full
-		.ant-picker-panel
-		.ant-picker-calendar-date-today) {
-	border-color: purple; /* 覆盖为紫色 */
+:global(.ant-picker-calendar-full .ant-picker-panel .ant-picker-calendar-date-today) {
+  border-color: purple; /* 覆盖为紫色 */
 }
 /* SCSS或SASS中，还可以使用嵌套语法： */
 :global {
-	.ant-picker-calendar-full .ant-picker-panel .ant-picker-calendar-date-today {
-		border-color: purple;
-	}
+  .ant-picker-calendar-full .ant-picker-panel .ant-picker-calendar-date-today {
+    border-color: purple;
+  }
 }
 ```
 
@@ -394,12 +386,12 @@ Vue 中也有类似的样式隔离功能，使用 Scoped 标记 CSS 部分，使
 
 ```html
 <div class="myWrapper">
-	<Calendar />
+  <Calendar />
 </div>
 <style scoped>
-	.myWrapper {
-		border: 5px solid black;
-	}
+  .myWrapper {
+    border: 5px solid black;
+  }
 </style>
 ```
 
@@ -407,9 +399,9 @@ Vue 中也有类似的样式隔离功能，使用 Scoped 标记 CSS 部分，使
 
 ```html
 <style>
-	.myWrapper[data-v-2fc5154c] {
-		border: 5px solid black;
-	}
+  .myWrapper[data-v-2fc5154c] {
+    border: 5px solid black;
+  }
 </style>
 <div class="myWrapper" data-v-2fc5154c>...</div>
 ```
@@ -500,8 +492,8 @@ word-break: break-all;
 
 ```css
 .child {
-	overscroll-behavior-y: contain; // 默认是auto；none  和 contain 一样，但它也可以防止节点本身的滚动效果
-	overflow-y: auto;
+  overscroll-behavior-y: contain; // 默认是auto；none  和 contain 一样，但它也可以防止节点本身的滚动效果
+  overflow-y: auto;
 }
 ```
 
@@ -511,7 +503,7 @@ CSS 变量可以实现动态控制元素属性，但是当 CSS 变量未定义�
 
 ```css
 .item {
-	color: var(--my-var, red); /* Red if --my-var is not defined */
+  color: var(--my-var, red); /* Red if --my-var is not defined */
 }
 ```
 
@@ -530,21 +522,21 @@ CSS 变量可以实现动态控制元素属性，但是当 CSS 变量未定义�
 ```css
 /* 将 body 的背景色设置为蓝色 */
 body {
-	background-color: blue;
+  background-color: blue;
 }
 
 /* 在小于或等于 800 像素的屏幕上，将背景色设置为黄色 */
 @media screen and (max-width: 800px) {
-	body {
-		background-color: yellow;
-	}
+  body {
+    background-color: yellow;
+  }
 }
 
 /* 在 600 像素或更小的屏幕上，将背景色设置为红色 */
 @media screen and (max-width: 600px) {
-	body {
-		background-color: red;
-	}
+  body {
+    background-color: red;
+  }
 }
 ```
 
@@ -566,8 +558,8 @@ overflow 属性有两个作用很相近的属性值，一个是 scroll, 另一�
 
 ```css
 img {
-	max-width: 100%;
-	object-fit: cover;
+  max-width: 100%;
+  object-fit: cover;
 }
 ```
 
@@ -582,7 +574,7 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
 ### flex 属性
 
 1. `flex`：是`flex-grow`、`flex-shrink`、`flex-basis`的缩写。
-   - `flex:initial`=>`flex:0 1 auto`：表示默认的flex状态，无需专门设置，适合小控件元素的分布布局，或者某一项内容动态变化的布局；
+   - `flex:initial`=>`flex:0 1 auto`：表示默认的 flex 状态，无需专门设置，适合小控件元素的分布布局，或者某一项内容动态变化的布局；
    - `flex:1`=>`flex:1 1 0%`：适合等分布局；
    - `flex:0`=>`flex:0 1 0%`：适用场景较少，适合设置在替换元素的父元素上；
    - `flex:auto`=>`flex:1 1 auto`：适合基于内容动态适配的布局；
@@ -603,17 +595,18 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
    - `flex-end`：居右排列
    - `space-between`：两端对齐排列
    - `space-around`：间隔相等排列
-8.  `flex-wrap`：默认`nowrap`。
-9.  `flex-flow`：这个属性主要是`flex-direction`与`flex-wrap`的结合体。默认`row nowrap`。
+8. `flex-wrap`：默认`nowrap`。
+9. `flex-flow`：这个属性主要是`flex-direction`与`flex-wrap`的结合体。默认`row nowrap`。
 10. `align-content`：沿横轴分配空间。初始值为 `stretch`。
 11. `place-content: align justify`：用于同时设置`align-content`和`justify-content`属性的速记。
 12. `flex-direction`的方向就是主轴的方向，所以主轴和横轴实际上是相对的。
 
-- item属性
-1.  `order`：决定子项目的顺序，order越小，越是排列在最前面。
-2.  `flex-grow`：该属性是决定当前item的放大比例，默认是0项目不放大。
-3.  `flex-shrink`：当前item的缩小比例，默认的是0。
-4.  `flex-basis`：设置当前的item的固定宽度。
+- item 属性
+
+1.  `order`：决定子项目的顺序，order 越小，越是排列在最前面。
+2.  `flex-grow`：该属性是决定当前 item 的放大比例，默认是 0 项目不放大。
+3.  `flex-shrink`：当前 item 的缩小比例，默认的是 0。
+4.  `flex-basis`：设置当前的 item 的固定宽度。
 5.  `align-self`：这个属性可以单独控制当前元素的位置。`flex-start`、`center`、`flex-end`。
 
 ### grid 属性
@@ -621,13 +614,112 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
 1. 网格布局
 2. 显式网格属性`grid-template-rows`
 3. 显式网格属性`grid-template-columns`
-4. 显式网格属性`grid-template-areas`
+4. 显式网格属性`grid-template-areas`: 在使用时，有几个规则：
+   - 该值必须是一个完整的网格，没有空单元。
+   - 要跨越轨道重复名称。
+   - 通过重复名称创建的区域必须是矩形的，不能断开。
+   - 要在网格上留出空白，可以使用一个.或多个之间没有空白的字符。
+   - 如果你违反了上述任何一条规则，该值将被视为无效并被丢弃。
 5. 隐式网格属性`grid-auto-rows`
 6. 隐式网格属性`grid-auto-columns`
 7. 隐式网格属性`grid-auto-areas`
 8. 间距属性`grid-column-gap`
 9. 间距属性`grid-row-gap`
-10. `grid-area`
+10. `auto-fill`:
+11. `auto-fit`:
+12. `minmax()`:
+13. `repeat()`:
+14. `gap`:
+15. `min/max/fit-content()`:min-content:The longest word or image
+16. `auto-placement`:
+17. `span`:你可以使自动放置的布局中的部分或全部项目跨越一个以上的轨道。使用 span 关键字加上要跨越的行数作为 `grid-column-end` 或 `grid-row-end` 的值。
+18. `grid-column/row: start / end`: 作用在某个具体的 item 上，start 的值和 end 取值一样
+19. 如果 item 之间相互覆盖了，可以通过`z-index`来调整。
+20. `grid-area`: 通过还给每块区域命名，来实现布局的完全控制
+
+```css
+header {
+  grid-area: header;
+}
+.sidebar {
+  grid-area: sidebar;
+}
+.content {
+  grid-area: content;
+}
+footer {
+  grid-area: footer;
+}
+.container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-areas:
+    ". header header header"
+    "sidebar content content content"
+    "sidebar footer footer footer";
+}
+```
+
+22. `Named grid lines`:
+
+```css
+.container {
+  display: grid;
+  grid-template-columns:
+    [main-start aside-start] 1fr
+    [aside-end content-start] 2fr
+    [content-end main-end]; /* a two column layout */
+}
+.sidebar {
+  grid-column: aside-start / aside-end;
+  /* placed between line 1 and 2*/
+}
+footer {
+  grid-column: main-start / main-end;
+  /* right across the layout from line 1 to line 3*/
+}
+```
+
+23. `grid-template`: 属性是 `grid-template-rows`、`grid-template-columns` 和 `grid-template-areas` 的缩写。首先定义行，同时定义`grid-template-areas`的值。列的大小是在`/`后添加的。
+
+```css
+.container {
+  display: grid;
+  grid-template:
+    "head head head" minmax(150px, auto)
+    "sidebar content content" auto
+    "sidebar footer footer" auto / 1fr 1fr 1fr;
+}
+```
+
+24. `grid`: `grid-template-rows`、`grid-template-columns`、`grid-template-areas`、`grid-auto-rows`、`grid-auto-columns`、`grid-auto-flow`
+
+```css
+.container {
+  display: grid;
+  grid: repeat(2, 80px) / auto-flow 120px;
+}
+```
+
+25. `justify-content`和`align-content`：在轨道周围或之间的网格容器中分配额外的空间。
+26. `justify-self`和`align-self`：应用于一个网格项目，使其在其所在的网格区域内移动。
+27. `justify-items`和`align-items`：应用于网格容器，在项目上设置所有的`justify-self`属性。
+
+- `auto-fit`和`auto-fill`的区别：
+
+  - 首先，两者都是按照最小宽度(可以通过`width`、`minmax`、或者`auto`设置)创建尽量多的轨道，如果剩余空间不足一个轨道，两者都会把这部分空间平均分配给每个轨道，如果剩余空间超过一个轨道，那么`auto-fill`会将空轨道以外的部分平均分配，`auto-fit`会把所有剩余空间平均分配。
+  - `grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));`意思是我的每个子元素至少需要 200px 的宽度，如果视口宽度足够就平均分配剩余空间给每个子元素，至于换行问题需要看分配的所有的轨道空间够不够 200，如果不够 200 就换一行，把多的元素换行，比如有 580px（不考虑 gap），不足以容纳 3\*200=600，3 个子元素，那么就换行，一行两个子元素，那么剩余的 80px 呢，这就属于剩余空间，将（1fr）平均分配给两个轨道。
+  - auto-fit 和 auto-fill 只有在容器宽度大于子元素的最小宽度总和时才有显示区别，例如容器随着窗口现在有 1500px 宽度，子元素在一行排列总共需要 600px（不考虑 gap)。auto-fit 和 auto-fill 首先会尽可能多的创建基于 min 的 200px 的轨道宽度，例如创建 1500/200=7.5。那么会有 7 个轨道的 200px 还剩余了 100px 的剩余空间，接着会把这 100px 再次分配到这 7 个轨道中，100/7=14.28。所以每个轨道的宽度现在为 214.28px。在这里位置，auto-fill 和 auto-fit 做的事情是一样的：
+    1.  就是尽可能多的创建轨道
+    2.  然后不足一个轨道的空间平均分配给已有的轨道
+  - auto-fill 的最后一步时保留空轨道留白，不会折叠空轨道
+  - auto-fit 的最后一步是，折叠空轨道，将空轨道的空间全部平均分配给已有元素的轨道
+  - 值得注意的是这种区别是在容器中元素数量*元素的最小宽度<容器的总宽度时才会显示看到的差异，如果元素数量*最小宽度>容器宽度，那么 auto-fill 和 auto-fit 展现的效果是一样的
+
+- grid 中 auto-fit 和 auto-fill 的区别:
+  - auto-fill: 在轨道重复过程中，尽可能多的根据元素创建轨道，如果创建的轨道数量是小数比如 6.5，那么 0.5 就被称为剩余空间，剩余的空间不够一个轨道了，就相当于每个轨道 1fr 进行分配这个 0.5 的剩余空间，没有元素填充的空轨道不会折叠依然保留（相当于留了空白）。
+  - auto-fit: 在轨道重复过程中，尽可能多的根据元素创建轨道，并均分不到一个轨道的剩余空间。轨道分配完以后如果轨道中没有元素则将所有没有元素填充的空轨道折叠为 0，即把没有元素填充的空轨道全被分配给有元素的轨道（相当于有元素填充的轨道全部为 1fr）。最后没有空轨道剩余。
+  - last: auto-fill 和 auto-fit 一开始做的事情是一样的就是尽可能的分配轨道数量，区别在于后面空轨道是否会折叠为 0。auto-fill 不折叠空轨道，auto-fit 折叠空轨道。
 
 ### border 属性
 
@@ -660,47 +752,47 @@ CSS `border`属性是`border-width`，`border-style`和`border-color`这 3 个 C
 ```css
 /* // 通过伪元素实现 0.5px border */
 .border::after {
-	content: "";
-	box-sizing: border-box; /* // 为了与原元素等大 */
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 200%;
-	height: 200%;
-	border: 1px solid gray;
-	transform: scale(0.5);
-	transform-origin: 0 0;
+  content: "";
+  box-sizing: border-box; /* // 为了与原元素等大 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200%;
+  height: 200%;
+  border: 1px solid gray;
+  transform: scale(0.5);
+  transform-origin: 0 0;
 }
 
 /* // 通过伪元素实现 0.5px 细线 */
 .line::after {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 200%;
-	height: 1px;
-	background: #b3b4b8;
-	transform: scale(0.5);
-	transform-origin: 0 0;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 1px;
+  background: #b3b4b8;
+  transform: scale(0.5);
+  transform-origin: 0 0;
 }
 
 /* // dpr适配可以这样写 */
 @media (-webkit-min-device-pixel-ratio: 2) {
-	.line::after {
-		/* ... */
-		height: 1px;
-		transform: scale(0.5);
-		transform-origin: 0 0;
-	}
+  .line::after {
+    /* ... */
+    height: 1px;
+    transform: scale(0.5);
+    transform-origin: 0 0;
+  }
 }
 @media (-webkit-min-device-pixel-ratio: 3) {
-	.line::after {
-		/* ... */
-		height: 1px;
-		transform: scale(0.333);
-		transform-origin: 0 0;
-	}
+  .line::after {
+    /* ... */
+    height: 1px;
+    transform: scale(0.333);
+    transform-origin: 0 0;
+  }
 }
 ```
 
@@ -719,8 +811,8 @@ CSS `border`属性是`border-width`，`border-style`和`border-color`这 3 个 C
 
 ```css
 .ignore {
-	border: 1px solid; // ignored
-	border-width: 2px; // ignored
+  border: 1px solid; // ignored
+  border-width: 2px; // ignored
 }
 ```
 
@@ -732,24 +824,24 @@ CSS `border`属性是`border-width`，`border-style`和`border-color`这 3 个 C
 
 ```css
 .mod_grid {
-	position: relative;
-	&::after {
-		/* 实现1物理像素的下边框线 */
-		content: "";
-		position: absolute;
-		z-index: 1;
-		pointer-events: none;
-		background-color: #ddd;
-		height: 1px;
-		left: 0;
-		right: 0;
-		top: 0;
-		@media only screen and (-webkit-min-device-pixel-ratio: 2) {
-			-webkit-transform: scaleY(0.5);
-			-webkit-transform-origin: 50% 0%;
-		}
-	}
-	...;
+  position: relative;
+  &::after {
+    /* 实现1物理像素的下边框线 */
+    content: "";
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    background-color: #ddd;
+    height: 1px;
+    left: 0;
+    right: 0;
+    top: 0;
+    @media only screen and (-webkit-min-device-pixel-ratio: 2) {
+      -webkit-transform: scaleY(0.5);
+      -webkit-transform-origin: 50% 0%;
+    }
+  }
+  ...;
 }
 ```
 
@@ -769,15 +861,14 @@ CSS `border`属性是`border-width`，`border-style`和`border-color`这 3 个 C
 
 ```html
 <meta
-	name="viewport"
-	content="
+  name="viewport"
+  content="
     width=device-width,  // 设置viewport的宽等于屏幕宽
     initial-scale=1.0,  // 初始缩放为1
     maximum-scale=1.0, 
     user-scalable=no,  // 不允许用户手动缩放
     viewport-fit=cover // 缩放以填充满屏幕
-    "
-/>
+    " />
 ```
 
 - name 设置元数据的名称，content 设置元数据的值。name 属性值为 viewport 时，表示设置有关视口初始大小的提示，仅供移动端使用
@@ -804,33 +895,31 @@ Flexible 的大致实现思路是，首先根据 dpr 来动态修改 meta 标签
 
 ```html
 <head>
-	<meta
-		name="viewport"
-		content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,viewport-fit=cover"
-	/>
-	<script type="text/javascript">
-		// 动态设置 viewport 的 initial-scale
-		var viewport = document.querySelector("meta[name=viewport]");
-		var dpr = window.devicePixelRatio || 1;
-		var scale = 1 / dpr;
-		viewport.setAttribute(
-			"content",
-			"width=device-width," +
-				"initial-scale=" +
-				scale +
-				", maximum-scale=" +
-				scale +
-				", minimum-scale=" +
-				scale +
-				", user-scalable=no"
-		);
-		// 计算 rem font-size
-		var clientWidth =
-			document.documentElement.clientWidth || document.body.clientWidth;
-		clientWidth > 750 && (clientWidth = 750);
-		var ft = (clientWidth / 7.5).toFixed(2); // 以750设计稿为例
-		document.documentElement.style.fontSize = ft + "px";
-	</script>
+  <meta
+    name="viewport"
+    content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,viewport-fit=cover" />
+  <script type="text/javascript">
+    // 动态设置 viewport 的 initial-scale
+    var viewport = document.querySelector("meta[name=viewport]");
+    var dpr = window.devicePixelRatio || 1;
+    var scale = 1 / dpr;
+    viewport.setAttribute(
+      "content",
+      "width=device-width," +
+        "initial-scale=" +
+        scale +
+        ", maximum-scale=" +
+        scale +
+        ", minimum-scale=" +
+        scale +
+        ", user-scalable=no"
+    );
+    // 计算 rem font-size
+    var clientWidth = document.documentElement.clientWidth || document.body.clientWidth;
+    clientWidth > 750 && (clientWidth = 750);
+    var ft = (clientWidth / 7.5).toFixed(2); // 以750设计稿为例
+    document.documentElement.style.fontSize = ft + "px";
+  </script>
 </head>
 ```
 
@@ -927,7 +1016,7 @@ module.exports = {
 // iPhone 6尺寸作为设计稿基准
 $vw_base: 375;
 @function vw($px) {
-	@return ($px / $vm_base) * 100vw;
+  @return ($px / $vm_base) * 100vw;
 }
 ```
 
@@ -945,94 +1034,96 @@ $vw_base: 375;
 
 ```html
 <style>
-	/* 自定义属性 */
-	@property --t {
-		syntax: "<integer>";
-		inherits: false;
-		initial-value: 0;
-	}
-	@counter-style stop {
-		system: cyclic;
-		symbols: "Go~";
-		range: infinite 0;
-	}
-	html,
-	body {
-		margin: 0;
-		height: 100%;
-		display: grid;
-		place-content: center;
-	}
-	count-downqq {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-family: Consolas, Monaco, monospace;
-		font-size: 120px;
-	}
-	count-downqq::after {
-		--t: 5;
-		--dur: 1;
-		counter-reset: time var(--t);
-		content: counter(time, stop);
-		animation: count calc(var(--t) * var(--dur) * 1s) steps(var(--t)) forwards, shark
-				calc(var(--dur) * 1s) calc(var(--dur) * 0.8s) calc(var(--t));
-	}
-	count-downqq:active::after {
-		animation: none;
-	}
+  /* 自定义属性 */
+  @property --t {
+    syntax: "<integer>";
+    inherits: false;
+    initial-value: 0;
+  }
+  @counter-style stop {
+    system: cyclic;
+    symbols: "Go~";
+    range: infinite 0;
+  }
+  html,
+  body {
+    margin: 0;
+    height: 100%;
+    display: grid;
+    place-content: center;
+  }
+  count-downqq {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 120px;
+  }
+  count-downqq::after {
+    --t: 5;
+    --dur: 1;
+    counter-reset: time var(--t);
+    content: counter(time, stop);
+    animation: count calc(var(--t) * var(--dur) * 1s) steps(var(--t)) forwards, shark calc(var(--dur) * 1s) calc(
+          var(--dur) * 0.8s
+        )
+        calc(var(--t));
+  }
+  count-downqq:active::after {
+    animation: none;
+  }
 
-	@keyframes count {
-		to {
-			--t: 0;
-		}
-	}
+  @keyframes count {
+    to {
+      --t: 0;
+    }
+  }
 
-	@keyframes shark {
-		0% {
-			opacity: 1;
-			transform: scale(1);
-		}
+  @keyframes shark {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
 
-		20% {
-			opacity: 0;
-			transform: scale(0.4);
-		}
-	}
+    20% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+  }
 
-	@keyframes shark {
-		0% {
-			opacity: 1;
-			transform: translateY(0);
-		}
+  @keyframes shark {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-		20% {
-			opacity: 0;
-			transform: translateY(100px);
-		}
+    20% {
+      opacity: 0;
+      transform: translateY(100px);
+    }
 
-		21% {
-			opacity: 0;
-			transform: translateY(-100px);
-		}
-	}
+    21% {
+      opacity: 0;
+      transform: translateY(-100px);
+    }
+  }
 
-	@keyframes shark {
-		0% {
-			opacity: 1;
-			transform: scale(1);
-		}
+  @keyframes shark {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
 
-		20% {
-			opacity: 0;
-			transform: scale(0.4);
-		}
+    20% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
 
-		21% {
-			opacity: 0;
-			transform: scale(5);
-		}
-	}
+    21% {
+      opacity: 0;
+      transform: scale(5);
+    }
+  }
 </style>
 
 /* 自定义标签，然后再style中使用自定义的属性--t */
@@ -1045,18 +1136,18 @@ $vw_base: 375;
 
 ```css
 .parent {
-	width: 100vw;
-	height: 100vh;
-	/* grid */
-	display: grid;
-	align-items: center;
-	justify-items: center;
-	/* place-items: center; */
+  width: 100vw;
+  height: 100vh;
+  /* grid */
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  /* place-items: center; */
 
-	/* flex */
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  /* flex */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 ```
 
@@ -1074,8 +1165,8 @@ minmax 可以设置最大最小区间
 
 ```css
 .parent {
-	display: grid;
-	grid-template-columns: minmax(150px, 25%) 1fr;
+  display: grid;
+  grid-template-columns: minmax(150px, 25%) 1fr;
 }
 ```
 
@@ -1083,8 +1174,8 @@ minmax 可以设置最大最小区间
 
 ```css
 .parent {
-	display: grid;
-	grid-template-rows: auto 1fr auto;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
 }
 ```
 
@@ -1092,14 +1183,14 @@ minmax 可以设置最大最小区间
 
 ```css
 .parent {
-	display: grid;
-	grid-template: auto 1fr auto / auto 1fr auto;
+  display: grid;
+  grid-template: auto 1fr auto / auto 1fr auto;
 }
 header {
-	padding: 2em;
-	grid-column: 1/4;
+  padding: 2em;
+  grid-column: 1/4;
 }
 .left-side {
-	grid-column: 1/4;
+  grid-column: 1/4;
 }
 ```

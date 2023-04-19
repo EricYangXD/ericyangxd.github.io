@@ -207,3 +207,7 @@ path.join("/a", "b", "/c", "d"); // returns:    '/a/b/c/d'
 ### nvm
 
 [refer](https://juejin.cn/post/6932302283958910984)
+
+### url.parse
+
+![URL](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20230419113045.png)
