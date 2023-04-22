@@ -62,4 +62,41 @@ date: "2022-05-21"
 13. `powercfg /batteryreport`：生成电池报告
 14. `netsh wlan show wlanreport`：生成无线网卡报告
 15. win+R，输入`netplwiz`，取消勾选登录时需要密码，即可取消开机密码
-16. 
+16. `netsh wlan show profile name="network_name" key=clear`：查看连接过的无线网的密码
+17. `curl -L ip.tool.lu`：查看ip
+18. `chkdsk`：扫描硬盘扇区
+19. `mstsc`：远程桌面
+20. `perfmon.msc`：性能监控
+21. `color all`：修改命令行字体颜色
+22. `regedit`：进入注册表编辑
+23. `net user`：系统全部用户
+24. `net user 用户名 /del`：删除用户
+25. `sfc /scannow`：系统扫描修复
+26. `IExpress`：系统内置捆绑器？
+27. `shutdown /s /t 3000`：设置3000秒后自动关机
+28. `MSG /server:192.168.1.101 * "略略略！"`：命令行里给局域网其他电脑发消息
+29. `.cmd`防黑客帝国数字雨：
+```sh
+@echo off  
+:line 
+color 0a
+setlocal ENABLEDELAYEDEXPANSION  
+ 
+for /l %%i in (0) do (  
+set "line="  
+for /l %%j in (1,1,80) do (  
+set /a Down%%j-=2  
+set "x=!Down%%j!"  
+if !x! LSS 0 (  
+set /a Arrow%%j=!random!%%3  
+set /a Down%%j=!random!%%15+10  
+)  
+set "x=!Arrow%%j!"  
+if "!x!" == "2" (  
+set "line=!line!!random:~-1! "  
+) else (set "line=!line! ")  
+)  
+set /p=!line!<nul  
+)  
+goto line
+```

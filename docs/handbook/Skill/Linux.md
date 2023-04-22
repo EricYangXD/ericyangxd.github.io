@@ -712,7 +712,15 @@ WantedBy=multi-user.target
 6. 查看内存占用: `free -h`
 7. 查看磁盘分区: `lsblk`
 8. 查看磁盘使用详情: `df -h`
+9. 使用systemd 初始化进程服务。当然systemd 初始化进程服务采取了并发启动机制，因此开机速度得到了不小的提升。`systemctl start xx/restart xx/stop xx/status/reload xx/enable xx/disable xx/`
+10. `systemctl daemon-reload`：reload units
 
+#### install dev tools
+
+- `yum groupinstall "Development Tools"`
+- `yum install -y gcc g++ kernel-devel`
+
+- `sudo dnf install **python3-librepo**`解决centos8报错：`Failed loading plugin "osmsplugin": No module named 'librepo'`
 
 ### 每次通过密码链接 vps 时都会提示有 xx 次失败记录
 
