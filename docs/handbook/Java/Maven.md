@@ -20,38 +20,67 @@ meta:
 3. Maven 配置：`${maven}/conf/settings.xml`，自定义修改配置，添加私有仓库、账户名、密码等等，在 servers、mirrors 等标签里。也可以在 pom 文件中手动配置源：
 
 ```xml
-<!-- ... -->
-<!--配置maven地址 -->
-<repositories>
-   <repository>
-        <id>myrepository</id>
-        <url>https://my.repository.com/nexus/repository/maven-releases/</url>
-    </repository>
-</repositories>
-<!-- ... -->
-
+<!-- ...镜像... -->
+<mirrors>
+    <mirror>
+        <id>aliyunmaven</id>
+        <!-- *表示匹配所有的镜像库，相当于会屏蔽掉配置的其他的镜像库 -->
+        <mirrorOf>*</mirrorOf>
+        <name>阿里云公共仓库</name>
+        <url>https://maven.aliyun.com/repository/public</url>
+    </mirror>
+</mirrors>
+<!-- 配置不同的仓库 -->
+<profiles>
+    <profile>
+    <!-- ...不同的仓库... -->
+    </profile>
+    <profile>
+    <!-- id 与 activeProfile 中的对应 -->
+        <id>cloudera-repository</id>
+        <repositories>
+            <!--配置maven地址 -->
+            <repository>
+                <id>cloudera</id>
+                <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+                <releases>
+                    <enabled>true</enabled>
+                </releases>
+                <snapshots>
+                    <enabled>true</enabled>
+                    <updatePolicy>always</updatePolicy>
+                </snapshots>
+            </repository>
+        </repositories>
+    </profile>
+</profiles>
 <!-- 配置与源id对应的的maven仓库地址的用户和密码 -->
- <servers>
-        <server>
-            <id>myrepository</id>
-            <username>user</username>
-            <password>password</password>
-        </server>
- </servers>
+<servers>
+    <server>
+        <id>myrepository</id>
+        <username>user</username>
+        <password>password</password>
+    </server>
+</servers>
+<activeProfiles>
+    <!-- 填的是profile的id而不是repository的id -->
+    <activeProfile>aliyun</activeProfile>
+    <activeProfile>cloudera-repository</activeProfile>
+</activeProfiles>
 ```
 
-4. idea 配置：在 Preferences》Build》Build tools》Maven：
+1. idea 配置：在 Preferences》Build》Build tools》Maven：
    1. 设置 Maven home path：2 中解压的 maven 目录即可，例`/Users/eric/backend/maven`
    2. 设置 User settings：`/Users/eric/backend/maven/conf/settings_eric.xml`，看需求，一般会需要自定义配置一些账号密码
-5. 修改项目的 SDK 版本，在项目最外层目录右键》Open module settings》Project structure》Project settings》Project》SDK：设置相应版本的 SDK，可以设自己安装的，也可以通过 add sdk 下载新的。
-6. Maven 命令：
+2. 修改项目的 SDK 版本，在项目最外层目录右键》Open module settings》Project structure》Project settings》Project》SDK：设置相应版本的 SDK，可以设自己安装的，也可以通过 add sdk 下载新的。
+3. Maven 命令：
    1. `mvn install`: First, it does a `package`(!). Then it takes that `.jar/.war` file and puts it into your local Maven repository, which lives in `~/.m2/repository`.
    2. `mvn clean install`: 您正在使用 clean 命令，该命令将删除项目中所有以前编译的 Java .class 文件和资源（如 .properties）。您的构建将从一个干净的状态开始。然后 install 将编译、测试和打包您的 Java 项目，甚至将您构建的 .jar/.war 文件安装/复制到您的本地 Maven 存储库中。
    3. `mvn -v`: 看版本
    4. `mvn clean`: deletes the `/target` folder.
    5. `mvn package`: Converts your `.java` source code into a `.jar/.war` file and puts it into the `/target` folder.
-7. 在 Maven 3.1 之前，增量编译基本上是不存在的，即使是最新的 Maven 和编译器插件版本，在增量编译支持中也存在奇怪的 bug 和文档问题。所以调用`mvn clean install`，尽管会多花一些时间。
-8. `mvn clean install` 不构建兄弟项目。在多模块项目中，如果某个子项目 a 依赖某个兄弟项目 b，那么需要手动提前构建这个兄弟项目 b。例：
+4. 在 Maven 3.1 之前，增量编译基本上是不存在的，即使是最新的 Maven 和编译器插件版本，在增量编译支持中也存在奇怪的 bug 和文档问题。所以调用`mvn clean install`，尽管会多花一些时间。
+5. `mvn clean install` 不构建兄弟项目。在多模块项目中，如果某个子项目 a 依赖某个兄弟项目 b，那么需要手动提前构建这个兄弟项目 b。例：
 
 ```bash
 + stocks-broker-app (parent)
@@ -64,7 +93,7 @@ meta:
    1. `-pl`：让您指定要构建的子模块
    2. `-am`：表示`also make`，它也将构建依赖模块
 10. `mvn -U`：有时，如果您的项目依赖于 SNAPSHOT 依赖项，Maven 不会使用最新的快照版本更新您的本地 Maven 存储库。如果你想确保 Maven 总是尝试下载最新的快照依赖版本，请使用 -U 开关调用它。
-11. `-X`：打印出更详细的log
+11. `-X`：打印出更详细的 log
 12. `mvnw`：一些项目附带一个 `mvnw` 可执行文件，它不代表 Maven (on) Windows，而是代表 Maven 包装器。这意味着您不必在您的机器上安装 mvn 来构建您的项目 - 相反，mvn 嵌入在您的项目目录中，您可以使用 `mvnw` 可执行文件调用它。
 13. `mvn compile`：编译
 14. `mvn test`：测试
@@ -76,6 +105,13 @@ meta:
     - `mvn clean package`依次执行了 clean、resources、compile、testResources、testCompile、test、jar(打包)等７个阶段。package 命令完成了项目编译、单元测试、打包功能，但没有把打好的可执行 jar 包（war 包或其它形式的包）布署到本地 maven 仓库和远程 maven 私服仓库
     - `mvn clean install`依次执行了 clean、resources、compile、testResources、testCompile、test、jar(打包)、install 等 8 个阶段。install 命令完成了项目编译、单元测试、打包功能，同时把打好的可执行 jar 包（war 包或其它形式的包）布署到本地 maven 仓库，但没有布署到远程 maven 私服仓库
     - `mvn clean deploy`依次执行了 clean、resources、compile、testResources、testCompile、test、jar(打包)、install、deploy 等９个阶段。deploy 命令完成了项目编译、单元测试、打包功能，同时把打好的可执行 jar 包（war 包或其它形式的包）布署到本地 maven 仓库和远程 maven 私服仓库
+20. 配置 maven 源，我们都知道中央仓库速度比较慢，通常会去配置国内镜像库来加速访问。但是不推荐在`<mirrors>`中去配置国内镜像库的镜像。因为这是镜像，不是分库，就是说 maven 并不会帮忙做这样事:a.jar 在第一个 mirror 中不存在，拉不下来，使用第二个镜像来尝试拉取。因此，在`<mirrors>`定义多个镜像，幻想当第一个镜像中没有时去第二个镜像下载是行不通的，maven 只会在第一个镜像连接失败的时候，才会尝试连接第二个镜像。(甚至有人说这个顺序都不是按照定义 mirror 的顺序，而是通过 mirror id 的字母排序？这个我没有深究)。其实要达到配置国内镜像库来加速访问的目的，可以就像上面全局配置那样，将国内镜像库比如阿里云，配置为远程库中的一个并激活即可，这样就可以加速了，或者单个项目中 pom 中配置，没有必要配置为`<mirrors>`中的镜像库。
+21. 有时候，会发现不管你怎么修改配置，修改远程库地址，都无法生效，
+    - 首先检查 eclipse 或者 IDEA 中配置的 settings 文件是否是自己编辑的那个文件。
+    - 如果是，那么检查配置的镜像库 mirror，看是否有 `mirrorOf` 配置的是`*` ,这个值表示匹配所有的镜像库，相当于会屏蔽掉配置的其他的镜像库。
+    - 注意配置的优先级，pom 配置 > settings 中的配置
+    - 如果配置没有问题，那么检查 settings 文件是否有语法错误。特别是当出现不管怎么改远程库地址，拉取 jar 的时候都跑去中央仓库下载的现象时。有时候频繁修改或者复制粘贴，导致 settings 文件语法出现了错误。可以在命令行执行下面的命令，如果有语法错误，会得到提示。`mvn help:effective-settings`
+    - 除了学习的时候，在 settings 中配置阿里云镜像库来加速以外，通常工作中既会用到阿里云、中央仓库之类的公共库，也要用到公司内的私服库，因此我不是很推荐配置 mirror 镜像来加速(因为 mirror 就算配了多个，也只会有一个生效)，可以通过另一种方式配置多个远程库，既可以加速访问公共库，又可以同时访问私服库。
 
 #### pom.xml
 
