@@ -364,3 +364,9 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
     2. `mkdir -p $M2_HOME/conf`，如果没有权限则`sudo chown -R $USER $M2_HOME`
     3. `cp /path/to/your/settings.xml $M2_HOME/conf/`
     4. 这样当你切换Maven版本之后，也依然会使用公用的settings
+
+### 快速新建一个spring-boot项目
+
+1. 在这个[网站](https://start.spring.io/)选择配置，作用可以理解为前端的vue-cli、create-react-app等脚手架，选好配置依赖之后下载；
+2. idea中打开刚才下载的项目
+3. 
