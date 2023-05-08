@@ -264,6 +264,8 @@ console.log(a.d.e); // 8
 
 ### 深拷贝的几种方法
 
+深拷贝是一个常见需求，我们可以通过 `JSON` 转换、递归、lodash 的`_.cloneDeep()`等方式实现。
+
 #### `JSON.parse()`+`JSON.stringify()`
 
 将该对象转换为其 JSON 字符串表示形式，然后将其解析回对象。
@@ -275,10 +277,56 @@ console.log(a.d.e); // 8
 - 诸如 Map, Set, RegExp, Date, ArrayBuffer 和其他内置类型在进行序列化时会丢失。
 - 不能克隆 function。
 - 对于值为 undefined 的属性，克隆之后会被丢弃。值为 null 的属性会被保留。可以通过改写`JSON.stringify()`的第二个参数进行「修复」。
+- 原理：`JSON.stringify` 只能处理基本对象、数组和基本类型，而其他类型的值在转换之后都可能出现出乎意料的结果，例如 Date 会转化为字符串， Set 会转化为 {}。`JSON.stringify` 甚至完全忽略某些内容，比如 undefined 或函数。
+- 除此之外，`JSON.parse(JSON.stringify(x))` 无法对包含循环引用的对象进行深克隆
 
 #### Structured Clone 结构化克隆算法
 
 Structured cloning 是一种现有的算法，用于将值从一个地方转移到另一地方。例如，每当您调用 postMessage 将消息发送到另一个窗口或 WebWorker 时，都会使用它。关于结构化克隆的好处在于它处理循环对象并 支持大量的内置类型。
+
+实际上，JavaScript 中提供了一个原生 API 来执行对象的深拷贝：`structuredClone()`。它可以通过结构化克隆算法创建一个给定值的深拷贝，并且还可以传输原始值的可转移对象。
+
+`structuredClone()` 的实用方式很简单，只需将原始对象传递给该函数，它将返回具有不同引用和对象属性引用的深层副本。
+
+注意事项：
+
+1. 拷贝无限嵌套的对象和数组；
+2. 拷贝循环引用；当对象中存在循环引用时，仍然可以通过 `structuredClone()` 进行深拷贝。
+3. 拷贝各种 JavaScript 类型，例如 Date、Set、Map、Error、RegExp、ArrayBuffer、Blob、File、ImageData 等；
+4. 拷贝使用 structuredClone()得到的对象；
+5. `structuredClone()`不能克隆 DOM 元素。将 HTMLElement 对象传递给 `structuredClone()`将导致错误。
+6. 可以拷贝任何可转移的对象。要注意的是，使用可转移对象时必须小心处理，因为一旦对象被转移，原线程将不再拥有该对象的所有权，因此在发送线程中不能再访问该对象。此外，在接收线程中使用可转移对象时，也需要根据需求进行显式释放，否则可能会导致内存泄漏和其他问题。
+
+```js
+const originalObject = {
+  set: new Set([1, 3, 3]),
+  map: new Map([[1, 2]]),
+  regex: /foo/,
+  deep: { array: [new File(someBlobData, "file.txt")] },
+  error: new Error("Hello!"),
+};
+originalObject.circular = originalObject;
+
+const copied = structuredClone(originalObject);
+```
+
+- 在 JavaScript 中，可转移对象（Transferable Objects）是指 ArrayBuffer 和 MessagePort 等类型的对象，它们可以在主线程和 Web Worker 线程之间相互传递，同时还可以实现零拷贝内存共享，提高性能。这是由于可转移对象具有两个特点：
+
+  1. 可共享：可转移对象本身没有所有权，可以在多个线程之间共享，实现零拷贝内存共享。
+  2. 可转移：调用 Transferable API 时，可转移对象会从发送方（发送线程）转移到接收方（接收线程），不再存在于原始线程中，因此可以避免内存拷贝和分配等开销。
+
+7. `structuredClone()` 不能拷贝的数据类型:
+
+   1. 函数或方法，会抛出异常。
+   2. DOM 节点，也会抛出异常。
+   3. 属性描述符、setter 和 getter，以及类似的元数据都不能被克隆。
+   4. 对象原型，原型链不能被遍历或拷贝。所以如果克隆一个实例 MyClass，克隆的对象将不再是这个类的一个实例（但是这个类的所有有效属性都将被拷贝）。
+
+8. 支持拷贝的类型如下：
+   1. JS 内置对象：Array（数组）、ArrayBuffer（数据缓冲区）、Boolean（布尔类型）、DataView（数据视图）、Date（日期类型）、Error（错误类型，包括下面列出的具体类型）、Map（映射类型）、Object （仅指纯对象，如从对象字面量中创建的对象）、原始类型（除 symbol 外，即 number、string、null、undefined、boolean、BigInt）、RegExp（正则表达式）、Set（集合类型）、TypedArray（类型化数组）。
+   2. Error 类型：Error、EvalError、RangeError、ReferenceError、SyntaxError、TypeError、URIError。
+   3. Web/API 类型：AudioData、Blob、CryptoKey、DOMException、DOMMatrix、DOMMatrixReadOnly、DOMPoint、DomQuad、DomRect、File、FileList、FileSystemDirectoryHandle、FileSystemFileHandle、FileSystemHandle、ImageBitmap、ImageData、RTCCertificate、VideoFrame。
+9. 目前主流浏览器都支持 structuredClone API。
 
 #### MessageChannel
 
