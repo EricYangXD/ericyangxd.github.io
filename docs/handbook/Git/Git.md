@@ -308,7 +308,14 @@ eg.
    4. 就可以重新添加所有文件，仅显示有更改的文件。
 3. 文件夹：借助一个临时的文件夹名字：`git mv myfolder tempFolder && git mv tempFolder myFolder`，或者用 2 中的方法。
 4. 如果因为大小写问题已经导致远程仓库有俩重复文件，例：dockerfile Dockerfile
-   1.
+   1. 使用`git mv`命令重命名文件/文件夹:
+      - `git mv old_file.txt new_file.txt`
+      - `git mv old_folder new_folder`
+   2. `git commit -m "Rename file/folder"`
+5. 使用*git mv*的优点是:
+   1. 保留文件/文件夹的历史记录和原有的提交信息。如果你手动删除后新增,那么新的文件就没有任何历史记录了。
+   2. 使得*git diff*和*git blame*等命令仍然能跟踪到文件的历史变化。如果手动删除后新增,这些命令对新的文件就失效了。
+   3. 从版本控制的角度更清晰地表示这是一个“重命名”操作,而不是删除后新增两个不相关的操作。
 
 ### git reflog
 

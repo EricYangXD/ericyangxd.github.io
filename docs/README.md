@@ -10,6 +10,8 @@ date: "2021-12-28"
 
 [![visitors](https://visitor-badge.glitch.me/badge?page_id=EricYangXD.EricYangXD)](https://github.com/EricYangXD)
 
+[![visitors](https://komarev.com/ghpvc/?username=EricYangXD&color=green&label=visitors)](https://github.com/EricYangXD)
+
 努力学习，努力搞钱，早日财务自由~~~
 
 **Languages:**
