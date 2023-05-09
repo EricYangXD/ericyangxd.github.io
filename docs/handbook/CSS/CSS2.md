@@ -238,6 +238,40 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 }
 ```
 
+### 网页置灰
+
+```css
+html {
+  filter: grayscale(100%);
+  -webkit-filter: grayscale(100%);
+  -moz-filter: grayscale(100%);
+  -ms-filter: grayscale(100%);
+  -o-filter: grayscale(100%);
+  /* 兼容 Firefox */
+  filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='grayscale'><feColorMatrix type='matrix' values='0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0'/></filter></svg>#grayscale");
+  /* 兼容 IE */
+  filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
+  /*兼容 Chrome Safari Edge 等 */
+  -webkit-filter: grayscale(1);
+}
+```
+
+### CSS(Unicode 字符) 实现换行
+
+```html
+<style>
+  .br::after {
+  content: '\A';
+  white-space: pre;
+}
+</style>
+<div>
+  <span class="br">test</span>
+  <span class="br">record</span>
+  <span>问题1</span>
+</div>
+```
+
 ### 打印分页时，换页处样式
 
 ```css

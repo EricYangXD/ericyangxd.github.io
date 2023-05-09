@@ -312,6 +312,90 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 30. Fastclip 剪切板管理
 31. FileZilla
 32. Scroll Reverser：独立设置鼠标和触控板这两个设备的滚动方向
+33. IINA：视频播放器
+34. Alfred：效率神器
+35. Fig：终端自动补全命令提示工具，配合 iTerm2 使用。在 vscode 中使用，需修改 `editor.accessibilitySupport` 为 `"off"`
+
+### Mac 微信功能拓展：`WeChatTweak-CLI`
+
+```sh
+# 安装 WeChatTweak-CLI
+brew install sunnyyoung/repo/wechattweak-cli
+# 安装 Tweak
+sudo wechattweak-cli install
+# 卸载
+sudo wechattweak-cli uninstall
+```
+
+### duti 设置默认应用程序
+
+设置默认应用程序的命令行工具
+
+```sh
+brew install duti
+# 查看指定文件类型的默认应用程序
+duti -x txt
+
+# 更改文件类型的默认应用程序
+duti -s com.apple.TextEdit .txt all
+
+# 常用的默认应用程序设置
+duti -s com.microsoft.VSCode .ts all
+duti -s com.microsoft.VSCode .js all
+duti -s com.microsoft.VSCode .json all
+duti -s com.microsoft.VSCode .wxml all
+duti -s com.microsoft.VSCode .wxss all
+```
+
+### Mac App Store 命令行工具 mas-cli
+
+```sh
+brew install mas
+
+# 搜索应用程序
+mas search [query]
+
+# 列出已经安装的应用程序
+mas list
+
+# 通过应用程序的 ID 进行安装，可以从 search 命令或者应用程序网页中获取
+mas install [app-id]
+
+# 升级已经安装的应用程序
+mas upgrade
+
+# 列出有更新可用的应用程序
+mas outdated
+```
+
+### 系统设置命令
+
+```sh
+# 禁止 “Are you sure you want to open this application?” 提示
+defaults write com.apple.LaunchServices LSQuarantine -bool false
+
+# 禁止磁盘映像验证
+defaults write com.apple.frameworks.diskimages skip-verify -bool true
+defaults write com.apple.frameworks.diskimages skip-verify-locked -bool true
+defaults write com.apple.frameworks.diskimages skip-verify-remote -bool true
+
+# 桌面隐藏外部磁盘和可移动介质
+defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
+defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false
+
+# 显示所有扩展名和隐藏文件
+defaults write -g AppleShowAllExtensions -bool true
+defaults write com.apple.finder AppleShowAllFiles -bool true
+
+# 禁用修改扩展名时的警告
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+
+# 显示底部地址栏
+defaults write com.apple.finder ShowPathbar -bool true
+
+# 禁止创建 .DS_Store 文件
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+```
 
 ### 安装 mactex
 
@@ -366,6 +450,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
   - scp：`scp -r username@ip:folder username@ip:folder`
   - 使用 rz 和 sz 的方式进行，在安装完成 iTerm2 之后打开，然后使用 homebrew 的方式安装 lrzsz，[教程 1](https://github.com/RobberPhex/iterm2-zmodem)，[教程 2](https://blog.csdn.net/whowhowhoisimportant/article/details/117566485)
 - 配置`alt/option + 左右箭头`在文字间跳转
+
   - Go to iTerm `Preferences` → `Profiles`
   - select your profile
   - then the `Keys` tab with its sub-tab `Key Mappings`
@@ -373,6 +458,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
   - and choose `Natural Text Editing`
 
 - 设置 Status bar: 显示网速、CPU、内存等：点击 `Configure Status bar` 进入配置页面，这里将想要的 `Status bar` 拖入下面的方框即可。这里还推荐选择 `Auto-Rainbow`，这样 `Status bar` 就是以彩色的形式展示了。
+
 ## Commands
 
 ### 查看某个端口的占用情况

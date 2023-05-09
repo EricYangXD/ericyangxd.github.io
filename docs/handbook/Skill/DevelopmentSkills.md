@@ -19,9 +19,9 @@ import JSEncrypt from "jsencrypt";
 const cloudPublicKey = `abcdefg`;
 
 const encrypt = (value, publicKey = cloudPublicKey) => {
-	const jsEncrypt = new JSEncrypt({});
-	jsEncrypt.setPublicKey(publicKey);
-	return jsEncrypt.encrypt(value);
+  const jsEncrypt = new JSEncrypt({});
+  jsEncrypt.setPublicKey(publicKey);
+  return jsEncrypt.encrypt(value);
 };
 
 export default encrypt;
@@ -40,25 +40,25 @@ const enUsername = encrypt("username");
 
 ```json
 {
-	"scripts": {
-		"prestart": "node config/fix-sls-offline.js",
-		"lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern 'src/components/xxxx' --ignore-pattern src/assets/**/*.js",
-		"lint:license": "node ./config/license"
-	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "lint-staged", // 在后续的每一次git commit 之前，都会执行一次对应的 hook 脚本npm run lint 。其他hook同理
-			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS" // 检查Git commit内容
-		}
-	},
-	"lint-staged": {
-		// 只检查staged状态的代码，lint-staged是个库，需要安装在devDependencies中
-		"*.{js,ts,tsx}": [
-			// 只对js,ts,tsx文件进行校验
-			"npm run lint:eslint",
-			"npm run lint:license"
-		]
-	}
+  "scripts": {
+    "prestart": "node config/fix-sls-offline.js",
+    "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern 'src/components/xxxx' --ignore-pattern src/assets/**/*.js",
+    "lint:license": "node ./config/license"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged", // 在后续的每一次git commit 之前，都会执行一次对应的 hook 脚本npm run lint 。其他hook同理
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS" // 检查Git commit内容
+    }
+  },
+  "lint-staged": {
+    // 只检查staged状态的代码，lint-staged是个库，需要安装在devDependencies中
+    "*.{js,ts,tsx}": [
+      // 只对js,ts,tsx文件进行校验
+      "npm run lint:eslint",
+      "npm run lint:license"
+    ]
+  }
 }
 ```
 
@@ -66,46 +66,46 @@ const enUsername = encrypt("username");
 
 ```js
 module.exports = {
-	parser: "@typescript-eslint/parser",
-	// extends: ['xxxx', 'prettier'],
-	plugins: ["@typescript-eslint", "prettier"],
-	// ignorePatterns: ['/src/components/xxxx/*'],
-	env: {
-		browser: true,
-		node: true,
-		commonjs: true,
-	},
-	parserOptions: {
-		ecmaVersion: 2017,
-		sourceType: "module",
-		ecmaFeatures: {
-			modules: true,
-			jsx: true,
-		},
-	},
-	rules: {
-		"import/extensions": 0,
-		"import/no-unresolved": 0,
-		"react/prop-types": 0,
-		"jsx-a11y/click-events-have-key-events": 0,
-		"jsx-a11y/no-noninteractive-element-interactions": 0,
-		"jsx-a11y/no-static-element-interactions": 0,
-		"jsx-a11y/anchor-is-valid": 0,
-		"no-underscore-dangle": 0,
-		"jsx-a11y/label-has-associated-control": 0,
-		"jsx-a11y/label-has-for": 0,
-	},
-	settings: {
-		react: {
-			pragma: "React",
-			version: "detect",
-		},
-		"import/resolver": {
-			webpack: {
-				config: "./webpack.dev.config.js",
-			},
-		},
-	},
+  parser: "@typescript-eslint/parser",
+  // extends: ['xxxx', 'prettier'],
+  plugins: ["@typescript-eslint", "prettier"],
+  // ignorePatterns: ['/src/components/xxxx/*'],
+  env: {
+    browser: true,
+    node: true,
+    commonjs: true,
+  },
+  parserOptions: {
+    ecmaVersion: 2017,
+    sourceType: "module",
+    ecmaFeatures: {
+      modules: true,
+      jsx: true,
+    },
+  },
+  rules: {
+    "import/extensions": 0,
+    "import/no-unresolved": 0,
+    "react/prop-types": 0,
+    "jsx-a11y/click-events-have-key-events": 0,
+    "jsx-a11y/no-noninteractive-element-interactions": 0,
+    "jsx-a11y/no-static-element-interactions": 0,
+    "jsx-a11y/anchor-is-valid": 0,
+    "no-underscore-dangle": 0,
+    "jsx-a11y/label-has-associated-control": 0,
+    "jsx-a11y/label-has-for": 0,
+  },
+  settings: {
+    react: {
+      pragma: "React",
+      version: "detect",
+    },
+    "import/resolver": {
+      webpack: {
+        config: "./webpack.dev.config.js",
+      },
+    },
+  },
 };
 ```
 
@@ -117,42 +117,38 @@ const gulp = require("gulp");
 const licenser = require("gulp-licenser");
 
 // license 模板
-const LICENSE_TEMPLATE =
-	"/** Copyright © 1992-2021 YXD, All Rights Reserved. */";
+const LICENSE_TEMPLATE = "/** Copyright © 1992-2021 YXD, All Rights Reserved. */";
 
 // 从参数中获取文件列表，配合lint-stage使用
 const files = process.argv.slice(2); // node license [files]
 
 // 默认全量自定义文件
 const defaultFiles = [
-	"src/*.js",
-	"src/*.ts",
-	"src/*.tsx",
-	"src/**/*.js",
-	"src/**/*.ts",
-	"src/**/*.tsx",
-	"framework/**/*.js",
-	"framework/**/*.ts",
-	"framework/**/*.tsx",
-	"config/**/*.js",
-	"packages/**/*.js",
-	"packages/**/*.ts",
-	"packages/**/*.tsx",
-	"*.js",
+  "src/*.js",
+  "src/*.ts",
+  "src/*.tsx",
+  "src/**/*.js",
+  "src/**/*.ts",
+  "src/**/*.tsx",
+  "framework/**/*.js",
+  "framework/**/*.ts",
+  "framework/**/*.tsx",
+  "config/**/*.js",
+  "packages/**/*.js",
+  "packages/**/*.ts",
+  "packages/**/*.tsx",
+  "*.js",
 ];
 
 // 处理source，拼接绝对路径
-const source =
-	files.length > 0
-		? files
-		: defaultFiles.map((item) => path.resolve(process.cwd(), item));
+const source = files.length > 0 ? files : defaultFiles.map((item) => path.resolve(process.cwd(), item));
 
 // 检查是否有license并自动加上
 function updateLicense() {
-	gulp
-		.src(source)
-		.pipe(licenser(LICENSE_TEMPLATE))
-		.pipe(gulp.dest((file) => file.base));
+  gulp
+    .src(source)
+    .pipe(licenser(LICENSE_TEMPLATE))
+    .pipe(gulp.dest((file) => file.base));
 }
 
 updateLicense();
@@ -162,13 +158,13 @@ updateLicense();
 
 ```json
 {
-	"printWidth": 120,
-	"tabWidth": 2,
-	"useTabs": false,
-	"semi": true,
-	"singleQuote": true,
-	"trailingComma": "es5",
-	"arrowParens": "always"
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "arrowParens": "always"
 }
 ```
 
@@ -176,28 +172,15 @@ updateLicense();
 
 ```js
 module.exports = {
-	extends: ["@commitlint/config-conventional"],
-	rules: {
-		"type-enum": [
-			2,
-			"always",
-			[
-				"build",
-				"ci",
-				"chore",
-				"docs",
-				"feat",
-				"fix",
-				"perf",
-				"refactor",
-				"revert",
-				"style",
-				"test",
-				"merge",
-			],
-		],
-		"subject-case": [0],
-	},
+  extends: ["@commitlint/config-conventional"],
+  rules: {
+    "type-enum": [
+      2,
+      "always",
+      ["build", "ci", "chore", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test", "merge"],
+    ],
+    "subject-case": [0],
+  },
 };
 ```
 
@@ -222,19 +205,19 @@ if (isDarwin || isLinux) {
 
 let data = fs.readFileSync(FILE_LOCATION);
 if (data.includes(INJECT_FIX_STRING)) {
-	console.log("Skipping fix injection, already exists.");
+  console.log("Skipping fix injection, already exists.");
 } else {
-	data = data.toString().split("\n");
-	data.splice(LINE_NUMBER, 0, INJECT_FIX_STRING);
-	let text = data.join("\n");
+  data = data.toString().split("\n");
+  data.splice(LINE_NUMBER, 0, INJECT_FIX_STRING);
+  let text = data.join("\n");
 
-	fs.writeFile(FILE_LOCATION, text, (err) => {
-		if (err) {
-			return console.log(err);
-		} else {
-			return console.log("Injected fix successfully");
-		}
-	});
+  fs.writeFile(FILE_LOCATION, text, (err) => {
+    if (err) {
+      return console.log(err);
+    } else {
+      return console.log("Injected fix successfully");
+    }
+  });
 }
 ```
 
@@ -283,8 +266,8 @@ const cloud = require("./cloud");
 const mock = require("./mock");
 
 module.exports = (app) => {
-	app.use("/cloud", cloud);
-	app.use("/mock", mock);
+  app.use("/cloud", cloud);
+  app.use("/mock", mock);
 };
 ```
 
@@ -532,3 +515,45 @@ set -e
 1. `{}`:接口 path 中的单个花括号表示路径 path 参数，可以配置相应 mock 规则
 2. `{{}}`:接口 path 中的双花括号表示全局设置的变量，可以从右上角进入管理设置页面
 3. 添加 cookie 时，只能一个一个添加，从右下角「Cookie 管理」进入管理设置页面
+
+## npm 踩坑记录
+
+### npm 安装 node-sass 经常失败
+
+> node-sass 已经淘汰，现在都用 dart-sass
+
+- 在使用 npm 安装依赖时，遇到含有二进制文件的依赖包会经常失败，比如：node-sass、puppeteer 等
+- 为什么配置了国内镜像源安装也会失败？因为配置的国内镜像源只对 npm 包生效，而其中包含的二进制文件使用的是专门的下载地址，需要单独配置
+
+解决方法:
+
+- 前置知识：.npmrc
+- .npmrc 文件是 npm 的配置文件
+- 当在使用 npm 时它会从命令行、环境变量和 .npmrc 文件中获取其配置
+- 其加载优先级：命令行 > 项目 .npmrc > 全局 .npmrc > 默认
+- yarn 的配置文件为 .yarnrc
+- pnpm 的配置文件为 .npmrc
+
+1. 临时解决（以 node-sass 为例）
+
+```sh
+npm install -D node-sass --sass_binary_site=https://npmmirror.com/mirrors/node-sass
+# OR
+yarn add -D node-sass --sass_binary_site=https://npmmirror.com/mirrors/node-sass
+```
+
+2. 长期解决
+
+在项目根目录新建 .npmrc 文件，然后配置对应的二进制下载地址
+
+```sh
+# npm 镜像地址
+registry=https://registry.npmmirror.com
+
+# 二进制文件下载地址
+sass_binary_site=https://npmmirror.com/mirrors/node-sass
+phantomjs_cdnurl=https://npmmirror.com/mirrors/phantomjs
+electron_mirror=https://npmmirror.com/mirrors/electron
+profiler_binary_host_mirror=https://npmmirror.com/mirrors/node-inspector
+chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
+```

@@ -10,9 +10,15 @@ date: "2021-12-28"
 
 [![visitors](https://visitor-badge.glitch.me/badge?page_id=EricYangXD.EricYangXD)](https://github.com/EricYangXD)
 
+[![visitors](https://visitor-badge.laobi.icu/badge?page_id=EricYangXD.EricYangXD)](https://github.com/EricYangXD)
+
 [![visitors](https://komarev.com/ghpvc/?username=EricYangXD&color=green&label=visitors)](https://github.com/EricYangXD)
 
-努力学习，努力搞钱，早日财务自由~~~
+<pre>
+好好学习，努力搞钱，早日财务自由~~~
+</pre>
+
+<iframe align='right' src="https://giphy.com/embed/l0MYKqBTwZeJi2e5y" width="339" height="480" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
 
 **Languages:**
 
@@ -70,3 +76,7 @@ date: "2021-12-28"
 9. 任何擅自改变计算机信息网络数据属于违法行为，本项目不提供成品可运行程序，仅做学习研究使用。
 
 `您使用或者复制了本仓库且本人制作的任何代码或项目，则视为已接受此声明，请仔细阅读。`
+
+### 友情链接
+
+- [茂茂物语](https://maomao.fe-mm.com)
