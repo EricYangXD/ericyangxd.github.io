@@ -60,9 +60,9 @@ type res = Test<any>;
 
 ```ts
 enum Sizes {
-	Small,
-	Medium,
-	Large,
+  Small,
+  Medium,
+  Large,
 }
 ```
 
@@ -72,14 +72,14 @@ enum Sizes {
 var Sizes;
 
 (function (Sizes) {
-	Sizes[(Sizes["Small"] = 0)] = "Small";
-	Sizes[(Sizes["Medium"] = 1)] = "Medium";
-	Sizes[(Sizes["Large"] = 2)] = "Large";
+  Sizes[(Sizes["Small"] = 0)] = "Small";
+  Sizes[(Sizes["Medium"] = 1)] = "Medium";
+  Sizes[(Sizes["Large"] = 2)] = "Large";
 })(Sizes || (Sizes = {}));
 
 const coffee = {
-	name: "Espresso",
-	size: Sizes.Small,
+  name: "Espresso",
+  size: Sizes.Small,
 };
 ```
 
@@ -87,8 +87,8 @@ const coffee = {
 
 ```ts
 const coffee = {
-	name: "Espresso",
-	size: Sizes[Sizes.Small], // 'Small'
+  name: "Espresso",
+  size: Sizes[Sizes.Small], // 'Small'
 };
 ```
 
@@ -97,9 +97,9 @@ const coffee = {
 ```ts
 // 📣警告！这消除了具有反向映射行为的能力，因此如果您依赖它，请不要使用这种方法。
 const enum Sizes {
-	Small,
-	Medium,
-	Large,
+  Small,
+  Medium,
+  Large,
 }
 ```
 
@@ -107,8 +107,8 @@ const enum Sizes {
 
 ```js
 const coffee = {
-	name: "Espresso",
-	size: 0 /* Small */,
+  name: "Espresso",
+  size: 0 /* Small */,
 };
 ```
 
@@ -128,7 +128,7 @@ type SomeRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 ```ts
 type Pick<T, K extends keyof T> = {
-	[P in K]: T[P];
+  [P in K]: T[P];
 };
 type Exclude<T, U> = T extends U ? never : T;
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
@@ -141,7 +141,7 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
 ```ts
 //  eg.源码
 type Required<T> = {
-	[P in keyof T]-?: T[P];
+  [P in keyof T]-?: T[P];
 };
 ```
 
@@ -152,7 +152,7 @@ type Required<T> = {
 ```ts
 // eg.源码
 type Pick<T, K extends keyof T> = {
-	[key in k]: T[key];
+  [key in k]: T[key];
 };
 
 // eg. 从TState中拿到name和age属性，组成一个新的类型TSingleState
@@ -168,7 +168,7 @@ interface TSingleState extends Pick<TState, "name" | "age"> {}
 ```ts
 // eg.源码
 type Partial<T> = {
-	[P in keyof T]?: T[P];
+  [P in keyof T]?: T[P];
 };
 ```
 
@@ -179,7 +179,7 @@ type Partial<T> = {
 ```ts
 // eg.源码
 type Readonly<T> = {
-	readonly [P in keyof T]: T[P];
+  readonly [P in keyof T]: T[P];
 };
 ```
 
@@ -189,7 +189,7 @@ type Readonly<T> = {
 
 ```ts
 type DeepReadonly<T> = {
-	readonly [P in keyof T]: DeepReadonly<T[P]>;
+  readonly [P in keyof T]: DeepReadonly<T[P]>;
 };
 
 const a = { foo: { bar: 22 } };
@@ -234,11 +234,7 @@ Exclude 和 Omit 的区别：Omit 返回的是新的类型，原理上是在 Exc
 用于获取 函数 T 的返回类型。
 
 ```ts
-type ReturnType<T extends (...args: any[]) => any> = T extends (
-	...args: any[]
-) => infer R
-	? R
-	: any;
+type ReturnType<T extends (...args: any[]) => any> = T extends (...args: any[]) => infer R ? R : any;
 ```
 
 ### `InstanceType<T>`
@@ -251,7 +247,7 @@ type ReturnType<T extends (...args: any[]) => any> = T extends (
 
 ```ts
 type Mutable<T> = {
-	-readonly [P in keyof T]: T[P];
+  -readonly [P in keyof T]: T[P];
 };
 ```
 
@@ -275,10 +271,10 @@ declare let s: string;
 declare const o: object;
 declare function f(s: string): number;
 declare enum dir {
-	top,
-	right,
-	bottom,
-	left,
+  top,
+  right,
+  bottom,
+  left,
 }
 ```
 
@@ -286,9 +282,9 @@ declare enum dir {
 
 ```ts
 declare namespace MyPlugin {
-	var n: number;
-	var s: string;
-	var f: (s: string) => number;
+  var n: number;
+  var s: string;
+  var f: (s: string) => number;
 }
 ```
 
@@ -296,9 +292,9 @@ declare namespace MyPlugin {
 
 ```ts
 declare global {
-	interface String {
-		hump(input: string): string;
-	}
+  interface String {
+    hump(input: string): string;
+  }
 }
 // 注意: 修改"全局声明"必须在模块内部, 所以至少要有 export{}字样
 // 不然会报错❌: 全局范围的扩大仅可直接嵌套在外部模块中或环境模块声明中
@@ -310,11 +306,8 @@ export {};
 条件类型是 `extends ? :`，这里的 extends 是约束的意思。
 
 ```ts
-function test<T extends number | string, Y extends number | string>(
-	a: T,
-	b: Y
-) {
-	console.log(a, b);
+function test<T extends number | string, Y extends number | string>(a: T, b: Y) {
+  console.log(a, b);
 }
 test<number, number>(12, 23);
 ```
@@ -332,11 +325,9 @@ export type AllNullable<T> = { [K in keyof T]: Nullable<T[K]> };
 
 export type AllNonNullable<T> = { [K in keyof T]: NonNullable<T[K]> };
 
-export type SomePartial<T, R extends keyof T> = Omit<T, R> &
-	Pick<Partial<T>, R>;
+export type SomePartial<T, R extends keyof T> = Omit<T, R> & Pick<Partial<T>, R>;
 
-export type SomeRequired<T, R extends keyof T> = Omit<T, R> &
-	Pick<Required<T>, R>;
+export type SomeRequired<T, R extends keyof T> = Omit<T, R> & Pick<Required<T>, R>;
 ```
 
 ### ts 怎么用类型表示一个 Serializable 对象
@@ -349,35 +340,30 @@ type SerializableValue = string | number | boolean | null | undefined;
 
 type SerializableObject = Record<SerializableKey, SerializableValue>;
 
-type SerializableDeepObject =
-	| SerializableObject
-	| Record<SerializableKey, SerializableValue | SerializableObject>;
+type SerializableDeepObject = SerializableObject | Record<SerializableKey, SerializableValue | SerializableObject>;
 
 type SerializableArray = SerializableValue[] | SerializableDeepObject[];
 
-type Serializable =
-	| SerializableValue
-	| SerializableDeepObject
-	| SerializableArray;
+type Serializable = SerializableValue | SerializableDeepObject | SerializableArray;
 
 let obj: Serializable = [{ c: { a: 1 } }];
 
 console.log(obj);
 // 改进深层对象可以
 interface SerializableObject {
-	[key: SerializableKey]: SerializableValue | SerializableObject;
+  [key: SerializableKey]: SerializableValue | SerializableObject;
 }
 
 type Serializable = SerializableObject | SerializableObject[];
 
 obj: Serializable = [
-	{
-		a: {
-			b: {
-				c: 1,
-			},
-		},
-	},
+  {
+    a: {
+      b: {
+        c: 1,
+      },
+    },
+  },
 ];
 console.log(obj);
 ```
@@ -398,11 +384,11 @@ console.log(obj);
 
 ```ts
 type Partial<T> = {
-	[P in keyof T]?: T[P];
+  [P in keyof T]?: T[P];
 };
 
 type Record<K extends string, T> = {
-	[P in K]: T;
+  [P in K]: T;
 };
 ```
 
@@ -427,7 +413,7 @@ type Required<T> = { [P in keyof T]-?: T[P] };
 
 // Remove readonly
 type MutableRequired<T> = {
-	-readonly [P in keyof T]: T[P];
+  -readonly [P in keyof T]: T[P];
 };
 ```
 
@@ -481,11 +467,11 @@ An interface can have multiple merged declarations, but a type alias for an obje
 
 ```ts
 interface API {
-	"/user": { name: string };
-	"/menu": { foods: string[] };
+  "/user": { name: string };
+  "/menu": { foods: string[] };
 }
 const get = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
-	return fetch(url).then((res) => res.json());
+  return fetch(url).then((res) => res.json());
 };
 ```
 
@@ -542,11 +528,11 @@ type A = typeof a; // A的类型是 number
 
 ```ts
 interface Sizeable {
-	size: number;
+  size: number;
 }
 function trace<T extends Sizeable>(arg: T): T {
-	console.log(arg.size);
-	return arg;
+  console.log(arg.size);
+  return arg;
 }
 ```
 
@@ -560,7 +546,7 @@ const bb: A = ["1"]; // ok
 const cc: A<number> = [1]; // ok
 
 interface Array<T = string> {
-	// ...
+  // ...
 }
 ```
 
@@ -568,13 +554,13 @@ interface Array<T = string> {
 
 ```ts
 type ListNode<T> = {
-	data: T;
-	next: ListNode<T> | null;
+  data: T;
+  next: ListNode<T> | null;
 };
 
 declare var HTMLElement: {
-	prototype: HTMLElement;
-	new (): HTMLElement;
+  prototype: HTMLElement;
+  new (): HTMLElement;
 };
 ```
 
@@ -582,7 +568,7 @@ declare var HTMLElement: {
 
 ```ts
 function $<T extends HTMLElement>(id: string): T {
-	return document.getElementById(id) as T;
+  return document.getElementById(id) as T;
 }
 
 // 不确定 input 的类型
@@ -599,11 +585,11 @@ console.log("input.value: ", input.value);
 type FC<P = {}> = FunctionComponent<P>;
 
 interface FunctionComponent<P = {}> {
-	(props: PropsWithChildren<P>, context?: any): ReactElement<any, any> | null;
-	propTypes?: WeakValidationMap<P>;
-	contextTypes?: ValidationMap<any>;
-	defaultProps?: Partial<P>;
-	displayName?: string;
+  (props: PropsWithChildren<P>, context?: any): ReactElement<any, any> | null;
+  propTypes?: WeakValidationMap<P>;
+  contextTypes?: ValidationMap<any>;
+  defaultProps?: Partial<P>;
+  displayName?: string;
 }
 ```
 
@@ -611,15 +597,15 @@ interface FunctionComponent<P = {}> {
 
 ```ts
 interface Seal {
-	name: string;
-	url: string;
+  name: string;
+  url: string;
 }
 interface API {
-	"/user": { name: string; age: number; phone: string };
-	"/seals": { seal: Seal[] };
+  "/user": { name: string; age: number; phone: string };
+  "/seals": { seal: Seal[] };
 }
 const api = <URL extends keyof API>(url: URL): Promise<API[URL]> => {
-	return fetch(url).then((res) => res.json());
+  return fetch(url).then((res) => res.json());
 };
 ```
 
@@ -666,14 +652,14 @@ tsconfig.json 中有两个配置和类型引入有关。
 
 ```ts
 class Java {
-	helloJava() {}
+  helloJava() {}
 }
 class JavaScript {
-	helloJavaScript() {}
+  helloJavaScript() {}
 }
 // lang is Java：这种返回值叫做类型谓词
 function isJava(lang: Javascript | Java): lang is Java {
-	return (lang as Java).helloJava !== undefined;
+  return (lang as Java).helloJava !== undefined;
 }
 ```
 
@@ -698,13 +684,13 @@ function isJava(lang: Javascript | Java): lang is Java {
 ```ts
 // 在ts文件中增加声明：
 declare module "moment" {
-	export function myFunc(): void;
+  export function myFunc(): void;
 }
 // or 可以在 global.d.ts 中增加：
 declare global {
-	namespace globalLib {
-		function doSth(): void;
-	}
+  namespace globalLib {
+    function doSth(): void;
+  }
 }
 ```
 
@@ -774,7 +760,7 @@ declare global {
 
 ## TS 的编译工具
 
-1. 在 webpack.config.js 中，如果使用了 ts-loader，那么可以设置`options.transpileOnly=true`，只做语言转换，不做类型检查，提高打包速度。
+1. 在 `webpack.config.js` 中，如果使用了 `ts-loader`，那么可以设置`options.transpileOnly=true`，只做语言转换，不做类型检查，提高打包速度。
 2. 借助`fork-ts-checker-webpack-plugin`插件，在另一个独立的进程中做类型校验。
 3. `awesome-typescript-loader`：1.更适合与 babel 集成，使用 babel 的转义和缓存；2.不需安装额外的插件就可以把类型检查放在独立的进程中进行；不推荐；
 4. babel7 之前不支持 ts，使用`@babel/preset-typescript`插件
@@ -789,19 +775,19 @@ declare global {
 ```json
 // .eslintrc.json
 {
-	"parser": "@typescript-eslint/parser",
-	"plugins": ["@typescript-eslint"],
-	"parserOptions": {
-		"project": "./tsconfig.json"
-	},
-	"extends": ["plugin:@typescript-eslint/recommended"],
-	"rules": { "@typescript-eslint/no-inferrable-types": "off" }
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "extends": ["plugin:@typescript-eslint/recommended"],
+  "rules": { "@typescript-eslint/no-inferrable-types": "off" }
 }
 ```
 
 5. 在 VSCode 中集成 ESLint 检查:
    - 安装 ESLint 插件，点击「扩展」按钮，搜索 ESLint，然后安装即可。
-   - VSCode 中的 ESLint 插件默认是不会检查 .ts 后缀的，需要在「文件 => 首选项 => 设置 => 工作区」中（也可以在项目根目录下创建一个配置文件 .vscode/settings.json），添加以下配置：
+   - VSCode 中的 ESLint 插件默认是不会检查 .ts 后缀的，需要在「文件 => 首选项 => 设置 => 工作区」中（也可以在项目根目录下创建一个配置文件 `.vscode/settings.json`），添加以下配置：
 
 ```json
 {
@@ -849,11 +835,11 @@ declare global {
 
 ```ts
 class Animal {
-	base = "";
+  base = "";
 }
 
 class Dog extends Animal {
-	type = "Dog";
+  type = "Dog";
 }
 
 // 赋值
@@ -917,4 +903,20 @@ TypeScript 的类型系统是图灵完备的，也就是能描述各种可计算
 5. 传入类型参数，经过一系列类型运算逻辑后，返回新的类型的类型就叫做高级类型。高级类型的特点是传入类型参数，经过一系列类型运算逻辑后，返回新的类型。
 6. 对象、class 在 TypeScript 对应的类型是索引类型（Index Type），对索引类型作修改通过映射类型。映射类型就相当于把一个集合映射到另一个集合，这是它名字的由来。除了值可以变化，索引也可以做变化，用 as 运算符，叫做重映射。
 7. `& string`: 因为索引类型（对象、class 等）可以用 string、number 和 symbol 作为 key，这里 keyof T 取出的索引就是 string | number | symbol 的联合类型，和 string 取交叉部分就只剩下 string 了。就像前面所说，交叉类型会把同一类型做合并，不同类型舍弃。
-8.
+
+## 有用的实例
+
+### 提取数组的各个子元素中的某个字段作为一个 type
+
+```ts
+// 使用as const将option定义为元组类型,其元素为readonly。
+const option = [
+  { value: "1", id: 1 },
+  { value: "2", id: 2 },
+  { value: "3", id: 3 },
+] as const;
+// 使用typeof获取option中元素value属性的类型，定义为B，是一个联合类型,为option中各元素value属性的值的类型
+type B = typeof option[number]["value"];
+```
+
+`option[number]`：表示 option 数组中的任意一个元素。在 TypeScript 类型定义中,number 表示一个不确定的数字索引,用于表示数组中任意一个元素

@@ -52,7 +52,8 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 
 ## 红米手机
 
-进入工程模式：`*#*#6484#*#*`，用于调试屏幕等。
+1. 进入工程模式：`*#*#6484#*#*`，用于调试屏幕等。
+2. Google“安全码”在哪里获取？首先在手机中打开科学上网软件，运行 Google Play，依次点击右上角头像-“管理您的 Google 帐号”-“安全性”，点击“安全码（获取一次性验证码以验证您的身份）”。
 
 ## debug
 
@@ -84,7 +85,6 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 ## ijkplayer 编译 so 库
 
 [ijkplayer 编译 so 库](https://juejin.cn/post/6844903554084241415)
-
 
 ## adb
 
