@@ -317,7 +317,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 35. Fig：终端自动补全命令提示工具，配合 iTerm2 使用。在 vscode 中使用，需修改 `editor.accessibilitySupport` 为 `"off"`
 
 ### Mac 微信功能拓展：`WeChatTweak-CLI`
-
+打开微信，在微信的设置中即可发现 Tweak 小助手。
 ```sh
 # 安装 WeChatTweak-CLI
 brew install sunnyyoung/repo/wechattweak-cli

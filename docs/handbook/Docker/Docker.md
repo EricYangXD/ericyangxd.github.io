@@ -414,6 +414,26 @@ RUN yum install -y net-tools
   - shell 命令格式：`RUN yum install -y net-tools`
   - exec 命令格式：`RUN [ "yum","install" ,"-y" ,"net-tools"]`
 
+### 自己构建的容器无法启动怎么办
+
+- 通过`docker exec -it <container_id> sh`无法进入容器进行调试，此时可以：
+
+0. 检查 Dockerfile 和构建输出中的错误信息
+1. 使用`docker run -it --entrypoint sh <image_id>`来启动容器
+   - 使用你构建的镜像启动一个容器
+   - 覆盖默认的 ENTRYPOINT,使用 sh 命令作为入口点
+   - -it 参数可以让你进入容器内部的 shell
+2. 一种方式是使用 Dockerfile 的 RUN 指令，在构建阶段就检查容器内部（示例如下），这样不需要启动容器:这会直接在构建输出中返回命令执行结果，你可以根据输出来检查问题所在。
+
+```sh
+# dockerfile
+RUN ["sh", "-c", "ls /usr/local/bin/ | grep jenkins-agent"]
+RUN ["sh", "-c", "chmod +x /usr/local/bin/jenkins-agent"]
+RUN ["sh", "-c", "/usr/local/bin/jenkins-agent"]
+```
+
+3. `docker logs <container_id>` 的输出(如果容器有启动的话)
+
 ### 总结
 
 Docker 是一种虚拟化技术，通过容器的方式，它的实现原理依赖 linux 的 Namespace、Control Group、UnionFS 这三种机制。
@@ -451,11 +471,11 @@ Dockerfile 是一个文本文件，包含了用于构建 Docker 镜像的指令�
 
 **它可以在一台机器上跑多个容器，每个容器都有独立的操作系统环境，比如文件系统、网络端口等**。
 
-
-## 
+## 远程仓库
 
 - hi, I want to pull a docker image from remote repo and change sth of this image, and then push the changed image to the remote repo, how to make it?
 
+0. 要有个账号，docker 的或者私有的
 1. `docker pull <remote_repo>/<image_name>:<tag>`
 2. `docker run -it <remote_repo>/<image_name>:<tag> /bin/bash`
 3. make changes to the image.
