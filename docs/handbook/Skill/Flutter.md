@@ -123,3 +123,5 @@ pod setup
 3. Homebrew
 
 配置完 Git 全局代理之后即可更新。
+
+4. `flutter upgrade`失效或者报错时（长期不更新或者网络问题443），那么可以直接去[下载](https://docs.flutter.dev/release/archive?tab=macos)需要的版本，然后解压到本机flutter安装的位置（`where flutter`）即可。
