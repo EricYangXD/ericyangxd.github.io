@@ -13,14 +13,14 @@ meta:
 
 1. DNS：Domain Name System 域名管理系统 域名是由圆点分开一串单词或缩写组成的，每一个域名都对应一个惟一的 IP 地址，这一命名的方法或这样管理域名的系统叫做域名管理系统。
 
-   - DNS：Domain Name Server 域名服务器 域名虽然便于人们记忆，但网络中的计算机之间只能互相认识 IP 地址，它们之间的转换工作称为域名解析，域名解析需要由专门的域名解析服务器来完成，DNS 就是进行域名解析的服务器。 查看 DNS 更详细的解释
+   - DNS：Domain Name Server 域名服务器 域名虽然便于人们记忆，但网络中的计算机之间只能互相认识 IP 地址，它们之间的转换工作称为域名解析，域名解析需要由专门的域名解析服务器来完成，DNS 就是进行域名解析的服务器。
 
 2. A 记录: A（Address）记录是用来指定主机名（或域名）对应的 IP 地址记录。用户可以将该域名下的网站服务器指向到自己的 web server 上。同时也可以设置域名的子域名。通俗来说 A 记录就是服务器的 IP,域名绑定 A 记录就是告诉 DNS,当你输入域名的时候给你引导向设置在 DNS 的 A 记录所对应的服务器。 简单的说，A 记录是指定域名对应的 IP 地址。
 3. NS 记录: NS（Name Server）记录是域名服务器记录，用来指定该域名由哪个 DNS 服务器来进行解析。 您注册域名时，总有默认的 DNS 服务器，每个注册的域名都是由一个 DNS 域名服务器来进行解析的，DNS 服务器 NS 记录地址一般以以下的形式出现： ns1.domain.com、ns2.domain.com 等。 简单的说，NS 记录是指定由哪个 DNS 服务器解析你的域名。
 4. MX 记录: MX（Mail Exchanger）记录是邮件交换记录，它指向一个邮件服务器，用于电子邮件系统发邮件时根据收信人的地址后缀来定位邮件服务器。例如，当 Internet 上的某用户要发一封信给 user@mydomain.com 时，该用户的邮件系统通过 DNS 查找 mydomain.com 这个域名的 MX 记录，如果 MX 记录存在， 用户计算机就将邮件发送到 MX 记录所指定的邮件服务器上。
 5. CNAME 记录: CNAME（Canonical Name ）`别名`记录，允许您将多个名字映射到同一台计算机。通常用于同时提供 WWW 和 MAIL 服务的计算机。例如，有一台计算机名为 `host.mydomain.com`（A 记录），它同时提供 WWW 和 MAIL 服务，为了便于用户访问服务。可以为该计算机设置两个别名（CNAME）：WWW 和 MAIL， 这两个别名的全称就`www.mydomain.com`和`mail.mydomain.com`，实际上他们都指向 `host.mydomain.com`。
 6. TXT 记录:
-   TXT 记录，一般指某个主机名或域名的说明，如：admin IN TXT "管理员, 电话：XXXXXXXXXXX"，mail IN TXT "邮件主机，存放在 xxx , 管理人：AAA"，Jim IN TXT "contact: abc@mailserver.com"，也就是您可以设置 TXT 内容以便使别人联系到您。 TXT 的应用之一，SPF（Sender Policy Framework）反垃圾邮件。SPF 是跟 DNS 相关的一项技术，它的内容写在 DNS 的 TXT 类型的记录里面。MX 记录的作用是给寄信者指明某个域名的邮件服务器有哪些。SPF 的作用跟 MX 相反，它向收信者表明，哪些邮件服务器是经过某个域名认可会发送邮件的。SPF 的作用主要是反垃圾邮件，主要针对那些发信人伪造域名的垃圾邮件。例如：当邮件服务器收到自称发件人是spam@gmail.com的邮件，那么到底它是不是真的 gmail.com 的邮件服务器发过来的呢，我们可以查询 gmail.com 的 SPF 记录，以此防止别人伪造你来发邮件。
+   - TXT 记录，一般指某个主机名或域名的说明，如：admin IN TXT "管理员, 电话：XXXXXXXXXXX"，mail IN TXT "邮件主机，存放在 xxx , 管理人：AAA"，Jim IN TXT "contact: abc@mailserver.com"，也就是您可以设置 TXT 内容以便使别人联系到您。 TXT 的应用之一，SPF（Sender Policy Framework）反垃圾邮件。SPF 是跟 DNS 相关的一项技术，它的内容写在 DNS 的 TXT 类型的记录里面。MX 记录的作用是给寄信者指明某个域名的邮件服务器有哪些。SPF 的作用跟 MX 相反，它向收信者表明，哪些邮件服务器是经过某个域名认可会发送邮件的。SPF 的作用主要是反垃圾邮件，主要针对那些发信人伪造域名的垃圾邮件。例如：当邮件服务器收到自称发件人是spam@gmail.com的邮件，那么到底它是不是真的 gmail.com 的邮件服务器发过来的呢，我们可以查询 gmail.com 的 SPF 记录，以此防止别人伪造你来发邮件。
 7. TTL 值: TTL（Time-To-Live）原理：TTL 是 IP 协议包中的一个值，它告诉网络路由器包在网络中的时间是否太长而应被丢弃。有很多原因使包在一定时间内不能被传递到目的地。例如，不正确的路由表可能导致包的无限循环。一个解决方法就是在一段时间后丢弃这个包，然后给发送者一个报文，由发送者决定是否要重发。TTL 的初值通常是系统缺省值，是包头中的 8 位的域。TTL 的最初设想是确定一个时间范围，超过此时间就把包丢弃。由于每个路由器都至少要把 TTL 域减一，TTL 通常表示包在被丢弃前最多能经过的路由器个数。当记数到 0 时，路由器决定丢弃该包，并发送一个 ICMP 报文给最初的发送者。 简单的说，TTL 就是一条域名解析记录在 DNS 服务器中的存留时间。当各地的 DNS 服务器接受到解析请求时，就会向域名指定的 NS 服务器发出解析请求从而获得解析记录；在获得这个记录之后，记录会在 DNS 服务器中保存一段时间，这段时间内如果再接到这个域名的解析请求，DNS 服务器将不再向 NS 服务器发出请求，而是直接返回刚才获得的记录，而这个记录在 DNS 服务器上保留的时间，就是 TTL 值。
    TTL 值设置的应用：
    - 一是增大 TTL 值，以节约域名解析时间，给网站访问加速。 一般情况下，域名的各种记录是极少更改的，很可能几个月、几年内都不会有什么变化。我们完全可以增大域名记录的 TTL 值让记录在各地 DNS 服务器中缓存的时间加长，这样在更长的一段时间内，我们访问这个网站时，本地 ISP 的 DNS 服务器就不需要向域名的 NS 服务器发出解析请求，而直接从缓存中返回域名解析记录。
@@ -31,16 +31,17 @@ meta:
 10. 域名绑定: 域名绑定是指将域名指向服务器 IP 的操作。
 11. 域名转向: 域名转向又称为域名指向或域名转发，当用户地址栏中输入您的域名时，将会自动跳转到您所指定的另一个域名。一般是使用短的好记的域名转向复杂难记的域名。
 
-### 师夷长技以制夷
+## 师夷长技以制夷
 
-#### 举例
+### 举例
 
 1. [HOTSPOT shield](https://www.hotspotshield.com/)
 2. [Hide.me](https://hide.me/)
 3. [Windscribe](https://windscribe.com/)
 4. [PrivadoVPN](https://privadovpn.com/)
 5. [ProtonVPN](https://protonvpn.com/)
-#### 常用协议
+
+### 常用协议
 
 - PPTP：点对点隧道协议。以 GRE 协议做点对点传输，并由 TCP 1723 端口来发起和管理 GRE，本身没有加密和身份验证功能，仅依靠点对点协议（即 PTP）的隧道传输通道实现安全功能，所以速度快，但是由于安全性能低，早已不建议使用。
 - IPSec：类似于 PPTP，也是比较老而过时的 VPN 隧道协议，尽管它的协议含有 AH/认证头，ESP/封装安全载荷，和 IKEv2/因特密匙失交换，对比 PPTP 拥有更好的安全性，IPSec 流量传输更容易被网路服务商识别并阻断。
@@ -52,7 +53,7 @@ meta:
 - Shadowsocks：免费且开源的加密代理/VPN 协议。它是一款基于 Socks5 的代理协议，最早由亚洲某审查严重国家的程序员开发，主要应用于绕过政府防火墙/GFW 审查。后面还延伸出了更多的代理协议，例如 V2Ray 和 Trojan。
 - SSH：（安全 Shell）此协议创建一个隧道，同时加密所有数据。
 
-#### PPTP、L2TP、OpenVPN 三种隧道协议的优缺点对比
+### PPTP、L2TP、OpenVPN 三种隧道协议的优缺点对比
 
 - 易用性： PPTP > L2TP > OpenVPN
 - 速度： PPTP > OpenVPN UDP > L2TP > OpenVPN TCP
@@ -60,13 +61,13 @@ meta:
 - 稳定性： OpenVPN > L2TP > PPTP
 - 网络适用性：OpenVPN > PPTP > L2TP
 
-#### Tools
+### Tools
 
 ![SSR,V2Ray,Clash概览](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/WechatIMG330.png)
 
 - shadowrocket
 
-#### 小米路由器刷机救砖
+### 小米路由器刷机救砖
 
 1. [小米路由器修复工具](http://www1.miwifi.com/miwifi_download.html)下载救砖工具，需用 Windows 电脑；
 2. 参考官方步骤：[小米路由器修复工具刷机使用步骤](https://web.vip.miui.com/page/info/mio/mio/detail?postId=19134127&app_version=dev.20051)
@@ -85,13 +86,13 @@ meta:
    5. 红灯长亮：系统故障
    6. 红灯闪烁：刷机失败
 
-#### 开源工具
+### 开源工具
 
 1. clashX（Mac），clash（Windows）：github 上搜索
 2. shadowsockets：同上，两个平台软件的名称不太一样
 3. OpenVPN：同上
 
-#### clashX 用法
+### clashX 用法
 
 Windows 上的 clash 非常好用，Mac 上的 clashX 刚用起来有点不知所措。
 
@@ -296,6 +297,8 @@ Request timeout for icmp_seq 1
 
 ## 微信接入 chatgpt
 
+> 慎用，会被禁止远程登录（短暂封号）
+
 1. 搞台 vps，比如装个 Centos7，然后在这个系统上操作：
 2. 安转 git：`sudo yum install git`
 3. 安装 golang：`sudo yum install golang`
@@ -307,7 +310,22 @@ Request timeout for icmp_seq 1
 9. 运行：`go run main.go`
 10. 复制命令行输出的微信登录 URL 到浏览器中，使用准备当机器人的微信扫码登录（据说可能会被封号），然后就可以和这个微信号对话了。
 
-
 ## 猜谜
 
 [NAZO](https://nazo.one-story.cn/nazo-1)
+
+## 红米 AX6000 官方固件不刷机只开启 SSH 安装插件
+
+1. 参考恩山论坛各位大佬的帖子
+2. 可以安装的插件：ShellClash、mosdns-cn、AdGuard、UU 加速器
+3. 设置 ShellClash 使用主路由模式，按照提示设置好即可访问 Google
+
+## 网心云盒子刷 openwrt
+
+- 据说版本不同适合干的事也不同，二维码密集的是新版，可以刷 openwrt；二维码稀疏的是旧版，适合刷电视盒子
+- [参考]（https://www.yitoujing.com/article/11）
+- 玩客云旁路由设置：
+  1. LAN 口固定 IP 地址，网关指向主路由 IP 地址
+  2. 关闭 DHCP 服务器
+  3. 关闭 IPV6
+  4. 防火墙自定义规则添加下面代码`iptables -t nat -I POSTROUTING eth0 -j MASQUERADE`
