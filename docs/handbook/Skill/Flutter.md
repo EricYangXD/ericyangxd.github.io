@@ -124,4 +124,87 @@ pod setup
 
 配置完 Git 全局代理之后即可更新。
 
-4. `flutter upgrade`失效或者报错时（长期不更新或者网络问题443），那么可以直接去[下载](https://docs.flutter.dev/release/archive?tab=macos)需要的版本，然后解压到本机flutter安装的位置（`where flutter`）即可。
+4. `flutter upgrade`失效或者报错时（长期不更新或者网络问题 443），那么可以直接去[下载](https://docs.flutter.dev/release/archive?tab=macos)需要的版本，然后解压到本机 flutter 安装的位置（`where flutter`）即可。
+
+## explain-nginx.conf
+
+```sh
+worker_processes 1;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  # include:包含文件，比如我想让nginx识别mime类型，那么就可以用到include
+  include mime.types;
+
+  # load banlancer:比如我有四个后端服务器，我想让他们轮流处理请求，那么就可以用到upstream
+  upstream backendserver {
+    server 127.0.0.1:1111;
+    server 127.0.0.1:2222;
+    server 127.0.0.1:3333;
+    server 127.0.0.1:4444;
+  }
+
+  # types:设置mime类型，比如我想让nginx识别html，css，js，jpeg，png，gif
+  types {
+    # 设置mime类型，比如我想让nginx识别html，css，js，jpeg，png，gif
+    text/html html;
+    text/css css;
+    text/javascript js;
+    image/jpeg jpeg jpg;
+    image/png png;
+    image/gif gif;
+  }
+
+  # server:监听端口，比如我想让nginx监听8080端口
+  server{
+    listen 8080;
+    server_name localhost;
+
+    # load banlancer
+    location / {
+      proxy_pass http://backendserver;
+    }
+    root /Users/eric/Desktop/website;
+
+    # rewrite:重写url，比如我想让number/1重写成count/1，但是不改变url，浏览器显示的还是number/1
+    # 但是这个重写只是在这个location下有效，浏览器显示的还是number/1，但是实际上访问的是count/1
+    rewrite ^/number/(\w+) /count/$1;
+
+    # 如果没有设置index，会自动找到root下的index.html
+    index /Users/eric/Desktop/website/index.html;
+
+    location /foods {
+      # alias:别名，比如我想让/foods指向/Users/eric/Desktop/website/dishes
+      alias /Users/eric/Desktop/website/dishes;
+    }
+
+    location /images {
+      # 重定向redirect，访问/images会重定向到http://www.baidu.com
+      # url会改变，浏览器显示的是http://www.baidu.com
+      return 307 http://www.baidu.com;
+    }
+
+    location /test {
+      # root: 会append到location后面，比如我访问/test，会自动找到/Users/eric/Desktop/website/test/index.html
+      root /Users/eric/Desktop/website;
+    }
+
+    location /drinks {
+      root /Users/eric/Desktop/website;
+      # try_files:如果访问的是/drinks，会自动找到/Users/eric/Desktop/website/drinks/index.html
+      # 如果没有index.html，会自动找到/Users/eric/Desktop/website/drinks/cola.html,如果还没有，会自动找到/Users/eric/Desktop/website/index.html
+      try_files /drinks/cola.html /index.html =404;
+      # try_files $uri $uri/ /foods.html;
+    }
+
+    location ~* /count/[0-9] {
+      root /Users/eric/Desktop/website;
+      try_files /count.html /index.html =404;
+    }
+
+  }
+}
+```
