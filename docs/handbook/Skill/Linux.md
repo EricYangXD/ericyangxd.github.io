@@ -665,11 +665,12 @@ magedu  ALL=(ALL)   ALL  ###添加此行
 5. `sudo touch /root/abc.txt`:可以在 root 下创建文件
 6. `sudo ls /root`:可以列出 root 下的内容
 
-#### Oracle计算实例保活
+#### Oracle 计算实例保活
 
-安装一个lookbusy，配置几个参数，达到oracle的要求即可，以CentOS8为例：
+安装一个 lookbusy，配置几个参数，达到 oracle 的要求即可，以 CentOS8 为例：
 
-1. 依次执行，如果已经安装了curl则不必再次安装
+1. 依次执行，如果已经安装了 curl 则不必再次安装
+
 ```sh
 yum install curl build-essential
 curl -L http://www.devin.com/lookbusy/download/lookbusy-1.4.tar.gz -o lookbusy-1.4.tar.gz
@@ -679,40 +680,42 @@ cd lookbusy-1.4/
 make
 make install
 ```
-2. 新建systemd服务：`systemctl edit --full --force lookbusy.service`，这一步可能会报错：
+
+2. 新建 systemd 服务：`systemctl edit --full --force lookbusy.service`，这一步可能会报错：
    1. `systemctl list-units --type=service`先查看一下有没有这个服务，如果有的话再执行
    2. 如果没有就等会。或者`systemctl daemon-reload`
    3. 如果依然不行，那么直接：`sudo vim /etc/systemd/system/lookbusy.service`创建一个。
-3. 第2步新建的文件里写入：参数-c指cpu使用率，-m指内存使用率。可以根据自己的实例配置来适当配置。
+3. 第 2 步新建的文件里写入：参数-c 指 cpu 使用率，-m 指内存使用率。可以根据自己的实例配置来适当配置。
+
 ```sh
 [Unit]
 Description=lookbusy service
- 
+
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/lookbusy -c 20 -m 5120MB
 Restart=always
 RestartSec=10
 KillSignal=SIGINT
- 
+
 [Install]
 WantedBy=multi-user.target
 ```
-4. 启动并设置lookbusy开机自启：`systemctl enable --now lookbusy.service`
-5. `top`: 查看当前机器的cpu、内存、负载情况，确定超过甲骨文规定的10%即可
 
+4. 启动并设置 lookbusy 开机自启：`systemctl enable --now lookbusy.service`
+5. `top`: 查看当前机器的 cpu、内存、负载情况，确定超过甲骨文规定的 10%即可
 
-#### 几条查看CPU、内存命令
+#### 几条查看 CPU、内存命令
 
-1. 查看CPU型号：`dmidecode -s processor-version`/`cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c`/`more /proc/cpuinfo | grep "model name"`
-2. 查看物理CPU: `cat /proc/cpuinfo | grep "physical id" | sort | uniq|wc -l`
-3. 查看CPU详情: `cat /proc/cpuinfo`/`lscpu`
-4. 查看物理CPU核数: `cat /proc/cpuinfo | grep “cores”|uniq`
-5. 查看逻辑CPU: `cat /proc/cpuinfo | grep “processor” |wc -l`
+1. 查看 CPU 型号：`dmidecode -s processor-version`/`cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c`/`more /proc/cpuinfo | grep "model name"`
+2. 查看物理 CPU: `cat /proc/cpuinfo | grep "physical id" | sort | uniq|wc -l`
+3. 查看 CPU 详情: `cat /proc/cpuinfo`/`lscpu`
+4. 查看物理 CPU 核数: `cat /proc/cpuinfo | grep “cores”|uniq`
+5. 查看逻辑 CPU: `cat /proc/cpuinfo | grep “processor” |wc -l`
 6. 查看内存占用: `free -h`
 7. 查看磁盘分区: `lsblk`
 8. 查看磁盘使用详情: `df -h`
-9. 使用systemd 初始化进程服务。当然systemd 初始化进程服务采取了并发启动机制，因此开机速度得到了不小的提升。`systemctl start xx/restart xx/stop xx/status/reload xx/enable xx/disable xx/`
+9. 使用 systemd 初始化进程服务。当然 systemd 初始化进程服务采取了并发启动机制，因此开机速度得到了不小的提升。`systemctl start xx/restart xx/stop xx/status/reload xx/enable xx/disable xx/`
 10. `systemctl daemon-reload`：reload units
 
 #### install dev tools
@@ -720,7 +723,7 @@ WantedBy=multi-user.target
 - `yum groupinstall "Development Tools"`
 - `yum install -y gcc g++ kernel-devel`
 
-- `sudo dnf install **python3-librepo**`解决centos8报错：`Failed loading plugin "osmsplugin": No module named 'librepo'`
+- `sudo dnf install **python3-librepo**`解决 centos8 报错：`Failed loading plugin "osmsplugin": No module named 'librepo'`
 
 ### 每次通过密码链接 vps 时都会提示有 xx 次失败记录
 
@@ -728,3 +731,67 @@ WantedBy=multi-user.target
 
 1. 关闭`PasswordAuthentication`，修改`nano /etc/ssh/sshd_config`这个文件里对应的地方。同时最好也关闭`PermitRootLogin`root 账户登录。只使用`ssh-key`登录。
 2. 换个不常用的端口，降低被扫到的几率。
+
+## 查看操作系统版本
+
+1. Linux:
+
+- Ubuntu/Debian: `lsb_release -a`
+- CentOS/RedHat: `cat /etc/redhat-release`
+- Arch: `cat /etc/arch-release`
+
+2. macOS:
+
+- `sw_vers`
+
+3. Windows:
+
+- `winver` (运行命令行并输入 winver)
+- 系统属性 (打开系统属性对话框)
+
+## 阿里云搭建WordPress
+
+```sh
+yum -y install httpd mod_ssl mod_perl mod_auth_mysql
+httpd -v
+systemctl start httpd.service # 启动之后可以在浏览器访问ecs地址查看页面
+
+yum install -y mariadb-server
+systemctl start mariadb
+systemctl status mariadb
+mysqladmin -u root -p password # 默认没有密码，先回车一次，然后会设置新密码
+mysql -uroot -p # 执行下面的sql
+  create database wordpress;
+  show databases;
+  exit;
+
+yum -y install php php-mysql gd php-gd gd-devel php-xml php-common php-mbstring php-ldap php-pear php-xmlrpc php-imap
+echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php # 创建测试页面
+systemctl restart httpd # 访问 http://<ECS公网地址>/phpinfo.php
+
+yum -y install wordpress
+# 执行如下命令，修改wp-config.php指向路径为绝对路径。
+# 进入/usr/share/wordpress目录。
+cd /usr/share/wordpress
+# 修改路径。
+ln -snf /etc/wordpress/wp-config.php wp-config.php
+# 查看修改后的目录结构。
+ll
+# 执行如下命令，移动wordpress文件到Apache根目录。
+# 在Apache的根目录/var/www/html下，创建一个wp-blog文件夹。
+mkdir /var/www/html/wp-blog
+mv * /var/www/html/wp-blog/
+# 执行以下命令，修改wp-config.php配置文件。
+sed -i 's/database_name_here/wordpress/' /var/www/html/wp-blog/wp-config.php
+sed -i 's/username_here/root/' /var/www/html/wp-blog/wp-config.php
+sed -i 's/password_here/123456789/' /var/www/html/wp-blog/wp-config.php
+
+cat -n /var/www/html/wp-blog/wp-config.php
+systemctl restart httpd
+
+# 访问http://<ECS公网地址>/wp-blog/wp-admin/install.php
+# 在WordPress配置页面，配置相关信息，然后单击Install WordPress。
+# 在Success！页面，单击Log In。
+# 在登录页面，输入您的用户名和密码，单击Log In。
+
+```

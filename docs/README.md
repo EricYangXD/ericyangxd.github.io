@@ -14,9 +14,8 @@ date: "2021-12-28"
 
 [![visitors](https://komarev.com/ghpvc/?username=EricYangXD&color=green&label=visitors)](https://github.com/EricYangXD)
 
-<pre>
-好好学习，努力搞钱，早日财务自由~~~
-</pre>
+
+**好好学习，努力搞钱，早日财务自由~~~**
 
 <iframe align='right' src="https://giphy.com/embed/l0MYKqBTwZeJi2e5y" width="339" height="480" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
 

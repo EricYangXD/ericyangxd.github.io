@@ -4,6 +4,30 @@ author: EricYangXD
 date: "2021-12-29"
 ---
 
+## LAMP/MEAN 环境指的是啥
+
+1. LAMP
+
+- L: Linux 操作系统
+- A: Apache 网页服务器
+- M: MySQL 数据库
+- P: PHP 编程语言
+
+2. MEAN
+
+- M: MongoDB 数据库
+- E: Express 网页框架
+- A: AngularJS 前端框架
+- N: Node.js 服务器环境
+
+其实就是几个软件的简写。
+
+LAMP 一直作为 Web 开发人员选用最广的环境，其生态圈庞大，文档资料丰富，适合小型到大型 Web 项目的开发。
+如果你想开发一个简单的动态网站，LAMP 无疑是一个不错的选择。它简单、免费、开源，并得到广泛支持与帮助。
+
+MEAN 作为当代流行的 Web 开发技术栈，其生态系统也比较强大，得到许多公司和开发者的支持，适用于中小型到大型的 Web 应用开发。
+如果你想开发一个高性能的现代 Web 应用，MEAN 是一个很好的选择。
+
 ## 快速复制一个代码运行中生成的超大变量并保存到本地
 
 1. 在代码里先 console.log($this_variable);
