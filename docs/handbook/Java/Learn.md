@@ -23,6 +23,22 @@ meta:
 8. 字符：char:2 字节（单引号&一个字符）
 9. 布尔：boolean：1 字节
 
+### Java 开发中的基础概念
+
+1. DTO：Data Transfer Object。在 Java 开发中，DTO（数据传输对象）是一种设计模式，用于在一个应用程序的各层之间传输数据。它是一个包含数据的简单对象，并提供 getter 和 setter 方法来访问和修改数据。DTO 的目的是对数据进行封装，并为应用程序各层之间的传输提供一个标准化的接口，例如，在前端和后端之间，或在不同的服务之间。DTO 经常被用在 Web 应用程序中，在客户端和服务器之间传输数据。例如，客户端的一个 Web 表单可以用来收集用户的数据，然后将其作为一个 DTO 发送到服务器。然后，服务器可以处理这些数据，并以另一个 DTO 的形式返回响应。DTO 也可以用来在一个应用程序的不同部分之间映射数据。例如，如果一个应用程序使用对象关系映射（ORM）框架与数据库进行交互，DTO 可以用来在数据库和应用程序的领域对象之间映射数据。
+2. AOP：Aspect-Oriented Programming。一种编程范式，允许你将应用程序中的`交叉问题Cross-cutting concerns`模块化。交叉问题是指那些影响到你的应用程序的多个部分的问题，并且不能被干净地分离到单个模块中。交叉问题的例子包括日志、安全和事务管理。在 AOP 中，你定义了 aspects，它是封装了交叉问题的模块。Aspects 可以应用于你的应用程序的多个部分，允许你将相同的行为应用于多个组件而不需要重复的代码。AOP 的一个常见实现是通过使用拦截器 Interceptors 或 Advice。拦截器是在方法调用之前或之后执行的代码，允许你修改该方法的行为。Advice 与拦截器类似，但可以应用于多个方法或类。AOP 可以在许多编程语言中实现，包括 Java、C#和 Python。在 Java 中，AOP 通常使用 Spring AOP 或 AspectJ 等框架实现。
+3. Spring MVC 是一个基于 Servlet 容器的 Web 应用框架，这里的 Servlet 容器通常指 Tomcat 等服务容器。Servlet 容器会负责监听端口消息并映射为 Request/Response 对象，然后交给 Servlet 实例去处理。SpringMVC 框架的作用核心就是 Servlet 实例，这个实例在 Spring 中默认是 DispatcherServlet，DispatcherServlet 中使用众多 Spring 组件来协助处理请求。
+4. ![Spring MVC结构图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/springmvc.jpg)
+5. Servlet 容器：Servlet 用于从某个 Socket 接收数据，并处理为标准的 ServletRequest 和 ServletResponse。
+6. 核心组件 DispatcherServlet：Spring MVC 的核心组件就是 DispatcherServlet，它是 SpringWeb 请求的调度中心。
+7. 请求映射 HandlerMapping：请求映射用于根据请求找到该请求需要调用的所有方法，包含过滤器和处理方法等。
+8. 拦截器 HandlerInterceptor：拦截器和 Tomcat 容器中的 Valve 有些类似，Spring 的拦截器可以让用户灵活的在请求处理前、请求处理后和请求完成三个阶段自定义操作，比如用户权限校验等。
+9. 处理方法 Handler：处理方法在 DispatcherServlet 定义为 Object 类型，如果我们使用了@RequestMapping 来根据请求查找处理方法，那么查找到的处理方法就是 HandlerMethod 类型，对应于 Controller 中添加了对应 RequestMapping 的方法。
+10. 处理方法适配器 HandlerAdapter：DispatcherServlet 从 HandlerMapping 中获取到的处理方法是 Object 类型，意味着不同的处理方法可能返回不同的对象，DispatcherServlet 本身是一个调度器，不应该关注如何调用不同的处理方法，所以 Spring 提供了 HandlerAdapter 列表用户处理不同的调度方法。
+11. 异常处理 HandlerExceptionResolver：HandlerExceptionResolver 用于处理请求过程中出现的异常，其实现有很多中类型，不过我们日常开发中使用比较多的是 ExceptionHandlerExceptionResolver，也就是处理我们定义的@ExceptionHandler 注解。
+12. DAO：Data Access Object，数据访问对象。它是一种设计模式，将数据持久性逻辑与业务逻辑分开。这种模式背后的想法是创建一个接口，抽象出数据库上的 CRUD（创建、读取、更新、删除）操作，然后为该接口提供一个实现。这使得改变底层数据源而不改变业务逻辑更加容易。DAO 模式常用于 Java 应用程序中，特别是那些使用`对象-关系映射（ORM）框架`的应用程序，如 Hibernate 或 JPA。
+13. ![项目结构划分](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/struc.png)
+
 ### String/StringBuilder/StringJoiner
 
 1. String：最常用 `String s="string"`直接赋值，放在 StringTable 里（可能会复用，节约内存），通过 new 的形式创建的放在堆内存中不可复用，创建后不可修改，都是 String 类的实例对象，可以接受字符数组和字节数组创建字符串（要经过转换），有 equals、equalsIgnoreCase 等方法。
@@ -157,16 +173,12 @@ meta:
    3. 局部内部类:定义在方法里面，类似方法里面的局部变量。外界无法直接使用，需要在方法内部创建对象并使用。该类可以直接访问外部类的成员和方法内的局部变量。
    4. 匿名内部类:隐藏了名字的内部类。可以写在成员位置或者局部位置。格式：`new 类名/接口名(){ 重写方法 }`。整体就是一个类的子类对象或者接口的实现类对象。
 6. 获取成员内部类对象的两种方式：
-
    1. 外部类编写方法，对外提供内部类对象
    2. 直接创建：`Outer.Inner oi = new Outer().new Inner();`
-
 7. 外部类成员变量和内部类成员变量重名时，在内部类通过这种形式访问外部变量：`Outer.this.xxx`
 8. `javap xxx.class`：反编译 class 文件，Java 自带功能。
 9. 匿名内部类使用场景：
-
    1. 当调用一个方法的时候，方法的形参是一个接口或者类时，以接口为例，可以传递这个接口的实现类对象，如果实现类只要使用一次，就可以用匿名内部类简化代码。例：
-
    ```java
    Arrays.sort(arr, new Comparator<Integer>(){
       @Override
@@ -175,7 +187,6 @@ meta:
       }
    })
    ```
-
 10. 在调用方法时，如果方法出现了重载现象，优先调用实参跟形参类型一致的那个方法。
 
 ## 常用 Api
@@ -211,9 +222,9 @@ meta:
 2. equals()
 3. clone()
 4. Objects：工具类
-   1. equals：先做非空判断再调用第一个入参的 equals 方法比较
-   2. isNull
-   3. nonNull
+   - equals：先做非空判断再调用第一个入参的 equals 方法比较
+   - isNull
+   - nonNull
 
 ### BigInteger & BigDecimal
 
@@ -229,9 +240,9 @@ meta:
 
 8. 存储上限：
 
-   1. 数组中最多能存储的元素个数：21 亿多
-   2. 数组中每一位能表示的数字：42 亿多
-   3. BigInteger 能表示的最大数字为：42 亿的 21 亿次方
+   - 数组中最多能存储的元素个数：21 亿多
+   - 数组中每一位能表示的数字：42 亿多
+   - BigInteger 能表示的最大数字为：42 亿的 21 亿次方
 
 9. 存储形式：先转换成二进制补码，一位符号位，其余 bit 按 32 位一组，存到数组中。
 
@@ -304,12 +315,12 @@ meta:
 5. Pattern：表示正则表达式，`Pattern p=Pattern.compile("xxx); Matcher m=p.matcher(str);`
 6. Matcher：文本匹配器，按照正则表达式的规则去读取字符串，从头开始读取，`m.find(); m.group();`
 7. 方法：
-   1. matches
-   2. replaceAll
-   3. split
+   - matches
+   - replaceAll
+   - split
 8. 用法：
-   1. `\\1`: 用在正则语句中，表示第一个()分组的内容再次出现一遍（分组从 1 开始）
-   2. `$1`: 表示把正则中第一组的内容再拿出来用，不是用在正则语句中
+   - `\\1`: 用在正则语句中，表示第一个()分组的内容再次出现一遍（分组从 1 开始）
+   - `$1`: 表示把正则中第一组的内容再拿出来用，不是用在正则语句中
 
 ### Arrays
 
@@ -328,9 +339,9 @@ meta:
 2. lambda 表达式只能用来简化函数式接口的匿名内部类的写法
 3. 函数式接口：有且只有一个抽象方法的接口叫做函数式接口，接口上方可以加`@FunctionalInterface`注解
 4. 可推导出来的都可以省略
-   1. 参数类型可以省略
-   2. 若只有一个参数，参数类型和括号都可以省略
-   3. 若 lambda 表达式的方法体只有一行，大括号、分号、return 都可以同时省略
+   - 参数类型可以省略
+   - 若只有一个参数，参数类型和括号都可以省略
+   - 若 lambda 表达式的方法体只有一行，大括号、分号、return 都可以同时省略
 
 例：
 
@@ -354,9 +365,9 @@ Collection 是单列集合的顶层接口，它的功能是全部单列集合都
 - `size`:
 
 1. List 接口：添加的元素是有序（添加的顺序）、可重复、有索引
-   1. ArrayList 实现类
-   2. LinkedList 实现类
-   3. Vector 实现类：已彻底淘汰
+   - ArrayList 实现类
+   - LinkedList 实现类
+   - Vector 实现类：已彻底淘汰
 2. Set 接口：添加的元素是无序（添加的顺序）、不重复、无索引
    1. HashSet 实现类: 无序（添加的顺序）、不重复、无索引，底层使用哈希表存储数据，增删改查性能都较好。JDK8 之前：数组+链表==哈希表，新元素存入数组，老元素挂在新元素下面。JDK8 开始：数组+链表+红黑树==哈希表，新元素直接挂在老元素下面。加载因子会影响数组的扩容时机。JDK8 以后，当链表长度超过 8，而且数组长度大于等于 64 时，自动转换为红黑树。如果集合中存储的是自定义对象，那么必须要重写 hashCode 和 equals 方法。
       - LinkedHashSet 实现类: 有序（添加的顺序）、不重复、无索引，底层是哈希表，但是每个元素额外多了一个双链表的机制记录存储的顺序。
@@ -617,6 +628,7 @@ fos.close();
 // 先开的流，后关闭
 fis.close();
 ```
+
 1. FileInputStream 一次读一个字节：`public int read()`
 2. FileInputStream 一次读多个字节：`public int read(byte[] buffer)`，每次读取会尽可能把数组装满，一般用 1024 的整数倍，比如：`1024*1024*10`每次 10MB。
 3. AutoCloseable 接口：实现之后在特定情况下可以自动关闭流
@@ -668,20 +680,20 @@ fis.close();
    - `read()`默认一次读一个字节，读取之后还会转成十进制，最终返回这个十进制的值
    - `read(char[] buffer)` 把读取数据，解码，强转三步合并了，会把强转后的字符放到数组当中
 2. FileWriter:操作本地文件的输出流
-    - 基本同字节输出流
-    - 如果write方法的参数是整数，但是实际上写到本地文件中的是整数在字符集上对应的字符
+   - 基本同字节输出流
+   - 如果 write 方法的参数是整数，但是实际上写到本地文件中的是整数在字符集上对应的字符
 3. 字符流原理：
-   - 创建字符流输入对象：底层：关联文件并创建缓冲区（长度为8192的字节数组）
+   - 创建字符流输入对象：底层：关联文件并创建缓冲区（长度为 8192 的字节数组）
    - 读取数据：底层：
-       - 判断缓冲区中是否有数据可以读取
-       - 缓冲区没有数据：就从文件中获取数据，装到缓冲区中，每次尽可能装满缓冲区，如果文件中也没有数据了，返回-1
-       - 缓冲区有数据：就从缓冲区读取
-4. close之后不能继续写出数据，flush之后如果缓冲区还有数据，那么仍然可以写出。
-
+     - 判断缓冲区中是否有数据可以读取
+     - 缓冲区没有数据：就从文件中获取数据，装到缓冲区中，每次尽可能装满缓冲区，如果文件中也没有数据了，返回-1
+     - 缓冲区有数据：就从缓冲区读取
+4. close 之后不能继续写出数据，flush 之后如果缓冲区还有数据，那么仍然可以写出。
 
 #### 字节缓冲流
 
-1. 
+1.
+
 ```java
 
 

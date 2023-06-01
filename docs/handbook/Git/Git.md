@@ -153,7 +153,7 @@ git checkout -b new-feature origin/new-feature
 
 ### git status
 
-- `git status --porcelain .`: 命令将以紧凑的"porcelain"格式显示Git存储库中的文件状态。
+- `git status --porcelain .`: 命令将以紧凑的"porcelain"格式显示 Git 存储库中的文件状态。
 
 ## 修改 git commit msg
 
@@ -324,6 +324,20 @@ eg.
 ### 强制禁用 Fast-Forward
 
 `git merge --no-ff`会生成一个新的 commit。如果没有禁止 ff，那么有时候： 假如`learn-merge` 分支的历史记录包含 `master` 分支所有的历史记录，当我们要把`learn-merge`合并到`master`上时，这个合并是非常简单的。只需要通过把 `master` 分支的 HEAD 位置移动到 `learn-merge` 的最新 commit 上，Git 就会合并。fast-forward 模式下是不可能出现冲突的。**此时，即 Fast-Forward 时，没有产生新的 commit！！！**
+
+### 压缩多次提交为一次 squash
+
+**没有 squash 这个命令！**
+
+1. 基础操作，逐次`git reset --soft HEAD^`，合并冲突，直至到合适的 commit。
+2. 使用`git merge --squash branchName`压缩 Git 提交：当我们使用 `--squash` 选项执行 merge 时，Git 不会像在正常合并中那样在目标分支中创建合并提交。相反，Git 接受源分支中的所有更改，并将其作为本地更改放入目标分支的工作副本中，此时需要 add+commit 然后才可以 push。
+
+```git
+<!-- 不可以和 --no-ff同时使用 -->
+git merge --squash <source_branch_name_to_squash>
+```
+
+3. 使用`git rebase -i HEAD~n`压缩 Git 提交：编辑器使用 pick 命令显示各种提交。它还显示有关可用命令的信息。我们将使用 squash（或 s）命令。其中`pick`开头的行表示要保留的主提交，其他的要压缩的提交开头改成`squash或s`。可以编辑提交的信息，然后保存退出即可，无需 add、commit。
 
 ### git 是如何存储信息的
 

@@ -208,6 +208,14 @@ module.exports = {
 						title: "Jest",
 						path: "/handbook/JavaScript/Jest",
 					},
+					{
+						title: "Next.js",
+						path: "/handbook/JavaScript/NextJS",
+					},
+					{
+						title: "Mock数据",
+						path: "/handbook/JavaScript/Mock",
+					},
 				],
 			},
 			{
@@ -299,6 +307,10 @@ module.exports = {
 						path: "/handbook/Skill/VSCode",
 					},
 					{
+						title: "阿里云ACP",
+						path: "/handbook/Skill/Aliyun",
+					},
+					{
 						title: "Bugs问题记录",
 						path: "/handbook/Skill/FixBugs",
 					},
@@ -352,6 +364,14 @@ module.exports = {
 					{
 						title: "Groovy笔记",
 						path: "/handbook/Java/Groovy",
+					},
+					{
+						title: "Scala笔记",
+						path: "/handbook/Java/Scala",
+					},
+					{
+						title: "第三方库",
+						path: "/handbook/Java/Library",
 					},
 				],
 			},
@@ -491,6 +511,15 @@ module.exports = {
 					{
 						title: "通达信指标收集",
 						path: "/handbook/Stock/TDX",
+					},
+				],
+			},
+			{
+				title: "打工人须知",
+				children: [
+					{
+						title: "打工人打工魂",
+						path: "/handbook/Worker/Work",
 					},
 				],
 			},

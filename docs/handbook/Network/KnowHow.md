@@ -69,9 +69,9 @@ meta:
 
 ### 小米路由器刷机救砖
 
-1. [小米路由器修复工具](http://www1.miwifi.com/miwifi_download.html)下载救砖工具，需用 Windows 电脑；
+1. 下载救砖工具[小米路由器修复工具](http://www1.miwifi.com/miwifi_download.html)，只有 Windows 版；
 2. 参考官方步骤：[小米路由器修复工具刷机使用步骤](https://web.vip.miui.com/page/info/mio/mio/detail?postId=19134127&app_version=dev.20051)
-   1. 下载小米路由器修复工具 PC 客户端和用来刷机的 ROM 包；
+   1. [下载](https://www.miwifi.com/miwifi_download.html)小米路由器修复工具 PC 客户端和用来刷机的 ROM 包；
    2. 接通小米路由器电源，用网线连接电脑和路由器 LAN 口；
    3. 建议关闭杀毒软件后再打开小米路由器修复工具，选择本地上传刷机 ROM 包；
    4. 选择网卡：请选择与路由器 LAN 口相连的网卡；（此步骤将使用管理员权限为用户更改网卡配置，以确保路由器和电脑处于同一局域网。关闭应用时会提醒并自动恢复网卡配置。）
@@ -96,7 +96,7 @@ meta:
 
 Windows 上的 clash 非常好用，Mac 上的 clashX 刚用起来有点不知所措。
 
-1. 添加订阅链接：在工具栏左键点击 clashX 的图标，选择 config-》remote config-》manage，然后点击 add，粘贴上订阅地址即可。删除也是在这里。
+1. 添加订阅链接：在工具栏左键点击 clashX 的图标，选择 config -> remote config -> manage，然后点击 add，粘贴上订阅地址即可。删除也是在这里，但是可能删不干净，需要打开配置文件夹手动把对应的 yaml 文件删掉。
 2. 订阅地址转换：[subconverter](https://subconverter.speedupvpn.com/)
 3. 订阅地址转换：[acl4ssr](https://acl4ssr-sub.github.io/)
 4. 勾选「设为系统代理」可以开启代理。

@@ -13,6 +13,80 @@ meta:
 2. 框架整合：MyBatis，Struts，Hibernate 等等
 3. 全家桶：Spring Framework、Spring Boot、Spring Cloud 等等
 
+### Spring-Boot 注解类型
+
+1. @SpringBootApplication：来标注一个主程序类，说明这是一个 Spring Boot 应用。
+2. @SpringBootConfiguration：Spring Boot 的配置类，标注在某个类上，表示这是一个 Spring Boot 的配置类；
+3. @Configuration 配置类上来标注这个注解；配置类 - 配置文件；配置类也是容器中的一个组件；
+4. @Component 表示一个类是由 Spring 管理的组件；
+5. @EnableAutoConfiguration 开启自动配置功能；以前我们需要配置的东西，Spring Boot 帮我们自动配置；告诉 SpringBoot 开启自动配置功能；这样自动配置才能生效；
+6. @Controller：表示一个类是 Spring MVC 控制器。
+7. @Autowired：用于 bean 的自动依赖注入
+8. @Service：表示一个类是一个 Spring 服务
+9. @Repository：用来表示一个类是 Spring 的存储库。
+10. @RequestMapping：用于将 URL 请求映射到控制器方法。
+11. @PathVariable：用于从 URL 路径中提取一个变量。
+12. @RequestParam：用于从查询字符串或表单数据中提取一个变量。
+13. @ResponseBody：用来表示一个方法应该直接返回响应体。
+14. @ExceptionHandler：用于处理由控制器方法抛出的异常。
+15. @Transactional：用来表示一个方法应该在一个事务中被执行。
+16. @Bean：用于表示一个方法产生一个由 Spring 管理的 bean。
+17. @Value：用于从属性文件或环境变量中注入值。
+18. @Profile：用来激活一个特定的 Spring 配置文件。
+
+### 项目结构
+
+这 4 个部分是指 Java Spring MVC 项目的典型结构，它是一种用于构建 Web 应用的架构模式。
+
+- controller：这个 package 包含处理传入的 HTTP 请求的类，并将它们路由到适当的服务方法。
+- model/bean/dto：这个 package 包含定义应用程序的数据模型的类。这包括实体、数据传输对象（DTO）和其他特定领域的对象。
+- dao/repository(jpa/jdbc)/mapper(mybatis)：这个 package 包含处理应用程序中数据持久性的类。这包括数据库访问、查询和其他与数据相关的操作。
+- service：这个 package 包含实现应用程序的业务逻辑的类。这包括处理数据、应用规则和其他特定于应用程序领域的操作。
+- eg.
+
+```sh
+/src/main/java：放置项目Java源代码
+...
+|_annotation：放置项目自定义注解
+|_aspect：放置切面代码
+|_config：放置配置类
+|_constant：放置常量、枚举等定义
+   |__consist：存放常量定义
+   |__enums：存放枚举定义
+|_controller：放置控制器代码
+|_filter：放置一些过滤、拦截相关的代码
+|_mapper：放置数据访问层代码接口
+|_model：放置数据模型代码
+   |__entity：放置数据库实体对象定义
+   |__dto：存放数据传输对象定义
+   |__vo：存放显示层对象定义
+|_service：放置具体的业务逻辑代码（*接口*和*实现*分离）
+   |__intf：存放业务逻辑接口定义
+   |__impl：存放业务逻辑实际实现
+|_utils：放置工具类和辅助代码
+...
+
+/src/main/resources：放置项目静态资源和配置文件
+...
+|_mapper：存放mybatis的XML映射文件（如果是mybatis项目）
+|_static：存放网页静态资源，比如下面的js/css/img
+   |__js：
+   |__css：
+   |__img：
+   |__font：
+   |__等等
+|_template：存放网页模板，比如thymeleaf/freemarker模板等
+   |__header
+   |__sidebar
+   |__bottom
+   |__XXX.html等等
+|_application.yml       基本配置文件
+|_application-dev.yml   开发环境配置文件
+|_application-test.yml  测试环境配置文件
+|_application-prod.yml  生产环境配置文件
+...
+```
+
 ### IoC 控制反转
 
 使用对象时，由主动 new 产生对象转换为由外部提供对象，此过程中对象创建控制权由程序转移到外部，此思想称为控制反转。Spring 技术对 IoC 思想进行了实现：
@@ -324,49 +398,44 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
       registry.addResourceHandler("/js/**").addResourceLocations("/js/");
       registry.addResourceHandler("/css/**").addResourceLocations("/css/");
       registry.addResourceHandler("/plugins/**").addResourceLocations("/plugins/");
-   } 
+   }
 }
 ```
-## SSM整合
 
+## SSM 整合
 
-
-
-
-
-
-## 学透Spring
+## 学透 Spring
 
 ### sdkman
 
-管理Java版本，类似nvm？也可以管理Maven、groovy等。
+管理 Java 版本，类似 nvm？也可以管理 Maven、groovy 等。
 
-1. `curl -s "https://get.sdkman.io" | bash`: 安装sdkman
+1. `curl -s "https://get.sdkman.io" | bash`: 安装 sdkman
 2. `source "$HOME/.sdkman/bin/sdkman-init.sh"`: 刷新环境变量
 3. `sdk version`
-4. `sdk list java`: 获取当前操作系统可用的JDK信息
-5. `sdk install java 11.0.18`: 安装特定版本JDK
-6. `sdk install java 14.0.1 /Library/Java/JavaVirtualMachines/jdk-14.0.1.jdk/Contents/Home`: 关联本地已安装JDK
-7. `sdk default java 11.0.18`: 设置默认版本（感觉并不管用，还得去改.zshrc才会生效）
-8. `sdk use java 11.0.18`: 使用某个jdk版本
-9. `sdk install maven`: 安装Maven，安装前要确保以正确安装JDK
-10. Maven镜像仓库，阿里云：`https://maven.aliyun.com/`，按使用指南修改Maven安装目录下的`conf/settings.xml`文件；也可以在用户目录的`.m2`子目录中创建`settings.xml`文件，并设置相应配置内容。
+4. `sdk list java`: 获取当前操作系统可用的 JDK 信息
+5. `sdk install java 11.0.18`: 安装特定版本 JDK
+6. `sdk install java 14.0.1 /Library/Java/JavaVirtualMachines/jdk-14.0.1.jdk/Contents/Home`: 关联本地已安装 JDK
+7. `sdk default java 11.0.18`: 设置默认版本（感觉并不管用，还得去改.zshrc 才会生效）
+8. `sdk use java 11.0.18`: 使用某个 jdk 版本
+9. `sdk install maven`: 安装 Maven，安装前要确保以正确安装 JDK
+10. Maven 镜像仓库，阿里云：`https://maven.aliyun.com/`，按使用指南修改 Maven 安装目录下的`conf/settings.xml`文件；也可以在用户目录的`.m2`子目录中创建`settings.xml`文件，并设置相应配置内容。
 11. `/Users/eric/.sdkman/candidates/maven/3.9.1/conf/settings.xml`: 配置举例
-12. `brew cask install intellij-idea-ce`: 安装idea社区版或直接去官网下载
-13. `IDEA->Help->Edit Custom VW Options`，在打开的idea.vmoptions文件中调整-Xms和-Xmx等JVM相关参数，让ide流畅运行
-14. 通过[Spring Initializr](https://start.spring.io)创建工程，打开网页，填写项目信息，点击生成，下载helloworld.zip压缩包
-15. Maven设置sdkman的settings.xml为全局公用配置：
-    1.  在`.zshrc`中设置环境变量：一般来说sdkman默认安装的位置都是一样的
-      ```sh
-      export SDKMAN_DIR=$HOME/.sdkman
-      export M2_HOME=$SDKMAN_DIR/candidates/maven/current
-      ```
+12. `brew cask install intellij-idea-ce`: 安装 idea 社区版或直接去官网下载
+13. `IDEA->Help->Edit Custom VW Options`，在打开的 idea.vmoptions 文件中调整-Xms 和-Xmx 等 JVM 相关参数，让 ide 流畅运行
+14. 通过[Spring Initializr](https://start.spring.io)创建工程，打开网页，填写项目信息，点击生成，下载 helloworld.zip 压缩包
+15. Maven 设置 sdkman 的 settings.xml 为全局公用配置：
+    1. 在`.zshrc`中设置环境变量：一般来说 sdkman 默认安装的位置都是一样的
+    ```sh
+    export SDKMAN_DIR=$HOME/.sdkman
+    export M2_HOME=$SDKMAN_DIR/candidates/maven/current
+    ```
     2. `mkdir -p $M2_HOME/conf`，如果没有权限则`sudo chown -R $USER $M2_HOME`
     3. `cp /path/to/your/settings.xml $M2_HOME/conf/`
-    4. 这样当你切换Maven版本之后，也依然会使用公用的settings
+    4. 这样当你切换 Maven 版本之后，也依然会使用公用的 settings
 
-### 快速新建一个spring-boot项目
+### 快速新建一个 spring-boot 项目
 
-1. 在这个[网站](https://start.spring.io/)选择配置，作用可以理解为前端的vue-cli、create-react-app等脚手架，选好配置依赖之后下载；
-2. idea中打开刚才下载的项目
-3. 
+1. 在这个[网站](https://start.spring.io/)选择配置，作用可以理解为前端的 vue-cli、create-react-app 等脚手架，选好配置依赖之后下载；
+2. idea 中打开刚才下载的项目
+3.

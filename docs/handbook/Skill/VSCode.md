@@ -21,6 +21,10 @@ meta:
 2. `vuepress -v: vuepress/1.9.7 darwin-x64 node-v16.15.0`
 3. `vue --version: @vue/cli 4.5.8`
 
+## vitepress 运行 blog
+
+TODO
+
 ## 插件
 
 1. PicGo：结合 GitHub+jsdelivr（免费 CDN）配置图床。[参考这篇](https://zhuanlan.zhihu.com/p/489236769)
