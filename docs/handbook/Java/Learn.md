@@ -38,6 +38,7 @@ meta:
 11. 异常处理 HandlerExceptionResolver：HandlerExceptionResolver 用于处理请求过程中出现的异常，其实现有很多中类型，不过我们日常开发中使用比较多的是 ExceptionHandlerExceptionResolver，也就是处理我们定义的@ExceptionHandler 注解。
 12. DAO：Data Access Object，数据访问对象。它是一种设计模式，将数据持久性逻辑与业务逻辑分开。这种模式背后的想法是创建一个接口，抽象出数据库上的 CRUD（创建、读取、更新、删除）操作，然后为该接口提供一个实现。这使得改变底层数据源而不改变业务逻辑更加容易。DAO 模式常用于 Java 应用程序中，特别是那些使用`对象-关系映射（ORM）框架`的应用程序，如 Hibernate 或 JPA。
 13. ![项目结构划分](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/struc.png)
+14. POJO：Plain Old Java Object。它是一个简单的 Java 对象，没有任何特殊要求，如实现某些接口或扩展特定的类。在 Java 编程中，POJO 被用来以简单明了的方式表示数据对象或实体。它们通常包含具有公共 getter 和 setter 方法的私有字段，还可能包括构造器、equals 和 hashCode 方法，以及其他实用方法。POJO 经常与 Spring 或 Hibernate 等框架一起使用，这些框架提供了处理数据对象的额外功能。使用 POJO 可以帮助简化代码，提高可维护性，并使测试和重用代码变得更容易。
 
 ### String/StringBuilder/StringJoiner
 

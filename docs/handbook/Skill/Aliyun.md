@@ -60,7 +60,7 @@ yum install -y ./ossfs_1.80.6_centos8.0_x86_64.rpm
 
 # 执行如下命令，配置账号访问信息，将Bucket名称以及具有此Bucket访问权限的AccessKey ID和AccessKey Secret信息存放在/etc/passwd-ossfs文件中。
 
-echo adc-oss-1871hd2:LTAI5tGLDLqcUStK8A:3QxlrourxYv9dJnkYc5mtmUEm > /etc/passwd-ossfs
+echo adc-oss-1871hd2:fakeLTAI5tGcUStK8A:fake3Qxlroc5mtmUEm > /etc/passwd-ossfs
 
 chmod 640 /etc/passwd-ossfs
 ```

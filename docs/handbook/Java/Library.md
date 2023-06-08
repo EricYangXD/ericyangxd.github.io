@@ -9,7 +9,11 @@ meta:
 
 ## 第三方库作用及其应用
 
-### jakarta.validation.api && hibernate-validator
+### jakarta.validation:jakarta.validation.api
+
+同下
+
+### org.hibernate.validator:hibernate-validator
 
 `javax.validation.constraints` 包下，定义了一系列的约束( constraint )注解。共 22 个，如下：
 
@@ -97,11 +101,17 @@ public @interface Validated {
 
 总的来说，绝大多数场景下，我们使用 @Validated 注解即可。而在有嵌套校验的场景，我们使用 @Valid 注解添加到成员属性上。
 
-####
+#### com.github.xiaoymin:knife4j-spring-boot-starter
 
-####
+swagger 相关，调试接口。启动程序，然后再浏览器里我们就可以进行输入: swagger访问地址：`http://localhost:8080/doc.html#/home` 打开swagger文档 就可以进行测试了。
 
-####
+#### org.projectlombok:lombok
+
+注解开发
+
+#### spring-boot-starter-web
+
+spring web
 
 ####
 
@@ -134,7 +144,7 @@ public @interface Validated {
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

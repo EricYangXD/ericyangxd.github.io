@@ -6,9 +6,9 @@ date: "2021-12-29"
 
 ## 快速创建项目
 
-1. npx create-react-app my-app
-2. npm init react-app my-app
-3. yarn create react-app my-app
+1. `npx create-react-app my-app`
+2. `npm init react-app my-app`
+3. `yarn create react-app my-app`
 
 ## 快速启动项目
 
@@ -49,21 +49,21 @@ date: "2021-12-29"
 ```js
 // 1st.
 function Counter() {
-	const [count, setCount] = useState(0);
-	const prevCount = usePrevious(count);
-	return (
-		<h1>
-			Now: {count}, before: {prevCount}
-		</h1>
-	);
+  const [count, setCount] = useState(0);
+  const prevCount = usePrevious(count);
+  return (
+    <h1>
+      Now: {count}, before: {prevCount}
+    </h1>
+  );
 }
 
 function usePrevious(value) {
-	const ref = useRef();
-	useEffect(() => {
-		ref.current = value;
-	});
-	return ref.current;
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 }
 ```
 
@@ -72,11 +72,11 @@ function usePrevious(value) {
 const prevSearchText = useRef();
 
 useEffect(() => {
-	return (function (searchText) {
-		return function () {
-			prevSearchText.current = searchText;
-		};
-	})(props.searchText);
+  return (function (searchText) {
+    return function () {
+      prevSearchText.current = searchText;
+    };
+  })(props.searchText);
 }, [props.searchText]);
 ```
 
@@ -86,33 +86,33 @@ useEffect(() => {
 
 ```js
 class Clock extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = { date: new Date() };
-	}
+  constructor(props) {
+    super(props);
+    this.state = { date: new Date() };
+  }
 
-	componentWillMount() {}
+  componentWillMount() {}
 
-	componentDidMount() {}
+  componentDidMount() {}
 
-	componentWillUpdate(nextProps, nextState) {}
+  componentWillUpdate(nextProps, nextState) {}
 
-	componentWillReceiveProps(nextProps) {}
+  componentWillReceiveProps(nextProps) {}
 
-	componentDidUpdate(prevProps, prevState) {}
+  componentDidUpdate(prevProps, prevState) {}
 
-	shouldComponentUpdate(nextProps, nextState) {}
+  shouldComponentUpdate(nextProps, nextState) {}
 
-	componentWillUnmount() {}
+  componentWillUnmount() {}
 
-	render() {
-		return (
-			<div>
-				<h1>Hello, world!</h1>
-				<h2>It is {this.state.date.toLocaleTimeString()}.</h2>
-			</div>
-		);
-	}
+  render() {
+    return (
+      <div>
+        <h1>Hello, world!</h1>
+        <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+      </div>
+    );
+  }
 }
 ```
 
@@ -209,34 +209,34 @@ import constate from "constate";
 
 // 1️⃣ Create a custom hook as usual
 function useCounter() {
-	const [count, setCount] = useState(0);
-	const increment = () => setCount((prevCount) => prevCount + 1);
-	return { count, increment };
+  const [count, setCount] = useState(0);
+  const increment = () => setCount((prevCount) => prevCount + 1);
+  return { count, increment };
 }
 
 // 2️⃣ Wrap your hook with the constate factory
 const [CounterProvider, useCounterContext] = constate(useCounter);
 
 function Button() {
-	// 3️⃣ Use context instead of custom hook
-	const { increment } = useCounterContext();
-	return <button onClick={increment}>+</button>;
+  // 3️⃣ Use context instead of custom hook
+  const { increment } = useCounterContext();
+  return <button onClick={increment}>+</button>;
 }
 
 function Count() {
-	// 4️⃣ Use context in other components
-	const { count } = useCounterContext();
-	return <span>{count}</span>;
+  // 4️⃣ Use context in other components
+  const { count } = useCounterContext();
+  return <span>{count}</span>;
 }
 
 function App() {
-	// 5️⃣ Wrap your components with Provider
-	return (
-		<CounterProvider>
-			<Count />
-			<Button />
-		</CounterProvider>
-	);
+  // 5️⃣ Wrap your components with Provider
+  return (
+    <CounterProvider>
+      <Count />
+      <Button />
+    </CounterProvider>
+  );
 }
 ```
 
@@ -340,19 +340,19 @@ const onChange = useCallback((id, value) => {
 import React, { useEffect, useState } from "react";
 
 const useWindowWidth = () => {
-	const [width, setWidth] = useState(window.innerWidth);
+  const [width, setWidth] = useState(window.innerWidth);
 
-	useEffect(() => {
-		const handleResize = () => setWidth(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
 
-		window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
 
-		return () => {
-			window.removeEventListener("resize", handleResize);
-		};
-	}, []);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
-	return width;
+  return width;
 };
 export default useWindowWidth;
 ```
@@ -385,14 +385,14 @@ useDebugValue 可用于在 React 开发者工具中显示自定义 hook 的标�
 import { useDebugValue, useState } from "react";
 
 function useName() {
-	const [state] = useState("xxx");
-	useDebugValue("xxx");
-	return state;
+  const [state] = useState("xxx");
+  useDebugValue("xxx");
+  return state;
 }
 
 function App() {
-	const name = useName();
-	return <div>{name}</div>;
+  const name = useName();
+  return <div>{name}</div>;
 }
 ```
 
@@ -406,19 +406,19 @@ function App() {
 
 ```jsx
 class MyComponent extends React.Component {
-	constructor(props) {
-		super(props);
+  constructor(props) {
+    super(props);
 
-		this.inputRef = React.createRef();
-	}
+    this.inputRef = React.createRef();
+  }
 
-	render() {
-		return <input type="text" ref={this.inputRef} />;
-	}
+  render() {
+    return <input type="text" ref={this.inputRef} />;
+  }
 
-	componentDidMount() {
-		this.inputRef.current.focus();
-	}
+  componentDidMount() {
+    this.inputRef.current.focus();
+  }
 }
 ```
 
@@ -436,10 +436,10 @@ class MyComponent extends React.Component {
 ```jsx
 // 1. 使用React.forwardRef相当于高阶函数，包裹FancyButton组件后，FancyButton组件可以接受到第二个参数ref，第一个参数默认是props；
 const FancyButton = React.forwardRef((props, ref) => (
-	// 2. 在FancyButton的button组件中可以使用传入的ref，即实现了转发 refs 到 DOM 组件中；
-	<button ref={ref} className="FancyButton">
-		{props.children}
-	</button>
+  // 2. 在FancyButton的button组件中可以使用传入的ref，即实现了转发 refs 到 DOM 组件中；
+  <button ref={ref} className="FancyButton">
+    {props.children}
+  </button>
 ));
 
 // 3. You can now get a ref directly to the DOM button:
@@ -456,23 +456,23 @@ const ref = React.createRef();
 
 ```jsx
 function logProps(Component) {
-	class LogProps extends React.Component {
-		componentDidUpdate(prevProps) {
-			console.log("old props:", prevProps);
-			console.log("new props:", this.props);
-		}
-		render() {
-			const { forwardedRef, ...rest } = this.props;
-			// 将自定义的 prop 属性 “forwardedRef” 定义为 ref
-			return <Component ref={forwardedRef} {...rest} />;
-		}
-	}
-	// 注意 React.forwardRef 回调的第二个参数 “ref”。
-	// 我们可以将其作为常规 prop 属性传递给 LogProps，例如 “forwardedRef”
-	// 然后它就可以被挂载到被 LogProps 包裹的子组件上。
-	return React.forwardRef((props, ref) => {
-		return <LogProps {...props} forwardedRef={ref} />;
-	});
+  class LogProps extends React.Component {
+    componentDidUpdate(prevProps) {
+      console.log("old props:", prevProps);
+      console.log("new props:", this.props);
+    }
+    render() {
+      const { forwardedRef, ...rest } = this.props;
+      // 将自定义的 prop 属性 “forwardedRef” 定义为 ref
+      return <Component ref={forwardedRef} {...rest} />;
+    }
+  }
+  // 注意 React.forwardRef 回调的第二个参数 “ref”。
+  // 我们可以将其作为常规 prop 属性传递给 LogProps，例如 “forwardedRef”
+  // 然后它就可以被挂载到被 LogProps 包裹的子组件上。
+  return React.forwardRef((props, ref) => {
+    return <LogProps {...props} forwardedRef={ref} />;
+  });
 }
 ```
 
@@ -503,54 +503,49 @@ const OtherComponent = React.lazy(() => import("./OtherComponent"));
 const MyComponent = React.lazy(() => import("./MyComponent"));
 
 const routes = [
-	{
-		path: getPath("/"),
-		component: SomeComponent,
-		exact: true,
-	},
-	{
-		path: "/some",
-		component: SomeComponent,
-	},
-	{
-		path: "/other",
-		component: OtherComponent,
-	},
-	{
-		path: "/mine",
-		component: MyComponent,
-	},
+  {
+    path: getPath("/"),
+    component: SomeComponent,
+    exact: true,
+  },
+  {
+    path: "/some",
+    component: SomeComponent,
+  },
+  {
+    path: "/other",
+    component: OtherComponent,
+  },
+  {
+    path: "/mine",
+    component: MyComponent,
+  },
 ];
 
 function AppRouter(props) {
-	// withRouter 把不是通过路由切换过来的组件中，将react-router 的 history、location、match 三个对象传入props对象上
-	console.log("App(props): ", props); // App(props): {history: {…}, location: {…}, match: {…}, staticContext: undefined}
-	return (
-		// 显示 <Spinner> 组件直至某个 Component 加载完成
-		<React.Suspense fallback={<Spinner />}>
-			<NavLink exact activeClassName="line-active" to="/">
-				Some
-			</NavLink>
-			<NavLink activeClassName="line-active" to="/other">
-				Other
-			</NavLink>
-			<Switch>
-				<Route exact path="/">
-					<Redirect to={`/some`} />
-				</Route>
-				{routes.map(({ path: routePath, component, exact = false }) => (
-					<Route
-						key={routePath}
-						path={routePath}
-						component={component}
-						exact={exact}
-					/>
-				))}
-				{/* Switch 会优先显示匹配到的第一个路由，多加一个路由做安全垫 */}
-				<Route component={SomeComponent} />
-			</Switch>
-		</React.Suspense>
-	);
+  // withRouter 把不是通过路由切换过来的组件中，将react-router 的 history、location、match 三个对象传入props对象上
+  console.log("App(props): ", props); // App(props): {history: {…}, location: {…}, match: {…}, staticContext: undefined}
+  return (
+    // 显示 <Spinner> 组件直至某个 Component 加载完成
+    <React.Suspense fallback={<Spinner />}>
+      <NavLink exact activeClassName="line-active" to="/">
+        Some
+      </NavLink>
+      <NavLink activeClassName="line-active" to="/other">
+        Other
+      </NavLink>
+      <Switch>
+        <Route exact path="/">
+          <Redirect to={`/some`} />
+        </Route>
+        {routes.map(({ path: routePath, component, exact = false }) => (
+          <Route key={routePath} path={routePath} component={component} exact={exact} />
+        ))}
+        {/* Switch 会优先显示匹配到的第一个路由，多加一个路由做安全垫 */}
+        <Route component={SomeComponent} />
+      </Switch>
+    </React.Suspense>
+  );
 }
 
 export default withRouter(AppRouter);
@@ -570,25 +565,25 @@ import { theme } from "./GlobalStyle";
 
 moment.locale("zh-cn");
 message.config({
-	top: 100,
-	duration: 2,
-	maxCount: 1,
+  top: 100,
+  duration: 2,
+  maxCount: 1,
 });
 
 ReactDOM.render(
-	<React.StrictMode>
-		// 必须需要使用 BrowserRouter 或者 HashRouter 包括
-		<BrowserRouter>
-			<ConfigProvider locale={zhCN}>
-				<ThemeProvider theme={theme}>
-					<UserInfoContextProvider>
-						<App />
-					</UserInfoContextProvider>
-				</ThemeProvider>
-			</ConfigProvider>
-		</BrowserRouter>
-	</React.StrictMode>,
-	document.getElementById("root")
+  <React.StrictMode>
+    // 必须需要使用 BrowserRouter 或者 HashRouter 包括
+    <BrowserRouter>
+      <ConfigProvider locale={zhCN}>
+        <ThemeProvider theme={theme}>
+          <UserInfoContextProvider>
+            <App />
+          </UserInfoContextProvider>
+        </ThemeProvider>
+      </ConfigProvider>
+    </BrowserRouter>
+  </React.StrictMode>,
+  document.getElementById("root")
 );
 ```
 
@@ -633,23 +628,72 @@ const ENV = process.env.ENV; // 当前的环境等等
 const VERSION = process.env.VERSION; // 当前发布的版本
 
 const getPublicPath = () => {
-	// Some code here
-	return `${CDN_HOST}/${CDN_PATH}/${ENV}/`; // 依据 ENV 等动态构造 publicPath
+  // Some code here
+  return `${CDN_HOST}/${CDN_PATH}/${ENV}/`; // 依据 ENV 等动态构造 publicPath
 };
 
-const publicPath =
-	process.env.NODE_ENV === "production" ? getPublicPath() : ".";
+const publicPath = process.env.NODE_ENV === "production" ? getPublicPath() : ".";
 
 module.exports = {
-	output: {
-		filename: "bundle.[name][contenthash:8].js",
-		publicPath,
-	},
-	plugins: [new HtmlWebpackPlugin()],
+  output: {
+    filename: "bundle.[name][contenthash:8].js",
+    publicPath,
+  },
+  plugins: [new HtmlWebpackPlugin()],
 };
 ```
 
 使用 contenthash 时，往往会增加一个小模块后，整体文件的 hash 都发生变化，原因为 Webpack 的 module.id 默认基于解析顺序自增，从而引发缓存失效。具体可通过设置 optimization.moduleIds 设置为 'deterministic' 。
+
+## useRef
+
+1. 传递变量不刷新页面，无 effect，不同于 state，用于在函数组件中引用对象，并在重新渲染时保留被引用对象的状态，使用 current 属性，更新被引用对象的值不会触发重新渲染
+2. 配合 ref 获取 DOM，可以防止页面刚加载时 DOM 为空，比如input获取焦点：`inputRef.current.focus()`
+3. useRef 用于创建引用对象，而 ref 用于访问 DOM 节点或将 render 方法中的 react 组件分配给引用对象。另外，可以使用 useRef hook 或 createRef 函数创建 ref，这是其他方法无法实现的。
+4. useRef 可以用来引用任何类型的对象，React ref 只是一个用于引用 DOM 元素的 DOM 属性。
+5. 当node节点被删除时，current会被设为null。
+6. 避免重复创建ref引用，创建之前先判断current是不是null
+7. 默认情况下，你自己的组件不会暴露它们内部的DOM节点的引用，所以直接在自定义组件上使用ref会报warning，解决方法是使用forwardRef包裹你想要使用ref的组件，例：
+```js
+import { forwardRef, useRef } from 'react';
+
+// 注意forwardRef中回调函数的第二个参数ref，即为暴露出去的ref
+const MyInput = forwardRef((props, ref) => {
+  return <input {...props} ref={ref} />;
+});
+
+export default function Form() {
+  const inputRef = useRef(null);
+
+  function handleClick() {
+    inputRef.current.focus();
+  }
+
+  return (
+    <>
+      <MyInput ref={inputRef} />
+      <button onClick={handleClick}>
+        Focus the input
+      </button>
+    </>
+  );
+}
+```
+1. 
+
+### Ref 和 useRef 的使用场景
+
+一些可供参考的使用场景：
+
+- 与 input 元素交互：通过使用引用，可以访问 input 元素并执行聚焦、变化跟踪或自动完成等功能。
+- 与第三方 UI 库交互：ref 可用于与第三方 UI 库创建的元素交互，使用标准 DOM 方法访问这些元素可能比较困难。例如，如果你使用第三方库生成滑块，你可以使用 ref 来访问滑块的 DOM 元素，而不必知道滑块库的源代码结构。
+- 媒体播放：你还可以使用引用访问媒体资源，如图像、音频或视频，并与它们的渲染方式进行交互。例如，当元素进入视口时，自动播放视频或延迟加载图像。
+- 复杂动画触发：传统上，CSS keyframes 或 timeout 用来确定何时启动动画。在某些情况下（可能更加复杂），可以使用 ref 来观察 DOM 元素并确定何时启动动画。
+- 在某些情况下，比如下面这种情况，你不应该使用引用：
+  - 即使在使用 ref 的简单解决方案的情况下，也不需要编写更昂贵的代码来完成相同的任务。例如，使用条件渲染来隐藏或显示 DOM 元素，而不是引用。
+  - 有时，使用引用的概念非常有趣，以至于你忽略了对元素的修改对应用程序生命周期的影响。你应该记住，对引用的更改不会导致重新渲染，并且引用在渲染之间保持其对象的值。因此，在状态变化需要触发重新渲染的情况下，避免使用引用是明智的。
+- DOM 元素（不应与功能性组件混淆）可以使用 ref 属性引用。因为，与类组件或 DOM 元素不同，函数组件没有实例。
+- 函数组件没有实例，所以使用引用不会生效，我们可以将函数组件转换为类组件，或者在函数组件组件中使用 `forwardRef`。
 
 ## 反向代理
 
@@ -753,7 +797,7 @@ React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和�
 ```jsx
 // 这样会出错！
 <button type="button" onClick={this.handleClick}>
-	Click Me
+  Click Me
 </button>
 ```
 
@@ -768,10 +812,7 @@ React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和�
 会有 XSS 风险，同 Vue 中的`v-html`
 
 ```jsx
-<div
-	className="news-detail-content"
-	dangerouslySetInnerHTML={{ __html: formatedHtml }}
-/>
+<div className="news-detail-content" dangerouslySetInnerHTML={{ __html: formatedHtml }} />
 ```
 
 ## 跨端调试

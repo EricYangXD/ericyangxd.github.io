@@ -109,16 +109,12 @@ sudo chown root:wheel GoogleSoftwareUpdate
 
 - 相当于修改了 GoogleSoftwareUpdate 这个文件夹的拥有者，而不仅仅是修改了权限，使 Google 对该文件夹没有写入权限.
 - 重启 Chrome 完成以后通过“帮助->关于 Google Chrome”可以查看信息.
+- 注意取消自动更新之后，后续只能通过下载安装包重装 Chrome 来升级，除非取消
 
 ### 步骤
 
-1. 首先关闭 Chrome 浏览器，然后进入目录“/Library/Google/GoogleSoftwareUpdate”
-
-```bash
-cd /Library/Google/GoogleSoftwareUpdate
-```
-
-2. 先用 chown 命令来设置 GoogleSoftwareUpdate 目录的权限。
+1. 首先关闭 Chrome 浏览器，然后进入目录`cd /Library/Google/GoogleSoftwareUpdate`
+2. 先用 `chown` 命令来设置 GoogleSoftwareUpdate 目录的权限。
 3. 然后删除该目录下的 GoogleSoftwareUpdate.bundle 即可。
    - 可以通过命令行删除，或者 Finder 手动删除都可以。
    - 最简便的方法，就是改文件扩展名，改到谷歌脸盲。
@@ -216,9 +212,7 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 苹果 macOS Catalina 系统打开软件出现：无法打开“XXXX”，因为 Apple 无法检查其是否包含恶意软件。怎么解决?
 
-先`sudo spctl --master-disable`
-
-然后`sudo xattr -r -d com.apple.quarantine ./路径/app名`
+- 先`sudo spctl --master-disable`，然后`sudo xattr -r -d com.apple.quarantine ./路径/app名`。
 
 ### m1 MacBook 安装 adb
 
@@ -228,7 +222,7 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 修改 info.plist 后需要重新签名或者移除签名：
 
-`codesign --remove-signature /Applications/ShadowsocksX-NG-R8.app`
+- `codesign --remove-signature /Applications/ShadowsocksX-NG-R8.app`
 
 否则重启之后 app 会打不开，更新订阅成功的通知不出现也是因为签名对不上。
 
@@ -285,24 +279,24 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 3. uTools 超强工具
 4. magnet 分屏
 5. ShadowsocksX-NG、clash、clashX、openvpn（自建） 等
-6. CleanMyMac
-7. Office365
+6. CleanMyMac（某宝买或者破解版）
+7. Office365（找家庭组拼车便宜）
 8. Adobe Acrobat Reader DC
-9. VSCode
-10. iTerm2
-11. ApiFox、Postman
+9. VSCode：开发必备
+10. iTerm2+zsh：开发必备
+11. ApiFox、Postman：api调试开发必备
 12. Network Lite
-13. webstorm、idea、pycharm
-14. 阿里云盘
+13. webstorm、idea、pycharm：开发必备
+14. 阿里云盘、夸克网盘、天翼网盘
 15. Chrome
 16. 搜狗输入法
-17. shottr、微信
+17. shottr、微信+Tweak（防撤回）
 18. Movist 视频播放器
-19. 移动硬盘写入驱动：Tuxera NTFS(收费)、Omi NTFS 磁盘管理（推荐）
+19. 移动硬盘写入驱动：Tuxera NTFS(收费)、Omi NTFS 磁盘管理（收费）
 20. 系统监控工具：iStat Menus
 21. 看图软件：Xee
 22. 下载：qBittorrent
-23. shell 工具：xshell、Terminus
+23. shell 工具：xshell
 24. mindnote、easyfind、Alfred
 25. Picgo 图床管理
 26. markdown 编辑：Typora
@@ -313,11 +307,15 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 31. FileZilla
 32. Scroll Reverser：独立设置鼠标和触控板这两个设备的滚动方向
 33. IINA：视频播放器
-34. Alfred：效率神器
-35. Fig：终端自动补全命令提示工具，配合 iTerm2 使用。在 vscode 中使用，需修改 `editor.accessibilitySupport` 为 `"off"`
+34. Fig：终端自动补全命令提示工具，配合 iTerm2 使用。在 vscode 中使用，需修改 `editor.accessibilitySupport` 为 `"off"`
+35. Terminus：SSH、Telnet 工具
+36. Microsoft Remote Desktop：微软远程桌面，注意 Windows 登录微软账户之后，本地账号就会被强制改成微软账户，需要自己设置登录用户名和密码之后（搜索教程按步骤操作），才可以继续用该软件，PC name 即 ip 地址，User account 是你设置的登录用户名，密码在连接时输入。适用于最新版本 10.8.2 (2088)
+37. 万兴恢复专家：SD 卡 TF 卡数据恢复工具（收费买断制可以更换设备，找技术支持）
 
 ### Mac 微信功能拓展：`WeChatTweak-CLI`
+
 打开微信，在微信的设置中即可发现 Tweak 小助手。
+
 ```sh
 # 安装 WeChatTweak-CLI
 brew install sunnyyoung/repo/wechattweak-cli

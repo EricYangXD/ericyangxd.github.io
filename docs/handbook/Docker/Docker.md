@@ -481,3 +481,11 @@ Dockerfile 是一个文本文件，包含了用于构建 Docker 镜像的指令�
 3. make changes to the image.
 4. `docker commit <container_id> <remote_repo>/<image_name>:<new_tag>`
 5. `docker push <remote_repo>/<image_name>:<new_tag>`
+
+## PodMan
+
+TODO
+
+## K8S
+
+TODO
