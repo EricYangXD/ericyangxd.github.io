@@ -14,7 +14,13 @@
 		"vuepress-plugin-cursor-effects": "^1.1.4",
 		"vuepress-plugin-nuggets-style-copy": "^1.0.3",
 		"vuepress-plugin-seo": "^0.1.4",
-		"vuepress-plugin-sitemap": "^2.3.1"
+		"vuepress-plugin-sitemap": "^2.3.1",
+		"loader-utils": "^2.0.0",
+		"json5": "^2.2.2",
+		"serialize-javascript": "^3.1.0",
+		"node-forge": "^1.3.0",
+		"nth-check": "^2.0.1",
+		"glob-parent": "^5.1.2"
 	},
 	"scripts": {
 		"docs:dev": "vuepress dev docs",
