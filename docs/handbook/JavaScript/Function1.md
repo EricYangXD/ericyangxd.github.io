@@ -12,21 +12,21 @@ date: "2022-02-09"
 
 ```js
 function debounce(fn, wait, immediate) {
-	let timer = null;
+  let timer = null;
 
-	return function () {
-		let args = arguments;
-		let context = this;
+  return function () {
+    let args = arguments;
+    let context = this;
 
-		if (immediate && !timer) {
-			fn.apply(context, args);
-		}
+    if (immediate && !timer) {
+      fn.apply(context, args);
+    }
 
-		if (timer) clearTimeout(timer);
-		timer = setTimeout(() => {
-			fn.apply(context, args);
-		}, wait);
-	};
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn.apply(context, args);
+    }, wait);
+  };
 }
 ```
 
@@ -34,16 +34,16 @@ function debounce(fn, wait, immediate) {
 
 ```js
 function debounce(fn, delay = 300) {
-	let timer;
-	return function (...args) {
-		if (timer) {
-			clearTimeout(timer);
-		}
-		timer = setTimeout(() => {
-			fn.apply(this, args);
-			timer = 0;
-		}, delay);
-	};
+  let timer;
+  return function (...args) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+      timer = 0;
+    }, delay);
+  };
 }
 ```
 
@@ -53,25 +53,25 @@ function debounce(fn, delay = 300) {
 
 ```js
 function throttle(fn, wait, immediate) {
-	let timer = null;
-	let callNow = immediate;
+  let timer = null;
+  let callNow = immediate;
 
-	return function () {
-		let context = this,
-			args = arguments;
+  return function () {
+    let context = this,
+      args = arguments;
 
-		if (callNow) {
-			fn.apply(context, args);
-			callNow = false;
-		}
+    if (callNow) {
+      fn.apply(context, args);
+      callNow = false;
+    }
 
-		if (!timer) {
-			timer = setTimeout(() => {
-				fn.apply(context, args);
-				timer = null;
-			}, wait);
-		}
-	};
+    if (!timer) {
+      timer = setTimeout(() => {
+        fn.apply(context, args);
+        timer = null;
+      }, wait);
+    }
+  };
 }
 ```
 
@@ -79,14 +79,14 @@ function throttle(fn, wait, immediate) {
 
 ```js
 function throttle(fn, delay) {
-	let timer = 0; // 上次触发时间
-	return function (...args) {
-		if (timer) return;
-		timer = setTimeout(() => {
-			fn.apply(this, args);
-			timer = 0;
-		}, delay);
-	};
+  let timer = 0; // 上次触发时间
+  return function (...args) {
+    if (timer) return;
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+      timer = 0;
+    }, delay);
+  };
 }
 ```
 
@@ -96,14 +96,14 @@ function throttle(fn, delay) {
 
 ```js
 function bd_decrypt(bd_lng, bd_lat) {
-	var X_PI = (Math.PI * 3000.0) / 180.0;
-	var x = bd_lng - 0.0065;
-	var y = bd_lat - 0.006;
-	var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * X_PI);
-	var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * X_PI);
-	var gg_lng = z * Math.cos(theta);
-	var gg_lat = z * Math.sin(theta);
-	return { lng: gg_lng, lat: gg_lat };
+  var X_PI = (Math.PI * 3000.0) / 180.0;
+  var x = bd_lng - 0.0065;
+  var y = bd_lat - 0.006;
+  var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * X_PI);
+  var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * X_PI);
+  var gg_lng = z * Math.cos(theta);
+  var gg_lat = z * Math.sin(theta);
+  return { lng: gg_lng, lat: gg_lat };
 }
 ```
 
@@ -111,17 +111,17 @@ function bd_decrypt(bd_lng, bd_lat) {
 
 ```js
 function bd_encrypt(gg_lng, gg_lat) {
-	var X_PI = (Math.PI * 3000.0) / 180.0;
-	var x = gg_lng,
-		y = gg_lat;
-	var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * X_PI);
-	var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * X_PI);
-	var bd_lng = z * Math.cos(theta) + 0.0065;
-	var bd_lat = z * Math.sin(theta) + 0.006;
-	return {
-		bd_lat: bd_lat,
-		bd_lng: bd_lng,
-	};
+  var X_PI = (Math.PI * 3000.0) / 180.0;
+  var x = gg_lng,
+    y = gg_lat;
+  var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * X_PI);
+  var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * X_PI);
+  var bd_lng = z * Math.cos(theta) + 0.0065;
+  var bd_lat = z * Math.sin(theta) + 0.006;
+  return {
+    bd_lat: bd_lat,
+    bd_lng: bd_lng,
+  };
 }
 ```
 
@@ -129,56 +129,56 @@ function bd_encrypt(gg_lng, gg_lat) {
 
 ```js
 class EventEmitter {
-	constructor() {
-		this.cache = {};
-	}
+  constructor() {
+    this.cache = {};
+  }
 
-	on(name, fn) {
-		if (this.cache[name]) {
-			this.cache[name].push(fn);
-		} else {
-			this.cache[name] = [fn];
-		}
-	}
+  on(name, fn) {
+    if (this.cache[name]) {
+      this.cache[name].push(fn);
+    } else {
+      this.cache[name] = [fn];
+    }
+  }
 
-	off(name, fn) {
-		const tasks = this.cache[name];
-		if (tasks) {
-			const index = tasks.findIndex((f) => f === fn || f.callback === fn);
-			if (index >= 0) {
-				tasks.splice(index, 1);
-			}
-		}
-	}
+  off(name, fn) {
+    const tasks = this.cache[name];
+    if (tasks) {
+      const index = tasks.findIndex((f) => f === fn || f.callback === fn);
+      if (index >= 0) {
+        tasks.splice(index, 1);
+      }
+    }
+  }
 
-	emit(name, once = false) {
-		if (this.cache[name]) {
-			// 创建副本，如果回调函数内继续注册相同事件，会造成死循环
-			const tasks = this.cache[name].slice();
-			for (let fn of tasks) {
-				fn();
-			}
-			if (once) {
-				delete this.cache[name];
-			}
-		}
-	}
+  emit(name, once = false) {
+    if (this.cache[name]) {
+      // 创建副本，如果回调函数内继续注册相同事件，会造成死循环
+      const tasks = this.cache[name].slice();
+      for (let fn of tasks) {
+        fn();
+      }
+      if (once) {
+        delete this.cache[name];
+      }
+    }
+  }
 }
 
 // 测试
 const eventBus = new EventEmitter();
 const task1 = () => {
-	console.log("task1");
+  console.log("task1");
 };
 const task2 = () => {
-	console.log("task2");
+  console.log("task2");
 };
 
 eventBus.on("task", task1);
 eventBus.on("task", task2);
 eventBus.off("task", task1);
 setTimeout(() => {
-	eventBus.emit("task"); // task2
+  eventBus.emit("task"); // task2
 }, 1000);
 ```
 
@@ -186,21 +186,21 @@ setTimeout(() => {
 
 ```js
 function randomHexColor() {
-	return (
-		"#" + ("0000" + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6)
-	);
+  return "#" + ("0000" + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6);
 }
 ```
+
+或者使用`#${(~~(Math.random()*(1<<24))).toString(16)}`
 
 ## RGB 转换为 HEX
 
 ```js
 const rgbToHex = (r, g, b) => {
-	const toHex = (num) => {
-		const hex = num.toString(16);
-		return `${hex.toString().padStart(2, 0)}`;
-	};
-	return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  const toHex = (num) => {
+    const hex = num.toString(16);
+    return `${hex.toString().padStart(2, 0)}`;
+  };
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
 ```
 
@@ -212,12 +212,12 @@ const rgbToHex = (r, g, b) => {
 
 ```js
 function corsEnabled(url) {
-	var xhr = new XMLHttpRequest();
-	xhr.open("HEAD", url, false);
-	try {
-		xhr.send();
-	} catch (e) {}
-	return xhr.status >= 200 && xhr.status <= 299;
+  var xhr = new XMLHttpRequest();
+  xhr.open("HEAD", url, false);
+  try {
+    xhr.send();
+  } catch (e) {}
+  return xhr.status >= 200 && xhr.status <= 299;
 }
 ```
 
@@ -229,11 +229,11 @@ function corsEnabled(url) {
 
 ```js
 function shuffle(a) {
-	for (let i = a.length; i; i--) {
-		let j = Math.floor(Math.random() * i);
-		[a[i - 1], a[j]] = [a[j], a[i - 1]];
-	}
-	return a;
+  for (let i = a.length; i; i--) {
+    let j = Math.floor(Math.random() * i);
+    [a[i - 1], a[j]] = [a[j], a[i - 1]];
+  }
+  return a;
 }
 ```
 
@@ -243,50 +243,44 @@ function shuffle(a) {
 
 ```js
 function limitRequest(urls = [], limit = 3) {
-	return new Promise((resolve, reject) => {
-		const len = urls.length;
-		let count = 0;
+  return new Promise((resolve, reject) => {
+    const len = urls.length;
+    let count = 0;
 
-		// 同时启动limit个任务
-		while (limit > 0) {
-			start();
-			limit -= 1;
-		}
+    // 同时启动limit个任务
+    while (limit > 0) {
+      start();
+      limit -= 1;
+    }
 
-		function start() {
-			const url = urls.shift(); // 从数组中拿取第一个任务
-			if (url) {
-				axios
-					.post(url)
-					.then((res) => {
-						// todo
-					})
-					.catch((err) => {
-						// todo
-					})
-					.finally(() => {
-						if (count == len - 1) {
-							// 最后一个任务完成
-							resolve();
-						} else {
-							// 完成之后，启动下一个任务
-							count++;
-							start();
-						}
-					});
-			}
-		}
-	});
+    function start() {
+      const url = urls.shift(); // 从数组中拿取第一个任务
+      if (url) {
+        axios
+          .post(url)
+          .then((res) => {
+            // todo
+          })
+          .catch((err) => {
+            // todo
+          })
+          .finally(() => {
+            if (count == len - 1) {
+              // 最后一个任务完成
+              resolve();
+            } else {
+              // 完成之后，启动下一个任务
+              count++;
+              start();
+            }
+          });
+      }
+    }
+  });
 }
 
 // 测试
-limitRequest([
-	"http://xxa",
-	"http://xxb",
-	"http://xxc",
-	"http://xxd",
-	"http://xxe",
-]);
+limitRequest(["http://xxa", "http://xxb", "http://xxc", "http://xxd", "http://xxe"]);
 ```
 
 ### ES5 继承（寄生组合继承）
@@ -294,16 +288,16 @@ limitRequest([
 ```js
 // 1.定义Parent父类
 function Parent(name) {
-	this.name = name;
+  this.name = name;
 }
 Parent.prototype.eat = function () {
-	console.log(this.name + " is eating");
+  console.log(this.name + " is eating");
 };
 // 2.定义Child子类
 function Child(name, age) {
-	// 3.Parent.call() 继承Parent
-	Parent.call(this, name);
-	this.age = age;
+  // 3.Parent.call() 继承Parent
+  Parent.call(this, name);
+  this.age = age;
 }
 // 4.Object.create复制Parent的原型
 Child.prototype = Object.create(Parent.prototype);
@@ -321,19 +315,19 @@ xm.eat(); // xiaoming is eating
 
 ```js
 class Parent {
-	constructor(name) {
-		this.name = name;
-	}
-	eat() {
-		console.log(this.name + " is eating");
-	}
+  constructor(name) {
+    this.name = name;
+  }
+  eat() {
+    console.log(this.name + " is eating");
+  }
 }
 
 class Child extends Parent {
-	constructor(name, age) {
-		super(name);
-		this.age = age;
-	}
+  constructor(name, age) {
+    super(name);
+    this.age = age;
+  }
 }
 
 // 测试
@@ -349,21 +343,21 @@ xm.eat(); // xiaoming is eating
 
 ```js
 let SuperType = {
-	initSuper(name) {
-		this.name = name;
-		this.color = [1, 2, 3];
-	},
-	sayName() {
-		alert(this.name);
-	},
+  initSuper(name) {
+    this.name = name;
+    this.color = [1, 2, 3];
+  },
+  sayName() {
+    alert(this.name);
+  },
 };
 let SubType = {
-	initSub(age) {
-		this.age = age;
-	},
-	sayAge() {
-		alert(this.age);
-	},
+  initSub(age) {
+    this.age = age;
+  },
+  sayAge() {
+    alert(this.age);
+  },
 };
 Object.setPrototypeOf(SubType, SuperType);
 SubType.initSub("17");
@@ -380,9 +374,9 @@ SubType.sayName(); // '17'
 
 ```js
 const sleep = (timeoutMs) =>
-	new Promise((resolve) => {
-		setTimeout(resolve, timeoutMs);
-	});
+  new Promise((resolve) => {
+    setTimeout(resolve, timeoutMs);
+  });
 ```
 
 ### ['1', '2', '3'].map(parseInt)
@@ -407,9 +401,7 @@ const sleep = (timeoutMs) =>
 
 ```js
 function isRunMobile() {
-	return /Android|webOS|iPhone|iPad|BlackBerry/i.test(
-		window.navigator.userAgent
-	);
+  return /Android|webOS|iPhone|iPad|BlackBerry/i.test(window.navigator.userAgent);
 }
 ```
 
@@ -419,8 +411,8 @@ function isRunMobile() {
 
 ```js
 function eazyFormateQueryUrl() {
-	const url = new URL(window.location);
-	return Object.fromEntries(url.searchParams.entries());
+  const url = new URL(window.location);
+  return Object.fromEntries(url.searchParams.entries());
 }
 ```
 
@@ -435,8 +427,8 @@ const arr = Object.entries(ret); // arr: [['name', 'Eric'], ['public', '木易�
 // 1. for循环
 const target1 = {};
 arr.forEach((item) => {
-	const [key, val] = item;
-	target1[key] = val;
+  const [key, val] = item;
+  target1[key] = val;
 });
 // target1: {name: 'Eric', public: '木易的OT'}
 
@@ -473,9 +465,9 @@ console.log(search.toString()); // a=1&b=2&c=3
 
 ```js
 function locationByNamePath(path) {
-	const { origin } = window.location;
-	const url = new URL(path, origin);
-	window.location.href = url.href;
+  const { origin } = window.location;
+  const url = new URL(path, origin);
+  window.location.href = url.href;
 }
 ```
 
@@ -488,230 +480,227 @@ import _ from "lodash";
 import $ from "jquery";
 
 function formatNewsHtml(html, opts = {}) {
-	const $html = $("<div>").html(html);
-	const title = $html.find("h1").text() || "";
-	const options = _.defaults(opts, {
-		filterLink: true,
-	});
+  const $html = $("<div>").html(html);
+  const title = $html.find("h1").text() || "";
+  const options = _.defaults(opts, {
+    filterLink: true,
+  });
 
-	// 移除meta头
-	$html.find("meta").remove();
-	// 移除title
-	$html.find("title").remove();
-	// 移除内敛样式
-	$html.find("*[style]").removeAttr("style");
-	// 移除外部样式
-	$html.find("link").remove();
-	$html.find("style").remove();
-	// 移除外部脚本
-	$html.find("script").remove();
-	// 移除对齐属性
-	$html.find("*[align]").removeAttr("align");
-	// 移除原有标题
-	$html.find("h1").remove();
-	// 移除最开始的br标签
-	$html.find("br").first().remove();
-	// 过滤注释
-	$html.contents().each((i, n) => {
-		if (n.nodeType === 8) {
-			$(n).remove();
-		}
-	});
-	// 过滤空的p标签
-	$html.find("p").each((index, p) => {
-		const child = $(p).html().trim();
-		if (child === "" || child === "<br>") {
-			$(p).remove();
-		}
-	});
+  // 移除meta头
+  $html.find("meta").remove();
+  // 移除title
+  $html.find("title").remove();
+  // 移除内敛样式
+  $html.find("*[style]").removeAttr("style");
+  // 移除外部样式
+  $html.find("link").remove();
+  $html.find("style").remove();
+  // 移除外部脚本
+  $html.find("script").remove();
+  // 移除对齐属性
+  $html.find("*[align]").removeAttr("align");
+  // 移除原有标题
+  $html.find("h1").remove();
+  // 移除最开始的br标签
+  $html.find("br").first().remove();
+  // 过滤注释
+  $html.contents().each((i, n) => {
+    if (n.nodeType === 8) {
+      $(n).remove();
+    }
+  });
+  // 过滤空的p标签
+  $html.find("p").each((index, p) => {
+    const child = $(p).html().trim();
+    if (child === "" || child === "<br>") {
+      $(p).remove();
+    }
+  });
 
-	if (options.filterLink) {
-		// 移除除了s3以外的链接地址
-		$html.find("a").each((index, ele) => {
-			const href = $(ele).attr("href");
-			if (/-s3/.test(href) === false) {
-				$(ele).outerHTML = $(ele).html(); // eslint-disable-line no-param-reassign
-				// eslint-disable-next-line no-script-url
-				$(ele).attr("href", "javascript:void(0);");
-				$(ele).onclick = function () {
-					return false;
-				};
-				$(ele).attr("target", "");
-			} else {
-				$(ele).attr("target", "_blank");
-			}
-		});
-	}
+  if (options.filterLink) {
+    // 移除除了s3以外的链接地址
+    $html.find("a").each((index, ele) => {
+      const href = $(ele).attr("href");
+      if (/-s3/.test(href) === false) {
+        $(ele).outerHTML = $(ele).html(); // eslint-disable-line no-param-reassign
+        // eslint-disable-next-line no-script-url
+        $(ele).attr("href", "javascript:void(0);");
+        $(ele).onclick = function () {
+          return false;
+        };
+        $(ele).attr("target", "");
+      } else {
+        $(ele).attr("target", "_blank");
+      }
+    });
+  }
 
-	return { title, html: $html.html() };
+  return { title, html: $html.html() };
 }
 
 function formatHtml(html) {
-	if (!_.trim(html)) {
-		return "";
-	}
+  if (!_.trim(html)) {
+    return "";
+  }
 
-	const $html = $("<div>").html(html);
-	const title = $html.find("div:first").attr("title") || "";
+  const $html = $("<div>").html(html);
+  const title = $html.find("div:first").attr("title") || "";
 
-	// 先处理目录
-	const contents = generateContents($html);
+  // 先处理目录
+  const contents = generateContents($html);
 
-	// 移除meta头
-	$html.find("meta").remove();
-	// 移除内敛样式
-	$html.find("*[style]").removeAttr("style");
-	// 移除外部样式
-	$html.find("link").remove();
-	$html.find("style").remove();
-	// 移除外部脚本
-	$html.find("script").remove();
-	// 移除对齐属性
-	$html.find("*[align]").removeAttr("align");
-	// 格式化表格
-	formatTable($html);
+  // 移除meta头
+  $html.find("meta").remove();
+  // 移除内敛样式
+  $html.find("*[style]").removeAttr("style");
+  // 移除外部样式
+  $html.find("link").remove();
+  $html.find("style").remove();
+  // 移除外部脚本
+  $html.find("script").remove();
+  // 移除对齐属性
+  $html.find("*[align]").removeAttr("align");
+  // 格式化表格
+  formatTable($html);
 
-	return { title, html: $html.html(), contents };
+  return { title, html: $html.html(), contents };
 }
 
 function formatTable($html) {
-	// 外层嵌套，为了后续优化
-	const $table = $html
-		.find("table")
-		.wrap('<div class="wrapper"><div class="table-wrapper"></div></div>')
-		.removeAttr("type");
+  // 外层嵌套，为了后续优化
+  const $table = $html
+    .find("table")
+    .wrap('<div class="wrapper"><div class="table-wrapper"></div></div>')
+    .removeAttr("type");
 
-	// 处理table
-	$html.find(".wrapper").each((index, element) => {
-		const $element = $(element);
-		if ($element.text().trim().length > 0) {
-			// 如果只有一行内容，转换成文本
-			// 如果超过一行，添加复制表格的icon
-			if ($element.find("table tr").length === 1) {
-				$element.html($element.text());
-			} else {
-				$element.prepend(
-					'<span class="copy-table" title="复制表格"><i class="dyfont dy-copy" /></span>'
-				);
-			}
-		} else {
-			$element.remove();
-		}
-	});
+  // 处理table
+  $html.find(".wrapper").each((index, element) => {
+    const $element = $(element);
+    if ($element.text().trim().length > 0) {
+      // 如果只有一行内容，转换成文本
+      // 如果超过一行，添加复制表格的icon
+      if ($element.find("table tr").length === 1) {
+        $element.html($element.text());
+      } else {
+        $element.prepend('<span class="copy-table" title="复制表格"><i class="dyfont dy-copy" /></span>');
+      }
+    } else {
+      $element.remove();
+    }
+  });
 
-	// 处理表格标题，对于非标准无th元素的表格，按第一列最高rowspan数来决定表格标题高度
-	$table.each((index, element) => {
-		const $element = $(element);
-		if ($element.find("th").length === 0) {
-			let count = 1;
-			$element.find("tr:eq(0) td[rowspan]").each((i, td) => {
-				const rowspan = $(td).attr("rowspan") || 1;
-				if (rowspan > count) {
-					count = rowspan;
-				}
-			});
+  // 处理表格标题，对于非标准无th元素的表格，按第一列最高rowspan数来决定表格标题高度
+  $table.each((index, element) => {
+    const $element = $(element);
+    if ($element.find("th").length === 0) {
+      let count = 1;
+      $element.find("tr:eq(0) td[rowspan]").each((i, td) => {
+        const rowspan = $(td).attr("rowspan") || 1;
+        if (rowspan > count) {
+          count = rowspan;
+        }
+      });
 
-			$element.find(`tr:lt(${count})`).addClass("table-title");
-		}
-	});
+      $element.find(`tr:lt(${count})`).addClass("table-title");
+    }
+  });
 
-	// 处理表格内容及宽度
-	$table.find("td").each((index, td) => {
-		const $td = $(td);
-		const text = $td.text().trim();
-		const textLen = text.length;
+  // 处理表格内容及宽度
+  $table.find("td").each((index, td) => {
+    const $td = $(td);
+    const text = $td.text().trim();
+    const textLen = text.length;
 
-		if ($td.children().length > 0) {
-			$td.find("span").each((i, span) => {
-				$(span).html($(span).html().trim());
-			});
-		} else {
-			$td.html(text);
-		}
+    if ($td.children().length > 0) {
+      $td.find("span").each((i, span) => {
+        $(span).html($(span).html().trim());
+      });
+    } else {
+      $td.html(text);
+    }
 
-		const regex =
-			/^[+\-$￥¥€£]{0,1}\s{0,1}((\d+,{0,1})*|\d+)(\.\d+){0,1}%{0,1}(%%){0,1}$/;
-		if (text.match(regex)) {
-			$td.css({
-				"text-align": "center",
-				"min-width": `${textLen / 2 + 1}em`, // eslint-disable-line no-mixed-operators
-			});
-		} else {
-			const minWidth = textLen < 40 ? textLen * 3 + 60 : 180; // eslint-disable-line no-mixed-operators
-			$td.css({
-				"min-width": `${minWidth}px`,
-			});
-		}
-	});
+    const regex = /^[+\-$￥¥€£]{0,1}\s{0,1}((\d+,{0,1})*|\d+)(\.\d+){0,1}%{0,1}(%%){0,1}$/;
+    if (text.match(regex)) {
+      $td.css({
+        "text-align": "center",
+        "min-width": `${textLen / 2 + 1}em`, // eslint-disable-line no-mixed-operators
+      });
+    } else {
+      const minWidth = textLen < 40 ? textLen * 3 + 60 : 180; // eslint-disable-line no-mixed-operators
+      $td.css({
+        "min-width": `${minWidth}px`,
+      });
+    }
+  });
 }
 
 function generateContents($html) {
-	const $sections = $html.find("div[id^=SectionCode]");
-	let contents = [];
-	let $item;
-	let title;
-	let id;
-	let pid;
-	let depth;
+  const $sections = $html.find("div[id^=SectionCode]");
+  let contents = [];
+  let $item;
+  let title;
+  let id;
+  let pid;
+  let depth;
 
-	_.each($sections, (item) => {
-		$item = $(item);
-		title = $item.attr("title");
-		id = $item.attr("id");
+  _.each($sections, (item) => {
+    $item = $(item);
+    title = $item.attr("title");
+    id = $item.attr("id");
 
-		// 如果标题不存在或id不合法，则不属于目录
-		if (title && id) {
-			// SectionCode_2-2-1: id: 2-2-1, pid: 2-2
-			id = id.split("_")[1];
-			depth = id.split("-").length;
-			if (depth > 1) {
-				pid = id.substr(0, id.lastIndexOf("-"));
-			} else {
-				pid = 0;
-			}
+    // 如果标题不存在或id不合法，则不属于目录
+    if (title && id) {
+      // SectionCode_2-2-1: id: 2-2-1, pid: 2-2
+      id = id.split("_")[1];
+      depth = id.split("-").length;
+      if (depth > 1) {
+        pid = id.substr(0, id.lastIndexOf("-"));
+      } else {
+        pid = 0;
+      }
 
-			// 生成目录的时候顺便添加对应的标题
-			$("<div>")
-				.attr({
-					class: `sub-title sub-title-${
-						depth > 2 ? "3" : depth > 1 ? "2" : "1" // eslint-disable-line no-nested-ternary
-					}`,
-				})
-				.text(title)
-				.prependTo($item);
+      // 生成目录的时候顺便添加对应的标题
+      $("<div>")
+        .attr({
+          class: `sub-title sub-title-${
+            depth > 2 ? "3" : depth > 1 ? "2" : "1" // eslint-disable-line no-nested-ternary
+          }`,
+        })
+        .text(title)
+        .prependTo($item);
 
-			contents.push({
-				id,
-				pid,
-				title,
-			});
-		}
-	});
-	contents = generateContentsTree(contents);
-	return contents;
+      contents.push({
+        id,
+        pid,
+        title,
+      });
+    }
+  });
+  contents = generateContentsTree(contents);
+  return contents;
 }
 
 // 本函数处理按序加载的层级结构，如果无序，则需另写函数，这边为了性能就不考虑
 function generateContentsTree(contents) {
-	const root = { id: 0, children: [] };
-	const contentsMap = {};
-	let node;
-	let parent;
+  const root = { id: 0, children: [] };
+  const contentsMap = {};
+  let node;
+  let parent;
 
-	_.each(contents, (c) => {
-		node = { id: c.id, pid: c.pid, title: c.title, children: [] };
-		contentsMap[c.id] = node;
-		if (c.pid === 0) {
-			root.children.push(node);
-		} else {
-			parent = contentsMap[c.pid];
-			if (parent) {
-				parent.children.push(node);
-			}
-		}
-	});
+  _.each(contents, (c) => {
+    node = { id: c.id, pid: c.pid, title: c.title, children: [] };
+    contentsMap[c.id] = node;
+    if (c.pid === 0) {
+      root.children.push(node);
+    } else {
+      parent = contentsMap[c.pid];
+      if (parent) {
+        parent.children.push(node);
+      }
+    }
+  });
 
-	return [root];
+  return [root];
 }
 
 export { formatHtml, formatNewsHtml };
@@ -721,17 +710,17 @@ export { formatHtml, formatNewsHtml };
 
 ```js
 const fetchHR = (url: string) => {
-	const xhr = new XMLHttpRequest();
-	xhr.open("GET", url);
-	xhr.onreadystatechange = function (e) {
-		if (xhr.readyState === 4) {
-			// const { html, content } = formatHtml(xhr.responseText);
-			const { html } = formatNewsHtml(xhr.responseText);
-			// console.log('html', html);
-			setFormatedHtml(html);
-		}
-	};
-	xhr.send();
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", url);
+  xhr.onreadystatechange = function (e) {
+    if (xhr.readyState === 4) {
+      // const { html, content } = formatHtml(xhr.responseText);
+      const { html } = formatNewsHtml(xhr.responseText);
+      // console.log('html', html);
+      setFormatedHtml(html);
+    }
+  };
+  xhr.send();
 };
 ```
 
@@ -741,20 +730,20 @@ const fetchHR = (url: string) => {
 
 ```js
 function tco(f) {
-	var value;
-	var active = false;
-	var accumulated = [];
-	return function accumulator(...rest) {
-		accumulated.push(rest);
-		if (!active) {
-			active = true;
-			while (accumulated.length) {
-				value = f.apply(this, accumulated.shift());
-			}
-			active = false;
-			return value;
-		}
-	};
+  var value;
+  var active = false;
+  var accumulated = [];
+  return function accumulator(...rest) {
+    accumulated.push(rest);
+    if (!active) {
+      active = true;
+      while (accumulated.length) {
+        value = f.apply(this, accumulated.shift());
+      }
+      active = false;
+      return value;
+    }
+  };
 }
 ```
 
@@ -762,11 +751,11 @@ function tco(f) {
 
 ```js
 function getType(obj) {
-	return Object.prototype.toString
-		.call(obj)
-		.replaceAll(new RegExp(/\[|\]|object /g), "")
-		.toLowerCase();
-	// return Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
+  return Object.prototype.toString
+    .call(obj)
+    .replaceAll(new RegExp(/\[|\]|object /g), "")
+    .toLowerCase();
+  // return Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
 }
 ```
 
@@ -791,9 +780,9 @@ o = Object.create(Constructor.prototype);
 
 ```js
 var outObj = {
-	inObj: { a: 1, b: 2 },
-	inObj1: 1,
-	inObj2: "qwe",
+  inObj: { a: 1, b: 2 },
+  inObj1: 1,
+  inObj2: "qwe",
 };
 var newObj = Object.assign({}, outObj);
 newObj.inObj.a = 2;
@@ -811,19 +800,19 @@ console.log(newObj);
 
 // 不能复制原型链上的属性和不可枚举的属性
 let someObj = {
-	a: 2,
+  a: 2,
 };
 let obj = Object.create(someObj, {
-	// 不显示声明enumerable的话就是false
-	b: {
-		value: 2,
-	},
-	c: {
-		value: 3,
-		writable: true,
-		enumerable: true,
-		configurable: true,
-	},
+  // 不显示声明enumerable的话就是false
+  b: {
+    value: 2,
+  },
+  c: {
+    value: 3,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  },
 });
 let objCopy = Object.assign({}, obj);
 console.log(objCopy); // { c: 3 }
@@ -835,9 +824,9 @@ console.log(objCopy); // { c: 3 }
 // 需要判断obj是数组还是对象
 let newObj = {};
 for (let key in obj) {
-	if (obj.hasOwnProperty(key)) {
-		newObj[key] = obj[key];
-	}
+  if (obj.hasOwnProperty(key)) {
+    newObj[key] = obj[key];
+  }
 }
 ```
 
@@ -850,113 +839,99 @@ for (let key in obj) {
 ```js
 // 极简版
 function deepClone(obj) {
-	if (typeof obj !== "object" && !obj) return;
-	const newObj = obj instanceof Array ? [] : {};
-	for (let key in obj) {
-		if (obj.hasOwnProperty(key)) {
-			newObj[key] =
-				typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key];
-		}
-	}
-	return newObj;
+  if (typeof obj !== "object" && !obj) return;
+  const newObj = obj instanceof Array ? [] : {};
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      newObj[key] = typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key];
+    }
+  }
+  return newObj;
 }
 
 // 完整版
 // 判断类型的方法移到外部，避免递归过程中多次执行
 const judgeType = (origin) => {
-	return Object.prototype.toString
-		.call(origin)
-		.replaceAll(new RegExp(/\[|\]|object /g), "");
+  return Object.prototype.toString.call(origin).replaceAll(new RegExp(/\[|\]|object /g), "");
 };
-const reference = [
-	"Set",
-	"WeakSet",
-	"Map",
-	"WeakMap",
-	"RegExp",
-	"Date",
-	"Error",
-];
+const reference = ["Set", "WeakSet", "Map", "WeakMap", "RegExp", "Date", "Error"];
 
 // Object.getOwnPropertyDescriptors(obj)方法用来获取一个对象的所有自身属性的描述符。
 // Object.getOwnPropertyDescriptor(obj, propertyName)方法用来获取一个对象的某个自身属性的描述符。eg. {value: 'zangtai', writable: false, enumerable: false, configurable: false}
 // 返回所指定对象的所有自身属性的描述符，如果没有任何自身属性，则返回空对象。
 function deepClone(obj) {
-	// 定义新的对象，最后返回
-	//通过 obj 的原型创建对象
-	const cloneObj = Object.create(
-		Object.getPrototypeOf(obj),
-		Object.getOwnPropertyDescriptors(obj)
-	);
+  // 定义新的对象，最后返回
+  //通过 obj 的原型创建对象
+  const cloneObj = Object.create(Object.getPrototypeOf(obj), Object.getOwnPropertyDescriptors(obj));
 
-	// 遍历对象，克隆属性
-	for (let key of Reflect.ownKeys(obj)) {
-		const val = obj[key];
-		const type = judgeType(val);
-		if (reference.includes(type)) {
-			newObj[key] = new val.constructor(val);
-		} else if (typeof val === "object" && val !== null) {
-			// 递归克隆
-			newObj[key] = deepClone(val);
-		} else {
-			// 基本数据类型和function
-			newObj[key] = val;
-		}
-	}
-	return newObj;
+  // 遍历对象，克隆属性
+  for (let key of Reflect.ownKeys(obj)) {
+    const val = obj[key];
+    const type = judgeType(val);
+    if (reference.includes(type)) {
+      newObj[key] = new val.constructor(val);
+    } else if (typeof val === "object" && val !== null) {
+      // 递归克隆
+      newObj[key] = deepClone(val);
+    } else {
+      // 基本数据类型和function
+      newObj[key] = val;
+    }
+  }
+  return newObj;
 }
 
 // 清晰版
 function deepClone(obj) {
-	let res = null;
-	const reference = [Date, RegExp, Set, WeakSet, Map, WeakMap, Error];
-	if (reference.includes(obj?.constructor)) {
-		res = new obj.constructor(obj);
-	} else if (Array.isArray(obj)) {
-		res = [];
-		obj.forEach((e, i) => {
-			res[i] = deepClone(e);
-		});
-	} else if (typeof obj === "object" && obj !== null) {
-		res = {};
-		for (const key in obj) {
-			if (Object.hasOwnProperty.call(obj, key)) {
-				res[key] = deepClone(obj[key]);
-			}
-		}
-	} else {
-		res = obj;
-	}
-	return res;
+  let res = null;
+  const reference = [Date, RegExp, Set, WeakSet, Map, WeakMap, Error];
+  if (reference.includes(obj?.constructor)) {
+    res = new obj.constructor(obj);
+  } else if (Array.isArray(obj)) {
+    res = [];
+    obj.forEach((e, i) => {
+      res[i] = deepClone(e);
+    });
+  } else if (typeof obj === "object" && obj !== null) {
+    res = {};
+    for (const key in obj) {
+      if (Object.hasOwnProperty.call(obj, key)) {
+        res[key] = deepClone(obj[key]);
+      }
+    }
+  } else {
+    res = obj;
+  }
+  return res;
 }
 
 // 缓存版
 function deepClone(obj, hash = new WeakMap()) {
-	if (hash.has(obj)) {
-		return obj;
-	}
-	let res = null;
-	const reference = [Date, RegExp, Set, WeakSet, Map, WeakMap, Error];
+  if (hash.has(obj)) {
+    return obj;
+  }
+  let res = null;
+  const reference = [Date, RegExp, Set, WeakSet, Map, WeakMap, Error];
 
-	if (reference.includes(obj?.constructor)) {
-		res = new obj.constructor(obj);
-	} else if (Array.isArray(obj)) {
-		res = [];
-		obj.forEach((e, i) => {
-			res[i] = deepClone(e);
-		});
-	} else if (typeof obj === "object" && obj !== null) {
-		res = {};
-		for (const key in obj) {
-			if (Object.hasOwnProperty.call(obj, key)) {
-				res[key] = deepClone(obj[key]);
-			}
-		}
-		hash.set(obj, res);
-	} else {
-		res = obj;
-	}
-	return res;
+  if (reference.includes(obj?.constructor)) {
+    res = new obj.constructor(obj);
+  } else if (Array.isArray(obj)) {
+    res = [];
+    obj.forEach((e, i) => {
+      res[i] = deepClone(e);
+    });
+  } else if (typeof obj === "object" && obj !== null) {
+    res = {};
+    for (const key in obj) {
+      if (Object.hasOwnProperty.call(obj, key)) {
+        res[key] = deepClone(obj[key]);
+      }
+    }
+    hash.set(obj, res);
+  } else {
+    res = obj;
+  }
+  return res;
 }
 ```
 
@@ -967,50 +942,41 @@ React 中浅比较的实现是以 `Object.is` 为基础，增加了对象第一�
 ```typescript
 // objectIs
 function is(x: any, y: any) {
-	return (
-		(x === y && (x !== 0 || 1 / x === 1 / y)) || (x !== x && y !== y) // eslint-disable-line no-self-compare
-	);
+  return (
+    (x === y && (x !== 0 || 1 / x === 1 / y)) || (x !== x && y !== y) // eslint-disable-line no-self-compare
+  );
 }
 
-const objectIs: (x: any, y: any) => boolean =
-	typeof Object.is === "function" ? Object.is : is;
+const objectIs: (x: any, y: any) => boolean = typeof Object.is === "function" ? Object.is : is;
 
 // hasOwnProperty
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 // shallowEqual
 function shallowEqual(objA: mixed, objB: mixed): boolean {
-	if (is(objA, objB)) {
-		return true;
-	}
+  if (is(objA, objB)) {
+    return true;
+  }
 
-	if (
-		typeof objA !== "object" ||
-		objA === null ||
-		typeof objB !== "object" ||
-		objB === null
-	) {
-		return false;
-	}
+  if (typeof objA !== "object" || objA === null || typeof objB !== "object" || objB === null) {
+    return false;
+  }
 
-	const keysA = Object.keys(objA);
-	const keysB = Object.keys(objB);
+  const keysA = Object.keys(objA);
+  const keysB = Object.keys(objB);
 
-	if (keysA.length !== keysB.length) {
-		return false;
-	}
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
 
-	// Test for A's keys different from B.
-	for (let i = 0; i < keysA.length; i++) {
-		if (
-			!hasOwnProperty.call(objB, keysA[i]) ||
-			!is(objA[keysA[i]], objB[keysA[i]])
-		) {
-			return false;
-		}
-	}
+  // Test for A's keys different from B.
+  for (let i = 0; i < keysA.length; i++) {
+    if (!hasOwnProperty.call(objB, keysA[i]) || !is(objA[keysA[i]], objB[keysA[i]])) {
+      return false;
+    }
+  }
 
-	return true;
+  return true;
 }
 
 export default shallowEqual;
@@ -1020,28 +986,28 @@ export default shallowEqual;
 
 ```js
 class Axios {
-	constructor() {}
+  constructor() {}
 
-	request(config) {
-		return new Promise((resolve) => {
-			const { url = "", method = "get", data = {} } = config;
-			// 发送ajax请求
-			const xhr = new XMLHttpRequest();
-			xhr.open(method, url, true);
-			xhr.onload = function () {
-				console.log(xhr.responseText);
-				resolve(xhr.responseText);
-			};
-			xhr.send(data);
-		});
-	}
+  request(config) {
+    return new Promise((resolve) => {
+      const { url = "", method = "get", data = {} } = config;
+      // 发送ajax请求
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, url, true);
+      xhr.onload = function () {
+        console.log(xhr.responseText);
+        resolve(xhr.responseText);
+      };
+      xhr.send(data);
+    });
+  }
 }
 
 // 最终导出axios的方法，即实例的request方法
 function CreateAxiosFn() {
-	let axios = new Axios();
-	let req = axios.request.bind(axios);
-	return req;
+  let axios = new Axios();
+  let req = axios.request.bind(axios);
+  return req;
 }
 
 // 得到最后的全局变量axios

@@ -651,36 +651,20 @@ fis.close();
    - `getBytes()/getBytes(String charsetName)`: 前者使用默认方式编码（IDEA-UTF-8,Eclipse-GBK），后者使用指定的编码方式编码
 9. 解码方式：
    - `String(byte[] bytes)/String(byte[] bytes, String charsetName)`: 前者使用默认方式解码，后者使用指定方式解码
-10. AutoCloseable 接口：实现之后在特定情况下可以自动关闭流
-11. 异常捕获：finally
-12. 字符集：
-    - ASCII 基本一个字符一个字节即可
-    - GB2312-80
-    - GBK 包含 GB13000-1 中的全部中日韩汉字和 BIG5 中的所有汉字，Windows 默认显示 ANSI
-    - BIG5
-    - Unicode
-    - UTF-8:不是字符集，是一种编码格式。Unicode Transfer Format，使用 1~4 个字节可变长度编码，省空间（相对于 UTF-16 和 UTF-32），ASCII1 个字节，中日韩 3 个字节...
-13. 乱码：
-    - 读取数据是未读完整个汉字
-    - 编解码方式不统一
-14. 避免乱码：
-    - 不要用字节流读取文本文件
-    - 编码解码时使用同一个码表，同一个编码方式
-15. 编码方式：
-    - `getBytes()/getBytes(String charsetName)`: 前者使用默认方式编码（IDEA-UTF-8,Eclipse-GBK），后者使用指定的编码方式编码
-16. 解码方式：
-    - `String(byte[] bytes)/String(byte[] bytes, String charsetName)`: 前者使用默认方式解码，后者使用指定方式解码
 
 #### 字符流
 
-底层还是字节流。
+底层还是字节流。字符流=字节流+字符集。适合操作纯文本文件。
 
-1. FileReader:操作本地文件的输入流
+1. FileReader：操作本地文件的字符输入流
    - 按字节进行读取，一次读一个字节，遇到中文时，一次读多个字节，读取后解码，返回一个整数
    - 读到文件末尾了，read 方法返回-1
+   - 三步：创建字符输入流对象，读取数据，释放资源。
+   - `FileReader(File file)/FileReader(String pathname)`
    - `read()`默认一次读一个字节，读取之后还会转成十进制，最终返回这个十进制的值
    - `read(char[] buffer)` 把读取数据，解码，强转三步合并了，会把强转后的字符放到数组当中
-2. FileWriter:操作本地文件的输出流
+   - `close()`关闭数据流
+2. FileWriter：操作本地文件的字符输出流
    - 基本同字节输出流
    - 如果 write 方法的参数是整数，但是实际上写到本地文件中的是整数在字符集上对应的字符
 3. 字符流原理：
@@ -689,7 +673,88 @@ fis.close();
      - 判断缓冲区中是否有数据可以读取
      - 缓冲区没有数据：就从文件中获取数据，装到缓冲区中，每次尽可能装满缓冲区，如果文件中也没有数据了，返回-1
      - 缓冲区有数据：就从缓冲区读取
+   - 空参的 read 方法：一次读取一个字节，遇到中文一次读取多个字节，把字节解码并转成十进制返回
+   - 有参的 read 方法：把读取字节、解码、强转散步合并了，强转之后的字符放到数组中。
 4. close 之后不能继续写出数据，flush 之后如果缓冲区还有数据，那么仍然可以写出。
+5. FileReader 会把数据放到缓冲区，FileWriter 读取文件时是会把文件清空，但是不会清空缓冲区。
+
+对比：
+
+- **字节流可以拷贝任意类型的文件**
+- **字符流读取纯文本文件中数据，往纯文本文件中写出数据**
+
+6. 文件的 BOM 头默认 3 个字节？
+
+```java
+// a. 拷贝文件夹
+private static void copyDir(File src, File dest) throws IOException{
+   // 0. 不管dest是否存在，都创建一遍就行
+   dest.mkdirs();
+   // 递归
+   // 1. 进入到数据源，如果文件夹需要权限，那么会返回空数组
+   File[] files=src.listFiles();
+   // 2. 遍历数组
+   for(File file:files){
+      if(file.isFile(){
+         // 3. 判断文件，拷贝，从哪拷到哪
+         FileInputStream fis=new FileInputStream(file);
+         FileOutputStream fos= new FileOutputStream(new File(dest,file.getName()));
+         byte[] bytes=new byte[1024];
+         int len;
+         while((len=fis.read(bytes))!=-1){
+            fos.write(bytes,0,len);
+         }
+         fos.close();
+         fis.close();
+      }else{
+         // 4. 判断文件夹，递归
+         copyDir(file,new File(dest,file.getName()));
+      }
+   }
+}
+
+// b. 加密文件：原理异或两编即还原
+public void encrypt(File origin, File encrypted, Integer passwd){
+   // 1. 创建对象关联原始文件
+   FileInputStream fis = new FileInputStream(origin);
+   // 2. 创建对象关联加密文件
+   FileOutputStream fis = new FileOutputStream(encrypted);
+   // 3. 加密处理
+   int b;
+   while((b=fis.read())!=-1){
+      fos.write(b^passwd);
+   }
+   // 4. 释放资源
+   fos.close();
+   fis.close();
+}
+
+// c. 修改文件中的数据
+public void encrypt(File origin){
+   // 1. 读取数据
+   FileReader fr = new FileReader(origin);
+   StringBuilder sb=new StringBuilder();
+   int ch;
+   while((ch=fr.read())!=-1){
+      ab.append((char)ch);
+   }
+   fr.close();
+   // 2. 排序
+   Integer[] arr= Arrays.stream(sb.toString()
+      .split("-")
+      .map(Integer::parseInt)
+      .sorted()
+      .toArray(Integer[]::new);
+   );
+   // 3. 写出
+   FileWriter fw= new FileFilter(origin);
+   String s=Arrays.toString(arr).replace(",","-");
+   String res=s.substring(1,s.length()-1);
+   fw.write(res);
+   fw.close();
+}
+
+```
 
 #### 字节缓冲流
 

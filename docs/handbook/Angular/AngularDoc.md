@@ -40,7 +40,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { NgModule } from "@angular/core";
 
 @NgModule({
-	imports: [BrowserModule],
+  imports: [BrowserModule],
 })
 export class AppModule {}
 ```
@@ -63,12 +63,12 @@ export class AppModule {}
 import { Component } from "@angular/core";
 
 @Component({
-	selector: "app-root",
-	templateUrl: "./app.component.html",
-	styleUrls: ["./app.component.css"],
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"],
 })
 export class AppComponent {
-	title = "angular-test";
+  title = "angular-test";
 }
 ```
 
@@ -79,8 +79,8 @@ import { NgModule } from "@angular/core";
 import { AppComponent } from "./app.component";
 
 @NgModule({
-	declarations: [AppComponent],
-	bootstrap: [AppComponent],
+  declarations: [AppComponent],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
 ```
@@ -183,13 +183,13 @@ import { environment } from "./environments/environment";
 
 // 如果当前为生产环境
 if (environment.production) {
-	// 开启生产模式
-	enableProdMode();
+  // 开启生产模式
+  enableProdMode();
 }
 // 启动应用程序
 platformBrowserDynamic()
-	.bootstrapModule(AppModule)
-	.catch((err) => console.error(err));
+  .bootstrapModule(AppModule)
+  .catch((err) => console.error(err));
 ```
 
 <img src="../../assets/images/61.png" align="center" width="60%"/>
@@ -201,7 +201,7 @@ platformBrowserDynamic()
 // 该项配置可以在 angular.json 文件中找到, projects -> angular-test -> architect -> configurations -> production -> fileReplacements
 
 export const environment = {
-	production: false,
+  production: false,
 };
 ```
 
@@ -209,7 +209,7 @@ export const environment = {
 
 ```javascript
 export const environment = {
-	production: true,
+  production: true,
 };
 ```
 
@@ -226,14 +226,14 @@ import { NgModule } from "@angular/core";
 import { AppComponent } from "./app.component";
 // 调用 NgModule 装饰器, 告诉 Angular 当前类表示的是 Angular 模块
 @NgModule({
-	// 声明当前模块拥有哪些组件
-	declarations: [AppComponent],
-	// 声明当前模块依赖了哪些其他模块
-	imports: [BrowserModule],
-	// 声明服务的作用域, 数组中接收服务类, 表示该服务只能在当前模块的组件中使用
-	providers: [],
-	// 可引导组件, Angular 会在引导过程中把它加载到 DOM 中
-	bootstrap: [AppComponent],
+  // 声明当前模块拥有哪些组件
+  declarations: [AppComponent],
+  // 声明当前模块依赖了哪些其他模块
+  imports: [BrowserModule],
+  // 声明服务的作用域, 数组中接收服务类, 表示该服务只能在当前模块的组件中使用
+  providers: [],
+  // 可引导组件, Angular 会在引导过程中把它加载到 DOM 中
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
 ```
@@ -244,19 +244,19 @@ export class AppModule {}
 import { Component } from "@angular/core";
 
 @Component({
-	// 指定组件的使用方式, 当前为标记形式
-	// app-home   =>  <app-home></app-home>
-	// [app-home] =>  <div app-home></div>
-	// .app-home  =>  <div class="app-home"></div>
-	selector: "app-root",
-	// 关联组件模板文件
-	// templateUrl:'组件模板文件路径'
-	// template:`组件模板字符串`
-	templateUrl: "./app.component.html",
-	// 关联组件样式文件
-	// styleUrls : ['组件样式文件路径']
-	// styles : [`组件样式`]
-	styleUrls: ["./app.component.css"],
+  // 指定组件的使用方式, 当前为标记形式
+  // app-home   =>  <app-home></app-home>
+  // [app-home] =>  <div app-home></div>
+  // .app-home  =>  <div class="app-home"></div>
+  selector: "app-root",
+  // 关联组件模板文件
+  // templateUrl:'组件模板文件路径'
+  // template:`组件模板字符串`
+  templateUrl: "./app.component.html",
+  // 关联组件样式文件
+  // styleUrls : ['组件样式文件路径']
+  // styles : [`组件样式`]
+  styleUrls: ["./app.component.css"],
 })
 export class AppComponent {}
 ```
@@ -266,16 +266,16 @@ export class AppComponent {}
 ```html
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>AngularTest</title>
-		<base href="/" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="icon" type="image/x-icon" href="favicon.ico" />
-	</head>
-	<body>
-		<app-root></app-root>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>AngularTest</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
 </html>
 ```
 
@@ -293,8 +293,8 @@ export class AppComponent {}
 
 ```javascript
 @NgModule({
-	declarations: [LayoutComponent],
-	exports: [LayoutComponent],
+  declarations: [LayoutComponent],
+  exports: [LayoutComponent],
 })
 export class SharedModule {}
 ```
@@ -303,9 +303,9 @@ export class SharedModule {}
 
 ```javascript
 @NgModule({
-	declarations: [AppComponent],
-	imports: [SharedModule],
-	bootstrap: [AppComponent],
+  declarations: [AppComponent],
+  imports: [SharedModule],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
 ```
@@ -314,12 +314,12 @@ export class AppModule {}
 
 ```javascript
 @Component({
-	selector: "app-root",
-	template: `
-		<div>App works</div>
-		<app-layout></app-layout>
-	`,
-	styles: [],
+  selector: "app-root",
+  template: `
+    <div>App works</div>
+    <app-layout></app-layout>
+  `,
+  styles: [],
 })
 export class AppComponent {}
 ```
@@ -385,11 +385,11 @@ export class AppComponent {}
 
 ```javascript
 export class AppComponent {
-	title = "test";
-	onSave(event: Event) {
-		// this 指向组件类的实例对象
-		this.title; // "test"
-	}
+  title = "test";
+  onSave(event: Event) {
+    // this 指向组件类的实例对象
+    this.title; // "test"
+  }
 }
 ```
 
@@ -405,7 +405,8 @@ export class AppComponent {
 ##### 4.4.1 在组件模板中获取
 
 ```html
-<input type="text" (keyup.enter)="onKeyUp(username.value)" #username />
+<input type="text" (input)="onInput($event)" (keyup.enter)="onKeyUp(username.value)" #username />
+<button (click)="getInputVal(username.value)">get username</button>
 ```
 
 ##### 4.4.2 在组件类中获取
@@ -420,12 +421,10 @@ export class AppComponent {
 import { AfterViewInit, ElementRef, ViewChild } from "@angular/core";
 
 export class HomeComponent implements AfterViewInit {
-	@ViewChild("paragraph") paragraph:
-		| ElementRef<HTMLParagraphElement>
-		| undefined;
-	ngAfterViewInit() {
-		console.log(this.paragraph?.nativeElement);
-	}
+  @ViewChild("paragraph") paragraph: ElementRef<HTMLParagraphElement> | undefined;
+  ngAfterViewInit() {
+    console.log(this.paragraph?.nativeElement);
+  }
 }
 ```
 
@@ -433,9 +432,9 @@ export class HomeComponent implements AfterViewInit {
 
 ```html
 <ul>
-	<li #items>a</li>
-	<li #items>b</li>
-	<li #items>c</li>
+  <li #items>a</li>
+  <li #items>b</li>
+  <li #items>c</li>
 </ul>
 ```
 
@@ -443,15 +442,15 @@ export class HomeComponent implements AfterViewInit {
 import { AfterViewInit, QueryList, ViewChildren } from "@angular/core";
 
 @Component({
-	selector: "app-home",
-	templateUrl: "./home.component.html",
-	styles: [],
+  selector: "app-home",
+  templateUrl: "./home.component.html",
+  styles: [],
 })
 export class HomeComponent implements AfterViewInit {
-	@ViewChildren("items") items: QueryList<HTMLLIElement> | undefined;
-	ngAfterViewInit() {
-		console.log(this.items?.toArray());
-	}
+  @ViewChildren("items") items: QueryList<HTMLLIElement> | undefined;
+  ngAfterViewInit() {
+    console.log(this.items?.toArray());
+  }
 }
 ```
 
@@ -459,33 +458,39 @@ export class HomeComponent implements AfterViewInit {
 
 数据在组件类和组件模板中双向同步。
 
-Angular 将双向数据绑定功能放在了 @angular/forms 模块中，所以要实现双向数据绑定需要依赖该模块。
+Angular 将双向数据绑定功能放在了 @angular/forms 模块中，所以要实现双向数据绑定需要依赖该模块。只对表单有效。
+
+1. 引入依赖模块并注册
 
 ```javascript
 import { FormsModule } from "@angular/forms";
 
 @NgModule({
-	imports: [FormsModule],
+  imports: [FormsModule],
 })
 export class AppModule {}
 ```
 
+2. DOM 中绑定变量
+
 ```html
-<input type="text" [(ngModel)]="username" (ngModelChange)="ngModelChangeHandler()"/>
+<input type="text" [(ngModel)]="username" (ngModelChange)="ngModelChangeHandler()" />
 <button (click)="change()">在组件类中更改 username</button>
 <div>username: {{ username }}</div>
 ```
 
+3. js 中声明变量
+
 ```javascript
 export class AppComponent {
-	username: string = "";
-	change() {
-		this.username = "hello Angular";
-	}
-	// ngModel绑定的数据发生变化时触发
-	ngModelChangeHandler(){
-		//...
-	}
+  username: string = "";
+  change() {
+    this.username = "hello Angular";
+  }
+  // ngModel绑定的数据发生变化时触发
+  ngModelChangeHandler() {
+    //...
+  }
 }
 ```
 
@@ -494,32 +499,32 @@ export class AppComponent {
 ```html
 <!-- app.component.html -->
 <bootstrap-panel>
-	<div class="heading">Heading</div>
-	<div class="body">Body</div>
+  <div class="heading">Heading</div>
+  <div class="body">Body</div>
 </bootstrap-panel>
 ```
 
 ```html
 <!-- panel.component.html -->
 <div class="panel panel-default">
-	<div class="panel-heading">
-		<ng-content select=".heading"></ng-content>
-	</div>
-	<div class="panel-body">
-		<ng-content select=".body"></ng-content>
-	</div>
+  <div class="panel-heading">
+    <ng-content select=".heading"></ng-content>
+  </div>
+  <div class="panel-body">
+    <ng-content select=".body"></ng-content>
+  </div>
 </div>
 ```
 
 如果只有一个 ng-content，不需要 select 属性。
 
-ng-content 在浏览器中会被 \<div class="heading">\</div> 替代，如果不想要这个额外的 div，可以使用 ng-container 替代这个 div。
+ng-content 在浏览器中会被 `<div class="heading"></div>` 替代，如果不想要这个额外的 div，可以使用 ng-container 替代这个 div。
 
 ```html
 <!-- app.component.html -->
 <bootstrap-panel>
-	<ng-container class="heading"> Heading </ng-container>
-	<ng-container class="body"> Body </ng-container>
+  <ng-container class="heading"> Heading </ng-container>
+  <ng-container class="body"> Body </ng-container>
 </bootstrap-panel>
 ```
 
@@ -528,11 +533,11 @@ ng-content 在浏览器中会被 \<div class="heading">\</div> 替代，如果�
 ```javascript
 // app.component.ts
 export class AppComponent {
-	task = {
-		person: {
-			name: "张三",
-		},
-	};
+  task = {
+    person: {
+      name: "张三",
+    },
+  };
 }
 ```
 
@@ -553,10 +558,7 @@ export class AppComponent {
 
 ```html
 <!-- 第二种方式 在 index.html 文件中  -->
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
 ```
 
 ```javascript
@@ -569,11 +571,9 @@ export class AppComponent {
 
 ### 5. 指令 Directive
 
-指令是 Angular 提供的操作 DOM 的途径。指令分为属性指令和结构指令。
-
-属性指令：修改现有元素的外观或行为，使用 [] 包裹。
-
-结构指令：增加、删除 DOM 节点以修改布局，使用\*作为指令前缀
+- 指令是 Angular 提供的操作 DOM 的途径。指令分为属性指令和结构指令。
+- 属性指令：修改现有元素的外观或行为，使用 [] 包裹。
+- 结构指令：增加、删除 DOM 节点以修改布局，使用\*作为指令前缀
 
 #### 5.1 内置指令
 
@@ -619,15 +619,14 @@ list: List[] = [
 
 ```html
 <li
-	*ngFor="
+  *ngFor="
       let item of list;
       let i = index;
       let isEven = even;
       let isOdd = odd;
       let isFirst = first;
       let isLast = last;
-    "
-></li>
+    "></li>
 ```
 
 ```html
@@ -742,7 +741,7 @@ import { SummaryPipe } from './summary.pipe'
 // favorite.component.ts
 import { Input } from "@angular/core";
 export class FavoriteComponent {
-	@Input() isFavorite: boolean = false;
+  @Input() isFavorite: boolean = false;
 }
 ```
 
@@ -756,7 +755,7 @@ export class FavoriteComponent {
 import { Input } from "@angular/core";
 
 export class FavoriteComponent {
-	@Input("is-Favorite") isFavorite: boolean = false;
+  @Input("is-Favorite") isFavorite: boolean = false;
 }
 ```
 
@@ -774,10 +773,10 @@ export class FavoriteComponent {
 import { EventEmitter, Output } from "@angular/core";
 
 export class FavoriteComponent {
-	@Output() change = new EventEmitter();
-	onClick() {
-		this.change.emit({ name: "张三" });
-	}
+  @Output() change = new EventEmitter();
+  onClick() {
+    this.change.emit({ name: "张三" });
+  }
 }
 ```
 
@@ -789,9 +788,9 @@ export class FavoriteComponent {
 ```javascript
 // 父组件类
 export class AppComponent {
-	onChange(event: { name: string }) {
-		console.log(event);
-	}
+  onChange(event: { name: string }) {
+    console.log(event);
+  }
 }
 ```
 
@@ -825,10 +824,10 @@ export class ChildComponent {
 
 ```javascript
 export class ChildComponent implements OnInit {
-	@Input("name") name: string = "";
-	ngOnInit() {
-		console.log(this.name); // "张三"
-	}
+  @Input("name") name: string = "";
+  ngOnInit() {
+    console.log(this.name); // "张三"
+  }
 }
 ```
 
@@ -838,17 +837,17 @@ export class ChildComponent implements OnInit {
 
 ```html
 <app-child>
-	<div #box>Hello Angular</div>
+  <div #box>Hello Angular</div>
 </app-child>
 ```
 
 ```javascript
 export class ChildComponent implements AfterContentInit {
-	@ContentChild("box") box: ElementRef<HTMLDivElement> | undefined;
+  @ContentChild("box") box: ElementRef<HTMLDivElement> | undefined;
 
-	ngAfterContentInit() {
-		console.log(this.box); // <div>Hello Angular</div>
-	}
+  ngAfterContentInit() {
+    console.log(this.box); // <div>Hello Angular</div>
+  }
 }
 ```
 
@@ -863,10 +862,10 @@ export class ChildComponent implements AfterContentInit {
 
 ```javascript
 export class ChildComponent implements AfterViewInit {
-	@ViewChild("p") p: ElementRef<HTMLParagraphElement> | undefined;
-	ngAfterViewInit() {
-		console.log(this.p); // <p>app-child works</p>
-	}
+  @ViewChild("p") p: ElementRef<HTMLParagraphElement> | undefined;
+  ngAfterViewInit() {
+    console.log(this.p); // <p>app-child works</p>
+  }
 }
 ```
 
@@ -889,51 +888,48 @@ export class ChildComponent implements AfterViewInit {
 
 ```javascript
 export class AppComponent {
-	name: string = "张三";
-	age: number = 20;
-	change() {
-		this.name = "李四";
-		this.age = 30;
-	}
+  name: string = "张三";
+  age: number = 20;
+  change() {
+    this.name = "李四";
+    this.age = 30;
+  }
 }
 ```
 
 ```javascript
 export class ChildComponent implements OnChanges {
-	@Input("name") name: string = "";
-	@Input("age") age: number = 0;
+  @Input("name") name: string = "";
+  @Input("age") age: number = 0;
 
-	ngOnChanges(changes: SimpleChanges) {
-		console.log("基本数据类型值变化可以被检测到");
-	}
+  ngOnChanges(changes: SimpleChanges) {
+    console.log("基本数据类型值变化可以被检测到");
+  }
 }
 ```
 
 **引用数据类型变化**
 
 ```html
-<app-child [person]="person"></app-child>
-<button (click)="change()">change</button>
+<app-child [person]="person"></app-child> <button (click)="change()">change</button>
 ```
 
 ```javascript
 export class AppComponent {
-	person = { name: "张三", age: 20 };
-	change() {
-		this.person = { name: "李四", age: 30 };
-	}
+  person = { name: "张三", age: 20 };
+  change() {
+    this.person = { name: "李四", age: 30 };
+  }
 }
 ```
 
 ```javascript
 export class ChildComponent implements OnChanges {
-	@Input("person") person = { name: "", age: 0 };
+  @Input("person") person = { name: "", age: 0 };
 
-	ngOnChanges(changes: SimpleChanges) {
-		console.log(
-			"对于引用数据类型, 只能检测到引用地址发生变化, 对象属性变化不能被检测到"
-		);
-	}
+  ngOnChanges(changes: SimpleChanges) {
+    console.log("对于引用数据类型, 只能检测到引用地址发生变化, 对象属性变化不能被检测到");
+  }
 }
 ```
 
@@ -951,9 +947,9 @@ export class ChildComponent implements OnChanges {
 
 ```javascript
 export class HomeComponent implements OnDestroy {
-	ngOnDestroy() {
-		console.log("组件被卸载");
-	}
+  ngOnDestroy() {
+    console.log("组件被卸载");
+  }
 }
 ```
 
@@ -965,18 +961,18 @@ export class HomeComponent implements OnDestroy {
 
 ```javascript
 class MailService {
-	constructor(APIKEY) {}
+  constructor(APIKEY) {}
 }
 
 class EmailSender {
-	mailService: MailService;
-	constructor() {
-		this.mailService = new MailService("APIKEY1234567890");
-	}
+  mailService: MailService;
+  constructor() {
+    this.mailService = new MailService("APIKEY1234567890");
+  }
 
-	sendMail(mail) {
-		this.mailService.sendMail(mail);
-	}
+  sendMail(mail) {
+    this.mailService.sendMail(mail);
+  }
 }
 
 const emailSender = new EmailSender();
@@ -989,10 +985,10 @@ EmailSender 类运行时要使用 MailService 类，EmailSender 类依赖 MailSe
 
 ```javascript
 class EmailSender {
-	mailService: MailService;
-	constructor(mailService: MailService) {
-		this.mailService = mailService;
-	}
+  mailService: MailService;
+  constructor(mailService: MailService) {
+    this.mailService = mailService;
+  }
 }
 const mailService = new MailService("APIKEY1234567890");
 const emailSender = new EmailSender(mailService);
@@ -1071,17 +1067,13 @@ console.log(mailService1 === mailService2);
 1. 配置注入器的对象，指定了创建实例对象的服务类和访问服务实例对象的标识。
 
 ```javascript
-const injector = ReflectiveInjector.resolveAndCreate([
-	{ provide: MailService, useClass: MailService },
-]);
+const injector = ReflectiveInjector.resolveAndCreate([{ provide: MailService, useClass: MailService }]);
 ```
 
 2. 访问依赖对象的标识也可以是字符串类型
 
 ```javascript
-const injector = ReflectiveInjector.resolveAndCreate([
-	{ provide: "mail", useClass: MailService },
-]);
+const injector = ReflectiveInjector.resolveAndCreate([{ provide: "mail", useClass: MailService }]);
 const mailService = injector.get("mail");
 ```
 
@@ -1089,13 +1081,13 @@ const mailService = injector.get("mail");
 
 ```javascript
 const injector = ReflectiveInjector.resolveAndCreate([
-	{
-		provide: "Config",
-		useValue: Object.freeze({
-			APIKEY: "API1234567890",
-			APISCRET: "500-400-300",
-		}),
-	},
+  {
+    provide: "Config",
+    useValue: Object.freeze({
+      APIKEY: "API1234567890",
+      APISCRET: "500-400-300",
+    }),
+  },
 ]);
 const Config = injector.get("Config");
 ```
@@ -1110,7 +1102,7 @@ const Config = injector.get("Config");
 import { Injectable } from "@angular/core";
 
 @Injectable({
-	providedIn: "root",
+  providedIn: "root",
 })
 export class TestService {}
 ```
@@ -1131,7 +1123,7 @@ export class AppComponent {
 import { Injectable } from "@angular/core";
 
 @Injectable({
-	providedIn: "root",
+  providedIn: "root",
 })
 export class CarListService {}
 ```
@@ -1143,7 +1135,7 @@ import { Injectable } from "@angular/core";
 import { CarModule } from "./car.module";
 
 @Injectable({
-	providedIn: CarModule,
+  providedIn: CarModule,
 })
 export class CarListService {}
 ```
@@ -1152,7 +1144,7 @@ export class CarListService {}
 import { CarListService } from "./car-list.service";
 
 @NgModule({
-	providers: [CarListService],
+  providers: [CarListService],
 })
 export class CarModule {}
 ```
@@ -1188,7 +1180,7 @@ import { CarListService } from '../car-list.service.ts'
 import { FormsModule } from "@angular/forms";
 
 @NgModule({
-	imports: [FormsModule],
+  imports: [FormsModule],
 })
 export class AppModule {}
 ```
@@ -1203,8 +1195,8 @@ export class AppModule {}
 
 ```html
 <form #f="ngForm" (submit)="onSubmit(f)">
-	<input type="text" name="username" ngModel />
-	<button>提交</button>
+  <input type="text" name="username" ngModel />
+  <button>提交</button>
 </form>
 ```
 
@@ -1214,9 +1206,9 @@ export class AppModule {}
 import { NgForm } from "@angular/forms";
 
 export class AppComponent {
-	onSubmit(form: NgForm) {
-		console.log(form.value);
-	}
+  onSubmit(form: NgForm) {
+    console.log(form.value);
+  }
 }
 ```
 
@@ -1224,13 +1216,13 @@ export class AppComponent {
 
 ```html
 <form #f="ngForm" (submit)="onSubmit(f)">
-	<div ngModelGroup="user">
-		<input type="text" name="username" ngModel />
-	</div>
-	<div ngModelGroup="contact">
-		<input type="text" name="phone" ngModel />
-	</div>
-	<button>提交</button>
+  <div ngModelGroup="user">
+    <input type="text" name="username" ngModel />
+  </div>
+  <div ngModelGroup="contact">
+    <input type="text" name="phone" ngModel />
+  </div>
+  <button>提交</button>
 </form>
 ```
 
@@ -1239,21 +1231,22 @@ export class AppComponent {
 - required 必填字段
 - minlength 字段最小长度
 - maxlength 字段最大长度
-- pattern 验证正则 例如：pattern="\d" 匹配一个数值
+- pattern 验证正则 例如：`pattern="\d"` 匹配一个数值
+- ngModel 表明双向绑定
 
 ```html
 <form #f="ngForm" (submit)="onSubmit(f)">
-	<input type="text" name="username" ngModel required pattern="\d" />
-	<button>提交</button>
+  <input type="text" name="username" ngModel required pattern="\d" />
+  <button>提交</button>
 </form>
 ```
 
 ```javascript
 export class AppComponent {
-	onSubmit(form: NgForm) {
-		// 查看表单整体是否验证通过
-		console.log(form.valid);
-	}
+  onSubmit(form: NgForm) {
+    // 查看表单整体是否验证通过
+    console.log(form.valid);
+  }
 }
 ```
 
@@ -1266,21 +1259,33 @@ export class AppComponent {
 
 ```html
 <form #f="ngForm" (submit)="onSubmit(f)">
-	<input #username="ngModel" />
-	<div *ngIf="username.touched && !username.valid && username.errors">
-		<div *ngIf="username.errors.required">请填写用户名</div>
-		<div *ngIf="username.errors.pattern">不符合正则规则</div>
-	</div>
+  <input #username="ngModel" type="text" required />
+  <div *ngIf="username.touched && !username.valid && username.errors">
+    <div *ngIf="username.errors.required">请填写用户名</div>
+    <div *ngIf="username.errors.pattern">不符合正则规则</div>
+  </div>
 </form>
 ```
+
+- 模板引用变量 username 这个对象上有很多有用的属性，比如：valid，value，等等。
 
 指定表单项未通过验证时的样式。
 
 ```css
 input.ng-touched.ng-invalid {
-	border: 2px solid red;
+  border: 2px solid red;
 }
 ```
+
+| 状态             | 为 true 时的 class | 为 false 时的 class |
+| ---------------- | ------------------ | ------------------- |
+| 控件已经被访问过 | ng-touched         | ng-untouched        |
+| 控件值已经变化   | ng-dirty           | ng-pristine         |
+| 控件值是有效的   | ng-valid           | ng-invalid          |
+
+##### 11.1.4 自定义表单验证
+
+1. 引入依赖
 
 #### 11.2 模型驱动
 
@@ -1308,21 +1313,34 @@ input.ng-touched.ng-invalid {
 import { ReactiveFormsModule } from "@angular/forms";
 
 @NgModule({
-	imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
 })
 export class AppModule {}
 ```
 
 2. 在组件类中创建 FormGroup 表单控制对象
 
+> FormControl 简单用法： required 表示必填项
+
+```html
+<input type="text" [formControl]="singleForm" required />
+<p>input: {{singleForm.value}}</p>
+<button (click)="resetSingleForm">reset input above</button>
+```
+
 ```javascript
 import { FormControl, FormGroup } from "@angular/forms";
 
 export class AppComponent {
-	contactForm: FormGroup = new FormGroup({
-		name: new FormControl(),
-		phone: new FormControl(),
-	});
+  contactForm: FormGroup = new FormGroup({
+    name: new FormControl(),
+    phone: new FormControl(),
+  });
+  singleForm = new FormControl("");
+
+  resetSingleForm() {
+    this.singleForm.setValue("");
+  }
 }
 ```
 
@@ -1330,19 +1348,22 @@ export class AppComponent {
 
 ```html
 <form [formGroup]="contactForm" (submit)="onSubmit()">
-	<input type="text" formControlName="name" />
-	<input type="text" formControlName="phone" />
-	<button>提交</button>
+  <input type="text" formControlName="name" />
+  <input type="text" formControlName="phone" />
+  <button>提交</button>
 </form>
+<input type="text" [formControl]="singleForm" />
+<p>input: {{singleForm.value}}</p>
+<button (click)="resetSingleForm">reset input above</button>
 ```
 
 4. 获取表单值
 
 ```javascript
 export class AppComponent {
-	onSubmit() {
-		console.log(this.contactForm.value);
-	}
+  onSubmit() {
+    console.log(this.contactForm.value);
+  }
 }
 ```
 
@@ -1350,8 +1371,8 @@ export class AppComponent {
 
 ```javascript
 contactForm: FormGroup = new FormGroup({
-	name: new FormControl("默认值"),
-	phone: new FormControl(15888888888),
+  name: new FormControl("默认值"),
+  phone: new FormControl(15888888888),
 });
 ```
 
@@ -1359,22 +1380,22 @@ contactForm: FormGroup = new FormGroup({
 
 ```javascript
 contactForm: FormGroup = new FormGroup({
-	fullName: new FormGroup({
-		firstName: new FormControl(),
-		lastName: new FormControl(),
-	}),
-	phone: new FormControl(),
+  fullName: new FormGroup({
+    firstName: new FormControl(),
+    lastName: new FormControl(),
+  }),
+  phone: new FormControl(),
 });
 ```
 
 ```html
 <form [formGroup]="contactForm" (submit)="onSubmit()">
-	<div formGroupName="fullName">
-		<input type="text" formControlName="firstName" />
-		<input type="text" formControlName="lastName" />
-	</div>
-	<input type="text" formControlName="phone" />
-	<button>提交</button>
+  <div formGroupName="fullName">
+    <input type="text" formControlName="firstName" />
+    <input type="text" formControlName="lastName" />
+  </div>
+  <input type="text" formControlName="phone" />
+  <button>提交</button>
 </form>
 ```
 
@@ -1404,7 +1425,7 @@ export class AppComponent implements OnInit {
   })
 
   get contacts() {
-    return this.contactForm.get("contacts") as FormArray
+    return this.contactForm.get("contacts") as FormArray;
   }
 
   // 添加联系方式
@@ -1437,19 +1458,16 @@ export class AppComponent implements OnInit {
 
 ```html
 <form [formGroup]="contactForm" (submit)="onSubmit()">
-	<div formArrayName="contacts">
-		<div
-			*ngFor="let contact of contacts.controls; let i = index"
-			[formGroupName]="i"
-		>
-			<input type="text" formControlName="name" />
-			<input type="text" formControlName="address" />
-			<input type="text" formControlName="phone" />
-			<button (click)="removeContact(i)">删除联系方式</button>
-		</div>
-	</div>
-	<button (click)="addContact()">添加联系方式</button>
-	<button>提交</button>
+  <div formArrayName="contacts">
+    <div *ngFor="let contact of contacts.controls; let i = index" [formGroupName]="i">
+      <input type="text" formControlName="name" />
+      <input type="text" formControlName="address" />
+      <input type="text" formControlName="phone" />
+      <button (click)="removeContact(i)">删除联系方式</button>
+    </div>
+  </div>
+  <button (click)="addContact()">添加联系方式</button>
+  <button>提交</button>
 </form>
 ```
 
@@ -1461,10 +1479,7 @@ export class AppComponent implements OnInit {
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 contactForm: FormGroup = new FormGroup({
-	name: new FormControl("默认值", [
-		Validators.required,
-		Validators.minLength(2),
-	]),
+  name: new FormControl("默认值", [Validators.required, Validators.minLength(2)]),
 });
 ```
 
@@ -1491,14 +1506,14 @@ get name() {
 
 ```html
 <form [formGroup]="contactForm" (submit)="onSubmit()">
-	<input type="text" formControlName="name" />
-	<div *ngIf="name.touched && name.invalid && name.errors">
-		<div *ngIf="name.errors.required">请填写姓名</div>
-		<div *ngIf="name.errors.maxlength">
-			姓名长度不能大于 {{ name.errors.maxlength.requiredLength }} 实际填写长度为
-			{{ name.errors.maxlength.actualLength }}
-		</div>
-	</div>
+  <input type="text" formControlName="name" />
+  <div *ngIf="name.touched && name.invalid && name.errors">
+    <div *ngIf="name.errors.required">请填写姓名</div>
+    <div *ngIf="name.errors.maxlength">
+      姓名长度不能大于 {{ name.errors.maxlength.requiredLength }} 实际填写长度为 {{ name.errors.maxlength.actualLength
+      }}
+    </div>
+  </div>
 </form>
 ```
 
@@ -1515,13 +1530,13 @@ get name() {
 import { AbstractControl, ValidationErrors } from "@angular/forms";
 
 export class NameValidators {
-	// 字段值中不能包含空格
-	static cannotContainSpace(control: AbstractControl): ValidationErrors | null {
-		// 验证未通过
-		if (/\s/.test(control.value)) return { cannotContainSpace: true };
-		// 验证通过
-		return null;
-	}
+  // 字段值中不能包含空格
+  static cannotContainSpace(control: AbstractControl): ValidationErrors | null {
+    // 验证未通过
+    if (/\s/.test(control.value)) return { cannotContainSpace: true };
+    // 验证通过
+    return null;
+  }
 }
 ```
 
@@ -1529,16 +1544,13 @@ export class NameValidators {
 import { NameValidators } from "./Name.validators";
 
 contactForm: FormGroup = new FormGroup({
-	name: new FormControl("", [
-		Validators.required,
-		NameValidators.cannotContainSpace,
-	]),
+  name: new FormControl("", [Validators.required, NameValidators.cannotContainSpace]),
 });
 ```
 
 ```html
 <div *ngIf="name.touched && name.invalid && name.errors">
-	<div *ngIf="name.errors.cannotContainSpace">姓名中不能包含空格</div>
+  <div *ngIf="name.errors.cannotContainSpace">姓名中不能包含空格</div>
 </div>
 ```
 
@@ -1549,33 +1561,27 @@ import { AbstractControl, ValidationErrors } from "@angular/forms";
 import { Observable } from "rxjs";
 
 export class NameValidators {
-	static shouldBeUnique(
-		control: AbstractControl
-	): Promise<ValidationErrors | null> {
-		return new Promise((resolve) => {
-			if (control.value == "admin") {
-				resolve({ shouldBeUnique: true });
-			} else {
-				resolve(null);
-			}
-		});
-	}
+  static shouldBeUnique(control: AbstractControl): Promise<ValidationErrors | null> {
+    return new Promise((resolve) => {
+      if (control.value == "admin") {
+        resolve({ shouldBeUnique: true });
+      } else {
+        resolve(null);
+      }
+    });
+  }
 }
 ```
 
 ```javascript
 contactForm: FormGroup = new FormGroup({
-	name: new FormControl(
-		"",
-		[Validators.required],
-		NameValidators.shouldBeUnique
-	),
+  name: new FormControl("", [Validators.required], NameValidators.shouldBeUnique),
 });
 ```
 
 ```html
 <div *ngIf="name.touched && name.invalid && name.errors">
-	<div *ngIf="name.errors.shouldBeUnique">用户名重复</div>
+  <div *ngIf="name.errors.shouldBeUnique">用户名重复</div>
 </div>
 <div *ngIf="name.pending">正在检测姓名是否重复</div>
 ```
@@ -1596,7 +1602,7 @@ export class AppComponent {
   constructor(private fb: FormBuilder) {
     this.contactForm = this.fb.group({
       fullName: this.fb.group({
-        firstName: ["😝", [Validators.required]],
+        firstName: ["😝", [Validators.required, Validators.maxLength(18), Validators.minLength(1)]],
         lastName: [""]
       }),
       phone: []
@@ -1611,11 +1617,11 @@ export class AppComponent {
 
 ```html
 <form [formGroup]="form" (submit)="onSubmit()">
-	<label *ngFor="let item of Data">
-		<input type="checkbox" [value]="item.value" (change)="onChange($event)" />
-		{{ item.name }}
-	</label>
-	<button>提交</button>
+  <label *ngFor="let item of Data">
+    <input type="checkbox" [value]="item.value" (change)="onChange($event)" />
+    {{ item.name }}
+  </label>
+  <button>提交</button>
 </form>
 ```
 
@@ -1688,9 +1694,9 @@ export class AppComponent {
 
 ```html
 <form [formGroup]="form" (submit)="onSubmit()">
-	<input type="radio" value="male" formControlName="gender" /> Male
-	<input type="radio" value="female" formControlName="gender" /> Female
-	<button type="submit">Submit</button>
+  <input type="radio" value="male" formControlName="gender" /> Male
+  <input type="radio" value="female" formControlName="gender" /> Female
+  <button type="submit">Submit</button>
 </form>
 ```
 
@@ -1723,14 +1729,14 @@ export class AppComponent {
 import { Routes } from "@angular/router";
 
 const routes: Routes = [
-	{
-		path: "home",
-		component: HomeComponent,
-	},
-	{
-		path: "about",
-		component: AboutComponent,
-	},
+  {
+    path: "home",
+    component: HomeComponent,
+  },
+  {
+    path: "about",
+    component: AboutComponent,
+  },
 ];
 ```
 
@@ -1741,7 +1747,7 @@ const routes: Routes = [
 import { RouterModule, Routes } from "@angular/router";
 
 @NgModule({
-	imports: [RouterModule.forRoot(routes, { useHash: true })],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
 })
 export class AppModule {}
 ```
@@ -1765,21 +1771,21 @@ export class AppModule {}
 
 ```javascript
 const routes: Routes = [
-	{
-		path: "home",
-		component: HomeComponent,
-	},
-	{
-		path: "about",
-		component: AboutComponent,
-	},
-	{
-		path: "",
-		// 重定向
-		redirectTo: "home",
-		// 完全匹配
-		pathMatch: "full",
-	},
+  {
+    path: "home",
+    component: HomeComponent,
+  },
+  {
+    path: "about",
+    component: AboutComponent,
+  },
+  {
+    path: "",
+    // 重定向
+    redirectTo: "home",
+    // 完全匹配
+    pathMatch: "full",
+  },
 ];
 ```
 
@@ -1787,18 +1793,18 @@ const routes: Routes = [
 
 ```javascript
 const routes: Routes = [
-	{
-		path: "home",
-		component: HomeComponent,
-	},
-	{
-		path: "about",
-		component: AboutComponent,
-	},
-	{
-		path: "**",
-		component: NotFoundComponent,
-	},
+  {
+    path: "home",
+    component: HomeComponent,
+  },
+  {
+    path: "about",
+    component: AboutComponent,
+  },
+  {
+    path: "**",
+    component: NotFoundComponent,
+  },
 ];
 ```
 
@@ -1828,14 +1834,14 @@ export class AboutComponent implements OnInit {
 
 ```javascript
 const routes: Routes = [
-	{
-		path: "home",
-		component: HomeComponent,
-	},
-	{
-		path: "about/:name",
-		component: AboutComponent,
-	},
+  {
+    path: "home",
+    component: HomeComponent,
+  },
+  {
+    path: "about/:name",
+    component: AboutComponent,
+  },
 ];
 ```
 
@@ -1864,32 +1870,32 @@ export class AboutComponent implements OnInit {
 
 ```javascript
 const routes: Routes = [
-	{
-		path: "about",
-		component: AboutComponent,
-		children: [
-			{
-				path: "introduce",
-				component: IntroduceComponent,
-			},
-			{
-				path: "history",
-				component: HistoryComponent,
-			},
-		],
-	},
+  {
+    path: "about",
+    component: AboutComponent,
+    children: [
+      {
+        path: "introduce",
+        component: IntroduceComponent,
+      },
+      {
+        path: "history",
+        component: HistoryComponent,
+      },
+    ],
+  },
 ];
 ```
 
 ```html
 <!-- about.component.html -->
 <app-layout>
-	<p>about works!</p>
-	<a routerLink="/about/introduce">公司简介</a>
-	<a routerLink="/about/history">发展历史</a>
-	<div>
-		<router-outlet></router-outlet>
-	</div>
+  <p>about works!</p>
+  <a routerLink="/about/introduce">公司简介</a>
+  <a routerLink="/about/history">发展历史</a>
+  <div>
+    <router-outlet></router-outlet>
+  </div>
 </app-layout>
 ```
 
@@ -1919,15 +1925,15 @@ const routes: Routes = [
 ```html
 <!-- about.component.html -->
 <app-layout>
-	<p>about works!</p>
-	<router-outlet name="left"></router-outlet>
-	<router-outlet name="right"></router-outlet>
+  <p>about works!</p>
+  <router-outlet name="left"></router-outlet>
+  <router-outlet name="right"></router-outlet>
 </app-layout>
 ```
 
 ```html
 <a
-	[routerLink]="[
+  [routerLink]="[
       '/about',
       {
         outlets: {
@@ -1936,7 +1942,7 @@ const routes: Routes = [
         }
       }
     ]"
-	>关于我们
+  >关于我们
 </a>
 ```
 
@@ -1974,21 +1980,21 @@ import { HomeComponent } from "./pages/home/home.component";
 import { NotFoundComponent } from "./pages/not-found/not-found.component";
 
 const routes: Routes = [
-	{
-		path: "",
-		component: HomeComponent,
-	},
-	{
-		path: "**",
-		component: NotFoundComponent,
-	},
+  {
+    path: "",
+    component: HomeComponent,
+  },
+  {
+    path: "**",
+    component: NotFoundComponent,
+  },
 ];
 
 @NgModule({
-	declarations: [],
-	imports: [RouterModule.forRoot(routes, { useHash: true })],
-	// 导出 Angular 路由功能模块，因为在根模块的根组件中使用了 RouterModule 模块中提供的路由插座组件
-	exports: [RouterModule],
+  declarations: [],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  // 导出 Angular 路由功能模块，因为在根模块的根组件中使用了 RouterModule 模块中提供的路由插座组件
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}
 ```
@@ -2029,19 +2035,19 @@ import { LoginComponent } from "./pages/login/login.component";
 import { RegisterComponent } from "./pages/register/register.component";
 
 const routes: Routes = [
-	{
-		path: "login",
-		component: LoginComponent,
-	},
-	{
-		path: "register",
-		component: RegisterComponent,
-	},
+  {
+    path: "login",
+    component: LoginComponent,
+  },
+  {
+    path: "register",
+    component: RegisterComponent,
+  },
 ];
 
 @NgModule({
-	imports: [RouterModule.forChild(routes)],
-	exports: [RouterModule],
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class UserRoutingModule {}
 ```
@@ -2051,10 +2057,10 @@ export class UserRoutingModule {}
 ```javascript
 // app-routing.module.ts
 const routes: Routes = [
-	{
-		path: "user",
-		loadChildren: () => import("./user/user.module").then((m) => m.UserModule),
-	},
+  {
+    path: "user",
+    loadChildren: () => import("./user/user.module").then((m) => m.UserModule),
+  },
 ];
 ```
 
@@ -2118,21 +2124,16 @@ export class AuthGuard implements CanActivate {
 
 ```javascript
 import { Injectable } from "@angular/core";
-import {
-	CanActivateChild,
-	ActivatedRouteSnapshot,
-	RouterStateSnapshot,
-	UrlTree,
-} from "@angular/router";
+import { CanActivateChild, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from "@angular/router";
 import { Observable } from "rxjs";
 
 @Injectable({
-	providedIn: "root",
+  providedIn: "root",
 })
 export class AdminGuard implements CanActivateChild {
-	canActivateChild(): boolean | UrlTree {
-		return true;
-	}
+  canActivateChild(): boolean | UrlTree {
+    return true;
+  }
 }
 ```
 
@@ -2156,28 +2157,23 @@ export class AdminGuard implements CanActivateChild {
 
 ```javascript
 import { Injectable } from "@angular/core";
-import {
-	CanDeactivate,
-	ActivatedRouteSnapshot,
-	RouterStateSnapshot,
-	UrlTree,
-} from "@angular/router";
+import { CanDeactivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from "@angular/router";
 import { Observable } from "rxjs";
 
 export interface CanComponentLeave {
-	canLeave: () => boolean;
+  canLeave: () => boolean;
 }
 
 @Injectable({
-	providedIn: "root",
+  providedIn: "root",
 })
 export class UnsaveGuard implements CanDeactivate<CanComponentLeave> {
-	canDeactivate(component: CanComponentLeave): boolean {
-		if (component.canLeave()) {
-			return true;
-		}
-		return false;
-	}
+  canDeactivate(component: CanComponentLeave): boolean {
+    if (component.canLeave()) {
+      return true;
+    }
+    return false;
+  }
 }
 ```
 
@@ -2222,16 +2218,16 @@ import { Resolve } from "@angular/router";
 type returnType = Promise<{ name: string }>;
 
 @Injectable({
-	providedIn: "root",
+  providedIn: "root",
 })
 export class ResolveGuard implements Resolve<returnType> {
-	resolve(): returnType {
-		return new Promise(function (resolve) {
-			setTimeout(() => {
-				resolve({ name: "张三" });
-			}, 2000);
-		});
-	}
+  resolve(): returnType {
+    return new Promise(function (resolve) {
+      setTimeout(() => {
+        resolve({ name: "张三" });
+      }, 2000);
+    });
+  }
 }
 ```
 
@@ -2284,17 +2280,17 @@ RxJS 是一个用于处理异步编程的 JavaScript 库，目标是使编写异
 import { Observable } from "rxjs";
 
 const observable = new Observable(function (observer) {
-	setTimeout(function () {
-		observer.next({
-			name: "张三",
-		});
-	}, 2000);
+  setTimeout(function () {
+    observer.next({
+      name: "张三",
+    });
+  }, 2000);
 });
 
 const observer = {
-	next: function (value) {
-		console.log(value);
-	},
+  next: function (value) {
+    console.log(value);
+  },
 };
 
 observable.subscribe(observer);
@@ -2308,16 +2304,16 @@ observable.subscribe(observer);
 
 ```javascript
 const observable = new Observable(function (observer) {
-	let index = 0;
-	setInterval(function () {
-		observer.next(index++);
-	}, 1000);
+  let index = 0;
+  setInterval(function () {
+    observer.next(index++);
+  }, 1000);
 });
 
 const observer = {
-	next: function (value) {
-		console.log(value);
-	},
+  next: function (value) {
+    console.log(value);
+  },
 };
 
 observable.subscribe(observer);
@@ -2327,23 +2323,23 @@ observable.subscribe(observer);
 
 ```javascript
 const observable = new Observable(function (observer) {
-	let index = 0;
-	let timer = setInterval(function () {
-		observer.next(index++);
-		if (index === 3) {
-			observer.complete();
-			clearInterval(timer);
-		}
-	}, 1000);
+  let index = 0;
+  let timer = setInterval(function () {
+    observer.next(index++);
+    if (index === 3) {
+      observer.complete();
+      clearInterval(timer);
+    }
+  }, 1000);
 });
 
 const observer = {
-	next: function (value) {
-		console.log(value);
-	},
-	complete: function () {
-		console.log("数据发送完成");
-	},
+  next: function (value) {
+    console.log(value);
+  },
+  complete: function () {
+    console.log("数据发送完成");
+  },
 };
 
 observable.subscribe(observer);
@@ -2355,23 +2351,23 @@ observable.subscribe(observer);
 import { Observable } from "rxjs";
 
 const observable = new Observable(function (observer) {
-	let index = 0;
-	let timer = setInterval(function () {
-		observer.next(index++);
-		if (index === 3) {
-			observer.error("发生错误");
-			clearInterval(timer);
-		}
-	}, 1000);
+  let index = 0;
+  let timer = setInterval(function () {
+    observer.next(index++);
+    if (index === 3) {
+      observer.error("发生错误");
+      clearInterval(timer);
+    }
+  }, 1000);
 });
 
 const observer = {
-	next: function (value) {
-		console.log(value);
-	},
-	error: function (error) {
-		console.log(error);
-	},
+  next: function (value) {
+    console.log(value);
+  },
+  error: function (error) {
+    console.log(error);
+  },
 };
 
 observable.subscribe(observer);
@@ -2381,7 +2377,7 @@ observable.subscribe(observer);
 
 ```javascript
 const observable = new Observable(function () {
-	console.log("Hello RxJS");
+  console.log("Hello RxJS");
 });
 // observable.subscribe()
 ```
@@ -2392,7 +2388,7 @@ const observable = new Observable(function () {
 
 ```javascript
 const observable = new Observable(function () {
-	console.log("Hello RxJS");
+  console.log("Hello RxJS");
 });
 
 observable.subscribe();
@@ -2411,7 +2407,7 @@ const obs = interval(1000);
 const subscription = obs.subscribe(console.log);
 
 setTimeout(function () {
-	subscription.unsubscribe();
+  subscription.unsubscribe();
 }, 2000);
 ```
 
@@ -2425,18 +2421,18 @@ import { Subject } from "rxjs";
 const demoSubject = new Subject();
 
 demoSubject.subscribe({
-	next: function (value) {
-		console.log(value);
-	},
+  next: function (value) {
+    console.log(value);
+  },
 });
 demoSubject.subscribe({
-	next: function (value) {
-		console.log(value);
-	},
+  next: function (value) {
+    console.log(value);
+  },
 });
 
 setTimeout(function () {
-	demoSubject.next("hahaha");
+  demoSubject.next("hahaha");
 }, 3000);
 ```
 
@@ -2449,9 +2445,9 @@ import { BehaviorSubject } from "rxjs";
 
 const demoBehavior = new BehaviorSubject("默认值");
 demoBehavior.subscribe({
-	next: function (value) {
-		console.log(value);
-	},
+  next: function (value) {
+    console.log(value);
+  },
 });
 demoBehavior.next("Hello");
 ```
@@ -2466,18 +2462,18 @@ import { ReplaySubject } from "rxjs";
 const rSubject = new ReplaySubject();
 
 rSubject.subscribe((value) => {
-	console.log(value);
+  console.log(value);
 });
 
 rSubject.next("Hello 1");
 rSubject.next("Hello 2");
 
 setTimeout(function () {
-	rSubject.subscribe({
-		next: function (value) {
-			console.log(value);
-		},
-	});
+  rSubject.subscribe({
+    next: function (value) {
+      console.log(value);
+    },
+  });
 }, 3000);
 ```
 
@@ -2530,9 +2526,9 @@ from(["a", "b", "c"]).subscribe((v) => console.log(v));
 import { from } from "rxjs";
 
 function p() {
-	return new Promise(function (resolve) {
-		resolve([100, 200]);
-	});
+  return new Promise(function (resolve) {
+    resolve([100, 200]);
+  });
 }
 
 from(p()).subscribe((v) => console.log(v));
@@ -2623,8 +2619,8 @@ let name = of("Foo", "Bar", "Beer");
 let isDev = of(true, true, false);
 
 zip(name, age, isDev)
-	.pipe(map(([name, age, isDev]) => ({ name, age, isDev })))
-	.subscribe(console.log);
+  .pipe(map(([name, age, isDev]) => ({ name, age, isDev })))
+  .subscribe(console.log);
 
 // { name: 'Foo', age: 27, isDev: true }
 // { name: 'Bar', age: 25, isDev: true }
@@ -2644,8 +2640,8 @@ import { forkJoin, from } from "rxjs";
 axios.interceptors.response.use((response) => response.data);
 
 forkJoin({
-	goods: from(axios.get("http://localhost:3005/goods")),
-	category: from(axios.get("http://localhost:3005/category")),
+  goods: from(axios.get("http://localhost:3005/goods")),
+  category: from(axios.get("http://localhost:3005/category")),
 }).subscribe(console.log);
 ```
 
@@ -2672,19 +2668,19 @@ import { interval, of, throwError } from "rxjs";
 import { mergeMap, retry } from "rxjs/operators";
 
 interval(1000)
-	.pipe(
-		mergeMap((val) => {
-			if (val > 2) {
-				return throwError("Error!");
-			}
-			return of(val);
-		}),
-		retry(2)
-	)
-	.subscribe({
-		next: console.log,
-		error: console.log,
-	});
+  .pipe(
+    mergeMap((val) => {
+      if (val > 2) {
+        return throwError("Error!");
+      }
+      return of(val);
+    }),
+    retry(2)
+  )
+  .subscribe({
+    next: console.log,
+    error: console.log,
+  });
 ```
 
 ##### 13.3.12 race
@@ -2730,8 +2726,8 @@ import { interval } from "rxjs";
 import { map } from "rxjs/operators";
 
 interval(1000)
-	.pipe(map((n) => n * 2))
-	.subscribe((n) => console.log(n));
+  .pipe(map((n) => n * 2))
+  .subscribe((n) => console.log(n));
 ```
 
 **mapTo**：对数据流进行转换，不关心原有值，可以直接传入要转换后的值。
@@ -2743,8 +2739,8 @@ import { interval } from "rxjs";
 import { mapTo } from "rxjs/operators";
 
 interval(1000)
-	.pipe(mapTo({ msg: "接收到了数据流" }))
-	.subscribe((msg) => console.log(msg));
+  .pipe(mapTo({ msg: "接收到了数据流" }))
+  .subscribe((msg) => console.log(msg));
 ```
 
 ##### 13.4.2 filter
@@ -2758,8 +2754,8 @@ import { range } from "rxjs";
 import { filter } from "rxjs/operators";
 
 range(1, 10)
-	.pipe(filter((n) => n % 2 === 0))
-	.subscribe((even) => console.log(even));
+  .pipe(filter((n) => n % 2 === 0))
+  .subscribe((even) => console.log(even));
 ```
 
 ##### 13.4.3 pluck
@@ -2773,8 +2769,8 @@ import { interval } from "rxjs";
 import { pluck, mapTo } from "rxjs/operators";
 
 interval(1000)
-	.pipe(mapTo({ name: "张三", a: { b: "c" } }), pluck("a", "b"))
-	.subscribe((n) => console.log(n));
+  .pipe(mapTo({ name: "张三", a: { b: "c" } }), pluck("a", "b"))
+  .subscribe((n) => console.log(n));
 ```
 
 ##### 13.4.4 first
@@ -2788,12 +2784,12 @@ import { interval } from "rxjs";
 import { first } from "rxjs/operators";
 
 interval(1000)
-	.pipe(first())
-	.subscribe((n) => console.log(n));
+  .pipe(first())
+  .subscribe((n) => console.log(n));
 
 interval(1000)
-	.pipe(first((n) => n === 3))
-	.subscribe((n) => console.log(n));
+  .pipe(first((n) => n === 3))
+  .subscribe((n) => console.log(n));
 ```
 
 ##### 13.4.5 startWith
@@ -2809,11 +2805,11 @@ import { interval } from "rxjs";
 import { map, startWith } from "rxjs/operators";
 
 interval(1000)
-	.pipe(
-		map((n) => n + 100),
-		startWith(505)
-	)
-	.subscribe((n) => console.log(n));
+  .pipe(
+    map((n) => n + 100),
+    startWith(505)
+  )
+  .subscribe((n) => console.log(n));
 // 505
 // 100
 // 101
@@ -2832,11 +2828,11 @@ import { range } from "rxjs";
 import { every, map } from "rxjs/operators";
 
 range(1, 9)
-	.pipe(
-		map((n) => n * 2),
-		every((n) => n % 2 === 0)
-	)
-	.subscribe((b) => console.log(b));
+  .pipe(
+    map((n) => n * 2),
+    every((n) => n % 2 === 0)
+  )
+  .subscribe((b) => console.log(b));
 ```
 
 ##### 13.4.7 delay、delayWhen
@@ -2850,14 +2846,14 @@ import { from } from "rxjs";
 import { delay, map, tap } from "rxjs/operators";
 
 from([1, 2, 3])
-	.pipe(
-		delay(1000),
-		tap((n) => console.log("已经延迟 1s", n)),
-		map((n) => n * 2),
-		delay(1000),
-		tap(() => console.log("又延迟了 1s"))
-	)
-	.subscribe(console.log);
+  .pipe(
+    delay(1000),
+    tap((n) => console.log("已经延迟 1s", n)),
+    map((n) => n * 2),
+    delay(1000),
+    tap(() => console.log("又延迟了 1s"))
+  )
+  .subscribe(console.log);
 
 // tap 操作符不会对数据流造成影响, 它被用来执行简单的副作用, 比如输出, 但是复杂的副作用不要在这执行, 比如 Ajax
 ```
@@ -2871,13 +2867,13 @@ import { range, timer } from "rxjs";
 import { delayWhen } from "rxjs/operators";
 
 range(1, 10)
-	.pipe(
-		delayWhen((n) => {
-			console.log(n);
-			return timer(n * 1000);
-		})
-	)
-	.subscribe(console.log);
+  .pipe(
+    delayWhen((n) => {
+      console.log(n);
+      return timer(n * 1000);
+    })
+  )
+  .subscribe(console.log);
 ```
 
 ##### 13.4.8 take、takeWhile、takeUtil
@@ -2902,8 +2898,8 @@ import { range } from "rxjs";
 import { takeWhile } from "rxjs/operators";
 
 range(1, 10)
-	.pipe(takeWhile((n) => n < 8))
-	.subscribe(console.log);
+  .pipe(takeWhile((n) => n < 8))
+  .subscribe(console.log);
 ```
 
 **takeUntil**：接收可观察对象，当可观察对象发出值时，终止主数据源。
@@ -2915,8 +2911,8 @@ import { interval, timer } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 interval(100)
-	.pipe(takeUntil(timer(2000)))
-	.subscribe(console.log);
+  .pipe(takeUntil(timer(2000)))
+  .subscribe(console.log);
 // 结果少两个数据流的原因：第一次和最后一次，都需要延迟 100 毫秒。
 ```
 
@@ -2942,8 +2938,8 @@ import { range } from "rxjs";
 import { skipWhile } from "rxjs/operators";
 
 range(1, 10)
-	.pipe(skipWhile((n) => n < 5))
-	.subscribe(console.log);
+  .pipe(skipWhile((n) => n < 5))
+  .subscribe(console.log);
 ```
 
 **skipUntil**：跳过数据源中前多少时间发出的数据流，发送从这个时间以后数据源中发送的数据流。
@@ -2955,8 +2951,8 @@ import { timer, interval } from "rxjs";
 import { skipUntil } from "rxjs/operators";
 
 interval(100)
-	.pipe(skipUntil(timer(2000)))
-	.subscribe(console.log);
+  .pipe(skipUntil(timer(2000)))
+  .subscribe(console.log);
 ```
 
 ##### 13.4.10 last
@@ -2996,11 +2992,11 @@ import { fromEvent, interval } from "rxjs";
 import { map, take, concatAll } from "rxjs/operators";
 
 fromEvent(document, "click")
-	.pipe(
-		map((event) => interval(1000).pipe(take(2))),
-		concatAll()
-	)
-	.subscribe(console.log);
+  .pipe(
+    map((event) => interval(1000).pipe(take(2))),
+    concatAll()
+  )
+  .subscribe(console.log);
 ```
 
 ```javascript
@@ -3008,11 +3004,11 @@ import { map, concatAll } from "rxjs/operators";
 import { of, interval } from "rxjs";
 
 interval(1000)
-	.pipe(
-		map((val) => of(val + 10)),
-		concatAll()
-	)
-	.subscribe(console.log);
+  .pipe(
+    map((val) => of(val + 10)),
+    concatAll()
+  )
+  .subscribe(console.log);
 ```
 
 **concatMap**：合并可观察对象并处理其发出的数据流。
@@ -3030,11 +3026,11 @@ import { interval } from "rxjs";
 import { take, reduce } from "rxjs/operators";
 
 interval(500)
-	.pipe(
-		take(5),
-		reduce((acc, value) => (acc += value), 0)
-	)
-	.subscribe((v) => console.log());
+  .pipe(
+    take(5),
+    reduce((acc, value) => (acc += value), 0)
+  )
+  .subscribe((v) => console.log());
 ```
 
 **scan**：类似 reduce，进行累计操作，但执行时机不同，数据源每次发出数据流 scan 都会执行。reduce 是发送出最终计算的结果，而 scan 是发出每次计算的结果。
@@ -3046,11 +3042,11 @@ import { interval } from "rxjs";
 import { take, scan } from "rxjs/operators";
 
 interval(500)
-	.pipe(
-		take(5),
-		scan((acc, value) => (acc += value), 0)
-	)
-	.subscribe((v) => console.log());
+  .pipe(
+    take(5),
+    scan((acc, value) => (acc += value), 0)
+  )
+  .subscribe((v) => console.log());
 ```
 
 ##### 13.4.14 mergeAll、mergeMap
@@ -3064,11 +3060,11 @@ import { fromEvent, interval } from "rxjs";
 import { map, mergeAll } from "rxjs/operators";
 
 fromEvent(document, "click")
-	.pipe(
-		map(() => interval(1000)),
-		mergeAll()
-	)
-	.subscribe(console.log);
+  .pipe(
+    map(() => interval(1000)),
+    mergeAll()
+  )
+  .subscribe(console.log);
 ```
 
 **mergeMap**：交叉合并可观察对象以后对可观察对象发出的数据流进行转换。
@@ -3080,8 +3076,8 @@ import { of, interval } from "rxjs";
 import { mergeMap, map } from "rxjs/operators";
 
 of("a", "b", "c")
-	.pipe(mergeMap((x) => interval(1000).pipe(map((i) => x + i))))
-	.subscribe((x) => console.log(x));
+  .pipe(mergeMap((x) => interval(1000).pipe(map((i) => x + i))))
+  .subscribe((x) => console.log(x));
 ```
 
 ##### 13.4.15 throttleTime
@@ -3095,8 +3091,8 @@ import { fromEvent } from "rxjs";
 import { throttleTime } from "rxjs/operators";
 
 fromEvent(document, "click")
-	.pipe(throttleTime(2000))
-	.subscribe((x) => console.log(x));
+  .pipe(throttleTime(2000))
+  .subscribe((x) => console.log(x));
 ```
 
 ##### 13.4.16 debounceTime
@@ -3110,8 +3106,8 @@ import { fromEvent } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 
 fromEvent(document, "click")
-	.pipe(debounceTime(1000))
-	.subscribe((x) => console.log(x));
+  .pipe(debounceTime(1000))
+  .subscribe((x) => console.log(x));
 ```
 
 ##### 13.4.17 distinctUntilChanged
@@ -3125,8 +3121,8 @@ import { of } from "rxjs";
 import { distinctUntilChanged } from "rxjs/operators";
 
 of(1, 1, 2, 2, 2, 1, 1, 2, 3, 3, 4)
-	.pipe(distinctUntilChanged())
-	.subscribe((x) => console.log(x)); // 1, 2, 1, 2, 3, 4
+  .pipe(distinctUntilChanged())
+  .subscribe((x) => console.log(x)); // 1, 2, 1, 2, 3, 4
 ```
 
 ##### 13.4.18 groupBy
@@ -3139,17 +3135,12 @@ of(1, 1, 2, 2, 2, 1, 1, 2, 3, 3, 4)
 import { of } from "rxjs";
 import { mergeMap, groupBy, toArray } from "rxjs/operators";
 
-of(
-	{ name: "Sue", age: 25 },
-	{ name: "Joe", age: 30 },
-	{ name: "Frank", age: 25 },
-	{ name: "Sarah", age: 35 }
-)
-	.pipe(
-		groupBy((person) => person.age),
-		mergeMap((group) => group.pipe(toArray()))
-	)
-	.subscribe(console.log);
+of({ name: "Sue", age: 25 }, { name: "Joe", age: 30 }, { name: "Frank", age: 25 }, { name: "Sarah", age: 35 })
+  .pipe(
+    groupBy((person) => person.age),
+    mergeMap((group) => group.pipe(toArray()))
+  )
+  .subscribe(console.log);
 
 // [{name: "Sue", age: 25}, { name: "Frank", age: 25 }]
 // [{ name: "Joe", age: 30 }]
@@ -3182,8 +3173,8 @@ import { fromEvent, interval } from "rxjs";
 import { switchMap } from "rxjs/operators";
 
 fromEvent(document, "click")
-	.pipe(switchMap((ev) => interval(1000)))
-	.subscribe((x) => console.log(x));
+  .pipe(switchMap((ev) => interval(1000)))
+  .subscribe((x) => console.log(x));
 ```
 
 #### 13.5 练习
@@ -3192,14 +3183,14 @@ fromEvent(document, "click")
 
 ```html
 <style>
-	#box {
-		width: 200px;
-		height: 200px;
-		background: skyblue;
-		position: absolute;
-		left: 0;
-		top: 0;
-	}
+  #box {
+    width: 200px;
+    height: 200px;
+    background: skyblue;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
 </style>
 <div id="box"></div>
 ```
@@ -3207,17 +3198,17 @@ fromEvent(document, "click")
 ```javascript
 // 原生 JavaScript
 box.onmousedown = function (event) {
-	let distanceX = event.clientX - event.target.offsetLeft;
-	let distanceY = event.clientY - event.target.offsetTop;
-	document.onmousemove = function (event) {
-		let positionX = event.clientX - distanceX;
-		let positionY = event.clientY - distanceY;
-		box.style.left = positionX + "px";
-		box.style.top = positionY + "px";
-	};
-	box.onmouseup = function () {
-		document.onmousemove = null;
-	};
+  let distanceX = event.clientX - event.target.offsetLeft;
+  let distanceY = event.clientY - event.target.offsetTop;
+  document.onmousemove = function (event) {
+    let positionX = event.clientX - distanceX;
+    let positionY = event.clientY - distanceY;
+    box.style.left = positionX + "px";
+    box.style.top = positionY + "px";
+  };
+  box.onmouseup = function () {
+    document.onmousemove = null;
+  };
 };
 ```
 
@@ -3229,25 +3220,25 @@ import { map, switchMap, takeUntil } from "rxjs/operators";
 const box = document.getElementById("box");
 
 fromEvent(box, "mousedown")
-	.pipe(
-		map((event) => ({
-			distanceX: event.clientX - event.target.offsetLeft,
-			distanceY: event.clientY - event.target.offsetTop,
-		})),
-		switchMap(({ distanceX, distanceY }) =>
-			fromEvent(document, "mousemove").pipe(
-				map((event) => ({
-					positionX: event.clientX - distanceX,
-					positionY: event.clientY - distanceY,
-				})),
-				takeUntil(fromEvent(document, "mouseup"))
-			)
-		)
-	)
-	.subscribe(({ positionX, positionY }) => {
-		box.style.left = positionX + "px";
-		box.style.top = positionY + "px";
-	});
+  .pipe(
+    map((event) => ({
+      distanceX: event.clientX - event.target.offsetLeft,
+      distanceY: event.clientY - event.target.offsetTop,
+    })),
+    switchMap(({ distanceX, distanceY }) =>
+      fromEvent(document, "mousemove").pipe(
+        map((event) => ({
+          positionX: event.clientX - distanceX,
+          positionY: event.clientY - distanceY,
+        })),
+        takeUntil(fromEvent(document, "mouseup"))
+      )
+    )
+  )
+  .subscribe(({ positionX, positionY }) => {
+    box.style.left = positionX + "px";
+    box.style.top = positionY + "px";
+  });
 ```
 
 ##### 13.5.2 搜索
@@ -3258,39 +3249,31 @@ fromEvent(box, "mousedown")
 
 ```javascript
 import { fromEvent, from, throwError } from "rxjs";
-import {
-	debounceTime,
-	distinctUntilChanged,
-	map,
-	switchMap,
-	catchError,
-} from "rxjs/operators";
+import { debounceTime, distinctUntilChanged, map, switchMap, catchError } from "rxjs/operators";
 import axios from "axios";
 
 const search = document.getElementById("search");
 
 fromEvent(search, "keyup")
-	.pipe(
-		debounceTime(700),
-		map((event) => event.target.value),
-		distinctUntilChanged(),
-		switchMap((keyword) =>
-			from(
-				axios.get(`https://j1sonplaceholder.typicode.com/posts?q=${keyword}`)
-			).pipe(
-				map((response) => response.data),
-				catchError((error) => throwError(`发生了错误: ${error.message}`))
-			)
-		)
-	)
-	.subscribe({
-		next: (value) => {
-			console.log(value);
-		},
-		error: (error) => {
-			console.log(error);
-		},
-	});
+  .pipe(
+    debounceTime(700),
+    map((event) => event.target.value),
+    distinctUntilChanged(),
+    switchMap((keyword) =>
+      from(axios.get(`https://j1sonplaceholder.typicode.com/posts?q=${keyword}`)).pipe(
+        map((response) => response.data),
+        catchError((error) => throwError(`发生了错误: ${error.message}`))
+      )
+    )
+  )
+  .subscribe({
+    next: (value) => {
+      console.log(value);
+    },
+    error: (error) => {
+      console.log(error);
+    },
+  });
 ```
 
 ##### 13.5.3 串联请求
@@ -3309,17 +3292,11 @@ import { pluck, concatMap } from "rxjs/operators";
 const button = document.getElementById("btn");
 
 fromEvent(button, "click")
-	.pipe(
-		concatMap((event) =>
-			from(axios.get("http://localhost:3005/token")).pipe(
-				pluck("data", "token")
-			)
-		),
-		concatMap((token) =>
-			from(axios.get("http://localhost:3005/userInfo")).pipe(pluck("data"))
-		)
-	)
-	.subscribe(console.log);
+  .pipe(
+    concatMap((event) => from(axios.get("http://localhost:3005/token")).pipe(pluck("data", "token"))),
+    concatMap((token) => from(axios.get("http://localhost:3005/userInfo")).pipe(pluck("data")))
+  )
+  .subscribe(console.log);
 ```
 
 ### 14. HttpClientModule
@@ -3399,11 +3376,11 @@ export declare class HttpParams {
 
 ```javascript
 declare interface HttpParamsOptions {
-	fromString?: string;
-	fromObject?: {
-		[param: string]: string | ReadonlyArray<string>,
-	};
-	encoder?: HttpParameterCodec;
+  fromString?: string;
+  fromObject?: {
+    [param: string]: string | ReadonlyArray<string>,
+  };
+  encoder?: HttpParameterCodec;
 }
 ```
 
@@ -3449,9 +3426,7 @@ declare type HttpObserve = "body" | "response";
 ```
 
 ```javascript
-this.http
-	.get("https://jsonplaceholder.typicode.com/users", { observe: "body" })
-	.subscribe(console.log);
+this.http.get("https://jsonplaceholder.typicode.com/users", { observe: "body" }).subscribe(console.log);
 ```
 
 #### 14.6 拦截器
@@ -3469,23 +3444,23 @@ this.http
 ```javascript
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-	constructor() {}
-	// 拦截方法
-	intercept(
-		// unknown 指定请求体 (body) 的类型
-		request: HttpRequest<unknown>,
-		next: HttpHandler
-		// unknown 指定响应内容 (body) 的类型
-	): Observable<HttpEvent<unknown>> {
-		// 克隆并修改请求头
-		const req = request.clone({
-			setHeaders: {
-				Authorization: "Bearer xxxxxxx",
-			},
-		});
-		// 通过回调函数将修改后的请求头回传给应用
-		return next.handle(req);
-	}
+  constructor() {}
+  // 拦截方法
+  intercept(
+    // unknown 指定请求体 (body) 的类型
+    request: HttpRequest<unknown>,
+    next: HttpHandler
+    // unknown 指定响应内容 (body) 的类型
+  ): Observable<HttpEvent<unknown>> {
+    // 克隆并修改请求头
+    const req = request.clone({
+      setHeaders: {
+        Authorization: "Bearer xxxxxxx",
+      },
+    });
+    // 通过回调函数将修改后的请求头回传给应用
+    return next.handle(req);
+  }
 }
 ```
 
@@ -3494,14 +3469,14 @@ export class AuthInterceptor implements HttpInterceptor {
 ```javascript
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-	constructor() {}
-	// 拦截方法
-	intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<any> {
-		return next.handle(request).pipe(
-			retry(2),
-			catchError((error: HttpErrorResponse) => throwError(error))
-		);
-	}
+  constructor() {}
+  // 拦截方法
+  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<any> {
+    return next.handle(request).pipe(
+      retry(2),
+      catchError((error: HttpErrorResponse) => throwError(error))
+    );
+  }
 }
 ```
 
@@ -3528,11 +3503,11 @@ import { HTTP_INTERCEPTORS } from "@angular/common/http"
 
 ```json
 {
-	"/api/*": {
-		"target": "http://localhost:3070",
-		"secure": false,
-		"changeOrigin": true
-	}
+  "/api/*": {
+    "target": "http://localhost:3070",
+    "secure": false,
+    "changeOrigin": true
+  }
 }
 ```
 
@@ -3616,17 +3591,17 @@ import { decrement, increment } from "../actions/counter.actions";
 export const counterFeatureKey = "counter";
 
 export interface State {
-	count: number;
+  count: number;
 }
 
 export const initialState: State = {
-	count: 0,
+  count: 0,
 };
 
 export const reducer = createReducer(
-	initialState,
-	on(increment, (state) => ({ count: state.count + 1 })),
-	on(decrement, (state) => ({ count: state.count - 1 }))
+  initialState,
+  on(increment, (state) => ({ count: state.count + 1 })),
+  on(decrement, (state) => ({ count: state.count - 1 }))
 );
 ```
 
@@ -3697,8 +3672,8 @@ export declare function props<P extends object>(): Props<P>;
 
 ```javascript
 export const reducer = createReducer(
-	initialState,
-	on(increment, (state, action) => ({ count: state.count + action.count }))
+  initialState,
+  on(increment, (state, action) => ({ count: state.count + action.count }))
 );
 ```
 
@@ -3708,14 +3683,12 @@ metaReducer 是 Action -> Reducer 之间的钩子，允许开发者对 Action �
 
 ```javascript
 function debug(reducer: ActionReducer<any>): ActionReducer<any> {
-	return function (state, action) {
-		return reducer(state, action);
-	};
+  return function (state, action) {
+    return reducer(state, action);
+  };
 }
 
-export const metaReducers: MetaReducer<AppState>[] = !environment.production
-	? [debug]
-	: [];
+export const metaReducers: MetaReducer<AppState>[] = !environment.production ? [debug] : [];
 ```
 
 #### 15.5 Effect
@@ -3832,8 +3805,7 @@ export const initialState: State = adapter.getInitialState()
 // selectAll 获取所有数据 以数组形式呈现
 // selectEntities 获取实体集合 以字典形式呈现
 // selectIds 获取id集合, 以数组形式呈现
-const { selectIds, selectEntities, selectAll, selectTotal } =
-	adapter.getSelectors();
+const { selectIds, selectEntities, selectAll, selectTotal } = adapter.getSelectors();
 ```
 
 ```javascript
@@ -3851,7 +3823,7 @@ export const selectTodos = createSelector(selectTodo, selectAll)
 import { StoreRouterConnectingModule } from "@ngrx/router-store";
 
 @NgModule({
-	imports: [StoreRouterConnectingModule.forRoot()],
+  imports: [StoreRouterConnectingModule.forRoot()],
 })
 export class AppModule {}
 ```
@@ -3862,10 +3834,10 @@ export class AppModule {}
 import * as fromRouter from "@ngrx/router-store";
 
 export interface AppState {
-	router: fromRouter.RouterReducerState;
+  router: fromRouter.RouterReducerState;
 }
 export const reducers: ActionReducerMap<AppState> = {
-	router: fromRouter.routerReducer,
+  router: fromRouter.routerReducer,
 };
 ```
 
@@ -3956,7 +3928,7 @@ custom：自定义状态，元素默认就在页面之中，从一个状态运�
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 @NgModule({
-	imports: [BrowserAnimationsModule],
+  imports: [BrowserAnimationsModule],
 })
 export class AppModule {}
 ```
@@ -3965,33 +3937,18 @@ export class AppModule {}
 
 ```html
 <!-- 在 index.html 文件中引入 bootstrap.min.css -->
-<link
-	rel="stylesheet"
-	href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
-/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" />
 ```
 
 ```html
 <div class="container">
-	<h2>Todos</h2>
-	<div class="form-group">
-		<input
-			(keyup.enter)="addItem(input)"
-			#input
-			type="text"
-			class="form-control"
-			placeholder="add todos"
-		/>
-	</div>
-	<ul class="list-group">
-		<li
-			(click)="removeItem(i)"
-			*ngFor="let item of todos; let i = index"
-			class="list-group-item"
-		>
-			{{ item }}
-		</li>
-	</ul>
+  <h2>Todos</h2>
+  <div class="form-group">
+    <input (keyup.enter)="addItem(input)" #input type="text" class="form-control" placeholder="add todos" />
+  </div>
+  <ul class="list-group">
+    <li (click)="removeItem(i)" *ngFor="let item of todos; let i = index" class="list-group-item">{{ item }}</li>
+  </ul>
 </div>
 ```
 
@@ -3999,22 +3956,22 @@ export class AppModule {}
 import { Component } from "@angular/core";
 
 @Component({
-	selector: "app-root",
-	templateUrl: "./app.component.html",
-	styles: [],
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styles: [],
 })
 export class AppComponent {
-	// todo 列表
-	todos: string[] = ["Learn Angular", "Learn RxJS", "Learn NgRx"];
-	// 添加 todo
-	addItem(input: HTMLInputElement) {
-		this.todos.push(input.value);
-		input.value = "";
-	}
-	// 删除 todo
-	removeItem(index: number) {
-		this.todos.splice(index, 1);
-	}
+  // todo 列表
+  todos: string[] = ["Learn Angular", "Learn RxJS", "Learn NgRx"];
+  // 添加 todo
+  addItem(input: HTMLInputElement) {
+    this.todos.push(input.value);
+    input.value = "";
+  }
+  // 删除 todo
+  removeItem(index: number) {
+    this.todos.splice(index, 1);
+  }
 }
 ```
 
@@ -4057,13 +4014,8 @@ export class AppComponent {
 
 ```javascript
 trigger("slide", [
-	transition(":enter", [
-		style({ opacity: 0, transform: "translateY(40px)" }),
-		animate(250),
-	]),
-	transition(":leave", [
-		animate(600, style({ opacity: 0, transform: "translateX(100%)" })),
-	]),
+  transition(":enter", [style({ opacity: 0, transform: "translateY(40px)" }), animate(250)]),
+  transition(":leave", [animate(600, style({ opacity: 0, transform: "translateX(100%)" }))]),
 ]);
 ```
 
@@ -4071,10 +4023,7 @@ trigger("slide", [
 
 ```javascript
 // 动画执行总时间 延迟时间 (可选) 运动形式 (可选)
-animate(
-	"600ms 1s ease-out",
-	style({ opacity: 0, transform: "translateX(100%)" })
-);
+animate("600ms 1s ease-out", style({ opacity: 0, transform: "translateX(100%)" }));
 ```
 
 #### 16.3 关键帧动画
@@ -4083,13 +4032,13 @@ animate(
 
 ```javascript
 transition(":leave", [
-	animate(
-		600,
-		keyframes([
-			style({ offset: 0.3, transform: "translateX(-80px)" }),
-			style({ offset: 1, transform: "translateX(100%)" }),
-		])
-	),
+  animate(
+    600,
+    keyframes([
+      style({ offset: 0.3, transform: "translateX(-80px)" }),
+      style({ offset: 1, transform: "translateX(100%)" }),
+    ])
+  ),
 ]);
 ```
 
@@ -4117,28 +4066,19 @@ done(event: AnimationEvent) {
 1. 将动画的定义放置在单独的文件中，方便多组件调用。
 
 ```javascript
-import {
-	animate,
-	keyframes,
-	style,
-	transition,
-	trigger,
-} from "@angular/animations";
+import { animate, keyframes, style, transition, trigger } from "@angular/animations";
 
 export const slide = trigger("slide", [
-	transition(":enter", [
-		style({ opacity: 0, transform: "translateY(40px)" }),
-		animate(250),
-	]),
-	transition(":leave", [
-		animate(
-			600,
-			keyframes([
-				style({ offset: 0.3, transform: "translateX(-80px)" }),
-				style({ offset: 1, transform: "translateX(100%)" }),
-			])
-		),
-	]),
+  transition(":enter", [style({ opacity: 0, transform: "translateY(40px)" }), animate(250)]),
+  transition(":leave", [
+    animate(
+      600,
+      keyframes([
+        style({ offset: 0.3, transform: "translateX(-80px)" }),
+        style({ offset: 1, transform: "translateX(100%)" }),
+      ])
+    ),
+  ]),
 ]);
 ```
 
@@ -4153,34 +4093,23 @@ import { slide } from "./animations"
 2. 抽取具体的动画定义，方便多动画调用。
 
 ```javascript
-import {
-	animate,
-	animation,
-	keyframes,
-	style,
-	transition,
-	trigger,
-	useAnimation,
-} from "@angular/animations";
+import { animate, animation, keyframes, style, transition, trigger, useAnimation } from "@angular/animations";
 
-export const slideInUp = animation([
-	style({ opacity: 0, transform: "translateY(40px)" }),
-	animate(250),
-]);
+export const slideInUp = animation([style({ opacity: 0, transform: "translateY(40px)" }), animate(250)]);
 
 export const slideOutLeft = animation([
-	animate(
-		600,
-		keyframes([
-			style({ offset: 0.3, transform: "translateX(-80px)" }),
-			style({ offset: 1, transform: "translateX(100%)" }),
-		])
-	),
+  animate(
+    600,
+    keyframes([
+      style({ offset: 0.3, transform: "translateX(-80px)" }),
+      style({ offset: 1, transform: "translateX(100%)" }),
+    ])
+  ),
 ]);
 
 export const slide = trigger("slide", [
-	transition(":enter", useAnimation(slideInUp)),
-	transition(":leave", useAnimation(slideOutLeft)),
+  transition(":enter", useAnimation(slideInUp)),
+  transition(":leave", useAnimation(slideOutLeft)),
 ]);
 ```
 
@@ -4188,17 +4117,14 @@ export const slide = trigger("slide", [
 
 ```javascript
 export const slideInUp = animation(
-	[
-		style({ opacity: 0, transform: "translateY(40px)" }),
-		animate("{{ duration }} {{ delay }} {{ easing }}"),
-	],
-	{
-		params: {
-			duration: "400ms",
-			delay: "0s",
-			easing: "ease-out",
-		},
-	}
+  [style({ opacity: 0, transform: "translateY(40px)" }), animate("{{ duration }} {{ delay }} {{ easing }}")],
+  {
+    params: {
+      duration: "400ms",
+      delay: "0s",
+      easing: "ease-out",
+    },
+  }
 );
 ```
 
@@ -4214,30 +4140,23 @@ Angular 中提供了 `query` 方法查找元素并为元素创建动画
 import { slide } from "./animations";
 
 animations: [
-	slide,
-	trigger("todoAnimations", [
-		transition(":enter", [
-			query("h2", [style({ transform: "translateY(-30px)" }), animate(300)]),
-			// 查询子级动画 使其执行
-			query("@slide", animateChild()),
-		]),
-	]),
+  slide,
+  trigger("todoAnimations", [
+    transition(":enter", [
+      query("h2", [style({ transform: "translateY(-30px)" }), animate(300)]),
+      // 查询子级动画 使其执行
+      query("@slide", animateChild()),
+    ]),
+  ]),
 ];
 ```
 
 ```html
 <div class="container" @todoAnimations>
-	<h2>Todos</h2>
-	<ul class="list-group">
-		<li
-			@slide
-			(click)="removeItem(i)"
-			*ngFor="let item of todos; let i = index"
-			class="list-group-item"
-		>
-			{{ item }}
-		</li>
-	</ul>
+  <h2>Todos</h2>
+  <ul class="list-group">
+    <li @slide (click)="removeItem(i)" *ngFor="let item of todos; let i = index" class="list-group-item">{{ item }}</li>
+  </ul>
 </div>
 ```
 
@@ -4245,12 +4164,9 @@ animations: [
 
 ```javascript
 trigger("todoAnimations", [
-	transition(":enter", [
-		group([
-			query("h2", [style({ transform: "translateY(-30px)" }), animate(300)]),
-			query("@slide", animateChild()),
-		]),
-	]),
+  transition(":enter", [
+    group([query("h2", [style({ transform: "translateY(-30px)" }), animate(300)]), query("@slide", animateChild())]),
+  ]),
 ]);
 ```
 
@@ -4260,10 +4176,10 @@ Angular 提供了 stagger 方法，在多个元素同时执行同一个动画时
 
 ```javascript
 transition(":enter", [
-	group([
-		query("h2", [style({ transform: "translateY(-30px)" }), animate(300)]),
-		query("@slide", stagger(200, animateChild())),
-	]),
+  group([
+    query("h2", [style({ transform: "translateY(-30px)" }), animate(300)]),
+    query("@slide", stagger(200, animateChild())),
+  ]),
 ]);
 ```
 
@@ -4279,40 +4195,32 @@ Angular 提供了 `state` 方法用于定义状态。
 
 ```html
 <div class="container">
-	<div class="panel panel-default">
-		<div class="panel-heading" (click)="toggle()">
-			一套框架, 多种平台, 移动端 & 桌面端
-		</div>
-		<div class="panel-body">
-			<p>
-				使用简单的声明式模板，快速实现各种特性。使用自定义组件和大量现有组件，扩展模板语言。在几乎所有的
-				IDE 中获得针对 Angular
-				的即时帮助和反馈。所有这一切，都是为了帮助你编写漂亮的应用，而不是绞尽脑汁的让代码“能用”。
-			</p>
-			<p>
-				从原型到全球部署，Angular 都能带给你支撑 Google
-				大型应用的那些高延展性基础设施与技术。
-			</p>
-			<p>
-				通过 Web Worker 和服务端渲染，达到在如今(以及未来）的 Web
-				平台上所能达到的最高速度。 Angular 让你有效掌控可伸缩性。基于
-				RxJS、Immutable.js 和其它推送模型，能适应海量数据需求。
-			</p>
-			<p>
-				学会用 Angular
-				构建应用，然后把这些代码和能力复用在多种多种不同平台的应用上 ——
-				Web、移动 Web、移动应用、原生应用和桌面原生应用。
-			</p>
-		</div>
-	</div>
+  <div class="panel panel-default">
+    <div class="panel-heading" (click)="toggle()">一套框架, 多种平台, 移动端 & 桌面端</div>
+    <div class="panel-body">
+      <p>
+        使用简单的声明式模板，快速实现各种特性。使用自定义组件和大量现有组件，扩展模板语言。在几乎所有的 IDE 中获得针对
+        Angular 的即时帮助和反馈。所有这一切，都是为了帮助你编写漂亮的应用，而不是绞尽脑汁的让代码“能用”。
+      </p>
+      <p>从原型到全球部署，Angular 都能带给你支撑 Google 大型应用的那些高延展性基础设施与技术。</p>
+      <p>
+        通过 Web Worker 和服务端渲染，达到在如今(以及未来）的 Web 平台上所能达到的最高速度。 Angular
+        让你有效掌控可伸缩性。基于 RxJS、Immutable.js 和其它推送模型，能适应海量数据需求。
+      </p>
+      <p>
+        学会用 Angular 构建应用，然后把这些代码和能力复用在多种多种不同平台的应用上 —— Web、移动
+        Web、移动应用、原生应用和桌面原生应用。
+      </p>
+    </div>
+  </div>
 </div>
 <style>
-	.container {
-		margin-top: 100px;
-	}
-	.panel-heading {
-		cursor: pointer;
-	}
+  .container {
+    margin-top: 100px;
+  }
+  .panel-heading {
+    cursor: pointer;
+  }
 </style>
 ```
 
@@ -4320,15 +4228,15 @@ Angular 提供了 `state` 方法用于定义状态。
 import { Component } from "@angular/core";
 
 @Component({
-	selector: "app-root",
-	templateUrl: "./app.component.html",
-	styles: [],
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styles: [],
 })
 export class AppComponent {
-	isExpended: boolean = false;
-	toggle() {
-		this.isExpended = !this.isExpended;
-	}
+  isExpended: boolean = false;
+  toggle() {
+    this.isExpended = !this.isExpended;
+  }
 }
 ```
 
@@ -4336,30 +4244,27 @@ export class AppComponent {
 
 ```javascript
 trigger("expandCollapse", [
-	// 使用 state 方法定义折叠状态元素对应的样式
-	state(
-		"collapsed",
-		style({
-			height: 0,
-			overflow: "hidden",
-			paddingTop: 0,
-			paddingBottom: 0,
-		})
-	),
-	// 使用 state 方法定义展开状态元素对应的样式
-	state("expanded", style({ height: "*", overflow: "auto" })),
-	// 定义展开动画
-	transition("collapsed => expanded", animate("400ms ease-out")),
-	// 定义折叠动画
-	transition("expanded => collapsed", animate("400ms ease-in")),
+  // 使用 state 方法定义折叠状态元素对应的样式
+  state(
+    "collapsed",
+    style({
+      height: 0,
+      overflow: "hidden",
+      paddingTop: 0,
+      paddingBottom: 0,
+    })
+  ),
+  // 使用 state 方法定义展开状态元素对应的样式
+  state("expanded", style({ height: "*", overflow: "auto" })),
+  // 定义展开动画
+  transition("collapsed => expanded", animate("400ms ease-out")),
+  // 定义折叠动画
+  transition("expanded => collapsed", animate("400ms ease-in")),
 ]);
 ```
 
 ```html
-<div
-	class="panel-body"
-	[@expandCollapse]="isExpended ? 'expanded' : 'collapsed'"
-></div>
+<div class="panel-body" [@expandCollapse]="isExpended ? 'expanded' : 'collapsed'"></div>
 ```
 
 #### 16.9 路由动画
@@ -4370,28 +4275,28 @@ trigger("expandCollapse", [
 
 ```javascript
 const routes: Routes = [
-	{
-		path: "",
-		component: HomeComponent,
-		pathMatch: "full",
-		data: {
-			animation: "one",
-		},
-	},
-	{
-		path: "about",
-		component: AboutComponent,
-		data: {
-			animation: "two",
-		},
-	},
-	{
-		path: "news",
-		component: NewsComponent,
-		data: {
-			animation: "three",
-		},
-	},
+  {
+    path: "",
+    component: HomeComponent,
+    pathMatch: "full",
+    data: {
+      animation: "one",
+    },
+  },
+  {
+    path: "about",
+    component: AboutComponent,
+    data: {
+      animation: "two",
+    },
+  },
+  {
+    path: "news",
+    component: NewsComponent,
+    data: {
+      animation: "three",
+    },
+  },
 ];
 ```
 
@@ -4399,7 +4304,7 @@ const routes: Routes = [
 
 ```html
 <div class="routerContainer" [@routerAnimations]="prepareRoute(outlet)">
-	<router-outlet #outlet="outlet"></router-outlet>
+  <router-outlet #outlet="outlet"></router-outlet>
 </div>
 ```
 
@@ -4407,11 +4312,9 @@ const routes: Routes = [
 import { RouterOutlet } from "@angular/router";
 
 export class AppComponent {
-	prepareRoute(outlet: RouterOutlet) {
-		return (
-			outlet && outlet.activatedRouteData && outlet.activatedRouteData.animation
-		);
-	}
+  prepareRoute(outlet: RouterOutlet) {
+    return outlet && outlet.activatedRouteData && outlet.activatedRouteData.animation;
+  }
 }
 ```
 
@@ -4420,14 +4323,14 @@ export class AppComponent {
 ```css
 /* styles.css */
 .routerContainer {
-	position: relative;
+  position: relative;
 }
 
 .routerContainer > * {
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
 }
 ```
 
@@ -4435,49 +4338,37 @@ export class AppComponent {
 
 ```javascript
 trigger("routerAnimations", [
-	transition("one => two, one => three, two => three", [
-		query(":enter", style({ transform: "translateX(100%)", opacity: 0 })),
-		group([
-			query(
-				":enter",
-				animate(
-					"0.4s ease-in",
-					style({ transform: "translateX(0)", opacity: 1 })
-				)
-			),
-			query(
-				":leave",
-				animate(
-					"0.4s ease-out",
-					style({
-						transform: "translateX(-100%)",
-						opacity: 0,
-					})
-				)
-			),
-		]),
-	]),
-	transition("three => two, three => one, two => one", [
-		query(":enter", style({ transform: "translateX(-100%)", opacity: 0 })),
-		group([
-			query(
-				":enter",
-				animate(
-					"0.4s ease-in",
-					style({ transform: "translateX(0)", opacity: 1 })
-				)
-			),
-			query(
-				":leave",
-				animate(
-					"0.4s ease-out",
-					style({
-						transform: "translateX(100%)",
-						opacity: 0,
-					})
-				)
-			),
-		]),
-	]),
+  transition("one => two, one => three, two => three", [
+    query(":enter", style({ transform: "translateX(100%)", opacity: 0 })),
+    group([
+      query(":enter", animate("0.4s ease-in", style({ transform: "translateX(0)", opacity: 1 }))),
+      query(
+        ":leave",
+        animate(
+          "0.4s ease-out",
+          style({
+            transform: "translateX(-100%)",
+            opacity: 0,
+          })
+        )
+      ),
+    ]),
+  ]),
+  transition("three => two, three => one, two => one", [
+    query(":enter", style({ transform: "translateX(-100%)", opacity: 0 })),
+    group([
+      query(":enter", animate("0.4s ease-in", style({ transform: "translateX(0)", opacity: 1 }))),
+      query(
+        ":leave",
+        animate(
+          "0.4s ease-out",
+          style({
+            transform: "translateX(100%)",
+            opacity: 0,
+          })
+        )
+      ),
+    ]),
+  ]),
 ]);
 ```

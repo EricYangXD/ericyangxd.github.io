@@ -462,3 +462,25 @@ peerDependency 可以避免核心依赖库被重复下载的问题。比如：
 ## Vue3diff
 
 [Vue3 diff](https://blog.csdn.net/zl_Alien/article/details/106595459)
+
+## iframe 防止他人嵌套自己的网站
+
+TODO
+
+1. 通过 parent 判断 origin
+
+## 几个框架对比总结
+
+1. 不同框架编译之后的差异：
+
+- 🚀 React 编译之后是 Jsx 函数返回的虚拟 DOM
+- 🚀 Vue 编译之后是 render 函数返回的虚拟 DOM
+- 🚀 SolidJS 编译之后返回的真实 DOM 字符串
+- 🚀 Svelte 编译之后返回的是真实 DOM 片段
+
+2. React 由于架构机制决定了每当状态发生改变，从当前组件开始一直到叶子组件重新加载。
+
+3. Vue 由于给每个组件建立了 watchEffect 监听机制，每当组件依赖的状态发生改变，当前组件重新加载。
+
+4. SolidJS 和 Svelte 由于在编译之后就确定了当状态发生改变 UI 随之变化的关系，所以仅仅是具体 DOM 的重新加载。
+5. 相对来说，react 更新粒度最粗，但是配合 useMemo/memo 之后可以跟 Vue 差不多，Vue 更新粒度中等，SolidJS 和 Svelte 更新粒度相对最细。

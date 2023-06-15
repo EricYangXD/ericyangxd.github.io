@@ -9,10 +9,10 @@ meta:
 
 ## Maven
 
-- Apache Maven 是一种流行的构建工具，它获取项目的 Java 源代码，对其进行编译、测试并将其转换为可执行的 Java 程序：.jar 或 .war 文件。
+- Apache Maven 是一种流行的构建工具，它获取项目的 Java 源代码，对其进行编译、测试并将其转换为可执行的 Java 程序：`.jar` 或 `.war` 文件。
 - Maven 是 Java 世界中最流行的构建工具之一(其他的还有 Gradle 或者老式的 Ant)。您不仅可以使用它来构建 Java 项目，而且几乎所有用 JVM 语言(如 Kotlin 或 Scala)以及其他语言(如 C # 和 Ruby)编写的项目都可以使用它来构建。
 - 1. 依赖管理：Maven 让您可以轻松地在项目中包含第 3 方依赖项（想想库/框架，例如 Spring）。其他语言的等价物是 Javascript 的 npm、Ruby 的 gems 或 PHP 的 composer。
-- 2. 通过约定进行编译: 理论上，您可以使用 javac 命令行编译器(或者使用 bash 脚本实现自动化)手动编译大量 class 来编译大型 Java 项目。然而，这只适用于玩具项目。Maven 希望 Java 源代码驻留在某个目录结构中，当您稍后执行 mvn clean install 时，整个编译和打包工作将为您完成。
+- 2. 项目构建，通过约定进行编译: 理论上，您可以使用 javac 命令行编译器(或者使用 bash 脚本实现自动化)手动编译大量 class 来编译大型 Java 项目。然而，这只适用于玩具项目。Maven 希望 Java 源代码驻留在某个目录结构中，当您稍后执行 `mvn clean install` 时，整个编译和打包工作将为您完成。
 - 3. 一切皆 Java: Maven 还可以通过插件运行代码质量检查、执行测试用例，甚至将应用程序部署到远程服务器。几乎所有你能想到的任务。
 
 1. [Download 相应版本](https://maven.apache.org/download.cgi?.)
@@ -20,6 +20,8 @@ meta:
 3. Maven 配置：`${maven}/conf/settings.xml`，自定义修改配置，添加私有仓库、账户名、密码等等，在 servers、mirrors 等标签里。也可以在 pom 文件中手动配置源：
 
 ```xml
+<!-- 配置本机上依赖的位置 -->
+<localRepository>xxx/zzz</localRepository>
 <!-- ...镜像... -->
 <mirrors>
     <mirror>
@@ -95,12 +97,12 @@ meta:
 10. `mvn -U`：有时，如果您的项目依赖于 SNAPSHOT 依赖项，Maven 不会使用最新的快照版本更新您的本地 Maven 存储库。如果你想确保 Maven 总是尝试下载最新的快照依赖版本，请使用 -U 开关调用它。
 11. `-X`：打印出更详细的 log
 12. `mvnw`：一些项目附带一个 `mvnw` 可执行文件，它不代表 Maven (on) Windows，而是代表 Maven 包装器。这意味着您不必在您的机器上安装 mvn 来构建您的项目 - 相反，mvn 嵌入在您的项目目录中，您可以使用 `mvnw` 可执行文件调用它。
-13. `mvn compile`：编译
+13. `mvn compile`：编译成.class 文件
 14. `mvn test`：测试
 15. `mvn clean`：清理
-16. `mvn package`：打包
-17. `mvn install`：安装依赖到本地例，会把 pom.xml 中的依赖等下载到本地
-18. `mvn deploy`：安装依赖到本地例，会把 pom.xml 中的依赖等下载到本地
+16. `mvn package`：打包，打成 jar 或 war 包
+17. `mvn install`：安装依赖到本地，会把 pom.xml 中的依赖等下载到本地
+18. `mvn deploy`：安装依赖到本地，会把 pom.xml 中的依赖等下载到本地
 19. 我们在用 maven 构建 java 项目时，最常用的打包命令有`mvn clean package`、`mvn clean install`、`mvn clean deploy`，这三个命令都可完成打 jar 包或 war（当然也可以是其它形式的包）的功能，但这三个命令还是有区别的。三者的区别在于包函的 maven 生命的阶段和执行目标(goal)不同。
     - `mvn clean package`依次执行了 clean、resources、compile、testResources、testCompile、test、jar(打包)等７个阶段。package 命令完成了项目编译、单元测试、打包功能，但没有把打好的可执行 jar 包（war 包或其它形式的包）布署到本地 maven 仓库和远程 maven 私服仓库
     - `mvn clean install`依次执行了 clean、resources、compile、testResources、testCompile、test、jar(打包)、install 等 8 个阶段。install 命令完成了项目编译、单元测试、打包功能，同时把打好的可执行 jar 包（war 包或其它形式的包）布署到本地 maven 仓库，但没有布署到远程 maven 私服仓库
@@ -203,7 +205,7 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
     pom.xml
 ```
 
-5. 安装 Maven 相当简单。与 Java 类似，它只是一个 .zip 文件，您需要下载该文件并将其放在硬盘驱动器的任何位置。
+5. 安装 Maven 相当简单。与 Java 类似，它只是一个 `.zip` 文件，您需要下载该文件并将其放在硬盘驱动器的任何位置。
 6. 现在你需要确保将 `maven/bin` 目录添加到你的 PATH 变量中，否则你不能从任何地方调用`mvn`命令（比如：`mvn clean install`）。
 7. 看一下 Maven 构建生命周期：阶段
 
@@ -243,7 +245,7 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
 - groupId：当前 Maven 项目隶属组织名称，通常是域名反写
 - artifactId：当前 Maven 项目名称，通常是模块名称
 - version：版本号
-- packaging：包最终的产物？
+- packaging：定义该项目的打包方式，是用于 jar 还是 war，还是别的
 - 在 pom.xml -> project 层级 -> build -> plugins -> plugin -> 需要的插件信息：groupId、artifactId、version
 - 依赖传递：可以直接使用依赖中的依赖
   1. 直接依赖：在当前项目中通过依赖配置建立的依赖关系
@@ -254,8 +256,8 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
   2.  声明优先：当资源在相同的层级被依赖时，配置顺序靠前的覆盖顺序靠后的
   3.  特殊优先：当同级配置了相同的资源的不同版本，后配置的覆盖先配置的
 
-- 可选依赖：指对外隐藏当前所依赖的资源，不透明。在 dependency 中增加 optional 标签并设为 true 即可
-- 排除依赖：通过配置，不使用依赖中的依赖，主动断开间接依赖。在 dependency 中增加 exclusions>exclusion 标签并写上依赖的 groupId 和 artifactId 即可
+- 可选依赖：指对外隐藏当前所依赖的资源，不透明。在 dependency 中增加 `optional` 标签并设为 true 即可
+- 排除依赖：通过配置，不使用依赖中的依赖，主动断开间接依赖。在 dependency 中增加 `exclusions`>`exclusion` 标签并写上依赖的 groupId 和 artifactId 即可
 - 依赖范围：
   1.  依赖的 jar 默认情况下可以在任何地方使用，可以通过 scope 标签设定其作用范围，四个值参考下面表格
   2.  作用范围：
@@ -263,13 +265,21 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
       2. 测试程序范围有效（test 文件夹范围内）
       3. 是否参与打包（package 指令范围内）
 
-|          | compile | test | provided | runtime | 直接依赖 |
+| scope    | compile | test | provided | runtime | 直接依赖 |
 | -------- | ------- | ---- | -------- | ------- | -------- |
 | compile  | compile | test | provided |         |          |
 | test     |         |      |          |         |          |
 | provided |         |      |          |         |          |
 | runtime  | runtime | test | provided | runtime |          |
 | 间接依赖 |         |      |          |         |          |
+
+| scope           | 主代码 | 测试代码 | 打包 | 范例        |
+| --------------- | ------ | -------- | ---- | ----------- |
+| compile（默认） | Y      | Y        | Y    | log4j       |
+| test            |        | Y        |      | junit       |
+| provided        | Y      | Y        |      | servlet-api |
+| runtime         |        |          | Y    | jdbc        |
+| 间接依赖        |        |          |      |             |
 
 ### 生命周期和插件
 
@@ -282,14 +292,14 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
    2. clean：移除所有上一次构建生成的文件
    3. post-clean：
 3. default：只关注几个常用的即可
-   1. validate：
-   2. compile：
-   3. test-compile：
-   4. test：
-   5. package：
-   6. verify：
-   7. install：
-   8. deploy：
+   1. validate：校验项目是否正确并且所有必要的信息可以完成项目的构建过程
+   2. compile：编译项目的源代码
+   3. test-compile：编译测试源代码到测试目标目录
+   4. test：使用合适的单元测试框架运行测试
+   5. package：将编译后的代码打包成可分发格式的文件比如jar、war、ear等
+   6. verify：运行任意的检查来验证项目包有效且达到质量标准
+   7. install：安装项目包到本地仓库，这样项目包可以用作其他本地项目的依赖
+   8. deploy：将最终的项目包复制到远程仓库中与其他开发者和项目共享
 4. site：
    1. pre-site：
    2. site：生成项目的站点文档
@@ -303,7 +313,6 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
 
 - 老项目会用这种形式，新项目一般用微服务了？
 - 大致的做法就是把一个项目中的各个模块分别新建成单独的 module，然后新建属于这个 module 的 pom.xml 文件，并配置相应的依赖关系，小技巧--可以直接把老的 pom.xml 拷过来然后根据实际情况去删除一些不需要的配置即可，然后需要构建成功才算拆完。后续各模块之间通过接口进行通信。然后再在根目录下添加一个根 pom.xml 文件，配置 modules>module，把每个单独拆出来的 module 引用进来，之后便可以通过这里进行集中维护。
--
 
 ### 模块聚合
 
@@ -335,14 +344,16 @@ PS：[Maven 中常用的各个标签的含义](./pom.xml)
 
 管理其他自定义的资源配置
 
-1. 比如管理 jdbc 配置，如果要在 jdbc.properties 中使用全局的配置，那么要在 root module 的 pom.xml 中配置`<resources>`标签，在其下添加`<resource>`标签，1 写明`<directory>`即资源文件对应的「目录」，相对 root module 的路径，不到文件名，2 配置`<filtering>`为 true，表示开启对配置文件的资源加载过滤。1 中可以通过`${project.basedir}`做优化。
+1. 比如管理 jdbc 配置，如果要在 `jdbc.properties` 中使用全局的配置，那么要在 root module 的 `pom.xml` 中配置`<build><resources></resources></build>`标签，在其下添加`<resource>`标签，1 写明`<directory>`即资源文件对应的「目录」，**相对 root module 的路径**，不到文件名，2 配置`<filtering>`为 true，表示开启对配置文件的资源加载过滤。1 中可以通过`${project.basedir}`(系统提供的)做优化。 
 2. `<testResources>`同理
+3. 所以在模块的pom文件中可能有些变量/属性没有看到哪里直接引用，那么它可能是在`.properties`文件中被引用的，不能乱删。
 
 ### 环境配置
 
 不同环境兼容区分
 
 1. pom.xml 中，project 根层级下，通过`<profiles>`->`<profile>`标签定义具体的环境，通过`<id>`区分不同环境。通过`<properties>`设置自定义参数属性，通过`<activation>`->`<activeByDefault>`true 设置默认启动。
+2. 使用的时候通过`mvn clean install -P ${profile_id}`来执行对应的profile。
 
 ### 跳过测试
 
@@ -651,3 +662,31 @@ mvn package –P !profileTest1
 9. maven 项目执行 main 函数的时候需要两个插件:
    1. `maven-compiler-plugin`：用来编译 Java 文件，指定 JDK 版本等
    2. `exec-maven-plugin`：用来执行 class 文件，其中插件配置中需指明执行类的路径
+
+## 生命周期与插件
+
+### maven-source-plugin
+
+1. 可以在指定的生命周期中执行插件
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.2.1</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>jar</goal>
+                    </goals>
+                    <!-- 指定生命周期阶段 -->
+                    <phase>generate-test-resources</phase>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+

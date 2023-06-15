@@ -100,3 +100,8 @@ set /p=!line!<nul
 )  
 goto line
 ```
+
+## 手机投屏
+
+1. scrcpy: 也支持Mac和Linux。`scrcpy --tcpip=192.168.150.18:5555` 小米手机需要打开无线调试之后再看端口号即可。同一局域网或固定IP。或者使用USB数据线连接手机。[github](https://github.com/Genymobile/scrcpy)
+2. alink
