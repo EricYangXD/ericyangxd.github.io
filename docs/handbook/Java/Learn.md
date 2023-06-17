@@ -553,7 +553,7 @@ public File(File parent, String child)// 根据父路径对应文件对象和子
 
 ### IO
 
-存储和读取数据的解决方案。
+存储和读取数据的解决方案。用到的时候再创建，不用了就关闭。
 
 1. 按流的方向划分：IO 流分为输入流（读取）和输出流（写出）
 2. 按操作文件类型划分：IO 流可以分为字节流（可以操作所有类型文件）和字符流（智能操作纯文件文本--可以被记事本直接打开并且没有乱码的，比如 txt、md）
@@ -758,11 +758,83 @@ public void encrypt(File origin){
 
 #### 字节缓冲流
 
-1.
+可以显著提高读写效率。把基本流包装成高级流，底层自带了长度为 8192 的缓冲区（byte 型）提高性能。真正读写数据的还是基本流。
+
+1. 字符缓冲输入流：BufferedInputStream
+2. 字符缓冲输出流：BufferedOutputStream
 
 ```java
+BufferedInputStream bis = new BufferedInputStream(new FileInputStream("myio/a.txt"));
+BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("myio/a_copy.txt"));
+// 一次读取指定长度字节
+// byte[] bytes = new byte[1024];
+int b;
+// while((lens = bis.read(bytes)) != -1){
+while((b = bis.read()) != -1){
+   bos.write(b);
+   // bos.write(bytes, 0, lens);
+}
+bos.close();
+bis.close();
+```
 
+#### 字符缓冲流
 
+1. 字符缓冲输入流跟普通字符流提升不是很大，有 16K 的缓冲区（char 型），但是有一个 readLine 方法，读取一行数据，如果没有数据可读了，会返回 null。
+2. 字符缓冲输出流有一个 newLine 方法，可以跨平台的换行。
+
+```java
+BufferedReader br = new BufferedReader(new FileReader("myio/a.txt"));
+String line = br.readLine();
+System.out.println(line);
+// while((line = br.readLine())!=null){
+//    System.out.println(line);
+// }
+br.close();
+// append:false;文件存在，原内容会被清空，否则新建
+BufferedWriter bw = new BufferedWriter(new FileWriter("myio/a_copy.txt",true));// 续写
+bw.write("xxxx");
+bw.newLine();
+bw.close();
+```
+
+### 转换流
+
+1. InputStreamReader：字节流转换成字符流，可以指定编码表，如果不指定，默认使用系统编码表。
+2. OutputStreamWriter：字符流转换成字节流，可以指定编码表，如果不指定，默认使用系统编码表。
+
+```java
+// jdk11已淘汰该方式
+InputStreamReader isr = new InputStreamReader(new FileInputStream("myio/a.txt"), "GBK");
+int ch;
+while((ch = isr.read()) != -1){
+   System.out.print((char)ch);
+}
+isr.close();
+```
+
+```java
+// 新的方式
+FileReader fr = new FileReader("myio/a.txt", Charset.forName("GBK"));
+int ch;
+while((ch = fr.read()) != -1){
+   System.out.print((char)ch);
+}
+fr.close();
+```
+
+```java
+// jdk11已淘汰该方式
+OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream("myio/a_copy.txt"), "GBK");
+osw.write("你好");
+osw.close();
+```
+
+```java
+// 新的方式
+FileWriter fw = new FileWriter("myio/a_copy.txt", Charset.forName("GBK"));
+fw.write("你好");
+fw.close();
 ```
 
 ### 泛型
