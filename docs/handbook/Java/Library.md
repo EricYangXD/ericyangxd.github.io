@@ -9,6 +9,28 @@ meta:
 
 ## 第三方库作用及其应用
 
+### commons-io
+
+1. 是一组有关 IO 操作的开源工具包，包括文件拷贝、文件删除、文件比较、文件读取、文件写入等等。
+2. 有很多工具类：
+   - StringUtils: 字符串工具类
+   - NumberUtils: 数字工具类
+   - ArrayUtils: 数组工具类
+   - RandomUtils: 随机数工具类
+   - DateUtils: 日期工具类
+   - StopWatch: 计时器工具类
+   - ClassUtils: 反射工具类
+   - SystemUtils: 系统工具类
+   - MapUtils: 集合工具类
+   - BeanUtils: Bean 工具类
+   - IOUtils: IO 工具类
+   - FileUtils: 文件工具类
+
+### hutool
+
+1. Hutool 是一个 Java 工具包，也只是一个工具包，它帮助我们简化每一行代码，减少每一个方法，让 Java 语言也可以“甜甜的”。
+2. 类似 commons-io，提供了很多组件和工具类，实现特定功能。
+
 ### jakarta.validation:jakarta.validation.api
 
 同下
@@ -103,7 +125,7 @@ public @interface Validated {
 
 #### com.github.xiaoymin:knife4j-spring-boot-starter
 
-swagger 相关，调试接口。启动程序，然后再浏览器里我们就可以进行输入: swagger访问地址：`http://localhost:8080/doc.html#/home` 打开swagger文档 就可以进行测试了。
+swagger 相关，调试接口。启动程序，然后再浏览器里我们就可以进行输入: swagger 访问地址：`http://localhost:8080/doc.html#/home` 打开 swagger 文档 就可以进行测试了。
 
 #### org.projectlombok:lombok
 

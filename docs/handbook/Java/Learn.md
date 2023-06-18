@@ -760,8 +760,8 @@ public void encrypt(File origin){
 
 可以显著提高读写效率。把基本流包装成高级流，底层自带了长度为 8192 的缓冲区（byte 型）提高性能。真正读写数据的还是基本流。
 
-1. 字符缓冲输入流：BufferedInputStream
-2. 字符缓冲输出流：BufferedOutputStream
+1. 字符缓冲输入流：`BufferedInputStream`
+2. 字符缓冲输出流：`BufferedOutputStream`
 
 ```java
 BufferedInputStream bis = new BufferedInputStream(new FileInputStream("myio/a.txt"));
@@ -780,8 +780,8 @@ bis.close();
 
 #### 字符缓冲流
 
-1. 字符缓冲输入流跟普通字符流提升不是很大，有 16K 的缓冲区（char 型），但是有一个 readLine 方法，读取一行数据，如果没有数据可读了，会返回 null。
-2. 字符缓冲输出流有一个 newLine 方法，可以跨平台的换行。
+1. 字符缓冲输入流`BufferedReader`跟普通字符流提升不是很大，有 16K 的缓冲区（char 型），但是有一个 readLine 方法，读取一行数据，如果没有数据可读了，会返回 null。
+2. 字符缓冲输出流`BufferedWriter`有一个 newLine 方法，可以跨平台的换行。
 
 ```java
 BufferedReader br = new BufferedReader(new FileReader("myio/a.txt"));
@@ -798,10 +798,11 @@ bw.newLine();
 bw.close();
 ```
 
-### 转换流
+#### 转换流
 
-1. InputStreamReader：字节流转换成字符流，可以指定编码表，如果不指定，默认使用系统编码表。
-2. OutputStreamWriter：字符流转换成字节流，可以指定编码表，如果不指定，默认使用系统编码表。
+1. `InputStreamReader`字符转换输入流：字节流转换成字符流，可以指定编码表，如果不指定，默认使用系统编码表。
+2. `OutputStreamWriter`字符转换输出流：字符流转换成字节流，可以指定编码表，如果不指定，默认使用系统编码表。
+3. 作用：指定字符集读写数据（jdk11 已淘汰该方式）；字节流想要使用字符流中的方法时。
 
 ```java
 // jdk11已淘汰该方式
@@ -835,6 +836,443 @@ osw.close();
 FileWriter fw = new FileWriter("myio/a_copy.txt", Charset.forName("GBK"));
 fw.write("你好");
 fw.close();
+```
+
+```java
+// 利用字节流读取文件中的数据，每次读一整行，而且不能出现乱码
+BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("myio/a.txt")));
+String line;
+while((line = br.readLine()) != null){
+   System.out.println(line);
+}
+br.close();
+```
+
+#### 序列化流/对象操作输出流
+
+1. 作用：把 Java 中的对象写入到本地文件中。
+2. 构造方法`ObjectOutputStream(OutputStream out)`：把基本流包装成高级流
+3. 成员方法`writeObject(Object obj)`：把对象序列化（写出）到文件中去
+4. 注意：要写出的 javabean 需要实现`Serializable`接口（标记型接口，没有实际实现方法），否则会报`NotSerializableException`异常。
+
+```java
+// 假如已经实现了一个Student类
+// 1.创建对象
+Student s = new Student("张三", 23);
+// 2.创建序列化流的对象/对象操作输出流
+ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("myio/a.txt"));
+// 3.写出数据
+oos.writeObject(s);
+// 4.释放资源
+oos.close();
+```
+
+#### 反序列化流/对象操作输入流
+
+1. 作用：把序列化到本地文件中的对象读取到程序/内存中。
+2. 构造方法`ObjectInputStream(InputStream in)`：把基本流包装成高级流
+3. 成员方法`readObject()`：把序列化到本地文件中的对象反序列化（读取）到程序/内存中
+
+```java
+// 1.创建反序列化流的对象/对象操作输入流
+ObjectInputStream ois = new ObjectInputStream(new FileInputStream("myio/a.txt"));
+// 2.读取数据
+Object obj = (Student)ois.readObject();
+System.out.println(obj);
+// 3.释放资源
+ois.close();
+```
+
+4. 注意事项：
+   1. 反序列化的时候，如果 javabean 被修改了，那么会报错 InvalidClassException，解决办法是给 javabean 设置一个**版本号**--`serialVersionUID`：`private static final long serialVersionUID = xxxxxL;`，可以设置 IDEA 让它自动生成，也可以手动（不推荐）。
+   2. 对于不希望序列化到本地的属性，可以加关键字：`transient`--瞬态关键字，该关键字标记的成员变量不参与序列化过程。`private transient String salary;`
+   3. 序列化流写到文件中的数据是不能修改的，一旦修改就无法再次读回来了
+   4. 序列化多个对象时，可以使用`ArrayList`集合，把多个对象存储到集合中，然后序列化集合即可。如果把每个对象分开序列化，那么反序列化的时候，就需要知道有多少个对象，这样才能读取到所有的对象，所以使用集合更方便。
+
+#### 字节打印流
+
+0. 一般是指`PrintStream`，`PrintWriter`
+1. 作用：打印流，可以把字节输出流转换成打印流，可以方便的操作字节输出流，可以打印任意类型的数据。
+2. 打印流只操作文件目的地，不操作数据源。
+3. 特有的写出方法，可以实现数据原样写出，也可以实现数据换行写出。
+4. 可以实现自动刷新，自动换行。
+   1. `write()`，常规方法，将指定的字节写出
+   2. `print()`，特有方法，打印任意数据不换行
+   3. `println()`，特有方法，打印任意数据，自动刷新，自动换行
+   4. `printf()`，特有方法，带有占位符的打印语句，不换行
+
+```java
+// 创建字节打印流的对象
+PrintStream ps = new PrintStream(new FileOutputStream("myio/a.txt"), true, Charset.forName("GBK"));
+// 写出数据
+ps.println("你好");
+ps.print(100);
+// 释放资源
+ps.close();
+```
+
+5. 字节流底层没有缓冲区，所以不需要刷新，但是字符流底层有缓冲区，所以需要刷新，否则数据不会写出。
+
+#### 字符打印流
+
+0. `PrintWriter`: 字符打印流，可以把字符输出流转换成打印流，可以方便的操作字符输出流，可以打印任意类型的数据。
+1. 字符流底层有缓冲区，所以需要刷新的话需要手动开启，否则数据不会写出。
+2. 其他基本同字节打印流
+
+```java
+// 创建字节打印流的对象
+PrintWriter pw = new PrintWriter(new FileWriter("myio/a.txt"), true);
+// 写出数据
+pw.println("你好");
+pw.print(100);
+pw.printf("姓名：%s，年龄：%d", "张三", 23);
+// 释放资源
+pw.close();
+```
+
+#### 解压缩流/压缩流
+
+1. Java 只能识别 zip 包。
+2. 解压是输入流，压缩是输出流。
+
+```java
+public static void unzip(File rsc, File dest) throws IOException{
+   ZipInputStream zip = new ZipInputStream(new FileInputStream(rsc));
+   ZipEntry entry;
+   while((entry = zip.getNextEntry()) != null){
+      // String name = entry.getName();
+      // File newFile = new File(dest, name);
+      // FileOutputStream fos = new FileOutputStream(newFile);
+      // int len;
+      // byte[] bytes = new byte[1024];
+      // while((len = zip.read(bytes)) != -1){
+      //    fos.write(bytes, 0, len);
+      // }
+      if(entry.isDirectory()){
+         File file = new File(dest, entry.toString());
+         file.mkdirs();
+      }else{
+         FileOutputStream fos = new FileOutputStream(new File(dest, entry.toString()));
+         int len;
+         while((len = zip.read()) != -1){
+            fos.write(len);
+         }
+         fos.close();
+         zip.closeEntry();
+      }
+   }
+   zip.close();
+}
+```
+
+3. 压缩单个文件
+
+```java
+public static void toZip(File src, File dest) throws IOException{
+   // 1.创建压缩流关联压缩包
+   ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(new File(dest,"test.zip")));
+   // 2.创建ZipEntry对象，表示压缩包里面的每一个文件和文件夹
+   ZipEntry entry = new ZipEntry("test.txt");// 参数表示压缩包里面的路径/层级
+   // 3.把ZipEntry对象添加到压缩包中
+   zos.putNextEntry(entry);
+   // 4.把src文件中的数据写入到压缩包中
+   FileInputStream fis = new FileInputStream(src);
+   int len;
+   while((len = fis.read()) != -1){
+      zos.write(len);
+   }
+   // 5.释放资源
+   fis.close();
+   zos.closeEntry();
+   zos.close();
+}
+```
+
+4. 压缩文件夹
+
+```java
+public static void toZip(File src, ZipOutputStream zos, String name) throws IOException{
+   // 1.进入src文件夹
+   File[] files = src.listFiles();
+   // 2.遍历文件夹数组
+   for(File file : files){
+      if(file.isDirectory()){
+         toZip(file, zos, name + "/" + file.getName());
+      }else{
+         ZipEntry entry = new ZipEntry(name + "/" + file.getName());
+         zos.putNextEntry(entry);
+         // 读取文件中的数据写入到压缩包中
+         FileInputStream fis = new FileInputStream(file);
+         int len;
+         while((len = fis.read()) != -1){
+            zos.write(len);
+         }
+         fis.close();
+         zos.closeEntry();
+      }
+   }
+}
+```
+
+5. TODO: 看 IO 流课程练习
+
+### 多线程
+
+1. 并发：同一时间段内，多个线程交替执行。
+2. 并行：同一时刻，多个线程同时执行。
+3. 多线程的实现方式：
+   1. 继承`Thread`类实现多线程
+   2. 实现`Runnable`接口实现多线程
+   3. 利用`Callable`接口和`Future`接口方式实现多线程
+4. 如果没有给线程设置名字，那么线程的名字默认为`Thread-0`，`Thread-1`，`Thread-2`...
+5. 线程优先级：线程优先级越高，越有可能先执行，但是不一定，只是概率大一些。`getPriority()`获取线程优先级，`setPriority()`设置线程优先级。
+   1. 抢占式：优先级高的线程会抢占 CPU 的执行权，优先执行。随机性。1-10，默认为 5。
+   2. 非抢占式：优先级高的线程不一定会抢占 CPU 的执行权，只是概率大一些。
+6. 守护线程：当进程中没有非守护线程时，守护线程会自动销毁（陆续销毁，不是立即的）。如垃圾回收线程。`setDeamon()`设置守护线程。
+7. 出让线程：`yield()`出让线程，让当前线程回到就绪状态，让 CPU 重新调度。
+8. 插入线程：`join()`插入线程，让当前线程执行完毕后，再执行其他线程。
+9. 线程的生命周期：
+   1. 新建状态：创建线程对象
+   2. 就绪状态：调用`start()`方法，线程进入就绪状态，等待 CPU 调度（或者抢 CPU），有执行资格没有执行权
+   3. 运行状态：线程被 CPU 调度执行（运行代码），有执行资格有执行权
+   4. 阻塞状态：线程执行`sleep()`方法，线程进入阻塞状态，等待时间到达或者被其他线程唤醒，没有执行资格没有执行权
+   5. 死亡状态：线程执行完毕或者出现异常，线程死亡变成垃圾，等待垃圾回收器回收
+10. 线程的安全问题：多个线程同时操作同一个资源，会出现线程安全问题。解决方法：同步代码块，同步方法，Lock 锁。
+
+```java
+public class MyThread extends Thread{
+   // static表示这个类的所有对象，都共享ticket数据
+   static int ticket = 0;
+   // 锁对象，是个唯一的对象，可以是任意对象，但是必须保证多个线程使用的是同一个锁对象！！！
+   static Object obj = new Object();
+
+   @Override
+   public void run(){
+      while(true){
+         // 同步代码块
+         // ()中的是个唯一的锁对象，可以是任意对象，但是必须保证多个线程使用的是同一个锁对象！！！
+         synchronized(obj){// obj是锁对象，不能用this，因为this是多个线程的，不是唯一的。可以用MyThread.class，因为MyThread.class是唯一的。
+            if(ticket<100){
+               try{
+                  Thread.sleep(100);
+               }catch(InterruptedException e){
+                  e.printStackTrace();
+               }
+               ticket++;
+               System.out.println(Thread.currentThread().getName() + "：" + ticket);
+            }else{
+               break;
+            }
+         }
+      }
+   }
+}
+// 或
+public class MyRunnable implements Runnable{
+   int ticket=0;// 因为MyRunnable只会被实例化一次作为参数传给Thread，所以ticket只会被实例化一次，所以是共享的。
+
+   @Override
+   public void run(){
+      while(true){
+         // 同步方法
+         synchronized(MyRunnable.class){
+            if(ticket==100){
+               break;
+            }else{
+               ticket++;
+               System.out.println(Thread.currentThread().getName() + "：" + ticket);
+            }
+         }
+      }
+   }
+}
+```
+
+11. 同步代码块的细节：
+    1. 同步代码块中的锁对象，可以是任意对象，但是必须保证多个线程使用的是同一个锁对象！！！
+    2. 同步代码块中的锁对象，可以使用`this`，但是必须保证多个线程使用的是同一个`this`！！！
+    3. 同步代码块中的锁对象，可以使用`类名.class`，但是必须保证多个线程使用的是同一个`类名.class`！！！
+    4. 同步代码块中的锁对象，可以使用`Lock`锁，但是必须保证多个线程使用的是同一个`Lock`锁！！！
+    5. 同步代码块中的锁对象，可以使用`局部变量`，但是必须保证多个线程使用的是同一个`局部变量`！！！
+    6. 同步代码块中的锁对象，可以使用`成员变量`，但是必须保证多个线程使用的是同一个`成员变量`！！！
+    7. 同步代码块中的锁对象，可以使用`静态成员变量`，但是必须保证多个线程使用的是同一个`静态成员变量`！！！
+    8. 同步代码块中的锁对象，可以使用`类名.class`，但是必须保证多个线程使用的是同一个`类名.class`！！！
+    9. 同步代码块中的锁对象，可以使用`this`，但是必须保证多个线程使用的是同一个`this`！！！
+    10. 同步代码块中的锁对象，可以使用`this`，但是必须保证多个线程使用的是同一个`this`！！！
+12. 同步方法：把修饰符 synchronized 关键字加到方法上，表示该方法是同步方法，同步方法的锁对象是 this，同步方法的锁对象是固定的，不能改变。
+13. 格式：修饰符 synchronized 返回值类型 方法名(参数列表){...}。
+14. 特点 1：同步方法是锁住方法里面所有的代码
+15. 特点 2：锁对象不能自己指定：
+
+- 如果是非静态方法，锁对象是 this
+- 如果是静态的，锁对象是当前类的字节码文件对象
+
+```java
+public class MyRunnable implements Runnable{
+   int ticket=0;// 因为MyRunnable只会被实例化一次作为参数传给Thread，所以ticket只会被实例化一次，所以是共享的。
+
+   @Override
+   public void run(){
+      while(true){
+         // 同步方法
+         if(method()){
+            break;
+         }
+      }
+   }
+   // 同步方法
+   private synchronized void method(){
+      if(ticket==100){
+         return true;
+      }else{
+         try{
+            Thread.sleep(100);
+         }catch(InterruptedException e){
+            e.printStackTrace();
+         }
+         ticket++;
+         System.out.println(Thread.currentThread().getName() + "：" + ticket);
+      }
+      return false;
+   }
+}
+```
+
+16. lock 锁：java.util.concurrent.locks.Lock 接口，是控制多个线程对共享资源进行访问的工具。锁提供了对共享资源的独占访问，每次只能有一个线程对 Lock 对象加锁，线程开始访问共享资源之前应先获得 Lock 对象。
+17. StringBuilder:线程不安全，效率高；StringBuffer:线程安全，效率低。
+18. 为了更清晰的表达如何加锁和释放锁，JDK5 以后提供了一个新的锁对象：java.util.concurrent.locks.Lock，Lock 实现提供了比使用 synchronized 方法和语句可获得的更广泛的锁定操作。Lock 接口中的方法：`void lock()`：获取锁。`void unlock()`：释放锁。
+19. Lock 是接口不能直接实例化！可以采用它的实现类：ReentrantLock 来实例化。
+20. Reentrantlock 的构造方法：`public ReentrantLock()`：创建一个 ReentrantLock 的实例。
+
+```java
+public class MyRunnable implements Runnable{
+   static int ticket=0;// 因为MyRunnable只会被实例化一次作为参数传给Thread，所以ticket只会被实例化一次，所以是共享的。
+   // 创建一个锁对象
+   static Lock lock = new ReentrantLock();
+
+   @Override
+   public void run(){
+      while(true){
+         // 同步方法
+         if(method()){
+            break;
+         }
+      }
+   }
+   // 同步方法
+   private boolean method(){
+      // 获取锁
+      lock.lock();
+      try{
+         if(ticket == 100){
+            return true;
+         }else{
+            Thread.sleep(10);
+            ticket++;
+            System.out.println(Thread.currentThread().getName() + "：" + ticket);
+         }
+         return false;
+      }catch(InterruptedException e){
+         e.printStackTrace();
+      }finally{
+         // 释放锁
+         lock.unlock();
+      }
+   }
+}
+```
+
+#### 继承 Thread 类实现多线程
+
+可扩展性较差，因为 Java 是单继承，如果继承了 Thread 类就不能继承其他类了。
+
+```java
+// 定义
+public class MyThread extends Thread{
+   @Override
+   public void run(){
+      for(int i = 0; i < 100; i++){
+         System.out.println(Thread.currentThread().getName() + "：" + i);
+      }
+   }
+}
+// 调用
+MyThread t1= new MyThread();
+t1.setName("线程1");
+t1.start();
+```
+
+#### 实现 Runnable 接口实现多线程
+
+可扩展性可以，因为实现接口可以实现多继承。
+
+```java
+// 定义
+public class MyRunnable implements Runnable{
+   @Override
+   public void run(){
+      for(int i = 0; i < 100; i++){
+         System.out.println(Thread.currentThread().getName() + "：" + i);
+      }
+   }
+}
+// 调用
+MyRunnable r = new MyRunnable();
+Thread t1 = new Thread(r);
+t1.setName("线程1");
+t1.start();
+```
+
+#### 利用 Callable 接口和 Future 接口方式实现多线程
+
+可以获取到线程的返回值，但是不能直接调用，需要借助`FutureTask`类。
+
+1. 创建一个类`MyCallable`实现`Callable`接口
+2. 重写`call`方法（是有返回值的，表示多线程的运行结果）
+3. 创建`MyCallable`对象（表示多线程要执行的任务）
+4. 创建`FutureTask`对象，把`MyCallable`对象传入（作用是管理多线程运行的结果）
+5. 创建`Thread`对象，把`FutureTask`对象传入并启动（表示线程）
+
+```java
+// 定义
+public class MyCallable implements Callable<Integer>{
+   @Override
+   public Integer call() throws Exception{
+      int sum = 0;
+      for(int i = 0; i <= 100; i++){
+         sum += i;
+      }
+      return sum;
+   }
+}
+// 调用
+MyCallable c = new MyCallable();
+FutureTask<Integer> task = new FutureTask<>(c);
+Thread t1 = new Thread(task);
+t1.start();
+// 获取线程的返回值
+Integer sum = task.get();
+System.out.println(sum);
+```
+
+#### 死锁
+
+```java
+
+```
+
+### 网络编程
+
+```java
+
+```
+
+### 反射
+
+1. 反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为 Java 语言的反射机制。
+
+```java
+
 ```
 
 ### 泛型
