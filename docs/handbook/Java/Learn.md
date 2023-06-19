@@ -1032,11 +1032,13 @@ public static void toZip(File src, ZipOutputStream zos, String name) throws IOEx
 7. 出让线程：`yield()`出让线程，让当前线程回到就绪状态，让 CPU 重新调度。
 8. 插入线程：`join()`插入线程，让当前线程执行完毕后，再执行其他线程。
 9. 线程的生命周期：
-   1. 新建状态：创建线程对象
-   2. 就绪状态：调用`start()`方法，线程进入就绪状态，等待 CPU 调度（或者抢 CPU），有执行资格没有执行权
-   3. 运行状态：线程被 CPU 调度执行（运行代码），有执行资格有执行权
-   4. 阻塞状态：线程执行`sleep()`方法，线程进入阻塞状态，等待时间到达或者被其他线程唤醒，没有执行资格没有执行权
-   5. 死亡状态：线程执行完毕或者出现异常，线程死亡变成垃圾，等待垃圾回收器回收
+   1. 新建状态（NEW）：创建线程对象
+   2. 就绪状态（RUNNABLE）：调用`start()`方法，线程进入就绪状态，等待 CPU 调度（或者抢 CPU），有执行资格没有执行权
+   3. 运行状态：线程被 CPU 调度执行（运行代码），有执行资格有执行权。实际上此时线程抢到 CPU 的使用权之后就会被 JVM 交出去，交给操作系统去管理了，所以 JVM 中实际上没有定义这个状态。
+   4. 阻塞状态（BLOCKED）：线程执行`sleep()`方法，线程进入阻塞状态，等待时间到达或者被其他线程唤醒，没有执行资格没有执行权
+   5. 死亡状态（TERMINATED）：线程执行完毕或者出现异常，线程死亡变成垃圾，等待垃圾回收器回收
+   6. 等待状态（WAITING）：线程执行`wait()`方法，线程进入等待状态，等待被其他线程唤醒`notify()`，没有执行资格没有执行权
+   7. 计时等待状态（TIMED_WAITING）：线程执行`sleep()`方法，线程进入计时等待状态，等待时间到达或者被其他线程唤醒，没有执行资格没有执行权
 10. 线程的安全问题：多个线程同时操作同一个资源，会出现线程安全问题。解决方法：同步代码块，同步方法，Lock 锁。
 
 ```java
@@ -1103,9 +1105,8 @@ public class MyRunnable implements Runnable{
 13. 格式：修饰符 synchronized 返回值类型 方法名(参数列表){...}。
 14. 特点 1：同步方法是锁住方法里面所有的代码
 15. 特点 2：锁对象不能自己指定：
-
-- 如果是非静态方法，锁对象是 this
-- 如果是静态的，锁对象是当前类的字节码文件对象
+    - 如果是非静态方法，锁对象是 this
+    - 如果是静态的，锁对象是当前类的字节码文件对象
 
 ```java
 public class MyRunnable implements Runnable{
@@ -1257,9 +1258,54 @@ System.out.println(sum);
 
 #### 死锁
 
-```java
+1. 死锁：多个线程同时被阻塞，它们中的一个或者全部都在等待某个资源被释放。由于线程被无限期地阻塞，因此程序不可能正常终止。实际开发中注意避免死锁。
 
+#### 等待唤醒机制
+
+1. 基础方式实现等待唤醒机制：多个线程之间的通信。可以让多个线程交替执行。
+2. 阻塞队列实现等待唤醒机制：4 个接口：`BlockingQueue`，`Iterable`，`Collection`，`Queue`。2 个实现类：`ArrayBlockingQueue`(底层是数组，有界)，`LinkedBlockingQueue`(底层是链表，无界，但不是真正的无界，最大为 int 的最大值)。生产者和消费者必须使用同一个阻塞队列
+3. TODO 看多线程综合练习
+
+#### 线程池
+
+1. 原理：创建一个空池子，提交任务时池子会创建新的线程对象，线程执行完毕，线程归还给池子，下次再提交任务时，不需要重复创建新的线程，直接复用已有的线程。所有任务都执行完毕后，关闭线程池（现实中不会关闭，因为服务器是 24 小时运行的）。如果提交任务时线程池中没有空闲的线程，也无法创建新的线程，那么任务就会排队等待。
+2. 线程池代码实现：`Executors`线程池的工具类，通过调用方法返回不同类型的线程池对象。
+3. 创建线程池的方法：
+   1. `public static ExecutorService newFixedThreadPool(int nThreads)`：创建一个可重用固定线程数的线程池，以共享的无界队列方式来运行这些线程。(有上限)
+   2. `public static ExecutorService newCachedThreadPool()`：(无上限，int 类型的最大值)
+4. 示例：
+
+```java
+// 创建一个可重用固定线程数2的线程池
+ExecutorService es1 = Executors.newFixedThreadPool(2);
+es1.submit(new MyRunnable());
+es1.shutdown();
+// 创建一个可重用不固定线程数的线程池
+ExecutorService es2 = Executors.newCachedThreadPool();
+es2.submit(new MyRunnable());
+es2.shutdown();
 ```
+
+5. 自定义线程池示例：有 3 点细节：
+   1. 当核心线程全部占用时，再提交任务，会把任务放到阻塞队列中，等待核心线程空闲出来，再执行任务。
+   2. 当核心线程满，队伍满时，再提交任务，会创建临时线程执行任务。
+   3. 当核心线程满，队伍满时，临时线程满时，会触发任务拒绝策略。
+
+```java
+// 自定义线程池
+ThreadPoolExecutor tpe = new ThreadPoolExecutor(
+   2, // 核心线程数
+   5, // 最大线程数
+   1, // 空闲线程存活时间
+   TimeUnit.SECONDS, // 时间单位
+   new ArrayBlockingQueue<>(3), // 阻塞队列
+   Executors.defaultThreadFactory(), // 线程工厂
+   new ThreadPoolExecutor.AbortPolicy() // 拒绝策略
+);
+```
+
+6. 最大并行数：核心线程数 + 阻塞队列容量。设置的时候看 CPU 是几核几线程的，一般设置为核心数的 2 倍。
+7. 线程池多大比较合适：CPU 密集型：核心数（最大并行数）+1；IO 密集型：核心数\*2。
 
 ### 网络编程
 
