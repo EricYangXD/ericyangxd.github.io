@@ -1264,7 +1264,6 @@ System.out.println(sum);
 
 1. 基础方式实现等待唤醒机制：多个线程之间的通信。可以让多个线程交替执行。
 2. 阻塞队列实现等待唤醒机制：4 个接口：`BlockingQueue`，`Iterable`，`Collection`，`Queue`。2 个实现类：`ArrayBlockingQueue`(底层是数组，有界)，`LinkedBlockingQueue`(底层是链表，无界，但不是真正的无界，最大为 int 的最大值)。生产者和消费者必须使用同一个阻塞队列
-3. TODO 看多线程综合练习
 
 #### 线程池
 
@@ -1309,16 +1308,139 @@ ThreadPoolExecutor tpe = new ThreadPoolExecutor(
 
 ### 网络编程
 
-```java
+1. protocol//ip:port
+2. `InetAddress`: IP 地址对象
+   1. `public static InetAddress getLocalHost()`：返回本地主机
+   2. `public static InetAddress getByName(String host)`：根据主机名获取 IP 地址对象
+   3. `public String getHostName()`：获取主机名
+   4. `public String getHostAddress()`：获取 IP 地址
+3. 端口号是应用程序在设备中的唯一标识？0~1023 是系统保留端口号，一般不用。1024~65535 是用户端口号，一般用。
+4. UDP：DatagramSocket 示例：`DatagramSocket ds = new DatagramSocket();`。DatagramPacket 示例：`DatagramPacket dp = new DatagramPacket(byte[] buf, int length, InetAddress address, int port);`。`public void send(DatagramPacket p)`：发送数据包。`public void receive(DatagramPacket p)`：接收数据包。
 
+```java
+// send data
+DatagramSocket ds = new DatagramSocket();
+String s = "你好";
+byte[] bytes = s.getBytes();
+InetAddress address = InetAddress.getByName("127.0.0.1");
+int port=10086;
+DatagramPacket dp = new DatagramPacket(bytes, bytes.length, address, port);
+ds.send(dp);
+ds.close();
 ```
+
+```java
+// receive data
+DatagramSocket ds = new DatagramSocket(10086);
+byte[] bytes = new byte[1024];
+DatagramPacket dp = new DatagramPacket(bytes, bytes.length);
+ds.receive(dp);
+byte[] data=dp.getData();
+int length=dp.getLength();
+InetAddress address=dp.getAddress();
+int port=dp.getPort();
+System.out.println(new String(dp.getData(), 0,length));
+ds.close();
+```
+
+5. UDP 的 3 种通信方式：
+   1. 单播：一对一
+   2. 组播：一对一组，组播地址：224.0.0.0~239.255.255.255，其中 224.0.0.0~224.0.0.255 为组播预留地址，`MulticastSocket`
+   3. 广播：一对多，地址：255.255.255.255，局域网中的都能收到
+6. TCP 通信：
+   1. 服务端：`ServerSocket(int port)`，`Socket accept()`，`InputStream getInputStream()`，`void close()`：创建服务器端的 socket 对象；监听客户端的连接，返回一个 Socket 对象；获取输入流，读数据，并把数据显示出来；释放资源。
+   2. 客户端：`Socket(String host, int port)`，`OutputStream getOutputStream()`，`void close()`：创建客户端的 socket 对象，连接指定服务器端；获取输入流，写数据时使用转换流`InputStreamReader`适配中文，还可以用缓冲流`BufferedReader`包裹转换流提高读取效率；释放资源。
 
 ### 反射
 
 1. 反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为 Java 语言的反射机制。
+2. 有三种方式：
+   1. 源代码阶段`Class.forName("全类名（包名+类名）")`
+   2. 加载阶段`类名.class`
+   3. 运行阶段`对象.getClass()`
+3. 利用反射获取构造方法：
+   1. `public Constructor[] getConstructors()`：获取所有公共构造方法
+   2. `public Constructor[] getDeclaredConstructors()`：获取所有构造方法
+   3. `public Constructor getConstructor(Class<?>... parameterTypes)`：获取单个公共构造方法
+   4. `public Constructor getDeclaredConstructor(Class<?>... parameterTypes)`：获取单个构造方法
+4. Constructor 类中用于创建对象的方法：
+   1. `public T newInstance(Object... initargs)`：根据指定的构造方法创建对象
+   2. `setAccessible(boolean flag)`：设置为 true，表示取消访问检查，暴力反射，可以使用 private 修饰的属性方法，通用的！！！
+   3. `getModifiers()`：获取修饰符，通用的！！！
+   4. `getName()`：获取构造方法名，通用的！！！
+   5. `getParameterTypes()`：获取构造方法参数列表
+   6. `getExceptionTypes()`：获取构造方法异常列表
+   7. `getParameters()`：获取构造方法参数列表
+5. class 类中用于获取成员变量的方法：
+   1. `public Field[] getFields()`：获取所有公共成员变量
+   2. `public Field[] getDeclaredFields()`：获取所有成员变量
+   3. `public Field getField(String name)`：获取单个公共成员变量
+   4. `public Field getDeclaredField(String name)`：获取单个成员变量
+6. Field 类中用于创建对象的方法：
+   1. `void set(Object obj, Object value)`：设置指定对象变量值
+   2. `Object get(Object obj)`：获取指定对象变量值
+   3. `getType()`：获取成员变量类型
+7. class 类中用于获取成员方法的方法：
+   1. `public Method[] getMethods()`：获取所有公共成员方法，包括继承的
+   2. `public Method[] getDeclaredMethods()`：获取所有成员方法，不包括继承的
+   3. `public Method getMethod(String name, Class<?>... parameterTypes)`：获取单个公共成员方法
+   4. `public Method getDeclaredMethod(String name, Class<?>... parameterTypes)`：获取单个成员方法
+   5. `getExceptionTypes()`：获取成员方法异常列表
+8. Method 类中用于创建对象的方法：
+   1. `public Object invoke(Object obj, Object... args)`：调用指定对象方法
+   2. 参数一：用 obj 对象调用该方法；参数二：调用方法的传递的参数（可以为空），返回值：方法的返回值
+9. 反射的作用：
+   1. 获取任意一个类中的所有信息
+   2. 结合配置文件动态创建对象
+
+### 动态代理
+
+1. 代理可以无侵入式的对目标对象进行功能增强，而且可以很方便的对目标对象进行各种切面的操作。调用者->代理->对象
+2. 代理里面就是对象要被代理的方法
+3. 通过接口保证代理的样子，后面的对象和代理需要实现同一个接口，接口中就是被代理的所有方法
+4. `java.lang.reflect.Proxy`类：用于创建代理对象的类，提供了很多方法，但是我们用的最多的就是`newProxyInstance()`方法。
+5. 创建一个代理，示例：
 
 ```java
-
+// 比如已经定义了一个接口Star和一个类BigStar实现了Star接口并且有一个sing方法
+// 创建一个接口
+public interface Star{
+   void sing(String songName);
+}
+// 创建一个类
+public class BigStar implements Star{
+   private String name;
+   public BigStar(String name){
+      this.name = name;
+   }
+   @Override
+   public void sing(String songName){
+      System.out.println("唱歌:" + songName);
+   }
+}
+// 创建一个代理类
+public class ProxyUtil{
+   public static Star createProxy(BigStar bigStar){
+      Star star = (Star)Proxy.newProxyInstance(
+         bigStar.getClass().getClassLoader(), // 类加载器 // ProxyUtil.class.getClassLoader()
+         bigStar.getClass().getInterfaces(), // 被代理类实现的接口 // new Class[]{Star.class}
+         new InvocationHandler(){ // 处理器
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable{
+               System.out.println("唱歌前");
+               Object obj = method.invoke(bigStar, args);// 调用被代理类的方法
+               System.out.println("唱歌后");
+               return obj;
+            }
+         }
+      );
+      return star;
+   }
+}
+// 创建一个代理对象
+BigStar bigStar = new BigStar("鸡哥");
+Star proxy = new ProxyStar(bigStar);
+proxy.sing("歌名");
 ```
 
 ### 泛型
@@ -1523,3 +1645,41 @@ Response response = HttpRequest.get("http://192.168.1.13:9100/auth/login")
       .execute();
       System.out.println("response = " + response);
 ```
+
+## MVC 三层架构
+
+1. User -> Controller -> Service -> Dao -> DB
+   1. Controller: 接收前端请求，调用 Service 处理业务逻辑，返回结果
+   2. Service: 处理具体的业务逻辑，调用 Dao 操作数据
+   3. Dao: 数据访问层（Data Access Object）（持久层），负责数据访问操作，CRUD。
+2. IoC: 控制反转，把对象的创建交给 Spring 容器来管理，而不是自己创建对象。(IOC 是一种编程思想，DI 是实现 IOC 的一种方式。对象的创建控制权由程序自身转移到外部容器)
+3. DI: 依赖注入，把对象的创建交给 Spring 容器来管理，而不是自己创建对象。(IOC 是一种编程思想，DI 是实现 IOC 的一种方式。)
+
+
+### 注解简介
+
+1. 注解：注解是一种引用数据类型，编译之后也是生成 xxx.class 文件。
+2. 注解的作用：可以在不改变原有代码的情况下，对源代码进行功能的增强。
+3. 
+
+|名称  | 说明 | 使用 |
+|--|--|--|
+| @Component|声明Bean的基础注解 |不属于以下三类时用此注解 |
+| @Controller|@Component的衍生注解 |标注在控制器类上 |
+| @Service| @Component的衍生注解| 标注在业务类上|
+| @Repository|@Component的衍生注解 |标注在数据访问类上（由于与MyBatis整合，用得少），默认Bean名称是类名首字母小写 |
+| @Bean| | |
+| @RestController| | |
+| @SpringBootApplication| 包扫描，默认扫描当前包及其子包|包含@ComponentScan |
+| @RequestMapping| | |
+| @ComponentScan|指明要扫描的包 | |
+| @| | |
+| @Autowired|自动装配，由Spring提供 |默认按照类型进行如果存在多个类型相同的Bean，会报错，要通过一下三个注解来解决 |
+| @Primary|想让哪个Bean生效就在哪个上加上 |设置优先级 |
+| @Qualifier|声明使用哪个Bean |和@Autowired一起使用，只需声明Bean名称 |
+| @Resource| 声明使用哪个Bean，由JDK提供|直接声明name=Bean名称 |
+|@Override| 重写 | 用于修饰方法，表示该方法是重写父类的方法 |
+|@Deprecated| 过时 | 用于修饰类、方法、属性，表示该类、方法、属性已过时 |
+|@SuppressWarnings| 抑制警告 | 用于修饰类、方法、属性，表示忽略指定的警告 |
+|@SafeVarargs| 安全类型可变参数 | 用于修饰方法，表示方法的可变参数是安全的 |
+|@FunctionalInterface| 函数式接口 | 用于修饰接口，表示该接口是函数式接口 |

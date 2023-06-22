@@ -231,10 +231,10 @@ Compressed 和 Dynamic 这两种格式采用完全的行溢出方式，记录的
 
 操作语句分为四类：
 
-1. DDL 数据定义语言 (Data Definition Language) 例如：建库，建表
+1. DDL 数据定义语言 (Data Definition Language)用来定义数据库对象 例如：建库，建表
 2. DML 数据操纵语言(Data Manipulation Language) 例如：对表中的数据进行增删改操作
 3. DQL 数据查询语言(Data Query Language) 例如：对数据进行查询
-4. DCL 数据控制语言(Data Control Language) 例如：对用户的权限进行设置
+4. DCL 数据控制语言(Data Control Language) 例如：创建数据库用户，对用户的权限进行设置
 
 ### DDL 数据定义语言
 

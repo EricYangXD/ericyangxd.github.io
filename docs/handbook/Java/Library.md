@@ -135,7 +135,22 @@ swagger 相关，调试接口。启动程序，然后再浏览器里我们就可
 
 spring web
 
-####
+### xml 文件解析
+
+1. dom4j
+2. jaxb-api
+3. jaxb-impl
+4. jaxb-core
+5. jaxb-runtime
+6. jaxb-xjc
+7. jaxb-jxc
+
+### IT-test
+
+1. junit
+2. cargo-mavenX-plugin
+
+###
 
 ## xml
 
