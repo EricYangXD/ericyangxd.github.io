@@ -18,8 +18,3 @@ updates:
     schedule:
       interval: "weekly"
       
-  # Maintain dependencies for yarn
-  - package-ecosystem: "yarn"
-    directory: "/"
-    schedule:
-      interval: "weekly"
