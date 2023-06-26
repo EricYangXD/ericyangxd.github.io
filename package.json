@@ -13,7 +13,7 @@
 		"vuepress-plugin-copyright": "^1.0.2",
 		"vuepress-plugin-cursor-effects": "^1.1.4",
 		"vuepress-plugin-nuggets-style-copy": "^1.0.3",
-		"vuepress-plugin-seo": "^0.1.4",
+		"vuepress-plugin-seo": "^0.2.0",
 		"vuepress-plugin-sitemap": "^2.3.1",
 		"loader-utils": "^1.4.2",
 		"json5": "^2.2.2",
