@@ -484,3 +484,9 @@ TODO
 
 4. SolidJS 和 Svelte 由于在编译之后就确定了当状态发生改变 UI 随之变化的关系，所以仅仅是具体 DOM 的重新加载。
 5. 相对来说，react 更新粒度最粗，但是配合 useMemo/memo 之后可以跟 Vue 差不多，Vue 更新粒度中等，SolidJS 和 Svelte 更新粒度相对最细。
+
+## TOTP
+
+基于时间的一次性密码算法（Time-based One-Time Password，简称：TOTP）是一种根据预共享的密钥与当前时间计算一次性密码的算法。
+
+1. 前端库：`@nest-public/totp`，默认使用SHA1散列算法和30秒的时间步长。
