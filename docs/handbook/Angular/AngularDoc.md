@@ -3480,7 +3480,7 @@ export class AuthInterceptor implements HttpInterceptor {
 }
 ```
 
-##### 14.5.3 拦截器注入
+##### 14.6.3 拦截器注入
 
 ```javascript
 import { AuthInterceptor } from "./auth.interceptor"
@@ -3499,7 +3499,7 @@ import { HTTP_INTERCEPTORS } from "@angular/common/http"
 
 #### 14.7 Angular Proxy
 
-1. 在项目的根目录下创建 proxy.conf.json 文件并加入如下代码
+1. 在项目的根目录下创建 `proxy.conf.json` 文件并加入如下代码
 
 ```json
 {
@@ -3511,10 +3511,10 @@ import { HTTP_INTERCEPTORS } from "@angular/common/http"
 }
 ```
 
-1.  /api/\*：在应用中发出的以 /api 开头的请求走此代理
-2.  target：服务器端 URL
-3.  secure：如果服务器端 URL 的协议是 https，此项需要为 true
-4.  changeOrigin：如果服务器端不是 localhost， 此项需要为 true
+1.  `/api/*`：在应用中发出的以 `/api` 开头的请求走此代理
+2.  `target`：服务器端 URL
+3.  `secure`：如果服务器端 URL 的协议是 https，此项需要为 true
+4.  `changeOrigin`：如果服务器端不是 localhost， 此项需要为 true
 
 5.  指定 proxy 配置文件 (方式一)
 
@@ -3533,6 +3533,31 @@ import { HTTP_INTERCEPTORS } from "@angular/common/http"
   },
 ```
 
+#### 14.8 跨域
+
+上面使用 proxy 已经可以搞定绝大部分需求，还可以使用 jsonp。注意，下面的代码只是示意，不是在同一个文件里的！
+
+```javascript
+// app.module.ts
+// 如果需要用到jsonp解决跨域请求问题，还需要引入HttpClientJsonpModule
+import { HttpClientModule, HttpClientJsonpModule } from "@angular/common/http";
+// 如果用到了JOSNP，那么也需要在app.module.ts模块配置中配置一下
+imports: [BrowserModule, HttpClientModule, HttpClientJsonpModule];
+
+// http.service.ts
+let api: any = "http://www.jiekou.com/api";
+// 第一个参数是接口地址，第二个参数callback是回调函数
+this.http.jsonp(api, "callback").subscribe((response) => {
+  console.log(response);
+});
+```
+
+在展示 jsonp 请求代码之前，有几点要提一下：
+
+1. 如果你的后台代码不允许跨域，那么我们用 jsonp 去解决跨域没啥问题。
+2. jsonp 请求有个前提就是，你的服务器需要支持 jsonp 请求
+3. 当然，如果你的后台允许你进行跨域请求，那你正常请求即可，不需要用到 jsonp
+
 ### 15. NgRx
 
 #### 15.1 概述
@@ -3541,12 +3566,12 @@ NgRx 是 Angular 应用中实现全局状态管理的 Redux 架构解决方案�
 
 <img src="../../assets/images/49.png" align="center" width="80%"/>
 
-1. @ngrx/store：全局状态管理模块
-2. @ngrx/effects：处理副作用
-3. @ngrx/store-devtools：浏览器调试工具，需要依赖 [Redux Devtools Extension](https://github.com/zalmoxisus/redux-devtools-extension/)
-4. @ngrx/schematics：命令行工具，快速生成 NgRx 文件
-5. @ngrx/entity：提高开发者在 Reducer 中操作数据的效率
-6. @ngrx/router-store：将路由状态同步到全局 Store
+1. `@ngrx/store`：全局状态管理模块
+2. `@ngrx/effects`：处理副作用
+3. `@ngrx/store-devtools`：浏览器调试工具，需要依赖 [Redux Devtools Extension](https://github.com/zalmoxisus/redux-devtools-extension/)
+4. `@ngrx/schematics`：命令行工具，快速生成 NgRx 文件
+5. `@ngrx/entity`：提高开发者在 Reducer 中操作数据的效率
+6. `@ngrx/router-store`：将路由状态同步到全局 Store
 
 #### 15.2 快速开始
 
