@@ -150,7 +150,9 @@ spring web
 1. junit
 2. cargo-mavenX-plugin
 
-###
+### 数据库连接池工具
+
+1. druid-spring-boot-starter
 
 ## xml
 

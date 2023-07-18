@@ -45,6 +45,12 @@ date: "2022-05-21"
 2. ZeroTier
 3. Tailscale
 
+### Tailscale异地组网实战
+
+1. 
+
+
+
 ## 常用cmd命令
 
 1. ipconfig
@@ -105,3 +111,5 @@ goto line
 
 1. scrcpy: 也支持Mac和Linux。`scrcpy --tcpip=192.168.150.18:5555` 小米手机需要打开无线调试之后再看端口号即可。同一局域网或固定IP。或者使用USB数据线连接手机。[github](https://github.com/Genymobile/scrcpy)
 2. alink
+
+

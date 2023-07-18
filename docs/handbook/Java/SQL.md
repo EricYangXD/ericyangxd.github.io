@@ -315,7 +315,7 @@ CREATE TABLE 表名 (
                   字段名2 字段类型2 约束条件2 说明2,
                   字段名3 字段类型3 约束条件3 说明3
                   );
-create table 新表名 as select * from 旧表名 where 1=2;(注意：建议这种创建表的方式用于日常测试，因  为可能索引什么的会复制不过来)
+create table 新表名 as select * from 旧表名 where 1=2;(注意：建议这种创建表的方式用于日常测试，因为可能索引什么的会复制不过来)
 create table 新表名 like 旧表名;
 
 ```
@@ -1251,6 +1251,10 @@ mysql> call name();
 ```
 
 ### 8 索引与存储引擎的介绍
+
+```sql
+create index 索引名称 on 表名(字段名);
+```
 
 ```sql
 

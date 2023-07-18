@@ -1655,31 +1655,42 @@ Response response = HttpRequest.get("http://192.168.1.13:9100/auth/login")
 2. IoC: 控制反转，把对象的创建交给 Spring 容器来管理，而不是自己创建对象。(IOC 是一种编程思想，DI 是实现 IOC 的一种方式。对象的创建控制权由程序自身转移到外部容器)
 3. DI: 依赖注入，把对象的创建交给 Spring 容器来管理，而不是自己创建对象。(IOC 是一种编程思想，DI 是实现 IOC 的一种方式。)
 
-
 ### 注解简介
 
 1. 注解：注解是一种引用数据类型，编译之后也是生成 xxx.class 文件。
 2. 注解的作用：可以在不改变原有代码的情况下，对源代码进行功能的增强。
-3. 
+3. 常见注解及其作用：
 
-|名称  | 说明 | 使用 |
-|--|--|--|
-| @Component|声明Bean的基础注解 |不属于以下三类时用此注解 |
-| @Controller|@Component的衍生注解 |标注在控制器类上 |
-| @Service| @Component的衍生注解| 标注在业务类上|
-| @Repository|@Component的衍生注解 |标注在数据访问类上（由于与MyBatis整合，用得少），默认Bean名称是类名首字母小写 |
-| @Bean| | |
-| @RestController| | |
-| @SpringBootApplication| 包扫描，默认扫描当前包及其子包|包含@ComponentScan |
-| @RequestMapping| | |
-| @ComponentScan|指明要扫描的包 | |
-| @| | |
-| @Autowired|自动装配，由Spring提供 |默认按照类型进行如果存在多个类型相同的Bean，会报错，要通过一下三个注解来解决 |
-| @Primary|想让哪个Bean生效就在哪个上加上 |设置优先级 |
-| @Qualifier|声明使用哪个Bean |和@Autowired一起使用，只需声明Bean名称 |
-| @Resource| 声明使用哪个Bean，由JDK提供|直接声明name=Bean名称 |
-|@Override| 重写 | 用于修饰方法，表示该方法是重写父类的方法 |
-|@Deprecated| 过时 | 用于修饰类、方法、属性，表示该类、方法、属性已过时 |
-|@SuppressWarnings| 抑制警告 | 用于修饰类、方法、属性，表示忽略指定的警告 |
-|@SafeVarargs| 安全类型可变参数 | 用于修饰方法，表示方法的可变参数是安全的 |
-|@FunctionalInterface| 函数式接口 | 用于修饰接口，表示该接口是函数式接口 |
+| 名称                   | 说明                             | 使用                                                                              |
+| ---------------------- | -------------------------------- | --------------------------------------------------------------------------------- |
+| @Component             | 声明 Bean 的基础注解             | 不属于以下三类时用此注解                                                          |
+| @Controller            | @Component 的衍生注解            | 标注在控制器类上                                                                  |
+| @Service               | @Component 的衍生注解            | 标注在业务类上                                                                    |
+| @Repository            | @Component 的衍生注解            | 标注在数据访问类上（由于与 MyBatis 整合，用得少），默认 Bean 名称是类名首字母小写 |
+| @Bean                  |                                  |                                                                                   |
+| @RestController        |                                  |                                                                                   |
+| @SpringBootApplication | 包扫描，默认扫描当前包及其子包   | 包含@ComponentScan                                                                |
+| @RequestMapping        |                                  |                                                                                   |
+| @ComponentScan         | 指明要扫描的包                   |                                                                                   |
+| @                      |                                  |                                                                                   |
+| @Autowired             | 自动装配，由 Spring 提供         | 默认按照类型进行如果存在多个类型相同的 Bean，会报错，要通过一下三个注解来解决     |
+| @Primary               | 想让哪个 Bean 生效就在哪个上加上 | 设置优先级                                                                        |
+| @Qualifier             | 声明使用哪个 Bean                | 和@Autowired 一起使用，只需声明 Bean 名称                                         |
+| @Resource              | 声明使用哪个 Bean，由 JDK 提供   | 直接声明 name=Bean 名称                                                           |
+| @Override              | 重写                             | 用于修饰方法，表示该方法是重写父类的方法                                          |
+| @Deprecated            | 过时                             | 用于修饰类、方法、属性，表示该类、方法、属性已过时                                |
+| @SuppressWarnings      | 抑制警告                         | 用于修饰类、方法、属性，表示忽略指定的警告                                        |
+| @SafeVarargs           | 安全类型可变参数                 | 用于修饰方法，表示方法的可变参数是安全的                                          |
+| @FunctionalInterface   | 函数式接口                       | 用于修饰接口，表示该接口是函数式接口                                              |
+
+### 单表设计
+
+参考 SQL
+
+### 多表设计
+
+1. 外键约束 foreign key：保证多张表中数据的一致性和完整性，不能随意删除改动数据，又叫物理外键。缺点如下：
+   1. 影响增删改的效率（需要检查外键关系）
+   2. 仅用于单节点数据库，不适用于分布式、集群场景
+   3. 容易引发数据库的死锁问题，消耗性能
+2.
