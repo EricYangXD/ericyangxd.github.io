@@ -1611,14 +1611,35 @@ System.out.println("object = " + object);
 #### 文件上传
 
 ```java
-File file=new File("C:\\Users\\andanyang\\Downloads\\Sql.txt");
+File file = new File("C:\\Users\\andanyang\\Downloads\\Sql.txt");
 Map<String, Object> formParams = new HashMap<>();
-formParams.put("key","test");
-formParams.put("file",file);
-formParams.put("token","WXyUseb-D4sCum-EvTIDYL-mEehwDtrSBg-Zca7t:qgOcR2gUoKmxt-VnsNb657Oatzo=:eyJzY29wZSI6InpoYW56aGkiLCJkZWFkbGluZSI6MTY2NTMwNzUxNH0=");
+formParams.put("key", "test");
+formParams.put("file", file);
+formParams.put("token", "WXyUseb-D4sCum-EvTIDYL-mEehwDtrSBg-Zca7t:qgOcR2gUoKmxt-VnsNb657Oatzo=:eyJzY29wZSI6InpoYW56aGkiLCJkZWFkbGluZSI6MTY2NTMwNzUxNH0=");
 Response response = HttpUtil.upload("https://upload.qiniup.com/", formParams);
 System.out.println(response);
 ```
+
+- 文件上传，可以传到本地，也可以传到云端，一般放在专用的文件服务器上，比如阿里云的 OSS 服务。
+- 上传本地细节
+  1. 前端 form 表单设置：`<from action='upload' method='post' enctype='multipart/form-data'><input type='file' name='image'/><input type='submit' value='提交'/></from>`
+  2. 服务端：设置一个`@RestController`，配置`@PostMapping("/uploadPath")`，参数设置为`@RequestParam("image")MultipartFile file`，这样可以不用跟前端的`name`属性绑定，然后通过`file.transferTo(new File("D:\\xxx\\xxx\\" + newName))`保存到本地。
+  3. 为了防止文件名冲突，获取文件的原始名称：`String oName = file.getOriginalFilename();`（可能还需要处理一下），使用 uuid：`String newName = UUID.randomUUID().toString().replaceAll("-", "") + oName.substring(oName.lastIndexOf('.'));`，然后再把俩名字拼接一下，这样就可以保证文件名不重复。
+  4. SpringBoot 中，文件上传默认单个文件最大大小为 1MB，可以在`application.properties`中设置`spring.servlet.multipart.max-file-size=10MB`，设置最大文件大小为 10MB。当一次同时上传多个文件时还可以设置最大请求大小：`spring.servlet.multipart.max-request-size=100MB`。
+- 阿里云 OSS，接收上传的图片，将图片存储起来（OSS），返回图片访问的 url。参考官方示例，还需要购买相应的服务
+- 配置文件：
+  1. 参数配置化：通过`@Value("${配置文件中的aliyun.oss.accessKeyId}")`注解注入（对应 property 中的 key）
+  2. xml（不推荐），property（不推荐），yml/yaml（推荐 yml，二者一样）配置文件
+  3. `@Data @Component @ConfigurationProperties(prefix = "aliyun.oss")`，可以将配置文件中的属性值注入到实体类中，前提是实体类中的属性名和配置文件中的属性名一致，如果不一致，可以通过`@Value("${xxx}")`注解注入
+  4. 3 中还需要引入一个依赖`org.springframework.boot:spring-boot-configuration-processor`（可选），这样就可以在配置文件中通过`aliyun.oss.accessKeyId`来访问配置文件中的属性值了(IDEA 会有提示)
+- yml 基本语法：
+  1. 大小写敏感
+  2. 数值前必须有空格作为分隔符
+  3. 使用缩进表示层级关系，只能用空格缩进
+  4. 缩进的空格数目不重要，但是相同层级的元素必须左对齐
+  5. `#`表示注释
+  6. 开头没有特殊符号表示对象/Map 集合
+  7. `-`开头表示数组/List/Set 集合
 
 #### 文件下载
 
@@ -1690,7 +1711,111 @@ Response response = HttpRequest.get("http://192.168.1.13:9100/auth/login")
 ### 多表设计
 
 1. 外键约束 foreign key：保证多张表中数据的一致性和完整性，不能随意删除改动数据，又叫物理外键。缺点如下：
-   1. 影响增删改的效率（需要检查外键关系）
-   2. 仅用于单节点数据库，不适用于分布式、集群场景
-   3. 容易引发数据库的死锁问题，消耗性能
-2.
+   - 影响增删改的效率（需要检查外键关系）
+   - 仅用于单节点数据库，不适用于分布式、集群场景
+   - 容易引发数据库的死锁问题，消耗性能
+2. TODO
+
+## 登录校验
+
+常用有三种：客户端会话跟踪 Cookie、服务端会话跟踪 Session（依赖 Cookie）、token（令牌）
+
+### Cookie
+
+存储在客户端浏览器，是 http 协议默认支持的技术，不可控：用户可以在浏览器设置中选择禁用或删除 Cookie，从而限制网站对其信息的跟踪和存储。安卓 ios 应用无法使用？手机浏览器可以使用 cookie！cookie 不能跨域，浏览器隐私政策越来越严格！
+
+- 会话管理：网站可以在用户访问期间跟踪用户的会话状态，例如登录状态、购物车内容等。
+- 用户跟踪：网站可以识别和跟踪用户的行为和偏好，以便提供个性化的体验。
+- 认证和授权：网站可以使用 Cookie 来实现用户登录和授权，以保护用户的隐私和安全。
+
+1. `Cookie`请求头: `Cookie: <cookie-name>=<cookie-value>; <cookie-name>=<cookie-value>; ...`
+2. `Set-Cookie`响应头: `Set-Cookie: <cookie-name>=<cookie-value>; Expires=<date>; Domain=<domain-value>; Path=<path-value>; Secure; HttpOnly`
+3. 上述都是浏览器自动处理的，前端可以通过`document.cookie`来获取当前网站的所有 cookie，也可以通过`document.cookie = "name=value"`来设置 cookie，但是这样设置的 cookie 是会话级别的，浏览器关闭后就会失效，如果想设置持久化的 cookie，需要设置`Expires`或`Max-Age`属性，`Expires`是一个时间戳，`Max-Age`是一个时间段，两者都是设置 cookie 的有效期，如果两者都设置了，那么`Max-Age`优先级更高，`Domain`是 cookie 的作用域，`Path`是 cookie 的路径，`Secure`表示只有 https 协议才能发送该 cookie，`HttpOnly`表示只有 http 协议才能发送该 cookie，这两个属性都是为了防止 cookie 被劫持，`HttpOnly`还可以防止 XSS 攻击。而后端可以通过`HttpServletRequest request`->`request.getCookies()`来获取所有的 cookie，也可以通过`HttpServletResponse response`->`response.addCookie(cookie)`来设置 cookie，`cookie.setMaxAge(60 * 60 * 24 * 7)`设置 cookie 的有效期为 7 天，`cookie.setPath("/")`设置 cookie 的作用域为整个网站，`cookie.setHttpOnly(true)`设置 cookie 只能通过 http 协议发送，`cookie.setSecure(true)`设置 cookie 只能通过 https 协议发送，`cookie.setDomain("localhost")`设置 cookie 的作用域为 localhost，`cookie.setPath("/user")`设置 cookie 的作用路径为/user，`cookie.setValue("value")`设置 cookie 的值为 value，`cookie.getName()`获取 cookie 的名称，`cookie.getValue()`获取 cookie 的值，`cookie.setMaxAge(0)`设置 cookie 的有效期为 0，即删除 cookie。
+
+### Session
+
+存储在服务端（安全），依赖 Cookie，可以跨域共享 session（比如 redis）但是存在安全风险！session 是基于 cookie 的，session 的 id 是存在 cookie 中的，session 的数据是存在服务端的，session 的 id 是随机生成的，唯一，不可伪造，不可预测，不可修改，不可重复，不可盗用，不可删除。集群下不可直接使用，继承了 cookie 的缺点。
+
+1. Session 的用法：
+
+   - `HttpSession session = request.getSession()`获取 session，如果没有 session，就创建一个 session，如果有 session，就返回该 session。（`HttpServletRequest request`）
+   - `session.getAttribute("name")`获取 session 的属性值
+   - `session.setAttribute("name", "value")`设置 session 的属性值
+   - `session.removeAttribute("name")`删除 session 的属性值
+   - `session.invalidate()`销毁 session
+
+2. Session 会在 Cookie 中增加一个属性：`JSESSIONID=xxxxx`。
+
+3. 为了在跨域场景下实现会话共享，可以考虑以下一些替代方案：
+
+   - 跨域身份认证：可以使用 OAuth、JWT 等跨域身份认证机制，将用户认证信息存储在 token 中，然后通过 token 在不同域名之间传递用户身份信息。
+   - 跨域代理：可以设置一个位于同源域名的服务器作为代理，处理跨域请求并转发给目标域名的服务器，从而绕过浏览器的同源策略。
+   - 跨域共享 SessionID：在一些特殊场景下，可以将 SessionID 作为 URL 参数传递给其他域名，实现一定程度的跨域会话管理。但这种做法可能会有安全风险，需要谨慎处理。
+
+4. 优点：
+
+   - 数据存储在服务器端：Session 数据存储在服务器端，相比于 Cookie 存储在客户端，更加安全，用户无法直接修改或访问会话数据。
+   - 安全性较高：Session ID 存储在 Cookie 中，而实际的会话数据存储在服务器端，这样可以避免敏感数据暴露在客户端。
+   - 更大的数据容量：相比于 Cookie 的 4KB 限制，Session 可以存储更大量的数据，适用于存储较大的用户会话信息。
+   - 支持复杂的数据结构：Session 可以存储复杂的数据结构，如对象、数组等，便于存储和处理用户相关信息。
+   - 可自定义过期时间：开发人员可以设置 Session 的过期时间，让用户在一定时间内保持登录状态。
+
+5. 缺点：
+
+   - 占用服务器资源：Session 数据存储在服务器端，对于高并发和大量用户访问的网站，会占用服务器资源，增加服务器负担。
+   - 不适合分布式环境：在分布式环境中，不同的服务器无法共享 Session 数据，这会导致用户在不同服务器上切换时，会话状态丢失。
+   - 存储开销：Session 需要在服务器端存储会话数据，对于大规模的网站，需要考虑存储开销和数据备份等问题。
+   - 不支持跨域共享：由于浏览器的同源策略，Session 无法在不同域名之间共享，这限制了其在跨域场景下的应用。
+   - 可能导致内存泄漏：如果不正确地管理 Session，会导致内存泄漏问题，尤其在长时间不活动的会话中。
+
+### Token 令牌技术
+
+1. 优点：
+   - 支持 PC 端、移动端
+   - 解决集群环境下的认证问题
+   - 减轻服务器端的存储压力
+   - 无状态，可扩展性强
+2. 缺点：需要自己实现
+3. JWT：JSON Web Token，是一种基于 JSON 的开放标准（RFC 7519），用于在各方之间作为 JSON 对象安全地传输信息。主要使用场景一般是用来在身份提供者和服务提供者间传递被认证的用户身份信息，以便于从资源服务器获取资源。JWT 本身是一种无状态的、轻量级的身份验证和状态管理机制，由三部分组成：Header、Payload 和 Signature。
+4. JWT 组成：
+   - Header：头部，用于描述关于该 JWT 的最基本的信息，例如其类型以及签名所用的算法等。由于头部是一个 JSON 对象，所以它会被 Base64Url 编码后组成 JWT 的第一部分。
+   - Payload：负载，用于存放实际需要传递的数据，例如用户 ID、用户名等。由于负载是一个 JSON 对象，所以它会被 Base64Url 编码后组成 JWT 的第二部分。
+   - Signature：签名，用于对前两部分数据进行签名，防止数据篡改。签名的算法通常是 HMAC SHA256 或 RSA，通常需要提供一个密钥。由于签名需要对头部和负载进行签名，所以签名需要头部和负载进行 Base64Url 编码后组成 JWT 的第三部分。
+5. JWT 使用：
+   - 引入依赖：`io.jsonwebtoken.jjwt`
+
+```java
+@Test
+public void genJwt(){
+    Map<String,Object> claims = new HashMap<>();
+    claims.put("id", 1);
+    claims.put("username", "Tom");
+    String jwt = Jwts.builder()
+                    .setClaims(claims)// 要存储的内容
+                    .signWith(SignatureAlgorithm.HS256, "itxxx")// 签名算法和秘钥
+                    .setExpiration(new Date(System.currentTimeMillis()+24*3600*1000))
+                    .compact();
+    System.out.println(jwt);
+}
+```
+
+6. TODO
+
+## JVM 调优
+
+JVM 调优主要指的是通过参数调整和代码优化来提高 Java 程序的性能和稳定性。
+
+> 常见的 JVM 调优方式包括:
+
+- 设置堆内存大小(-Xms,-Xmx):防止内存溢出,但不要设置过大。
+- 设置新生代和老年代的比例:-XX:NewRatio,如 2 或 3,防止 Minor GC 过于频繁。
+- 优化垃圾回收器:使用 G1 或 ZGC 等更高效的垃圾回收器。
+- 关闭无用日志:-Xloggc:制定日志文件,只在需要的时候打开。
+- 避免全局锁:减少 sychronized 使用,采用 CAS、Lock 等乐观锁。
+- 合理使用缓存:利用好 JVM 缓存,如字符串缓存。
+- 采用并发编程:使用并发类替代同步操作,提高多线程效率。
+- 避免内存泄漏:及时关闭无用资源,避免被长期引用。
+- 启用 JIT 编译:-server 模式,并在运行阶段生成优化代码。
+- 其它工具优化:如使用 Visual VM 分析程序性能。
+
+合理的参数调整和代码优化可以让 Java 程序运行更高效、平稳,这就是 JVM 调优的主要目的。

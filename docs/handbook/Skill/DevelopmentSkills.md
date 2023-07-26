@@ -581,3 +581,33 @@ electron_mirror=https://npmmirror.com/mirrors/electron
 profiler_binary_host_mirror=https://npmmirror.com/mirrors/node-inspector
 chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
 ```
+
+
+## h5跳转中转页唤醒应用商店
+
+一般的做法是用户扫二维码或者手机浏览器访问url，打开中转页面，在中转页面上我们通过`navigator.userAgent`可以判断当前用户的操作系统是安卓还是ios，然后通过`window.location.href = targetUrl`的方式来跳转到应用商店或者appstore。
+
+对于在微信中的跳转（一般国内用户都会用微信扫码），ios可以通过上述方案实现自动跳转到appstore。而对于安卓用户，因为微信浏览器的缘故，不会自动跳转浏览器或目标app（其实是有方法的，需要自家的app端和微信申请APPID和h5接入微信`weixin-js-sdk`，使用微信的提供的开放标签），这是一般建议在中转页面做个提示，比如：请手动点击右上角选择在浏览器中打开。让用户手动处理。
+
+### 安卓
+
+如何通过H5跳转至应用商店下载指定app, 实现方式如下：
+
+- `window.location.href = "market://details?id=com.jingdong.app.mall"`
+- 一般来说上面的方式就够了
+
+> 注：url地址主要分为2部分：应用商店地址 + 应用包名
+
+目前国内主流应用商店地址如下：
+
+- oppo应用商店下载QQ：`oppomarket://details?packagename=com.tencent.mobileqq`
+- 华为应用商店：`appmarket://details?id=com.xx.xx`
+- 小米应用商店：`mimarket://details?id=com.xx.xx`
+- OPPO应用商店：`oppomarket://details?packagename=com.xx.xx`
+- vivo应用商店：`vivomarket://details?id=com.xx.xx`
+- 三星应用商店：`samsungapps://ProductDetail/com.xx.xx`
+- [其他参考](https://juejin.cn/post/6865182194608898061)
+
+### iOS
+
+类似这种：`window.location.href = "https://apps.apple.com/us/app/%E4%BA%AC%E4%B8%9C-%E4%B8%8D%E8%B4%9F%E6%AF%8F%E4%B8%80%E4%BB%BD%E7%83%AD%E7%88%B1/id414245413"`

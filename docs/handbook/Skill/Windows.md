@@ -19,25 +19,22 @@ date: "2022-05-21"
 5. 然后点击「图像」，选择刚才保存的 jpg 签名图片并点击「应用」
 6. 然后就可以把签名移动到合适的位置，并调整大小即可，此时的签名背景是透明的，不会有纸张的颜色，完美！
 
-
-## 安装Java
+## 安装 Java
 
 [参考这里](https://www.runoob.com/w3cnote/windows10-java-setup.html)
 
 ## Chrome
 
-1. `chrome://flags/#tab-hover-cards`两个都设置为enable即可。
-
+1. `chrome://flags/#tab-hover-cards`两个都设置为 enable 即可。
 
 ## 远程桌面
 
-1. windows自带的，需要设置里开启一下，Mac上也叫`Microsoft Remote Desktop`，外区appstore里可以下载安装
+1. windows 自带的，需要设置里开启一下，Mac 上也叫`Microsoft Remote Desktop`，外区 appstore 里可以下载安装
 2. Parsec
 3. ToDesk
 4. Chrome Remote Desktop
 5. TeamViewer
 6. 向日葵
-
 
 ## 异地组网
 
@@ -45,21 +42,20 @@ date: "2022-05-21"
 2. ZeroTier
 3. Tailscale
 
-### Tailscale异地组网实战
+### Tailscale 异地组网实战
 
-1. 
+1. 注册账号添加绑定设备就行了
+2. Tailscale 会给每台设备分配一个 ip，通过这个 ip 就可以直接访问你的设备了
 
-
-
-## 常用cmd命令
+## 常用 cmd 命令
 
 1. ipconfig
 2. win+S，以管理员运行
 3. win+R，以本地用户运行
 4. `ping www.baidu.com -t`：查看网络波动
-5. `ipconfig /flushdns`：刷新本机dns
+5. `ipconfig /flushdns`：刷新本机 dns
 6. `nslookup www.baidu.com`：查看与某个网站的连接情况
-7. `netsh winsock reset`：重置winsock目录至初始状态
+7. `netsh winsock reset`：重置 winsock 目录至初始状态
 8. `netsh advfirewall set allprofiles state [off/on]`：关闭/打开防火墙
 9. `sfc /scannow`：验证系统文件的完整性
 10. `DISM /Online /Cleanup-image /ScanHealth`：强力扫描电脑内的所有系统文件，检查是否与官方的系统文件是否一致
@@ -69,7 +65,7 @@ date: "2022-05-21"
 14. `netsh wlan show wlanreport`：生成无线网卡报告
 15. win+R，输入`netplwiz`，取消勾选登录时需要密码，即可取消开机密码
 16. `netsh wlan show profile name="network_name" key=clear`：查看连接过的无线网的密码
-17. `curl -L ip.tool.lu`：查看ip
+17. `curl -L ip.tool.lu`：查看 ip
 18. `chkdsk`：扫描硬盘扇区
 19. `mstsc`：远程桌面
 20. `perfmon.msc`：性能监控
@@ -79,37 +75,36 @@ date: "2022-05-21"
 24. `net user 用户名 /del`：删除用户
 25. `sfc /scannow`：系统扫描修复
 26. `IExpress`：系统内置捆绑器？
-27. `shutdown /s /t 3000`：设置3000秒后自动关机
+27. `shutdown /s /t 3000`：设置 3000 秒后自动关机
 28. `MSG /server:192.168.1.101 * "略略略！"`：命令行里给局域网其他电脑发消息
 29. `.cmd`防黑客帝国数字雨：
+
 ```sh
-@echo off  
-:line 
+@echo off
+:line
 color 0a
-setlocal ENABLEDELAYEDEXPANSION  
- 
-for /l %%i in (0) do (  
-set "line="  
-for /l %%j in (1,1,80) do (  
-set /a Down%%j-=2  
-set "x=!Down%%j!"  
-if !x! LSS 0 (  
-set /a Arrow%%j=!random!%%3  
-set /a Down%%j=!random!%%15+10  
-)  
-set "x=!Arrow%%j!"  
-if "!x!" == "2" (  
-set "line=!line!!random:~-1! "  
-) else (set "line=!line! ")  
-)  
-set /p=!line!<nul  
-)  
+setlocal ENABLEDELAYEDEXPANSION
+
+for /l %%i in (0) do (
+set "line="
+for /l %%j in (1,1,80) do (
+set /a Down%%j-=2
+set "x=!Down%%j!"
+if !x! LSS 0 (
+set /a Arrow%%j=!random!%%3
+set /a Down%%j=!random!%%15+10
+)
+set "x=!Arrow%%j!"
+if "!x!" == "2" (
+set "line=!line!!random:~-1! "
+) else (set "line=!line! ")
+)
+set /p=!line!<nul
+)
 goto line
 ```
 
 ## 手机投屏
 
-1. scrcpy: 也支持Mac和Linux。`scrcpy --tcpip=192.168.150.18:5555` 小米手机需要打开无线调试之后再看端口号即可。同一局域网或固定IP。或者使用USB数据线连接手机。[github](https://github.com/Genymobile/scrcpy)
+1. scrcpy: 也支持 Mac 和 Linux。`scrcpy --tcpip=192.168.150.18:5555` 小米手机需要打开无线调试之后再看端口号即可。同一局域网或固定 IP。或者使用 USB 数据线连接手机。[github](https://github.com/Genymobile/scrcpy)
 2. alink
-
-

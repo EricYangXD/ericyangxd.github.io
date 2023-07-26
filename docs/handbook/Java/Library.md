@@ -154,6 +154,14 @@ spring web
 
 1. druid-spring-boot-starter
 
+### JSON Web Token
+
+1. io.jsonwebtoken.jjwt
+
+### 配置文件解析
+
+1. org.springframework.boot:spring-boot-configuration-processor
+
 ## xml
 
 ```xml

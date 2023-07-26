@@ -68,4 +68,4 @@ public interface EmpMapper {
     3. set 动态的更新语句，只会在至少有一个子元素的条件返回 SQL 子句的情况下才去插入“SET”子句。而且，若语句的开头为“,”，set 元素也会将它们去除。
     4. foreach 用于遍历集合或数组，形式：`<foreach collection="list" item="item" index="index" open="(" close=")" separator=",">#{item}</foreach>`
     5. include 用于引入外部 sql 文件(也可以直接在 xml 中通过`<sql id="xxx"></sql>`标签直接定义可重用的 sql 片段)，形式：`<include refid="userMap"/>`，引入的 sql 文件中的 sql 语句的 id 属性值必须与 mapper 接口中的方法名相同，并且保持返回类型一致
-19.
+19. `<select></select>`
