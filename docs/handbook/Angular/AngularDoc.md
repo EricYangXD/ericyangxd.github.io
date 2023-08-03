@@ -882,8 +882,7 @@ export class ChildComponent implements AfterViewInit {
 **基本数据类型值变化**
 
 ```html
-<app-child [name]="name" [age]="age"></app-child>
-<button (click)="change()">change</button>
+<app-child [name]="name" [age]="age"></app-child> <button (click)="change()">change</button>
 ```
 
 ```javascript
@@ -3299,6 +3298,12 @@ fromEvent(button, "click")
   .subscribe(console.log);
 ```
 
+#### 13.6 RxJS 的四种不同类型 Subject
+
+| Observable                     | Subject                                   | BehaviorSubject                                      | AsyncSubject               | ReplaySubject                |
+| ------------------------------ | ----------------------------------------- | ---------------------------------------------------- | -------------------------- | ---------------------------- |
+| 每次从源头开始将值推送给观察者 | 将值多播给已订阅的该 Subject 的观察者列表 | 把最后一个值（当前值）发送给观察者（需要一个初始值） | 执行的最后一个值发给观察者 | 可以把之前错过的值发给观察者 |
+
 ### 14. HttpClientModule
 
 该模块用于发送 Http 请求，用于发送请求的方法都返回 Observable 对象。
@@ -3568,7 +3573,7 @@ NgRx 是 Angular 应用中实现全局状态管理的 Redux 架构解决方案�
 
 1. `@ngrx/store`：全局状态管理模块
 2. `@ngrx/effects`：处理副作用
-3. `@ngrx/store-devtools`：浏览器调试工具，需要依赖 [Redux Devtools Extension](https://github.com/zalmoxisus/redux-devtools-extension/)
+3. `@ngrx/store-devtools`：浏览器调试工具，需要依赖 [Redux Devtools Extension](https://github.com/reduxjs/redux-devtools)
 4. `@ngrx/schematics`：命令行工具，快速生成 NgRx 文件
 5. `@ngrx/entity`：提高开发者在 Reducer 中操作数据的效率
 6. `@ngrx/router-store`：将路由状态同步到全局 Store
