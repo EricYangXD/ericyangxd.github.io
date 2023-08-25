@@ -340,7 +340,7 @@ const onImgOK = (e) => {
 };
 ```
 
-4. 对于 customStyle，一般不需要显示这个 canvas，所以设置为：const painterStyle = 'position:fixed; left:-9999rpx;';
+4. 对于 customStyle，一般不需要显示这个 canvas，所以设置为：`const painterStyle = 'position:fixed; left:-9999rpx;'`;
 
 5. 剩下的就是把 palette 写出来。
 
@@ -348,9 +348,9 @@ const onImgOK = (e) => {
 
 Taro 官方貌似没有配置的教程，所以要么是手动改，要么也可以参考如下方案：
 
-1. 我们知道 Taro 对环境的配置文件放在 config/目录下，因此我们在 config 下（其他地方也可以）新建一个 updateConfig.js 文件
+1. 我们知道 Taro 对环境的配置文件放在 `config/`目录下，因此我们在 `config` 下（其他地方也可以）新建一个 `updateConfig.js` 文件
 
-2. 利用 nodejs 的 fs 模块对文件进行读写。updateConfig.js 代码如下：
+2. 利用 `nodejs` 的 `fs` 模块对文件进行读写。`updateConfig.js` 代码如下：
 
 ```js
 /**
@@ -384,9 +384,9 @@ function updateProjectConfig(filePath) {
 updateProjectConfig(path.join(__dirname, "../project.config.json"));
 ```
 
-3. 把开发和生产的 appid 分别配置到 config/dev.js 和 config/prod.js 中;
+3. 把开发和生产的 `appid` 分别配置到 `config/dev.js` 和 `config/prod.js` 中;
 
-4. 然后再 package.json 中配置一下启动命令即可。例：
+4. 然后再 `package.json` 中配置一下启动命令即可。例：
 
 ```json
 "scripts": {
@@ -401,9 +401,9 @@ updateProjectConfig(path.join(__dirname, "../project.config.json"));
 },
 ```
 
--   这样运行 npm start 即可在开发模式下进行开发，如果要在真机预览，则新建一个有 NODE_ENV=production 的命令，打包的时候压缩一下体积即可。
--   对于生产的包，运行 npm run build:prod 即可得到。
--   --watch 开启热更新。
+-   这样运行 npm start 即可在开发模式下进行开发，如果要在真机预览，则新建一个有 `NODE_ENV=production` 的命令，打包的时候压缩一下体积即可。
+-   对于生产的包，运行 `npm run build:prod` 即可得到。
+-   `--watch` 开启热更新。
 
 ## 页面跳转之前进行「简单提示」的做法
 

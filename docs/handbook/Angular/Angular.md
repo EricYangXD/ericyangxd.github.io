@@ -120,13 +120,13 @@ import { environment } from "./environments/environment";
 
 // 如果当前为生产环境
 if (environment.production) {
-	// 开启生产模式
-	enableProdMode();
+  // 开启生产模式
+  enableProdMode();
 }
 // 启动应用程序
 platformBrowserDynamic()
-	.bootstrapModule(AppModule)
-	.catch((err) => console.error(err));
+  .bootstrapModule(AppModule)
+  .catch((err) => console.error(err));
 ```
 
 ```ts
@@ -135,14 +135,14 @@ platformBrowserDynamic()
 // 该项配置可以在 angular.json 文件中找到, projects -> angular-test -> architect -> configurations -> production -> fileReplacements
 
 export const environment = {
-	production: false,
+  production: false,
 };
 ```
 
 ```ts
 // environment.prod.ts
 export const environment = {
-	production: true,
+  production: true,
 };
 ```
 
@@ -158,14 +158,14 @@ import { NgModule } from "@angular/core";
 import { AppComponent } from "./app.component";
 // 调用 NgModule 装饰器, 告诉 Angular 当前类表示的是 Angular 模块
 @NgModule({
-	// 声明当前模块拥有哪些组件
-	declarations: [AppComponent],
-	// 声明当前模块依赖了哪些其他模块
-	imports: [BrowserModule],
-	// 声明服务的作用域, 数组中接收服务类, 表示该服务只能在当前模块的组件中使用
-	providers: [],
-	// 可引导组件, Angular 会在引导过程中把它加载到 DOM 中
-	bootstrap: [AppComponent],
+  // 声明当前模块拥有哪些组件
+  declarations: [AppComponent],
+  // 声明当前模块依赖了哪些其他模块
+  imports: [BrowserModule],
+  // 声明服务的作用域, 数组中接收服务类, 表示该服务只能在当前模块的组件中使用
+  providers: [],
+  // 可引导组件, Angular 会在引导过程中把它加载到 DOM 中
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
 ```
@@ -207,16 +207,16 @@ export class AppComponent {
 <!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>AngularTest</title>
-		<base href="/" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="icon" type="image/x-icon" href="favicon.ico" />
-	</head>
-	<body>
-		<app-root></app-root>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>AngularTest</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
 </html>
 ```
 
@@ -262,23 +262,19 @@ export class AppComponent {
    - `this.route.data.subscribe(...)`
 
 ```html
-<a
-	[routerLink]="['/product', product.title]"
-	[queryParams]="{ name: 'superman', age: 15 }"
-	>product</a
->
+<a [routerLink]="['/product', product.title]" [queryParams]="{ name: 'superman', age: 15 }">product</a>
 ```
 
 ```ts
 const routes: Routes = [
-	{
-		path: "home",
-		component: HomeComponent,
-		data: {
-			testkey: "testkeykkk",
-		},
-	},
-	// ...
+  {
+    path: "home",
+    component: HomeComponent,
+    data: {
+      testkey: "testkeykkk",
+    },
+  },
+  // ...
 ];
 ```
 
@@ -287,38 +283,38 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 @Component({
-	selector: "app-product",
-	template: ` <p>product works!</p> `,
-	styles: [],
+  selector: "app-product",
+  template: ` <p>product works!</p> `,
+  styles: [],
 })
 export class ProductComponent implements OnInit {
-	// 注入依赖
-	constructor(private route: ActivatedRoute) {}
-	// 生命周期钩子
-	ngOnInit() {
-		// 路由快照
-		console.log(this.route.snapshot.params["title"]); //第一个商品
-		console.log(this.route.snapshot.queryParams["name"]); //superman
-		// 上面两个都只是只读普通对象
-		//observable对象，非只读，有get/set/getAll 等方法
-		console.log(this.route.snapshot.paramMap.get("title")); // 第一个商品
-		console.log(this.route.snapshot.queryParamMap.get("name")); //superman
-		// 非路由快照的路由信息，他们都是Observable对象
-		// 与上面一一对应,也是只读的
-		this.route.params.subscribe((params) => {
-			console.log(params.title);
-		});
-		this.route.queryParams.subscribe((params) => {
-			console.log(params.name, params.age);
-		});
-		// 非只读的
-		this.route.paramMap.subscribe((params) => {
-			console.log(params.get("title"));
-		});
-		this.route.queryParamMap.subscribe((params) => {
-			console.log(params.get("name"), params.get("age"));
-		});
-	}
+  // 注入依赖
+  constructor(private route: ActivatedRoute) {}
+  // 生命周期钩子
+  ngOnInit() {
+    // 路由快照
+    console.log(this.route.snapshot.params["title"]); //第一个商品
+    console.log(this.route.snapshot.queryParams["name"]); //superman
+    // 上面两个都只是只读普通对象
+    //observable对象，非只读，有get/set/getAll 等方法
+    console.log(this.route.snapshot.paramMap.get("title")); // 第一个商品
+    console.log(this.route.snapshot.queryParamMap.get("name")); //superman
+    // 非路由快照的路由信息，他们都是Observable对象
+    // 与上面一一对应,也是只读的
+    this.route.params.subscribe((params) => {
+      console.log(params.title);
+    });
+    this.route.queryParams.subscribe((params) => {
+      console.log(params.name, params.age);
+    });
+    // 非只读的
+    this.route.paramMap.subscribe((params) => {
+      console.log(params.get("title"));
+    });
+    this.route.queryParamMap.subscribe((params) => {
+      console.log(params.get("name"), params.get("age"));
+    });
+  }
 }
 ```
 
@@ -331,6 +327,35 @@ export class ProductComponent implements OnInit {
 ### @types/node
 
 有时会报错，那么可以在`tsconfig.json > compilerOptions` 中注掉空`types`或者向空数组中添加`node/browser`等。
+
+### google fonts
+
+1. [google fonts](https://fonts.google.com/)
+2. [google fonts](https://developers.google.com/fonts/docs/material_icons?hl=zh-cn)
+
+先搜索 2，然后可以直接下载 svg，然后放到 assets/fonts 下，然后在 styles.scss 中引入。可以直接使用：
+
+```html
+<!-- 1 -->
+<img src="./assets/images/progress_activity.svg" class="mat-icon-rtl-mirror icon-loading" alt="" />
+<!-- 2 -->
+<mat-icon class="mat-icon-rtl-mirror" fontIcon="refresh"></mat-icon>
+<!-- 或 -->
+<mat-icon class="mat-icon-rtl-mirror">refresh</mat-icon>
+<!-- 3 和1差不多 -->
+<svg
+  class="mat-icon-rtl-mirror icon-cancel"
+  xmlns="http://www.w3.org/2000/svg"
+  height="24"
+  viewBox="0 -960 960 960"
+  width="24"
+  mat-dialog-close>
+  <path
+    d="m480-438 129 129q9 9 21 9t21-9q9-9 9-21t-9-21L522-480l129-129q9-9 9-21t-9-21q-9-9-21-9t-21 9L480-522 351-651q-9-9-21-9t-21 9q-9 9-9 21t9 21l129 129-129 129q-9 9-9 21t9 21q9 9 21 9t21-9l129-129Zm0 358q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z" />
+</svg>
+<!-- 4 目测不行，需要配置 -->
+<span class="material-symbols-outlined"> progress_activity </span>
+```
 
 ## 技巧
 
@@ -368,17 +393,18 @@ export class ProductComponent implements OnInit {
 #### service 注册和使用
 
 1. service 可以在根 module 里引入（全局可用），也可以在其他 module 中引入（仅这个 module 可用），还能通过在 service 的@Injectable 中声明注入的 module。
-2. 如果service注册在root根模块中，那么所有的子模块使用的是同一个service实例（单例模式），除非在子注入器中配置了其他的providers。
-3. 如果service分别注册在不同的组件中，那么他们使用的则是不同的实例。
+2. 如果 service 注册在 root 根模块中，那么所有的子模块使用的是同一个 service 实例（单例模式），除非在子注入器中配置了其他的 providers。
+3. 如果 service 分别注册在不同的组件中，那么他们使用的则是不同的实例。
 4. 在某个注入器的范围内，服务是单例的。也就是说在指定的注入器中，最多只有某个服务的一个实例。
-5. 如果一个模块在应用程序启动时就加载（非懒加载），它的@NgModule.providers具有全应用级作用域！他们也可以用于整个应用的注入中！
-6. 如果要把服务的范围限制在模块中，那么就需要对该模块进行懒加载。惰性加载的模块拥有自己的注入器，是应用注入器的直属子级，该惰性加载模块的providers和他导入的模块的providers都会添加到他自己的注入器中且不受全局的相同providers的影响。当路由在惰性加载的环境中创建组件时，Angular优先使用惰性加载模块中的服务实例，而不是根注入器中的。
-7. 建议在service本身的@Injectable装饰器中指定使用它的模块，这样做还能发挥tree-shaking优势。
+5. 如果一个模块在应用程序启动时就加载（非懒加载），它的@NgModule.providers 具有全应用级作用域！他们也可以用于整个应用的注入中！
+6. 如果要把服务的范围限制在模块中，那么就需要对该模块进行懒加载。惰性加载的模块拥有自己的注入器，是应用注入器的直属子级，该惰性加载模块的 providers 和他导入的模块的 providers 都会添加到他自己的注入器中且不受全局的相同 providers 的影响。当路由在惰性加载的环境中创建组件时，Angular 优先使用惰性加载模块中的服务实例，而不是根注入器中的。
+7. 建议在 service 本身的@Injectable 装饰器中指定使用它的模块，这样做还能发挥 tree-shaking 优势。
 
 #### ::ng-deep
 
 1. `::ng-deep`功能类似 Vue 中的`::v-deep`，比如在父组件对一些子组件样式进行穿透等（父组件的样式会没有 ng 生成的属性选择器）。可能会污染其他子组件的样式。
 2. 解决样式污染使用`:host`放在`::ng-deep`前面，这时样式又会获得属性封装，把属性留在组件树内部。
+3. 全局样式可以在 styles.scss 中使用`:root`，但是要注意影响范围。
 
 #### [attr] vs attr
 
@@ -423,6 +449,16 @@ export class ProductListComponent implements ControlValueAccessor {
 2. 自定义组件声明 providers
 3. 父组件调用子组件
 
+#### select 设置默认值
+
+1. 此时 selectId 函数会直接接收到(默认)值，不需要再通过`$event.target.value`获取。
+
+```html
+<select [(ngModel)]="defaultId" (change)="selectId($event)" class="custom-select">
+  <option *ngFor="let id of ids" [value]="id" class="custom-option">{{ id }}</option>
+</select>
+```
+
 #### 生命周期钩子
 
 ```ts
@@ -460,25 +496,44 @@ export class ProductListComponent implements ControlValueAccessor {
   }
 ```
 
-1. checked结尾的钩子会执行多次，其余都执行一次。
-2. ngOnChanges只在输入属性变更时触发，且可以有一个参数，包含变更属性的信息。
-3. content钩子是父组件先执行，view钩子是子组件先执行。
-4. ngDoCheck钩子的调用频率最高，不要在当中实现过重的业务。
-5. 初始化的业务应该放在ngOnInit中，而不是构造函数中。
+1. checked 结尾的钩子会执行多次，其余都执行一次。
+2. ngOnChanges 只在输入属性变更时触发，且可以有一个参数，包含变更属性的信息。
+3. content 钩子是父组件先执行，view 钩子是子组件先执行。
+4. ngDoCheck 钩子的调用频率最高，不要在当中实现过重的业务。
+5. 初始化的业务应该放在 ngOnInit 中，而不是构造函数中。
 
 #### 变更检查
 
 1. 单向数据流
-2. 触发变更检查的事件：Event、XHR、Timer等
+2. 触发变更检查的事件：Event、XHR、Timer 等
 3. 解决`ExpressionChangedAfterItHasBeenCheckedError`报错的两个方法
-   1. 在父组件的ngAfterViewInit钩子中强制Angular进行变更检查：`this.changeDetectorRef.detectChanges()`
+   1. 在父组件的 ngAfterViewInit 钩子中强制 Angular 进行变更检查：`this.changeDetectorRef.detectChanges()`
    2. 在子组件中使用异步更新的方式修改父组件的内容（这其实是违背了单向数据流的原则，所以有错误并不奇怪）：`setTimeout(()=>...,0);`
 
 #### SharedModule
 
-1. 为那些可能会在应用中到处使用到的组件、指令和管道创建SharedModule，这种模块应该只包含declarations，并且应该导出几乎所有declarations里面的声明。
-2. SharedModule不应该带有providers。
+1. 为那些可能会在应用中到处使用到的组件、指令和管道创建 SharedModule，这种模块应该只包含 declarations，并且应该导出几乎所有 declarations 里面的声明。
+2. SharedModule 不应该带有 providers。
 
 #### XSS
 
-1. 当iframe的src是变量时，需要用`this.domSanitizer.bypassSecurityTrustResourceUrl(url)`处理一下，方能正常加载。
+1. 当 iframe 的 src 是变量时，需要用`this.domSanitizer.bypassSecurityTrustResourceUrl(url)`处理一下，方能正常加载。
+
+## 对于 material-design 的使用
+
+1. 一般使用@angular/material 和@angular/cdk，@angular/material 是基于@angular/cdk 的，@angular/cdk 是一些基础的组件，@angular/material 是一些高级的组件，@angular/material 会自动安装@angular/cdk。
+
+### mat-dialog
+
+1. open 的时候可以设置宽高，也可以设置 class，然后在全局的 styles.scss 中设置 class 的样式。
+2. 还可以传入数据，然后在 dialog 中使用。
+
+```ts
+  constructor( public dialog: MatDialog) {}
+
+const dialogRef = this.dialog.open(UserProfileComponent, {
+  height: "674px",
+  width: "868px",
+  panelClass: "custom-dialog",
+});
+```

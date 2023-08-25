@@ -648,14 +648,15 @@ module.exports = {
 ## useRef
 
 1. 传递变量不刷新页面，无 effect，不同于 state，用于在函数组件中引用对象，并在重新渲染时保留被引用对象的状态，使用 current 属性，更新被引用对象的值不会触发重新渲染
-2. 配合 ref 获取 DOM，可以防止页面刚加载时 DOM 为空，比如input获取焦点：`inputRef.current.focus()`
+2. 配合 ref 获取 DOM，可以防止页面刚加载时 DOM 为空，比如 input 获取焦点：`inputRef.current.focus()`
 3. useRef 用于创建引用对象，而 ref 用于访问 DOM 节点或将 render 方法中的 react 组件分配给引用对象。另外，可以使用 useRef hook 或 createRef 函数创建 ref，这是其他方法无法实现的。
 4. useRef 可以用来引用任何类型的对象，React ref 只是一个用于引用 DOM 元素的 DOM 属性。
-5. 当node节点被删除时，current会被设为null。
-6. 避免重复创建ref引用，创建之前先判断current是不是null
-7. 默认情况下，你自己的组件不会暴露它们内部的DOM节点的引用，所以直接在自定义组件上使用ref会报warning，解决方法是使用forwardRef包裹你想要使用ref的组件，例：
+5. 当 node 节点被删除时，current 会被设为 null。
+6. 避免重复创建 ref 引用，创建之前先判断 current 是不是 null
+7. 默认情况下，你自己的组件不会暴露它们内部的 DOM 节点的引用，所以直接在自定义组件上使用 ref 会报 warning，解决方法是使用 forwardRef 包裹你想要使用 ref 的组件，例：
+
 ```js
-import { forwardRef, useRef } from 'react';
+import { forwardRef, useRef } from "react";
 
 // 注意forwardRef中回调函数的第二个参数ref，即为暴露出去的ref
 const MyInput = forwardRef((props, ref) => {
@@ -672,14 +673,13 @@ export default function Form() {
   return (
     <>
       <MyInput ref={inputRef} />
-      <button onClick={handleClick}>
-        Focus the input
-      </button>
+      <button onClick={handleClick}>Focus the input</button>
     </>
   );
 }
 ```
-1. 
+
+1.
 
 ### Ref 和 useRef 的使用场景
 
@@ -818,7 +818,12 @@ React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和�
 ## 跨端调试
 
 1. Chrome 的设备检查功能`chrome://inspect/#devices`和 Vysor 的电脑远程控制投影手机功能都是类似手机直连电脑实时预览的解决方案
-2. 使用 USB 直连电脑，实现在 Android 设备上调试：`adb reverse tcp:8081 tcp:8081`，原理就是反向转发端口请求，比如手机访问 3000 端口就会直接转发给电脑上的 3000 端口代理，注意访问路径不能用 localhost，改用 127.0.0.1。
+
+2. 使用 USB 直连电脑，实现在 Android 设备上调试：`adb reverse tcp:8081 tcp:8081`，原理就是反向转发端口请求，比如手机访问 3000 端口就会直接转发给电脑上的 3000 端口代理，**注意访问路径不能用 `localhost`或电脑 IP，应该用 `127.0.0.1:${port}`**。
+
+   - `adb devices`
+   - `adb reverse <local_Server_port> <remote_Client_port>`
+
 3. 手机直连电脑：
 
    - 电脑手机处于同一局域网，修改手机网络，服务器主机名设置成电脑 IP，服务器端口设置成电脑服务端口

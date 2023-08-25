@@ -254,6 +254,23 @@ img {
 </html>
 ```
 
+3. 通过 svg 的 fill 属性，直接修改 svg 的颜色。（需要修改 svg 文件），如下，也可以同时设置 height/width/stroke 属性。
+
+```html
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  stroke="#4A494A"
+  stroke-width="6"
+  stroke-miterlimit="10"
+  height="24"
+  width="24"
+  viewBox="0 -960 960 960"
+  fill="#000000">
+  <path
+    d="m480-438 129 129q9 9 21 9t21-9q9-9 9-21t-9-21L522-480l129-129q9-9 9-21t-9-21q-9-9-21-9t-21 9L480-522 351-651q-9-9-21-9t-21 9q-9 9-9 21t9 21l129 129-129 129q-9 9-9 21t9 21q9 9 21 9t21-9l129-129Zm0 358q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z" />
+</svg>
+```
+
 ## font
 
 - 至少包含 font-size 和 font-family;
@@ -529,7 +546,8 @@ CSS 伪类 是添加到选择器的关键字，指定要选择的元素的特殊
 
 如果你定义了一个 `:visited` 样式，它可以被一个链接伪类覆盖，至少有同等的特殊性。正因为如此，我们建议你使用`LVHA`规则，以特定的顺序为链接伪类设置样式：`:link`, `:visited`, `:hover`, `:active`。
 
-为了安全起见，你只能用:visited伪类来改变由:link或unvisited状态定义的样式，所以确保你首先定义可改变的样式是很重要的。坚持LVHA规则会对此有所帮助。
+为了安全起见，你只能用:visited 伪类来改变由:link 或 unvisited 状态定义的样式，所以确保你首先定义可改变的样式是很重要的。坚持 LVHA 规则会对此有所帮助。
+
 ## 实现 CSS 与 JS 变量共享
 
 ### :export 关键字
@@ -683,19 +701,19 @@ The `:not()` pseudo-class itself adds nothing to the specificity calculation. Ho
 ![优先级参考](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202304131832765.png)
 得分相同的话，后者覆盖前者。
 
-### 继承inherit/unset
+### 继承 inherit/unset
 
 1. 明确哪些属性可以继承，哪些不可以
 2. 如果一个属性是可继承的，`unset`关键字将与`inherit`相同。如果该属性不可继承，`unset`关键字就等于`initial`。
 3. `all: unset;`全部重置/继承。
-4. `rgb()/hsl()`可以有逗号也可以用空格和`/`代替逗号，hsl后两个值必须是百分比%
-5. transparent是一种完全透明的颜色。它也是背景色的初始值。
-6. currentColor是颜色属性的上下文计算的动态值。如果你有一个红色的文本颜色，然后将边框颜色设置为currentColor，它也将是红色。如果你定义currentColor的元素没有定义颜色值，currentColor将由级联计算。
-7. 一个ch单元，它等于渲染的字体中"0"字符在其计算大小时的宽度。
+4. `rgb()/hsl()`可以有逗号也可以用空格和`/`代替逗号，hsl 后两个值必须是百分比%
+5. transparent 是一种完全透明的颜色。它也是背景色的初始值。
+6. currentColor 是颜色属性的上下文计算的动态值。如果你有一个红色的文本颜色，然后将边框颜色设置为 currentColor，它也将是红色。如果你定义 currentColor 的元素没有定义颜色值，currentColor 将由级联计算。
+7. 一个 ch 单元，它等于渲染的字体中"0"字符在其计算大小时的宽度。
 8. 为行高使用一个无单位的值（实际相当于百分比：`1.5===150%`），而不是指定一个单位，这是一个好主意。正如你在继承模块中学到的，字体大小可以被继承。
-9. 如果你把margin或padding设置为百分比，它们将是父元素宽度的一部分，与方向无关。
-10. `vi`:在根元素的内联轴上，占视口尺寸的1%。
-11. `vb`:在根元素的块轴上，视口尺寸的1%。
+9. 如果你把 margin 或 padding 设置为百分比，它们将是父元素宽度的一部分，与方向无关。
+10. `vi`:在根元素的内联轴上，占视口尺寸的 1%。
+11. `vb`:在根元素的块轴上，视口尺寸的 1%。
 12. vmin/vmax:1% of the viewport's smaller/larger dimension.
 13. 把一列分成多列展示：`column-count: 4; column-gap: 1em;`
 
