@@ -31,8 +31,22 @@ jobs:
       - name: Update Browsers List
         run: npx browserslist@latest --update-db
 
+      # - name: Set up Environment Variables
+      #   run: |
+      #     echo "LEANCLOUD_MYBLOG_APPID=${{ secrets.LEANCLOUD_MYBLOG_APPID }}" >> $GITHUB_ENV
+      #     echo "LEANCLOUD_MYBLOG_APPKEY=${{ secrets.LEANCLOUD_MYBLOG_APPKEY }}" >> $GITHUB_ENV
+
+      # - name: Display Environment Variables
+      #   run: |
+      #     echo "My LEANCLOUD_MYBLOG_APPID: $LEANCLOUD_MYBLOG_APPID"
+      #     echo "My LEANCLOUD_MYBLOG_APPKEY: $LEANCLOUD_MYBLOG_APPKEY"
+
       # 构建打包
       - name: Build
+        env:
+          PRODUCTION: true
+          LEANCLOUD_MYBLOG_APPID: ${{ secrets.LEANCLOUD_MYBLOG_APPID }}
+          LEANCLOUD_MYBLOG_APPKEY: ${{ secrets.LEANCLOUD_MYBLOG_APPKEY }}
         run: npm run docs:build
 
       # 把一些其他文件也拷贝到dist文件夹下

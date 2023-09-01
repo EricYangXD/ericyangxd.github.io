@@ -6,3 +6,5 @@ docs/.vuepress/dist
 yarn.error
 
 .DS_Store
+
+LeanCloudSecrets.js

@@ -2,6 +2,19 @@
  * Copyright © 2011-2099 By EricYangXD, All Rights Reserved.
  */
 
+let lcSecret;
+if (process.env.PRODUCTION) {
+  lcSecret = {
+    LEANCLOUD_MYBLOG_APPID: "",
+    LEANCLOUD_MYBLOG_APPKEY: "",
+  };
+} else {
+  lcSecret = require("../../LeanCloudSecrets");
+}
+
+const appId = process.env.LEANCLOUD_MYBLOG_APPID || lcSecret.LEANCLOUD_MYBLOG_APPID;
+const appKey = process.env.LEANCLOUD_MYBLOG_APPKEY || lcSecret.LEANCLOUD_MYBLOG_APPKEY;
+
 // 配置网站的标题和描述，方便 SEO
 module.exports = {
   title: "木易的OT",
@@ -571,11 +584,11 @@ module.exports = {
     // },
     // 接入评论，存储在LeanCloud
     valineConfig: {
-      appId: "trZfMmnPSunprBKG0aXTHmAe-gzGzoHsz", // your appId
-      appKey: "y2OxgGUxi9V9PBdOsV4BAT44", // your appKey
+      appId, // your appId
+      appKey, // your appKey
       // showComment: false,
       visitor: true, // 阅读量统计
-			ignore_local: true,
+      ignore_local: true,
     },
   },
   // devServer: {
