@@ -1,53 +1,55 @@
 {
-	"name": "vuepress-blog",
-	"version": "1.0.0",
-	"main": "index.js",
-	"author": "EricYangXD",
-	"license": "MIT",
-	"devDependencies": {
-		"@vuepress-reco/vuepress-plugin-bgm-player": "^1.1.4",
-		"@vuepress-reco/vuepress-plugin-extract-code": "^1.0.4",
-		"hard-source-webpack-plugin": "^0.13.1",
-		"uglifyjs-webpack-plugin": "^2.2.0",
-		"vuepress": "^1.9.7",
-		"vuepress-plugin-copyright": "^1.0.2",
-		"vuepress-plugin-cursor-effects": "^1.1.6",
-		"vuepress-plugin-nuggets-style-copy": "^1.0.3",
-		"vuepress-plugin-seo": "^0.1.4",
-		"vuepress-plugin-sitemap": "^2.3.1",
-		"loader-utils": "^1.4.2",
-		"json5": "^2.2.3",
-		"serialize-javascript": "^3.1.0",
-		"node-forge": "^1.3.0",
-		"nth-check": "^2.0.1",
-		"glob-parent": "^6.0.2"
-	},
-	"scripts": {
-		"docs:dev": "vuepress dev docs",
-		"start": "vuepress dev docs",
-		"docs:build": "vuepress build docs",
-		"build": "vuepress build docs",
-		"deploy": "sh deploy.sh",
-		"gh-deploy": "gh-pages -d ./docs/.vuepress/dist",
-		"push": "sh push.sh",
-		"update": "sh update.sh"
-	},
-	"dependencies": {
-		"gh-pages": "^5.0.0",
-		"moment": "^2.29.4",
-		"vuepress-theme-reco": "^1.6.11"
-	},
-	"description": "Personal Blog Repository",
-	"directories": {
-		"doc": "docs"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/EricYangXD/ericyangxd.github.io.git"
-	},
-	"keywords": [],
-	"bugs": {
-		"url": "https://github.com/EricYangXD/ericyangxd.github.io/issues"
-	},
-	"homepage": "https://ericyangxd.github.io"
+  "name": "vuepress-blog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "EricYangXD",
+  "license": "MIT",
+  "devDependencies": {
+    "@vuepress-reco/vuepress-plugin-bgm-player": "^1.1.4",
+    "@vuepress-reco/vuepress-plugin-extract-code": "^1.0.4",
+    "glob-parent": "^6.0.2",
+    "hard-source-webpack-plugin": "^0.13.1",
+    "json5": "^2.2.3",
+    "loader-utils": "^3.2.1",
+    "node-forge": "^1.3.0",
+    "nth-check": "^2.0.1",
+    "serialize-javascript": "^3.1.0",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "vuepress": "^1.9.10",
+    "vuepress-plugin-copyright": "^1.0.2",
+    "vuepress-plugin-cursor-effects": "^1.1.6",
+    "vuepress-plugin-fulltext-search": "^2.2.1",
+    "vuepress-plugin-nuggets-style-copy": "^1.0.3",
+    "vuepress-plugin-seo": "^0.1.4",
+    "vuepress-plugin-sitemap": "^2.3.1"
+  },
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "start": "vuepress dev docs",
+    "docs:build": "vuepress build docs",
+    "build": "vuepress build docs",
+    "deploy": "sh deploy.sh",
+    "gh-deploy": "gh-pages -d ./docs/.vuepress/dist",
+    "push": "sh push.sh",
+    "update": "sh update.sh"
+  },
+  "dependencies": {
+    "@docsearch/js": "^3.5.2",
+    "gh-pages": "^5.0.0",
+    "moment": "^2.29.4",
+    "vuepress-theme-reco": "^1.6.11"
+  },
+  "description": "Personal Blog Repository",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricYangXD/ericyangxd.github.io.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/EricYangXD/ericyangxd.github.io/issues"
+  },
+  "homepage": "https://ericyangxd.github.io"
 }

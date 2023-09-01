@@ -123,6 +123,10 @@ sudo chown root:wheel GoogleSoftwareUpdate
 5. 如果你点击了“设置自动更新”，则刚才的“GoogleSoftwareUpdate.bundle”文件就会再次出现了。
    - 点击“不再询问”大功告成。通过“帮助->关于 Google Chrome”可以查看信息。
 
+### 恢复自动更新
+
+下载[Google 软件更新](https://dl.google.com/mac/install/googlesoftwareupdate.dmg)
+
 ## Postman
 
 Postman 安装 Interceptor Bridge 时报 ERROR_CODE:CHROME_NOT_INSTSLLED
@@ -284,7 +288,7 @@ Mac 权限问题，operation not permitted。有时即便我们用了 sudo 还�
 8. Adobe Acrobat Reader DC
 9. VSCode：开发必备
 10. iTerm2+zsh：开发必备
-11. ApiFox、Postman：api调试开发必备
+11. ApiFox、Postman：api 调试开发必备
 12. Network Lite
 13. webstorm、idea、pycharm：开发必备
 14. 阿里云盘、夸克网盘、天翼网盘

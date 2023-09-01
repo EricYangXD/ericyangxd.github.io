@@ -406,6 +406,83 @@ case "$variable" in
 esac
 ```
 
+### Example
+
+#### whoami
+
+显示用户名
+
+#### su
+
+切换身份
+
+#### pwd
+
+显示当前目录
+
+### touch
+
+创建文件
+
+### cat
+
+连接文件并打印输出
+
+- 查看文件内容：`cat ~/.ssh/id_rsa.pub`
+- 清空 index.html 内容：`cat /dev/null > index.html`
+- 把 index.html 的内容写入 second.html：`cat index.html > second.html`
+- 把 index.html 的内容追加写入 second.html：`cat index.html >> second.html`
+- 把 index.html 和 second.html 追加写入 third.html：`cat index.html second.html >> third.html`
+
+### echo
+
+打印输出
+
+- 显示转义字符: `echo "\"test content\""`
+- 创建或覆盖文件内容为 "test content": `echo "test content" > index.html`
+- 追加内容，就用 `>>`: `echo "test content" >> index.html`
+
+### mv
+
+移动并重命名
+
+- 文件改名：`mv index.html index2.html`
+- 隐藏文件：`mv index.html .index.html`，文件名上加上 `.`
+- 移动文件：仅仅移动: `mv  /home/www/index.html   /home/static/`
+- 移动文件：移动又重命名: `mv /home/www/index.html   /home/static/index2.html`
+- 批量移动：`mv  /home/www/website/*  /home/www/static`
+
+### cp
+
+复制文件或目录
+
+- `-r`：若给出的源文件是一个目录文件，此时将复制该目录下所有的子目录和文件。
+- `cp –r website/ static`
+
+### rm
+
+删除一个文件或者目录
+
+```bash
+# 系统会询问
+rm file
+
+# -f 表示直接删除
+# -r 表示目录下的所有文件删除
+
+# 删除当前目录下的所有文件及目录
+rm -r  *
+
+# 跑路
+rm -rf /*
+```
+
+### ssh
+
+- `ssh [OPTIONS] [-p PORT] [USER@]HOSTNAME [COMMAND]`
+- 监听端口示例：`ssh -p 300 git@8.8.8.8`
+- 打开调试模式：`ssh -v git@8.8.8.8`，`-v` 冗详模式，打印关于运行情况的调试信息
+
 ## 语法知识点
 
 #### date
@@ -638,7 +715,7 @@ esac
 ### 权限
 
 1. id – 显示用户身份等信息
-2. chmod – 更改文件模式
+2. chmod – 更改文件权限模式
 3. umask – 设置默认的文件权限
 4. su – 以另一个用户的身份来运行 shell
 5. sudo – 以另一个用户的身份来执行命令
@@ -672,9 +749,9 @@ esac
 | w    | 允许写入文件内容或截断文件。但是不允许对文件进行重命名或删除，重命名或删除是由目录的属性决定的。 | 允许在目录下新建、删除或重命名文件，前提是目录必须设置了可执行属性（x） |
 | x    | 允许将文件作为程序来执行，使用脚本语言编写的程序必须设置为可读才能被执行。                       | 允许进入目录，例如：cd directory 。                                     |
 
-#### chmod － 更改文件模式
+#### chmod － 更改文件权限模式
 
-更改文件或目录的模式（权限），可以利用 chmod 命令。注意只有文件的所有者或者超级用户才 能更改文件或目录的模式。chmod 命令支持两种不同的方法来改变文件模式：八进制数字表示法或符号表示法。
+更改文件或目录的模式（权限），可以利用 chmod 命令。注意只有文件的所有者或者超级用户才 能更改文件或目录的模式。chmod 命令支持两种不同的方法来改变文件模式：八进制数字表示法或符号表示法。 0. `-R：递归更改文件属组`，`chmod [-R] xyz 文件或目录`
 
 1. 八进制表示法，映射关系表如下：
 
@@ -753,7 +830,7 @@ sudo 命令允许一个管理员 设置一个叫做 /etc/sudoers 的配置文件
 
 #### chown － 更改文件所有者和用户组
 
-chown 命令被用来更改文件或目录的所有者和用户组。使用这个命令需要超级用户权限。chown 命令 的语法看起来像这样：`chown [owner][:[group]] file...`。
+chown 命令被用来更改文件或目录的所有者和用户组。使用这个命令需要超级用户权限。chown 命令 的语法看起来像这样：`chown [owner][:[group]] fileName...`。
 
 | 参数      | 结果                                                                    |
 | --------- | ----------------------------------------------------------------------- |

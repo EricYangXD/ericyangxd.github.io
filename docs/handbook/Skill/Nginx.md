@@ -58,11 +58,11 @@ Nginx 的服务管理思路延续了当时的流行做法，使用磁盘上的�
 
 共有四种方式：`location[ = | ~ | ~* | ^~ ] url {}`:
 
-1. `=` ：精确匹配，用于不含正则表达式的 url 前，要求字符串与 url 严格匹配，完全相等时，才能停止向下搜索并处理请求。
-2. `^~`：用于不含正则表达式的 url 前，要求 nginx 服务器找到表示 url 和字符串匹配度最高的 location 后，立即使用此 location 处理请求，而不再匹配。表示 uri 以某个字符串开头
-3. `~` ：最佳匹配，用于表示 url 包含正则表达式，并且区分大小写，匹配到就停止
-4. `~*`：与~一样，只是不区分大小写，匹配到就停止
-5. `/`：不使用上面四种时，表示通用匹配，每个 URI 都能匹配成功
+1. `=` ：精确匹配，用于不含正则表达式的 url 前，要求字符串与 url 严格匹配，**完全相等**时，才能停止向下搜索并处理请求。
+2. `^~`：用于不含正则表达式的 url 前，要求 nginx 服务器找到表示 url 和字符串**匹配度最高**的 location 后，立即使用此 location 处理请求，而不再匹配。表示 uri 以某个字符串开头
+3. `~` ：最佳匹配，用于表示 url 包含正则表达式，并且区分大小写，**匹配到就停止**
+4. `~*`：与~一样，只是不区分大小写，**匹配到就停止**
+5. `/`：不使用上面四种时，表示**通用匹配**，每个 URI 都能匹配成功
 6. `!~`：区分大小写，不匹配
 7. `!~*`：不区分大小写，不匹配
 
@@ -147,17 +147,18 @@ server {
     }
 }
 ```
-3. 查看rewrite日志: `rewrite_log on;`
 
+3. 查看 rewrite 日志: `rewrite_log on;`
 
 #### 配置 proxy
 
-1. url参数规则
-   - url必须以http或者https开头，接下来是域名、ip、unix socket或者upstream名字，都可以就端口。后面是可选的uri
-   - url中是否携带uri，结果也不一样，如果在proxy_pass后面的url加/，相当于是绝对根路径，则nginx不会把location中匹配的路径部分代理走;如果没有/，则会把匹配的路径部分给代理走。
-   - Url参数中可以携带变量`proxy_pass http://$host$uri;`
+1. url 参数规则
 
-2. 可以配合rewrite break语句
+   - url 必须以 http 或者 https 开头，接下来是域名、ip、unix socket 或者 upstream 名字，都可以就端口。后面是可选的 uri
+   - url 中是否携带 uri，结果也不一样，如果在 proxy_pass 后面的 url 加/，相当于是绝对根路径，则 nginx 不会把 location 中匹配的路径部分代理走;如果没有/，则会把匹配的路径部分给代理走。
+   - Url 参数中可以携带变量`proxy_pass http://$host$uri;`
+
+2. 可以配合 rewrite break 语句
 
 ```bash
 location /nameb/ { 
@@ -168,7 +169,7 @@ location /nameb/ { 
 
 #### 正则表达式
 
-- `~`: 表示大小写敏感的正则；
+- `~`: 表示大小写敏感的正则匹配；
 - `^`: 匹配字符串的开始；
 - `{.+}`: 换行符以外的任意字符重复一次或多次；
 - `()`: 分组与取值；
@@ -332,10 +333,21 @@ server {
   # 这里默认监听80端口，可根据项目需要自行设置需要监听的端口号
   listen 80;
   server_name 此处填写项目发布的域名或者ip地址;
+  # listen       80 default_server;
+  # listen       [::]:80 default_server;
+  # server_name  _;
+  # root         /usr/share/nginx/html;
+  # Load configuration files for the default server block.
+  # include /etc/nginx/default.d/*.conf;
 
   location / {
     root 此处填写前端项目文件路径（默认访问的前端项目一的路径）;
     index index.html index.htm;
+  }
+  # eg.
+  location / {
+    root /etc/nginx/html/;
+    index index.html;
   }
 
   # 这里因为每个server只能有一个root 所以在根目录默认有root之后，
