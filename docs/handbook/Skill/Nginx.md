@@ -28,8 +28,8 @@ Nginx 的服务管理思路延续了当时的流行做法，使用磁盘上的�
 
 ### 正向代理和反向代理
 
-1. 正向代理：局域网中的用户想要直接访问网络是不可行的，只能通过代理服务器（Server）来访问，这种代理服务就被称为正向代理。代理服务器代理的是客户端。
-2. 反向代理：客户端无法感知代理，因为客户端访问网络不需要配置，只要把请求发送到反向代理服务器，由反向代理服务器去选择目标服务器获取数据，然后再返回到客户端，此时反向代理服务器和目标服务器对外就是一个服务器，暴露的是代理服务器地址，隐藏了真实服务器 IP 地址。代理服务器代理的是真正的服务端。
+1. 正向代理：局域网中的用户想要直接访问网络是不可行的，只能通过代理服务器（Server）来访问，这种代理服务就被称为正向代理。代理服务器代理的是客户端。客户端向代理服务器发送请求，代理服务器再将请求转发给目标服务器，并将服务器的响应返回给客户端。正向代理可以隐藏客户端的真实 IP 地址，提供匿名访问和访问控制等功能。它常用于跨越防火墙访问互联网、访问被封禁的网站等情况。
+2. 反向代理：客户端无法感知代理，因为客户端访问网络不需要配置，只要把请求发送到反向代理服务器，由反向代理服务器去选择目标服务器获取数据，然后再返回到客户端，此时反向代理服务器和目标服务器对外就是一个服务器，暴露的是代理服务器地址，隐藏了真实服务器 IP 地址。代理服务器代理的是真正的服务端。客户端并不直接访问后端服务器，而是通过反向代理服务器来获取服务。反向代理可以实现负载均衡、高可用性和安全性等功能。它常用于网站的高并发访问、保护后端服务器、提供缓存和 SSL 终止等功能。
 
 ### 负载均衡
 
@@ -39,12 +39,44 @@ Nginx 的服务管理思路延续了当时的流行做法，使用磁盘上的�
 
 常用的 Web 服务器有：Tomcat、Nginx。动静分离即把静态资源（如 html、css、图片等）放在一台服务器，把动态资源（后端服务等）放在另外的服务器。
 
+1. 直接为静态内容设置一个别名或根目录：
+
+```bash
+location ~* .(jpg|jpeg|png|gif|ico|css|js)$ {
+    root /path/to/static/files;
+    expires 30d;  # 设置缓存时间
+}
+```
+
+所有的静态文件都被存放在/path/to/static/files 目录下。expires 指令设置了静态文件的缓存时间。 2. 使用 alias 别名指定静态文件的实际路径：
+
+```bash
+location /static/ {
+    alias /path/to/static/files/;
+}
+```
+
+URL 中的`/static/`会映射到文件系统的`/path/to/static/files/`。 3. 代理动态内容将请求代理到后端的应用服务器，如 Tomcat、uWSGI 等。：
+
+```bash
+location / {
+    proxy_pass http://backend_server_address;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+```
+
+- 确保你的静态文件路径配置正确，避免 404 错误。
+- 使用 expires 指令为静态内容设置缓存，这可以减少服务器的负载并提高页面加载速度。
+- 动静分离不仅可以提高服务器的响应速度，还可以减少后端服务器的压力，因为静态文件通常由 Nginx 直接处理，而不需要代理到后端服务器。
+
 ### 常用的命令
 
 - 查看版本：`./nginx -v`
 - 启动：`./nginx`
-- 关闭：`./nginx -s stop`(推荐) 或 `./nginx -s quit`
+- 快速关闭：`./nginx -s stop`(推荐) 或 有序停止`./nginx -s quit`
 - 重新加载 nginx 配置：`./nginx -s reload`
+- 直接杀死 nginx 进程：`killall nginx`
 
 ### Nginx 的配置文件
 
@@ -56,7 +88,7 @@ Nginx 的服务管理思路延续了当时的流行做法，使用磁盘上的�
 
 #### location 的匹配规则
 
-共有四种方式：`location[ = | ~ | ~* | ^~ ] url {}`:
+共有四种方式：`location[ = | ~ | ~* | ^~ ] uri {...}`:
 
 1. `=` ：精确匹配，用于不含正则表达式的 url 前，要求字符串与 url 严格匹配，**完全相等**时，才能停止向下搜索并处理请求。
 2. `^~`：用于不含正则表达式的 url 前，要求 nginx 服务器找到表示 url 和字符串**匹配度最高**的 location 后，立即使用此 location 处理请求，而不再匹配。表示 uri 以某个字符串开头
@@ -65,6 +97,8 @@ Nginx 的服务管理思路延续了当时的流行做法，使用磁盘上的�
 5. `/`：不使用上面四种时，表示**通用匹配**，每个 URI 都能匹配成功
 6. `!~`：区分大小写，不匹配
 7. `!~*`：不区分大小写，不匹配
+8. `uri`：匹配的网站地址
+9. `{...}`：匹配 uri 后要执行的配置段
 
 注意:
 
@@ -150,12 +184,12 @@ server {
 
 3. 查看 rewrite 日志: `rewrite_log on;`
 
-#### 配置 proxy
+#### 配置 proxy/反向代理
 
 1. url 参数规则
 
    - url 必须以 http 或者 https 开头，接下来是域名、ip、unix socket 或者 upstream 名字，都可以就端口。后面是可选的 uri
-   - url 中是否携带 uri，结果也不一样，如果在 proxy_pass 后面的 url 加/，相当于是绝对根路径，则 nginx 不会把 location 中匹配的路径部分代理走;如果没有/，则会把匹配的路径部分给代理走。
+   - url 中是否携带 uri，结果也不一样，如果在 proxy_pass 后面的 url 加/，相当于是绝对根路径，则 nginx 不会把 location 中匹配的路径部分代理走；如果没有/，则会把匹配的路径部分给代理走。
    - Url 参数中可以携带变量`proxy_pass http://$host$uri;`
 
 2. 可以配合 rewrite break 语句
@@ -167,6 +201,11 @@ location /nameb/ { 
 }
 ```
 
+3. 要配置 Nginx 作为反向代理，您需要使用 `location` 块中的 `proxy_pass` 指令
+   - 当使用 proxy_pass 指令时，确保后端服务器是可用的，否则 Nginx 将返回错误。
+   - 使用 proxy_set_header 确保后端服务器接收到正确的请求头。
+   - 如果后端服务器和 Nginx 在不同的机器上，确保网络连接是稳定的。
+
 #### 正则表达式
 
 - `~`: 表示大小写敏感的正则匹配；
@@ -177,12 +216,48 @@ location /nameb/ { 
 - `serno`: 设置提取的变量；`server_name ~^my(?<serno>.+).mydomain.com$;`
 - `$`: 匹配字符串的结束；
 
+#### 单页面应用刷新 404 问题
+
+```bash
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+#### 配置跨域请求
+
+```bash
+server {
+    listen   80;
+    location / {
+        # 服务器默认是不被允许跨域的。
+        # 配置`*`后，表示服务器可以接受所有的请求源（Origin）,即接受所有跨域的请求
+        add_header 'Access-Control-Allow-Origin' '*';
+        # 允许的请求方法。
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+        # 允许的请求头。
+        add_header 'Access-Control-Allow-Headers' 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization';
+        # 允许浏览器缓存预检请求的结果，单位为秒。
+        add_header 'Access-Control-Max-Age' 1728000;
+        # 允许浏览器在实际请求中携带用户凭证。
+        add_header 'Access-Control-Allow-Credentials' 'true';
+        # 设置响应类型为JSON。
+        add_header 'Content-Type' 'application/json charset=UTF-8';
+        # 发送"预检请求"时，需要用到方法 OPTIONS ,所以服务器需要允许该方法
+        # 给OPTIONS 添加 204的返回，是为了处理在发送POST请求时Nginx依然拒绝访问的错误
+        if ($request_method = 'OPTIONS') {
+            return 204;
+        }
+    }
+}
+```
+
 ### root 与 alias 的区别
 
 1. root 是直接拼接 root + location 而 alias 是用 alias 替换 location
 2. server 和 location 中的 root:
-   1. server 和 location 中都可以使用 root
-   2. 如果两者都出现，优先级就是就近原则，如果 location 中能匹配到，就是用 location 中的 root 配置，忽略 server 中的 root，当 location 中匹配不到的时候，则使用 server 中的 root 配置。
+   - server 和 location 中都可以使用 root
+   - 如果两者都出现，优先级就是就近原则，如果 location 中能匹配到，就是用 location 中的 root 配置，忽略 server 中的 root，当 location 中匹配不到的时候，则使用 server 中的 root 配置。
 
 ### 开启 gzip
 
@@ -220,10 +295,18 @@ server {
     index index.html;
   }
   # 这里是新增的 gzip 配置
-  gzip on;
-  gzip_min_length 1k;
-  gzip_comp_level 6;
+  gzip on; #开启gzip压缩输出
+  gzip_min_length 1k; #最小压缩文件大小
+  gzip_comp_level 6; #压缩等级
+  gzip_buffers 4 16k; #压缩缓冲区
+  gzip_http_version 1.0; #压缩版本（默认1.1，前端如果是squid2.5请使用1.0）
+
+  # 设置什么类型的文件需要压缩
   gzip_types application/atom+xml application/geo+json application/javascript application/x-javascript application/json application/ld+json application/manifest+json application/rdf+xml application/rss+xml application/xhtml+xml application/xml font/eot font/otf font/ttf image/svg+xml text/css text/javascript text/plain text/xml;
+
+  # 用于设置使用Gzip进行压缩发送是否携带“Vary:Accept-Encoding”头域的响应头部
+  # 主要是告诉接收方，所发送的数据经过了Gzip压缩处理
+  gzip_vary on;
 }
 ```
 
@@ -231,6 +314,11 @@ server {
 2. gzip_min_length：设置压缩的最小文件大小，小于该设置值的文件将不会压缩
 3. gzip_comp_level：压缩级别，从 1 到 9，默认 1，数字越大压缩效果越好，但也会越占用 CPU 时间，这里选了一个常见的折中值
 4. gzip_types：进行压缩的文件类型
+5. gzip_vary：设置是否携带"Vary:Accept-Encoding"的响应头部。
+6. gzip_buffers：处理请求压缩的缓冲区数量和大小。
+7. gzip_disable：选择性地开启和关闭 gzip 功能，基于客户端的浏览器标志。
+8. gzip_http_version：针对不同的 http 协议版本，选择性地开启和关闭 gzip 功能。
+9. gzip_proxied：设置是否对 nginx 服务器对后台服务器返回的结果进行 gzip 压缩。
 
 重新加载一次 Nginx 配置：`systemctl reload nginx`
 
@@ -411,3 +499,73 @@ WantedBy=multi-user.target
 2. 设置开机自启动: `systemctl enable nginx.service`
 3. 查看 nginx 状态: `systemctl status nginx.service`
 4. 杀死 nginx 重启 nginx: `pkill -9 nginx`,`ps aux | grep nginx`,`systemctl start nginx`
+
+## 静态资源优化
+
+为了提高静态资源的传输效率，Nginx 提供了以下三个主要的优化指令：
+
+- `sendfile`: 用于开启高效的文件传输模式。它通过调用系统内核的 `sendfile` 函数来实现，从而避免了文件的多次拷贝，同时减少了用户态和内核态之间的切换，从而提高了静态文件的传输效率。
+- `tcp_nopush`: 当 `sendfile` 开启时，`tcp_nopush` 也可以被启用。它的主要目的是提高网络数据包的传输效率。
+- `tcp_nodelay`: 只有在 `keep-alive` 连接开启时，`tcp_nodelay` 才能生效。它的目的是提高网络数据包的实时性。
+
+## 防盗链
+
+防盗链是指防止其他网站直接链接到你的网站资源（如图片、视频等），从而消耗你的服务器带宽。Nginx 提供了一个非常方便的模块——`ngx_http_referer_module`，用于实现防盗链功能。
+
+### 基本的防盗链配置：
+
+```bash
+location ~ .*.(gif|jpg|jpeg|png|bmp|swf)$ {
+    valid_referers none blocked www.example.com example.com *.example.net;
+
+    if ($invalid_referer) {
+        return 403;
+    }
+}
+```
+
+### 使用错误图片代替原图片
+
+```bash
+location ~ .*.(gif|jpg|jpeg|png|bmp|swf)$ {
+    valid_referers none blocked www.example.com example.com *.example.net;
+
+    if ($invalid_referer) {
+        rewrite ^/.*$ /path/to/error/image.jpg;
+    }
+}
+```
+
+### 注意事项：
+
+- 防盗链配置可能会影响搜索引擎的爬虫，因此在实施防盗链策略时要小心。
+- 如果你的网站使用了 CDN，确保 CDN 的服务器也在 valid_referers 列表中，否则 CDN 可能无法正常工作。
+- 为了确保防盗链配置正确，你应该在生产环境之前在测试环境中进行充分的测试。
+
+## 内置变量
+
+nginx 的配置文件中可以使用的内置变量以美元符$开始。其中，大部分预定义的变量的值由客户端发送携带。
+
+```bash
+$args 请求行中的参数，同$query_string
+$content_length 请求头中的Content-length字段
+$content_type 请求头中的Content-Type字段
+$document_root 当前请求在root指令中指定的值
+$host 请求行的主机名，或请求头字段 Host 中的主机名
+$http_user_agent 客户端agent信息
+$http_cookie 客户端cookie信息
+$limit_rate 可以限制连接速率的变量
+$request_method 客户端请求的动作，如GET或POST
+$remote_addr 客户端的IP地址
+$remote_port 客户端的端口
+$remote_user 已经经过Auth Basic Module验证的用户名
+$request_filename 当前请求的文件路径
+$scheme HTTP方法（如http，https）
+$server_protocol 请求使用的协议，如HTTP/1.0或HTTP/1.1
+$server_addr 服务器地址
+$server_name 服务器名称
+$server_port 请求到达服务器的端口号
+$request_uri 包含请求参数的原始URI
+$uri 不带请求参数的当前URI
+$document_uri 与$uri相同
+```

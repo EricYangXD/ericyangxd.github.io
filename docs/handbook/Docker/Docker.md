@@ -248,6 +248,10 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 - COPY 类似 ADD 将我们文件拷贝到镜像中
 - ENV 构建的时候设置环境变量
 
+## .dockerignore
+
+用来忽略相应文件
+
 ## DockerFile Demo
 
 ```dockerfile
