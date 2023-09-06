@@ -7,11 +7,12 @@
 //         try {
 //           // TODO
 //           docsearch({
-//             appId: "43GX903BPS",
-//             apiKey: "feff649032d8034cf2a636ef55d96054",
-//             indexName: "ts-yayujs",
+//             appId: "xxx",
+//             apiKey: "xxx",
+//             indexName: "ericyangxd",
 //             container: ".search-box",
 //             debug: false,
+//             insights: true,
 //           });
 //         } catch (e) {
 //           console.log(e);

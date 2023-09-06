@@ -36,8 +36,8 @@ module.exports = {
     // 	},
     // ],
     // TODO：Algolia 搜索
-    // ["link", { href: "https://cdn.jsdelivr.net/npm/@docsearch/css@alpha", rel: "stylesheet" }],
-    // ["script", { src: "https://cdn.jsdelivr.net/npm/@docsearch/js@alpha" }],
+    // ["link", { href: "https://cdn.jsdelivr.net/npm/@docsearch/css@3", rel: "stylesheet" }],
+    // ["script", { src: "https://cdn.jsdelivr.net/npm/@docsearch/js@3" }],
     [
       "meta",
       {
@@ -577,10 +577,13 @@ module.exports = {
     noFoundPageByTencent: true,
     // TODO：Algolia 搜索
     // algolia: {
-    // apiKey: '<API_KEY>',
-    // indexName: '<INDEX_NAME>',
-    // 如果 Algolia 没有为你提供 `appId` ，使用 `BH4D9OD16A` 或者移除该配置项
-    // appId: '<APP_ID>',
+    //   apiKey: "xxx",
+    //   indexName: "ericyangxd",
+    //   // 如果 Algolia 没有为你提供 `appId` ，使用 `BH4D9OD16A` 或者移除该配置项
+    //   appId: "xxx",
+    //   insights: true,
+    //   container: ".search-box",
+    //   debug: true,
     // },
     // 接入评论，存储在LeanCloud
     valineConfig: {
