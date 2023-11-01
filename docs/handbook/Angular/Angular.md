@@ -529,7 +529,7 @@ export class ProductListComponent implements ControlValueAccessor {
 2. 还可以传入数据，然后在 dialog 中使用。
 
 ```ts
-  constructor( public dialog: MatDialog) {}
+constructor( public dialog: MatDialog) {}
 
 const dialogRef = this.dialog.open(UserProfileComponent, {
   height: "674px",
@@ -537,3 +537,7 @@ const dialogRef = this.dialog.open(UserProfileComponent, {
   panelClass: "custom-dialog",
 });
 ```
+
+### HttpClient
+
+1. Angular 中的 HttpClient 在请求数据时会自动把 response data 当成 JSON 来解析，这样去请求就可以防止它自动 parse：`this.http.get(normalizedUrl, { responseType: 'text' }).then(…)`
