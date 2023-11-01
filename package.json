@@ -20,7 +20,7 @@
     "vuepress-plugin-cursor-effects": "^1.1.6",
     "vuepress-plugin-fulltext-search": "^2.2.1",
     "vuepress-plugin-nuggets-style-copy": "^1.0.3",
-    "vuepress-plugin-seo": "^0.1.4",
+    "vuepress-plugin-seo": "^0.2.0",
     "vuepress-plugin-sitemap": "^2.3.1"
   },
   "scripts": {
