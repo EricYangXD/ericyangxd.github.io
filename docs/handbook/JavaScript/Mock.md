@@ -45,15 +45,17 @@ fetch("https://jsonplaceholder.typicode.com/todos/1")
 
 ## Mockjs
 
+[http://mockjs.com/](http://mockjs.com/)
+
 ## fakeimg.pl
 
 ```html
-<img src="https://fakeimg.pl/300/">
-<img src="https://fakeimg.pl/250x100/">
-<img src="https://fakeimg.pl/250x100/ff0000/">
-<img src="https://fakeimg.pl/350x200/ff0000/000">
-<img src="https://fakeimg.pl/350x200/ff0000,128/000,255">
-<img src="https://fakeimg.pl/350x200/?text=Hello">
-<img src="https://fakeimg.pl/200x100/?retina=1&text=こんにちは&font=noto">
-<img src="https://fakeimg.pl/350x200/?text=World&font=lobster">
+<img src="https://fakeimg.pl/300/" />
+<img src="https://fakeimg.pl/250x100/" />
+<img src="https://fakeimg.pl/250x100/ff0000/" />
+<img src="https://fakeimg.pl/350x200/ff0000/000" />
+<img src="https://fakeimg.pl/350x200/ff0000,128/000,255" />
+<img src="https://fakeimg.pl/350x200/?text=Hello" />
+<img src="https://fakeimg.pl/200x100/?retina=1&text=こんにちは&font=noto" />
+<img src="https://fakeimg.pl/350x200/?text=World&font=lobster" />
 ```

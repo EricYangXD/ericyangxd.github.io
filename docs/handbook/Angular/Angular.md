@@ -318,6 +318,48 @@ export class ProductComponent implements OnInit {
 }
 ```
 
+## 原理
+
+Angular 其中的一个设计目标是使浏览器与 DOM 独立。DOM 是复杂的，因此使组件与它分离，会让我们的应用程序，更容易测试与重构。另外的好处是，由于这种解耦，使得我们的应用能够运行在其它平台 (比如：Node.js、WebWorkers、NativeScript 等)。
+
+为了能够支持跨平台，Angular 通过抽象层封装了不同平台的差异。比如定义了抽象类 Renderer、Renderer2 、抽象类 RootRenderer 等。此外还定义了以下引用类型：ElementRef、TemplateRef、ViewRef 、ComponentRef 和 ViewContainerRef 等。
+
+### 平台
+
+平台是应用程序运行的环境。它是一组服务，可以用来访问你的应用程序和 Angular 框架本身的内置功能。由于 Angular 主要是一个 UI 框架，平台提供的最重要的功能之一就是页面渲染。
+
+```ts
+import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
+import { BrowserModule } from "@angular/platform-browser";
+
+@NgModule({
+  imports: [BrowserModule],
+  bootstrap: [AppCmp],
+})
+class AppModule {}
+
+platformBrowserDynamic().bootstrapModule(AppModule);
+```
+
+1. 引导过程由两部分组成：创建平台和引导模块。在这个例子中，我们导入 BrowserModule 模块，它是浏览器平台的一部分。应用中只能有一个激活的平台，但是我们可以利用它来引导多个模块，如下所示：
+
+```ts
+const platformRef: PlatformRef = platformBrowserDynamic();
+platformRef.bootstrapModule(AppModule1);
+platformRef.bootstrapModule(AppModule2);
+```
+
+2. 由于应用中只能有一个激活的平台，单例的服务必须在该平台中注册。比如，浏览器只有一个地址栏，对应的服务对象就是单例。此外如何让我们自定义的 UI 界面，能够在浏览器中显示出来呢，这就需要使用 Angular 为我们提供的渲染器。
+
+### Renderer 渲染器
+
+浏览器平台下， Renderer 渲染器的相关基础知识:
+
+1. Angular 应用程序启动时会创建 RootView (生产环境下通过调用 createProdRootView() 方法)
+2. 创建 RootView 的过程中，会创建 RootData 对象，该对象可以通过 ViewData 的 root 属性访问到。基于 RootData 对象，我们可以通过 renderer 访问到默认的渲染器，即 DefaultDomRenderer2 实例，此外也可以通过 rendererFactory 访问到 RendererFactory2 实例。
+3. 在创建组件视图 (ViewData) 时，会根据 componentRendererType 的属性值，来设置组件关联的 renderer 渲染器。
+4. 当渲染组件视图的时候，Angular 会利用该组件关联的 renderer 提供的 API，创建该视图中的节点或执行视图的相关操作，比如创建元素 (createElement)、创建文本 (createText)、设置样式 (setStyle) 和 设置事件监听 (listen) 等。
+
 ## 使用
 
 ### 显示 html
@@ -518,6 +560,375 @@ export class ProductListComponent implements ControlValueAccessor {
 #### XSS
 
 1. 当 iframe 的 src 是变量时，需要用`this.domSanitizer.bypassSecurityTrustResourceUrl(url)`处理一下，方能正常加载。
+
+#### HttpClientModule
+
+> Angular HTTP Client 快速入门
+
+##### 导入新的 HTTP Module
+
+```ts
+import { HttpClientModule } from "@angular/common/http";
+
+@NgModule({
+  declarations: [AppComponent],
+  imports: [BrowserModule, HttpClientModule],
+  providers: [],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
+```
+
+使用：`http.get(url).subscribe(...);`
+
+##### 发送 Get 请求
+
+```ts
+import {HttpClient} from "@angular/common/http";
+
+// ...
+    data: any;
+    constructor(private http:HttpClient) {}
+
+    ngOnInit() {
+        this.data = this.http
+            .get("https://angular-http-guide.firebaseio.com/courses.json")
+            .map(data => _.values(data))
+            .do(console.log);
+    }
+```
+
+##### 设置查询参数
+
+1. 创建 HttpParams 对象
+
+```ts
+import { HttpParams } from "@angular/common/http";
+
+const params = new HttpParams().set("orderBy", '"$key"').set("limitToFirst", "1");
+
+this.courses$ = this.http
+  .get("/courses.json", { params })
+  .do(console.log)
+  .map((data) => _.values(data));
+```
+
+通过链式语法调用 set() 方法，构建 HttpParams 对象。这是因为 HttpParams 对象是不可变的，通过 set() 方法可以防止该对象被修改。每当调用 set() 方法，将会返回包含新值的 HttpParams 对象，因此如果使用下面的方式，将不能正确的设置参数。
+
+```ts
+const params = new HttpParams();
+
+params.set("orderBy", '"$key"');
+params.set("limitToFirst", "1");
+```
+
+2. 使用 fromString 语法: `const params = new HttpParams({fromString: 'orderBy="$key"&limitToFirst=1'});`
+3. 使用 request() API:
+
+```ts
+const params = new HttpParams({ fromString: 'orderBy="$key"&limitToFirst=1' });
+
+this.courses$ = this.http
+  .request("GET", "/courses.json", {
+    responseType: "json",
+    params,
+  })
+  .do(console.log)
+  .map((data) => _.values(data));
+```
+
+##### 设置 HTTP Headers
+
+```ts
+const headers = new HttpHeaders().set("X-CustomHeader", "custom header value");
+
+this.courses$ = this.http
+  .get("/courses.json", { headers })
+  .do(console.log)
+  .map((data) => _.values(data));
+```
+
+##### 发送 Put 请求
+
+```ts
+httpPutExample() {
+    const headers = new HttpHeaders().set("Content-Type", "application/json");
+
+    this.http.put("/courses/-KgVwECOnlc-LHb_B0cQ.json",
+        {
+            "courseListIcon": ".../main-page-logo-small-hat.png",
+            "description": "Angular Tutorial For Beginners TEST",
+            "iconUrl": ".../angular2-for-beginners.jpg",
+            "longDescription": "...",
+            "url": "new-value-for-url"
+        },
+        {headers})
+        .subscribe(
+            val => {
+                console.log("PUT call successful value returned in body",
+                  val);
+            },
+            response => {
+                console.log("PUT call in error", response);
+            },
+            () => {
+                console.log("The PUT observable is now completed.");
+            }
+        );
+}
+```
+
+##### 发送 Patch 请求
+
+```ts
+httpPatchExample() {
+    this.http.patch("/courses/-KgVwECOnlc-LHb_B0cQ.json",
+        {
+            "description": "Angular Tutorial For Beginners PATCH TEST",
+        })
+        .subscribe(
+            (val) => {
+                console.log("PATCH call successful value returned in body",
+                  val);
+            },
+            response => {
+                console.log("PATCH call in error", response);
+            },
+            () => {
+                console.log("The PATCH observable is now completed.");
+            });
+}
+```
+
+##### 发送 Delete 请求
+
+```ts
+httpDeleteExample() {
+    this.http.delete("/courses/-KgVwECOnlc-LHb_B0cQ.json")
+        .subscribe(
+            (val) => {
+                console.log("DELETE call successful value returned in body",
+                  val);
+            },
+            response => {
+                console.log("DELETE call in error", response);
+            },
+            () => {
+                console.log("The DELETE observable is now completed.");
+            });
+}
+```
+
+##### 发送 Post 请求
+
+```ts
+httpPostExample() {
+    this.http.post("/courses/-KgVwECOnlc-LHb_B0cQ.json",
+        {
+            "courseListIcon": "...",
+            "description": "TEST",
+            "iconUrl": "..",
+            "longDescription": "...",
+            "url": "new-url"
+        })
+        .subscribe(
+            (val) => {
+                console.log("POST call successful value returned in body",
+                  val);
+            },
+            response => {
+                console.log("POST call in error", response);
+            },
+            () => {
+                console.log("The POST observable is now completed.");
+            });
+}
+```
+
+##### 避免重复请求
+
+```ts
+import {shareReplay} from 'rxjs/operator';
+
+duplicateRequestsExample() {
+    const httpGet$ = this.http
+        .get("/courses.json")
+        .map(data => _.values(data))
+        .shareReplay(); // 避免发送冗余的请求
+
+    httpGet$.subscribe(
+        (val) => console.log("logging GET value", val)
+    );
+
+    this.courses$ = httpGet$;
+}
+```
+
+##### 并行发送多个请求
+
+1. 并行发送 HTTP 请求的一种方法是使用 RxJs 中的 `forkjoin/zip/combineLatest/mergeMap` 操作符：
+
+```ts
+import { forkJoin, zip, combineLatest } from "rxjx";
+import { mergeMap } from "rxjs/operators";
+
+const request1$ = this.http.get("/api/data1");
+const request2$ = this.http.get("/api/data2");
+
+// 1 forkJoin操作符可以同时发出多个HTTP请求，并且只会发出一个完整的数组，其中包含了所有HTTP响应。这在需要同时获取多个数据源的情况下非常有用。
+forkJoin([request1$, request2$]).subscribe(([data1, data2]) => {
+  // 处理data1和data2
+});
+
+// 2  zip操作符类似于forkJoin，它也可以同时发送多个HTTP请求，但是它会等待所有请求都完成后才会触发订阅。这意味着，如果其中一个请求失败，整个流可能会失败。
+zip(request1$, request2$).subscribe(([data1, data2]) => {
+  // 处理data1和data2
+});
+
+// 3  如果您需要根据前一个请求的响应来触发后续请求，可以使用mergeMap（也称为flatMap）操作符。这允许您在前一个请求完成后触发新的请求，从而实现并行请求。
+this.http
+  .get("/api/data1")
+  .pipe(
+    mergeMap((data1) => {
+      const request2$ = this.http.get(`/api/data2/${data1.id}`);
+      const request3$ = this.http.get("/api/data3");
+      return forkJoin([request2$, request3$]);
+    })
+  )
+  .subscribe(([data2, data3]) => {
+    // 处理data2和data3
+  });
+
+// 4 combineLatest操作符将多个请求的响应组合成一个Observable，每当其中一个请求完成时，它会发出一个新的组合值。这允许您在任何请求完成时获取最新的数据。
+combineLatest([request1$, request2$]).subscribe(([data1, data2]) => {
+  // 处理data1和data2
+});
+```
+
+1. 另一种方法是使用 Promise.all：
+
+```ts
+// 如果您更喜欢使用Promises而不是Observables，您可以将HTTP请求封装在Promises中，并使用Promise.all来等待它们全部完成。
+const promise1 = this.http.get("/api/data1").toPromise();
+const promise2 = this.http.get("/api/data2").toPromise();
+
+Promise.all([promise1, promise2]).then(([data1, data2]) => {
+  // 处理data1和data2
+});
+```
+
+##### 顺序发送 Http 请求
+
+```ts
+sequentialRequests() {
+    const sequence$ = this.http.get<Course>('/courses/-KgVwEBq5wbFnjj7O8Fp.json')
+        .switchMap(course => {
+            course.description+= ' - TEST ';
+            return this.http.put('/courses/-KgVwEBq5wbFnjj7O8Fp.json', course)
+        });
+
+    sequence$.subscribe();
+}
+```
+
+##### 获取顺序发送 Http 请求的结果
+
+```ts
+sequentialRequests() {
+    const sequence$ = this.http.get<Course>('/courses/-KgVwEBq5wbFnjj7O8Fp.json')
+        .switchMap(course => {
+            course.description+= ' - TEST ';
+            return this.http.put('/courses/-KgVwEBq5wbFnjj7O8Fp.json', course)
+        },
+            (firstHTTPResult, secondHTTPResult)  => [firstHTTPResult, secondHTTPResult]);
+
+    sequence$.subscribe(values => console.log("result observable ", values) );
+}
+```
+
+##### 请求异常处理
+
+```ts
+throwError() {
+    this.http
+        .get("/api/simulate-error")
+        .catch( error => {
+            // here we can show an error message to the user,
+            // for example via a service
+            console.error("error catched", error);
+
+            return Observable.of({description: "Error Value Emitted"});
+        })
+        .subscribe(
+            val => console.log('Value emitted successfully', val),
+            error => {
+                console.error("This line is never called ",error);
+            },
+            () => console.log("HTTP Observable completed...")
+        );
+}
+```
+
+#### Http 拦截器
+
+1. 定义拦截器
+
+```ts
+import { Injectable } from "@angular/core";
+import { HttpEvent, HttpHandler, HttpInterceptor } from "@angular/common/http";
+import { HttpRequest } from "@angular/common/http";
+import { Observable } from "rxjs/Observable";
+
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  constructor(private authService: AuthService) {}
+
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const clonedRequest = req.clone({
+      headers: req.headers.set("X-CustomAuthHeader", authService.getToken()),
+    });
+    console.log("new headers", clonedRequest.headers.keys());
+    return next.handle(clonedRequest);
+  }
+}
+```
+
+##### 配置拦截器
+
+```ts
+@NgModule({
+  declarations: [AppComponent],
+  imports: [BrowserModule, HttpClientModule],
+  providers: [[{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }]],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
+```
+
+##### Http 进度事件
+
+```ts
+longRequest() {
+    const request = new HttpRequest(
+        "POST", "/api/test-request", {},
+         {reportProgress: true});
+
+    this.http.request(request)
+        .subscribe(
+            event => {
+                if (event.type === HttpEventType.DownloadProgress) {
+                    console.log("Download progress event", event);
+                }
+                if (event.type === HttpEventType.UploadProgress) {
+                    console.log("Upload progress event", event);
+                }
+                if (event.type === HttpEventType.Response) {
+                    console.log("response received...", event.body);
+                }
+            }
+        );
+}
+```
 
 ## 对于 material-design 的使用
 

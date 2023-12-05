@@ -254,7 +254,7 @@ img {
 </html>
 ```
 
-3. 通过 svg 的 fill 属性，直接修改 svg 的颜色。（需要修改 svg 文件），如下，也可以同时设置 height/width/stroke 属性。
+3. 通过 svg 的 fill 属性，直接修改 svg 的颜色。（需要修改 svg 文件），如下，也可以同时设置 `height/width/stroke` 属性。
 
 ```html
 <svg

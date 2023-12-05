@@ -4,10 +4,10 @@ author: EricYangXD
 date: "2023-02-03"
 meta:
   - name: keywords
-    content: jest,tdd,bdd
+    content: Jest,tdd,bdd
 ---
 
-## jest 的简单使用
+## Jest 的简单使用
 
 ### 安装
 
@@ -15,7 +15,7 @@ meta:
 2. 安装`jest npm install --save-dev jest`
 3. 运行`npx jest --init`命令，生成一份 jest 的配置文件`jest.config.js`
 4. 运行`npm i babel-jest @babel/core @babel/preset-env -D`安装 babel，并且配置`.babelrc`如下:
-5. 全局安装的 jest 可以直接使用`jest`命令
+5. 全局安装的 Jest 可以直接使用`jest`命令
 
 ```json
 {
@@ -42,28 +42,28 @@ import { findMax, twoSum } from "./add";
 
 // 期望findMax([2, 6, 3])执行后结果为6
 test("findMax([2, 6, 3])", () => {
-	expect(findMax([2, 6, 3])).toBe(6);
+  expect(findMax([2, 6, 3])).toBe(6);
 });
 
 // 期望twoSum([2, 3, 4, 6], 10)执行后结果为true
 test("twoSum([2, 3, 4, 6], 10)", () => {
-	expect(twoSum([2, 3, 4, 6], 10)).toBe(true);
+  expect(twoSum([2, 3, 4, 6], 10)).toBe(true);
 });
 ```
 
 ```js
 // 字符串相关
 test("toMatch", () => {
-	const str = "Lebron James";
-	expect(str).toMatch(/Ja/);
-	expect(str).toMatch("Ja");
+  const str = "Lebron James";
+  expect(str).toMatch(/Ja/);
+  expect(str).toMatch("Ja");
 });
 test("Array Set matchers", () => {
-	const arr = ["Kobe", "James", "Curry"];
-	const set = new Set(arr);
-	expect(arr).toContain("Kobe");
-	expect(set).toContain("Curry");
-	expect(arr).toHaveLength(3);
+  const arr = ["Kobe", "James", "Curry"];
+  const set = new Set(arr);
+  expect(arr).toContain("Kobe");
+  expect(set).toContain("Curry");
+  expect(arr).toHaveLength(3);
 });
 ```
 
@@ -72,9 +72,9 @@ test("Array Set matchers", () => {
 3. VSCode 的`Jest Runner`插件。
 4. 使用配置`jest my-test --notify --config=config.json`
 
-### 常用 jest matcher
+### 常用 Jest matcher
 
-在 expect 函数后面跟着的判断结果的 toBe 在 jest 中被称为 matcher。
+在 expect 函数后面跟着的判断结果的 toBe 在 Jest 中被称为 matcher。
 
 1. toBe：判断基本类型
 2. toEqual：判断数组、对象等引用类型
@@ -96,50 +96,50 @@ test("Array Set matchers", () => {
 18. toThrow：测试一个特定的函数在被调用时是否会抛出一个错误
 19. `.resolves / .rejects`：放在 toXXX 之前，接收异步的结果
 20. `.not`：放在 toXXX 之前，表示非/否/取反
-21. 如果测试代码里使用`.catch`，jest 不回去执行`.catch`里的内容，所以需要我们去写`expect.assertions(1)`这句话，代表期望执行的断言是 1 次，catch 方法算一次断言。
+21. 如果测试代码里使用`.catch`，Jest 不回去执行`.catch`里的内容，所以需要我们去写`expect.assertions(1)`这句话，代表期望执行的断言是 1 次，catch 方法算一次断言。
 
 ### 异步代码测试
 
 ```js
 // Promise
 test("the data is peanut butter", () => {
-	// 注意：要使用return返回
-	return fetchData().then((data) => {
-		expect(data).toBe("peanut butter");
-	});
+  // 注意：要使用return返回
+  return fetchData().then((data) => {
+    expect(data).toBe("peanut butter");
+  });
 });
 
 test("the data is peanut butter", () => {
-	// 注意：要使用return返回
-	return expect(fetchData()).resolves.toBe("peanut butter");
+  // 注意：要使用return返回
+  return expect(fetchData()).resolves.toBe("peanut butter");
 });
 
 // async/await
 test("the data is peanut butter", async () => {
-	const data = await fetchData();
-	expect(data).toBe("peanut butter");
+  const data = await fetchData();
+  expect(data).toBe("peanut butter");
 });
 
 test("the fetch fails with an error", async () => {
-	expect.assertions(1);
-	try {
-		await fetchData();
-	} catch (e) {
-		expect(e).toMatch("error");
-	}
+  expect.assertions(1);
+  try {
+    await fetchData();
+  } catch (e) {
+    expect(e).toMatch("error");
+  }
 });
 
 // You can combine async and await with .resolves or .rejects.
 test("the data is peanut butter", async () => {
-	await expect(fetchData()).resolves.toBe("peanut butter");
+  await expect(fetchData()).resolves.toBe("peanut butter");
 });
 
 test("the fetch fails with an error", async () => {
-	await expect(fetchData()).rejects.toMatch("error");
+  await expect(fetchData()).rejects.toMatch("error");
 });
 // toThrow
 test("测试request 404", () => {
-	return expect(requestErr()).rejects.toThrow(/404/);
+  return expect(requestErr()).rejects.toThrow(/404/);
 });
 ```
 
@@ -151,10 +151,10 @@ test("测试request 404", () => {
 import timeout from "./timeout";
 
 test("测试timer", (done) => {
-	timeout(() => {
-		expect(2 + 2).toBe(4);
-		done();
-	});
+  timeout(() => {
+    expect(2 + 2).toBe(4);
+    done();
+  });
 });
 ```
 
@@ -175,41 +175,41 @@ test("测试timer", (done) => {
 import Count from "./hook";
 
 describe("分别测试Count的4个方法", () => {
-	let count;
-	beforeAll(() => {
-		console.log("before all tests!");
-	});
+  let count;
+  beforeAll(() => {
+    console.log("before all tests!");
+  });
 
-	beforeEach(() => {
-		console.log("before each test!");
-		// 在每个test执行之前，beforeEach里面重新实例化了count，所以每一次的count是不同的。
-		count = new Count();
-	});
+  beforeEach(() => {
+    console.log("before each test!");
+    // 在每个test执行之前，beforeEach里面重新实例化了count，所以每一次的count是不同的。
+    count = new Count();
+  });
 
-	afterAll(() => {
-		console.log("after all tests!");
-	});
+  afterAll(() => {
+    console.log("after all tests!");
+  });
 
-	afterEach(() => {
-		console.log("after each test!");
-	});
+  afterEach(() => {
+    console.log("after each test!");
+  });
 
-	test("测试increase", () => {
-		count.increase();
-		console.log(count.count);
-	});
-	test("测试decrease", () => {
-		count.decrease();
-		console.log(count.count);
-	});
-	test("测试double", () => {
-		count.double();
-		console.log(count.count);
-	});
-	test("测试half", () => {
-		count.half();
-		console.log(count.count);
-	});
+  test("测试increase", () => {
+    count.increase();
+    console.log(count.count);
+  });
+  test("测试decrease", () => {
+    count.decrease();
+    console.log(count.count);
+  });
+  test("测试double", () => {
+    count.double();
+    console.log(count.count);
+  });
+  test("测试half", () => {
+    count.half();
+    console.log(count.count);
+  });
 });
 ```
 
@@ -217,18 +217,18 @@ describe("分别测试Count的4个方法", () => {
 
 我们可以使用 fakeTimers 模拟真实的定时器。这个 fakeTimers 在遇到定时器时，允许我们立即跳过定时器等待时间，执行内部逻辑。
 
-1. 首先，我们使用 jest.fn()生成一个 jest 提供的用来测试的函数，这样我们之后回调函数不需要自己去写一个
-2. 其次，我们使用 jest.useFakeTimers()方法启动 fakeTimers
-3. 最后，我们可以通过 jest.advanceTimersByTime()方法，参数传入毫秒时间，jest 会立即跳过这个时间值，还可以通过 toHaveBeenCalledTimes()这个 mathcer 来测试函数的调用次数。
+1. 首先，我们使用 `jest.fn()`生成一个 jest 提供的用来测试的函数，这样我们之后回调函数不需要自己去写一个
+2. 其次，我们使用 `jest.useFakeTimers()`方法启动 fakeTimers
+3. 最后，我们可以通过 `jest.advanceTimersByTime()`方法，参数传入毫秒时间，jest 会立即跳过这个时间值，还可以通过 `toHaveBeenCalledTimes()`这个 mathcer 来测试函数的调用次数。
 
 ```js
 test("测试timer", () => {
-	jest.useFakeTimers();
-	const fn = jest.fn();
-	timeout(fn);
-	// 时间快进2秒
-	jest.advanceTimersByTime(2000);
-	expect(fn).toHaveBeenCalledTimes(1);
+  jest.useFakeTimers();
+  const fn = jest.fn();
+  timeout(fn);
+  // 时间快进2秒
+  jest.advanceTimersByTime(2000);
+  expect(fn).toHaveBeenCalledTimes(1);
 });
 ```
 
@@ -238,13 +238,13 @@ test("测试timer", () => {
 
 ### 在测试中模拟（mock）数据
 
-首先新建 mock.js, mock.test.js 文件
+首先新建 `mock.js`, `mock.test.js` 文件
 
 #### 使用 jest.fn()模拟函数
 
 ```js
 export const run = (fn) => {
-	return fn("this is run!");
+  return fn("this is run!");
 };
 ```
 
@@ -252,9 +252,9 @@ export const run = (fn) => {
 
 ```js
 test("测试 jest.fn()", () => {
-	const fn = jest.fn(() => {
-		return "this is mock fn 1";
-	});
+  const fn = jest.fn(() => {
+    return "this is mock fn 1";
+  });
 });
 ```
 
@@ -262,20 +262,20 @@ test("测试 jest.fn()", () => {
 
 ```js
 test("测试 jest.fn()", () => {
-	const func = jest.fn();
-	func.mockImplementation(() => {
-		return "this is mock fn 1";
-	});
-	func.mockImplementationOnce(() => {
-		return "this is mock fn 2";
-	});
-	const a = run(func);
-	const b = run(func);
-	const c = run(func);
-	console.log(a);
-	console.log(b);
-	console.log(c);
-	// 函数执行的结果第一次是this is mock fn 2，之后都是this is mock fn 1
+  const func = jest.fn();
+  func.mockImplementation(() => {
+    return "this is mock fn 1";
+  });
+  func.mockImplementationOnce(() => {
+    return "this is mock fn 2";
+  });
+  const a = run(func);
+  const b = run(func);
+  const c = run(func);
+  console.log(a);
+  console.log(b);
+  console.log(c);
+  // 函数执行的结果第一次是this is mock fn 2，之后都是this is mock fn 1
 });
 ```
 
@@ -283,27 +283,27 @@ test("测试 jest.fn()", () => {
 
 ```js
 test("测试 jest.fn()", () => {
-	const func = jest.fn();
-	func.mockImplementation(() => {
-		return "this is mock fn 1";
-	});
-	func.mockImplementationOnce(() => {
-		return "this is mock fn 2";
-	});
-	func.mockReturnValue("this is mock fn 3");
-	// 方法是可以链式调用的，方便多次输出不同的返回值。
-	func
-		.mockReturnValueOnce("this is mock fn 4")
-		.mockReturnValueOnce("this is mock fn 5")
-		.mockReturnValueOnce("this is mock fn 6");
-	const a = run(func);
-	const b = run(func);
-	const c = run(func);
-	const d = run(func);
-	console.log(a);
-	console.log(b);
-	console.log(c);
-	console.log(d);
+  const func = jest.fn();
+  func.mockImplementation(() => {
+    return "this is mock fn 1";
+  });
+  func.mockImplementationOnce(() => {
+    return "this is mock fn 2";
+  });
+  func.mockReturnValue("this is mock fn 3");
+  // 方法是可以链式调用的，方便多次输出不同的返回值。
+  func
+    .mockReturnValueOnce("this is mock fn 4")
+    .mockReturnValueOnce("this is mock fn 5")
+    .mockReturnValueOnce("this is mock fn 6");
+  const a = run(func);
+  const b = run(func);
+  const c = run(func);
+  const d = run(func);
+  console.log(a);
+  console.log(b);
+  console.log(c);
+  console.log(d);
 });
 ```
 
@@ -311,9 +311,9 @@ test("测试 jest.fn()", () => {
 
 ```js
 test("测试 jest.fn()", () => {
-	const func = jest.fn();
-	const a = run(func);
-	expect(func).toBeCalledWith("this is run!");
+  const func = jest.fn();
+  const a = run(func);
+  expect(func).toBeCalledWith("this is run!");
 });
 ```
 
@@ -325,7 +325,7 @@ test("测试 jest.fn()", () => {
 import axios from "axios";
 
 export const request = (fn) => {
-	return axios.get("https://jsonplaceholder.typicode.com/todos/1");
+  return axios.get("https://jsonplaceholder.typicode.com/todos/1");
 };
 ```
 
@@ -338,14 +338,14 @@ import { request } from "./mock";
 jest.mock("axios");
 
 test("测试request", async () => {
-	axios.get.mockResolvedValueOnce({ data: "Jordan", position: "SG" });
-	axios.get.mockResolvedValue({ data: "kobe", position: "SG" });
-	await request().then((res) => {
-		expect(res.data).toBe("Jordan");
-	});
-	await request().then((res) => {
-		expect(res.data).toBe("kobe");
-	});
+  axios.get.mockResolvedValueOnce({ data: "Jordan", position: "SG" });
+  axios.get.mockResolvedValue({ data: "kobe", position: "SG" });
+  await request().then((res) => {
+    expect(res.data).toBe("Jordan");
+  });
+  await request().then((res) => {
+    expect(res.data).toBe("kobe");
+  });
 });
 ```
 
@@ -356,19 +356,19 @@ test("测试request", async () => {
 ```js
 // dom.js
 export const generateDiv = () => {
-	const div = document.createElement("div");
-	div.className = "test-div";
-	document.body.appendChild(div);
+  const div = document.createElement("div");
+  div.className = "test-div";
+  document.body.appendChild(div);
 };
 
 // dom.test.js
 import { generateDiv } from "./dom";
 
 test("测试dom操作", () => {
-	generateDiv();
-	generateDiv();
-	generateDiv();
-	expect(document.getElementsByClassName("test-div").length).toBe(3);
+  generateDiv();
+  generateDiv();
+  generateDiv();
+  expect(document.getElementsByClassName("test-div").length).toBe(3);
 });
 ```
 
@@ -381,20 +381,20 @@ jest 的运行环境是 node.js，这里 jest 使用 jsdom 来让我们可以书
 ```js
 // snapshot.js
 export const getConfig = () => {
-	return {
-		server: "https://demo.com",
-		port: "8080",
-	};
+  return {
+    server: "https://demo.com",
+    port: "8080",
+  };
 };
 
 // shapshot.test.js
 import { getConfig } from "./snapshot";
 
 test("getConfig测试", () => {
-	expect(getConfig()).toEqual({
-		server: "https://demo.com",
-		port: "8080",
-	});
+  expect(getConfig()).toEqual({
+    server: "https://demo.com",
+    port: "8080",
+  });
 });
 ```
 
@@ -402,7 +402,7 @@ test("getConfig测试", () => {
 
 ```js
 test("getConfig测试", () => {
-	expect(getConfig()).toMatchSnapshot();
+  expect(getConfig()).toMatchSnapshot();
 });
 ```
 
