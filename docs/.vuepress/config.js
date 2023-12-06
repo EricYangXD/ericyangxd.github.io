@@ -308,6 +308,10 @@ module.exports = {
             path: "/handbook/Skill/Shell",
           },
           {
+            title: "Shell每日一练",
+            path: "/handbook/Skill/ShellPractice",
+          },
+          {
             title: "微前端",
             path: "/handbook/Skill/MicroFE",
           },
