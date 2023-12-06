@@ -1,0 +1,3 @@
+Sitemap: https://ericyangxd.top/sitemap.xml
+
+User-agent: *

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta
+			name="viewport"
+			content="width=device-width,maximum-scale=1,minimum-scale=1,initial-scale=1,user-scalable=no,shrink-to-fit=no"
+		/>
+		<meta name="renderer" content="webkit" />
+		<base href="/" />
+		<meta name="description" content="description of website" />
+		<meta name="keywords" content="keywords" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<title>Sticky</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				font-size: 14px;
+				color: black;
+			}
+			body {
+				display: grid;
+				grid-template-columns: 1fr 1fr 1fr;
+			}
+
+			#root1 {
+				width: 30vw;
+				height: 80vh;
+				overflow: scroll;
+			}
+			#root1 ul {
+				background: yellowgreen;
+			}
+			#root1 li {
+				list-style: none;
+				margin: 10px;
+				padding: 10px;
+				background: blanchedalmond;
+				text-align: center;
+			}
+			#root1 .header {
+				position: sticky;
+				position: -webkit-sticky;
+				top: 0px;
+				margin-top: 50px;
+				background: pink;
+			}
+
+			#root2 {
+				width: 30vw;
+				height: 80vh;
+				overflow: scroll;
+			}
+
+			#root2 .sticky {
+				position: sticky;
+				position: -webkit-sticky;
+				top: 0px;
+				background: green;
+				height: 50px;
+				border: 1px solid #fff;
+			}
+			#root2 .other {
+				background: plum;
+				height: 200px;
+				border: 1px solid #fff;
+			}
+
+			#root3 {
+				width: 30vw;
+				height: 80vh;
+				overflow: scroll;
+			}
+			#root3 .sticky-wrapper {
+				overflow: scroll;
+				height: 200px;
+			}
+			#root3 .sticky-wrapper .unsticky {
+				height: 100px;
+				background: indianred;
+				border: 1px solid #fff;
+			}
+			#root3 .sticky-wrapper .sticky {
+				position: sticky;
+				position: -webkit-sticky;
+				top: 0px;
+				background: green;
+				height: 50px;
+				border: 1px solid #fff;
+			}
+			#root3 .other {
+				background: plum;
+				height: 200px;
+				border: 1px solid #fff;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="root1">
+			<div>Demo1: ul+li sticky</div>
+			<div>
+				<p>root div需要设置:</p>
+				<p>1: 高度;</p>
+				<p>2: overflow:scroll/auto/visible;</p>
+				<p>
+					3. 须指定 top, right, bottom 或 left
+					四个阈值其中之一，才可使粘性定位生效。否则其行为与相对定位相同。
+				</p>
+			</div>
+			<ul>
+				<li class="header">1</li>
+				<li>2</li>
+				<li>3</li>
+				<li>4</li>
+				<li>5</li>
+				<li>6</li>
+				<li>7</li>
+				<li>8</li>
+				<li>9</li>
+				<li>10</li>
+				<li>2</li>
+				<li>3</li>
+				<li>4</li>
+				<li>5</li>
+				<li>6</li>
+				<li>7</li>
+				<li>8</li>
+				<li>9</li>
+				<li>10</li>
+				<li>2</li>
+				<li>3</li>
+				<li>4</li>
+				<li>5</li>
+				<li>6</li>
+				<li>7</li>
+				<li>8</li>
+				<li>9</li>
+				<li>10</li>
+			</ul>
+		</div>
+
+		<div id="root2">
+			<div>Demo2: div+div sticky</div>
+			<div>
+				<p>root div需要设置:</p>
+				<p>1: 高度;</p>
+				<p>2: overflow:scroll/auto/visible;</p>
+				<p>
+					3. 须指定 top, right, bottom 或 left
+					四个阈值其中之一，才可使粘性定位生效。否则其行为与相对定位相同。
+				</p>
+			</div>
+			<div class="sticky">sticky</div>
+			<div class="other">other1</div>
+			<div class="other">other2</div>
+			<div class="other">other3</div>
+			<div class="other">other4</div>
+			<div class="other">other5</div>
+		</div>
+		<div id="root3">
+			<div>Demo3: div+div+div sticky</div>
+			<div>
+				<p>root div需要设置:</p>
+				<p>
+					1:
+					sticky元素的最近的父元素必须设置高度，并且要能够滚动，即子元素高度之和要大于父元素;
+				</p>
+				<p>2: 父元素设置 overflow:scroll/auto/visible;</p>
+				<p>
+					3. 子元素须指定 top, right, bottom 或 left
+					四个阈值其中之一，才可使粘性定位生效。否则其行为与相对定位相同。
+				</p>
+				<p>4. sticky元素依然是相对于最近的父元素sticky</p>
+			</div>
+			<div class="sticky-wrapper">
+				<div class="sticky">sticky</div>
+				<div class="unsticky">unsticky1</div>
+				<div class="unsticky">unsticky2</div>
+				<div class="unsticky">unsticky3</div>
+				<div class="unsticky">unsticky4</div>
+				<div class="unsticky">unsticky5</div>
+			</div>
+			<div class="other">other1</div>
+			<div class="other">other2</div>
+			<div class="other">other3</div>
+			<div class="other">other4</div>
+			<div class="other">other5</div>
+		</div>
+		<script></script>
+	</body>
+</html>
