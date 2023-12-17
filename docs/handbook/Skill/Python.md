@@ -241,3 +241,33 @@ for stu in data:
   plt.savefig(name+'.png') # 保存图片名+格式
   plt.show()
 ```
+
+### 下载视频
+
+```python
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+HEADERS = {
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36",
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+    "referer": "https://passport.weibo.com/visitor/visitor?entry=miniblog&a=enter&url=https%3A%2F%2Fweibo.com%2Ftv%2Fv%2FI9cdSBVBP&domain=.weibo.com&ua=php-sso_sdk_client-0.6.28&_rand=1569807841.8018"
+}
+def parse_weibo_video(url):
+    option = webdriver.ChromeOptions()
+    option.add_argument('headless')
+    driver = webdriver.Chrome(executable_path="/path/to/chromedriver", chrome_options=option)
+    driver.get(url)
+    try:
+      # 这里的参数 url 就是微博视频的网页的链接，比如说 https://www.weibo.com/tv/v/In7Oce2uO ，代码中使用 Chrome 无头浏览器来模拟正常用户浏览页面时的加载过程。下面这句代码是获取视频链接的核心
+        element = WebDriverWait(driver, 60).until(
+            EC.presence_of_element_located((By.TAG_NAME, "video"))
+        )
+        user = WebDriverWait(driver, 60).until(
+            EC.presence_of_element_located((By.XPATH, "//div[@class='player_info']//div[@class='clearfix']/a/span"))
+        )
+        return element.get_property("src"), user.text
+    finally:
+        driver.quit()
+```
