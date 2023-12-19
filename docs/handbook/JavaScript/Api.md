@@ -418,7 +418,7 @@ crypto.randomUUID();
 
 ### ==
 
-1. 在进行`[] == ![]`判断时，在JS引擎内部，会将这行代码执行成这个样子：
+1. 在进行`[] == ![]`判断时，在 JS 引擎内部，会将这行代码执行成这个样子：
 
 ```js
 [] == ![]
@@ -432,14 +432,145 @@ crypto.randomUUID();
 0 == 0 // 将等号两边都转换成数字类型
 ```
 
-###
+### 浏览器访问读取本地文件夹
+
+1. 使用浏览器的 api：`showDirectoryPicker`，但是目前只有 chrome 支持，且需要在`chrome://flags`中开启`#native-file-system-api`。
+2. `highlight.js`高亮显示代码
 
 ```js
+const btn = document.getElementById("test");
+btn.addEventListener("click", async () => {
+  try {
+    const dirHandle = await window.showDirectoryPicker();
+    const root = handleDir(dirHandle);
+    console.log(root);
 
+    // 读取第三个文件
+    const fileHandle = root.children[2];
+    const file = await fileHandle.getFile();
+    const reader = new FileReader();
+    // reader.addEventListener("loadend", () => {
+    //   console.log(reader.result);
+    // });
+    reader.onload = function (e) {
+      console.log(e.target.result);
+    };
+    reader.readAsText(file, "utf-8");
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+async function handleDir(handle) {
+  if (handle.kind === "file") {
+    return handle;
+  }
+  handle.children = [];
+  const iter = handle.entries();
+  for await (const [k, v] of handle) {
+    console.log(k, v);
+    handle.children.push(await handleDir(v));
+  }
+  return handle;
+}
 ```
 
-###
+### FileReader
+
+FileReader 是 JavaScript 中的一个构造函数，用于读取 File 或 Blob 对象中的内容。以下是 FileReader 的几个属性和事件方法：
+
+- 属性：
+
+  1. `FileReader.readyState`：
+
+     - 返回 FileReader 的当前状态。可能的值有：
+       - 0 - EMPTY：还没有加载任何数据。
+       - 1 - LOADING：数据正在被加载。
+       - 2 - DONE：已完成全部的读取请求。
+
+  2. `FileReader.result`：
+     完成读取操作后的文件内容。这个属性的类型取决于读取操作的方法（例如，可以是 ArrayBuffer, text, 或 DataURL 等）。
+
+  3. `FileReader.error`：
+     在读取操作发生错误时返回一个 DOMException。
+
+- 事件方法：
+
+  1. `FileReader.onloadstart`：
+     - 是一个处理 loadstart 事件的事件处理器。这个事件在读取操作开始时触发。
+  2. `FileReader.onprogress`：
+     - 是一个处理 progress 事件的事件处理器。这个事件在读取 Blob 时触发。
+  3. `FileReader.onload`：
+     - 是一个处理 load 事件的事件处理器。这个事件在读取操作完成时触发。
+  4. `FileReader.onabort`：
+     - 是一个处理 abort 事件的事件处理器。这个事件在读取操作被中断时触发，比如通过调用 FileReader.abort() 方法。
+  5. `FileReader.onerror`：
+     - 是一个处理 error 事件的事件处理器。这个事件在读取操作发生错误时触发。
+  6. `FileReader.onloadend`：
+     - 是一个处理 loadend 事件的事件处理器。这个事件在读取操作完成时触发，无论读取成功还是失败。
+
+- 实例方法:
+
+  - 主要用于启动读取 File 或 Blob 中数据的操作。以下是 FileReader 的实例方法：
+
+    1.  `readAsArrayBuffer(blob)`：
+        - 读取 Blob 或 File 对象的内容为一个 ArrayBuffer。当读取操作完成时，result 属性将包含一个 ArrayBuffer 对象表示文件的数据。
+    2.  `readAsBinaryString(blob)`：
+        - 读取 Blob 或 File 对象的内容为一个二进制字符串。每个元素的值将是一个表示文件中字节的 0 至 255 之间的整数。
+    3.  `readAsDataURL(blob)`：
+        - 读取 Blob 或 File 对象的内容为一个数据 URL。当读取操作完成时，result 属性将包含一个数据 URL 字符串。
+    4.  `readAsText(blob, [encoding])`：
+        - 读取 Blob 或 File 对象的内容为文本字符串。可以指定文本的编码，默认为 UTF-8。当读取操作完成时，result 属性将包含一个文本字符串。
+    5.  `abort()`：
+        - 中止读取操作。在返回结果前，可以调用此方法终止操作。
+
+    - 这些方法都是异步的，它们会立即返回并在后台处理文件读取。读取结果可以通过上述的事件处理器（如 `onload`）来访问。
+
+- 示例代码：
 
 ```js
+const fileInput = document.querySelector('input[type="file"]');
+const reader = new FileReader();
 
+// 当开始读取文件时
+reader.onloadstart = function (event) {
+  console.log("Read operation started");
+};
+
+// 当文件读取正在进行时
+reader.onprogress = function (event) {
+  if (event.lengthComputable) {
+    const percentLoaded = Math.round((event.loaded / event.total) * 100);
+    console.log(`Progress: ${percentLoaded}%`);
+  }
+};
+
+// 当文件读取成功完成时
+reader.onload = function (event) {
+  console.log("Read operation completed successfully");
+  console.log(reader.result);
+};
+
+// 当文件读取被中止时
+reader.onabort = function (event) {
+  console.log("Read operation aborted");
+};
+
+// 当文件读取失败时
+reader.onerror = function (event) {
+  console.log("Read operation failed");
+};
+
+// 当文件读取操作结束时（无论成功或失败）
+reader.onloadend = function (event) {
+  console.log("Read operation finished");
+};
+
+// 当文件被选择后，读取文件内容为文本
+fileInput.addEventListener('change', event => {
+  const file = event.target.files[0];
+  if (file) {
+    reader.readAsText(file);
+  }
+});
 ```

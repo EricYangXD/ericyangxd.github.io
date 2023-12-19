@@ -173,3 +173,13 @@ mask-image: unset;
 7. `initial`：使用默认值 fill
 8. `unset`：继承父元素的 object-fit 属性，如果没有父元素，则使用 initial
 9. `revert`：继承父元素的 object-fit 属性，如果没有父元素，则使用 none
+
+### scrollbar-thumb
+
+```css
+::-webkit-scrollbar-thumb {
+  width: 8px;
+  background: #8c8c8c;
+  border-radius: 4px;
+}
+```

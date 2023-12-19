@@ -271,3 +271,6 @@ def parse_weibo_video(url):
     finally:
         driver.quit()
 ```
+### 编码格式
+
+Python 默认使用了 ASCII ，而中文并不包含在 ASCII 码范围内，要改成 `UTF-8`。就是在 Python 文件的开头加入这一行:`# -*- coding:utf-8 -*-`
