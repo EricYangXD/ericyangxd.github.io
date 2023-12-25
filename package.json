@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@docsearch/js": "^3.5.2",
-    "gh-pages": "^6.1.0",
+    "gh-pages": "^6.1.1",
     "moment": "^2.29.4",
     "vuepress-theme-reco": "^1.6.11"
   },
