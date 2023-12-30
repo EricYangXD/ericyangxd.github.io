@@ -466,3 +466,8 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 ### 查看某个端口的占用情况
 
 `sudo lsof -i :8080`
+
+
+### 微信桌面客户端多开
+
+1. `nohup /Applications/WeChat.app/Contents/MacOS/WeChat > /dev/null 2>&1 &`

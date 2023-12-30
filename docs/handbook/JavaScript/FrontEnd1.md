@@ -36,14 +36,14 @@ date: "2021-12-29"
 - 嗅探攻击解决方案：
 
 1. 给返回内容加上对应的 contentType；
-2. 添加响应头 X-Content-Type-Options: nosniff，让浏览器不要尝试去嗅探；
+2. 添加响应头 `X-Content-Type-Options: nosniff`，让浏览器不要尝试去嗅探；
 
-- 嗅探乱码原因：<meta charset="utf-8" >只对 HTML 内容解析有效，对于 css 内容中(外部样式表下)的双字节字符（如中文）解析并没有作用，如果浏览器请求回来的 css 资源的 HTTP 响应头里的 Content-Type 未指明"charset=utf-8"的话，浏览器根据自身的嗅探机制来决定采用哪一种编码解析，结果就会概率出现双字节字符乱码的情况；
+- 嗅探乱码原因：`<meta charset="utf-8" >`只对 HTML 内容解析有效，对于 css 内容中(外部样式表下)的双字节字符（如中文）解析并没有作用，如果浏览器请求回来的 css 资源的 HTTP 响应头里的 `Content-Type` 未指明`"charset=utf-8"`的话，浏览器根据自身的嗅探机制来决定采用哪一种编码解析，结果就会概率出现双字节字符乱码的情况；
 - 解决方法：
 
-1. css 资源请求的响应头的 Content-Type 增加"charset=utf-8"声明；
-2. 使用  @charset
-3. 使用  css-unicode-loader
+1. css 资源请求的响应头的 `Content-Type` 增加`"charset=utf-8"`声明；
+2. 使用  `@charset`
+3. 使用  `css-unicode-loader`
 
 ## Cookie/Set-Cookie
 
@@ -231,7 +231,7 @@ traverse(ast, {
 
 ### iframe
 
-1. url 后面拼接 #page=1&view=FitH,top&toolbar=0 可以把打印下载等功能隐藏
+1. url 后面拼接 `#page=1&view=FitH,top&toolbar=0` 可以把打印下载等功能隐藏
 
 2. 设置 response 的 Header 使得 Chrome 浏览器打开 PDF 而不自动下载
 
@@ -244,7 +244,7 @@ response.setHeader("Content-Disposition", "inline;fileName=XXXX.pdf");
 PS: `response-content-disposition=attachment;fileName=XXXX.pdf`时，会直接下载文件而不会预览。
 PS: 对于 AWS ECS 中的文件预览，需要做相应配置！[参考](https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/cors.html)
 
-3. 由上 2 已知带有 content-disposition=attachment 头部的 pdf 文件在 Chrome 下是无法预览的，一种巧妙的思路是，先用 fetch 下载下来拿到 blob 对象，然后再用 URL.createObjectURL 生成临时 URL，然后就可以预览啦，代码如下：
+3. 由上 2 已知带有 `content-disposition=attachment` 头部的 pdf 文件在 Chrome 下是无法预览的，一种巧妙的思路是，先用 fetch 下载下来拿到 blob 对象，然后再用 `URL.createObjectURL` 生成临时 URL，然后就可以预览啦，代码如下：
 
 ```js
 // 实际测试貌似依然不可，尤其是针对文件服务器还需要鉴权时

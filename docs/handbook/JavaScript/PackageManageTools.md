@@ -44,7 +44,7 @@ nodejs的寻址方式：
 
 3. 第三方库（通过npm安装）到node_modules下的库：
 
-   3.1.   先在当前路径下，寻找 node_modules/xxx
+   3.1   先在当前路径下，寻找 node_modules/xxx
    3.2    递归从下往上到上级路径，寻找 ../node_modules/xxx
    3.3    循环第二步
    3.4    在全局环境路径下寻找 .node_modules/xxx

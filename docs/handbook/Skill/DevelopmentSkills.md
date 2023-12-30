@@ -582,32 +582,180 @@ profiler_binary_host_mirror=https://npmmirror.com/mirrors/node-inspector
 chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
 ```
 
+## h5 跳转中转页唤醒应用商店
 
-## h5跳转中转页唤醒应用商店
+一般的做法是用户扫二维码或者手机浏览器访问 url，打开中转页面，在中转页面上我们通过`navigator.userAgent`可以判断当前用户的操作系统是安卓还是 ios，然后通过`window.location.href = targetUrl`的方式来跳转到应用商店或者 appstore。
 
-一般的做法是用户扫二维码或者手机浏览器访问url，打开中转页面，在中转页面上我们通过`navigator.userAgent`可以判断当前用户的操作系统是安卓还是ios，然后通过`window.location.href = targetUrl`的方式来跳转到应用商店或者appstore。
-
-对于在微信中的跳转（一般国内用户都会用微信扫码），ios可以通过上述方案实现自动跳转到appstore。而对于安卓用户，因为微信浏览器的缘故，不会自动跳转浏览器或目标app（其实是有方法的，需要自家的app端和微信申请APPID和h5接入微信`weixin-js-sdk`，使用微信的提供的开放标签），这是一般建议在中转页面做个提示，比如：请手动点击右上角选择在浏览器中打开。让用户手动处理。
+对于在微信中的跳转（一般国内用户都会用微信扫码），ios 可以通过上述方案实现自动跳转到 appstore。而对于安卓用户，因为微信浏览器的缘故，不会自动跳转浏览器或目标 app（其实是有方法的，需要自家的 app 端和微信申请 APPID 和 h5 接入微信`weixin-js-sdk`，使用微信的提供的开放标签），这是一般建议在中转页面做个提示，比如：请手动点击右上角选择在浏览器中打开。让用户手动处理。
 
 ### 安卓
 
-如何通过H5跳转至应用商店下载指定app, 实现方式如下：
+如何通过 H5 跳转至应用商店下载指定 app, 实现方式如下：
 
 - `window.location.href = "market://details?id=com.jingdong.app.mall"`
 - 一般来说上面的方式就够了
 
-> 注：url地址主要分为2部分：应用商店地址 + 应用包名
+> 注：url 地址主要分为 2 部分：应用商店地址 + 应用包名
 
 目前国内主流应用商店地址如下：
 
-- oppo应用商店下载QQ：`oppomarket://details?packagename=com.tencent.mobileqq`
+- oppo 应用商店下载 QQ：`oppomarket://details?packagename=com.tencent.mobileqq`
 - 华为应用商店：`appmarket://details?id=com.xx.xx`
 - 小米应用商店：`mimarket://details?id=com.xx.xx`
-- OPPO应用商店：`oppomarket://details?packagename=com.xx.xx`
-- vivo应用商店：`vivomarket://details?id=com.xx.xx`
+- OPPO 应用商店：`oppomarket://details?packagename=com.xx.xx`
+- vivo 应用商店：`vivomarket://details?id=com.xx.xx`
 - 三星应用商店：`samsungapps://ProductDetail/com.xx.xx`
 - [其他参考](https://juejin.cn/post/6865182194608898061)
 
 ### iOS
 
 类似这种：`window.location.href = "https://apps.apple.com/us/app/%E4%BA%AC%E4%B8%9C-%E4%B8%8D%E8%B4%9F%E6%AF%8F%E4%B8%80%E4%BB%BD%E7%83%AD%E7%88%B1/id414245413"`
+
+## Office 文档前端处理展示
+
+1. 用 `「sheet.js」` 来解析 xlsx，`「mammoth.js」` 来解析 word -- 可以调 API 转换成简单的 html 或者 markdown，`「pptxjs」` 来解析 ppt
+2. Office 在线预览方案：
+
+   - WPS 金山文档在线预览编辑服务：支持在线预览编辑，多人协同[接入文档](https://wwo.wps.cn/docs/)
+   - 阿里云 IMM，支持文件转换预览：但是需要与阿里云 OSS 一起使用[接入文档](https://help.aliyun.com/zh/imm/product-overview/what-is-imm)
+   - 微软 Office Web Viewer：调用微软在线预览服务，用法简单。重点是免费，官网栗子：`http://view.officeapps.live.com/op/view.aspx?src=文件地址`，Office Web 应用程序查看器工具还可用于将 Microsoft Office 文档嵌入到您的网站或博客中。嵌入代码是这样的：`<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=文件地址" width="100%" height="600px" frameborder="0">`
+   - 微软 Office Online Server：可私有部署
+   - Google Drive 查看器：Google Drive 包含一个内置的查看器功能，允许您直接在浏览器中查看 Office 文件，而无需下载它们。文件从托管网站流式传输，也不会上传到您的 Google Drive。`https://drive.google.com/viewer?url=FILE_URL`，同样也可以嵌入到网页中：`<iframe src="https://drive.google.com/viewer?url=FILE_URL&embedded=true&hl=en-US" width="100%" height="600px" frameborder="0">`
+   - Office 文件转 PDF：office 文件转 pdf，浏览器可以自动预览。 可使用 libreoffice、OpenOffice 转换
+   - onlyoffice 可以私有部署社区版免费
+
+3. 主流的三个办公文件 excel、word、ppt 本质上都是一个包含多个文件目录且每个目录中含有一些.xml 文件的压缩包而已。另外他们的压缩算法通常都是 zip。
+4. 当我们的办公文件（excel、word、ppt）解压缩之后就变成一堆 xml 文件了，然后在浏览器端可以通过`DOMParser Api`进行解析，可以把数据提取出来生成「json」，也可以创建为「DOM」。第三方库将依据Microsoft Office Open XML 标准提取信息。
+5. PDF对应的就是电子世界的打印纸张，它拥有「不可编辑」、「占用空间小」、「稳定性强」、「可加密」等特点，它由「Adobe」于1993年首次提出，旨在实现跨平台和可靠性的文档显示。PDF文件可以包含文本、图形、图像和其他多媒体元素，并以一种独立于操作系统和硬件的方式呈现。PDF的本质就是一套有含义的指令集合，用来描述一份文档信息绝对位置。
+6. PDF文件不是压缩包，PDF中描述了文字的布局信息，相当于一个指针告诉解析器应该在哪个位置画一个怎样的符号。我们可以选择使用「embed」标签或者「iframe」标签来解析PDF。
+
+## 前端库
+
+1. `jszip`：用于创建、读取和编辑 `「.zip」` 文件的 JavaScript 库，支持浏览器和 Nodejs
+2. `turndown`：使用 JavaScript 开发的 HTML to Markdown 转换器
+3. `markmap`：使用思维导图的方式来实现 Markdown 文档的可视化
+4. `docx` 或 `html-docx-js`：前端动态生成 Word 文档
+5. `ni`：`npm i -g @antfu/ni`，智能安装前段依赖
+6. `pdf.js`：解析PDF文件
+7. ``：
+
+## DOM Api 解析 xml
+
+xml 本质还是文本文件，可以通过 DOM Api 解析 xml
+
+```js
+// 假设有以下 XML 数据
+var xmlData = `
+      <employees>
+          <employee>
+              <id>1</id>
+              <name>John Doe</name>
+              <position>Developer</position>
+          </employee>
+          <employee>
+              <id>2</id>
+              <name>Jane Smith</name>
+              <position>Designer</position>
+          </employee>
+      </employees>
+    `;
+
+// 创建 DOMParser 对象
+var parser = new DOMParser();
+
+// 使用 DOMParser 解析 XML 字符串
+var xmlDoc = parser.parseFromString(xmlData, "text/xml");
+
+// 获取 XML 中的元素
+var employees = xmlDoc.getElementsByTagName("employee");
+
+// 遍历元素并输出内容
+for (var i = 0; i < employees.length; i++) {
+  var id = employees[i].getElementsByTagName("id")[0].textContent;
+  var name = employees[i].getElementsByTagName("name")[0].textContent;
+  var position = employees[i].getElementsByTagName("position")[0].textContent;
+
+  console.log("Employee ID: " + id);
+  console.log("Name: " + name);
+  console.log("Position: " + position);
+  console.log("--------------------");
+}
+```
+
+## 前端压缩解压缩示例
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSZip Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+  </head>
+  <body>
+    <script>
+      // 压缩字符串
+      function compressString(originalString) {
+        return new Promise((resolve, reject) => {
+          const zip = new JSZip();
+          zip.file("compressed.txt", originalString);
+          zip
+            .generateAsync({ type: "blob" })
+            .then((compressedBlob) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result);
+              reader.readAsText(compressedBlob);
+            })
+            .catch(reject);
+        });
+      }
+
+      // 解压缩字符串
+      function decompressString(compressedString) {
+        return new Promise((resolve, reject) => {
+          const zip = new JSZip();
+          zip
+            .loadAsync(compressedString)
+            .then((zipFile) => {
+              const compressedData = zipFile.file("compressed.txt");
+              // debugger;
+              if (compressedData) {
+                return compressedData.async("string");
+              } else {
+                reject(
+                  new Error("Unable to find compressed data in the zip file.")
+                );
+              }
+            })
+            .then(resolve)
+            .catch(reject);
+        });
+      }
+
+      // 示例
+      const originalText =
+        "Hello, this is a sample text for compression and decompression with JSZip.";
+      console.log("Original Text:", originalText);
+
+      // 压缩字符串
+      compressString(originalText)
+        .then((compressedData) => {
+          console.log("Compressed Data:", compressedData);
+
+          // 解压字符串
+          decompressString(compressedData)
+            .then((decompressedText) => {
+              console.log("Decompressed Text:", decompressedText);
+            })
+            .catch((error) => {
+              console.error("Error during decompression:", error);
+            });
+        })
+        .catch((error) => {
+          console.error("Error during compression:", error);
+        });
+    </script>
+  </body>
+</html>
+```

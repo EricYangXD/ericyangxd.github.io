@@ -9,6 +9,32 @@ meta:
 
 ## Python 学习笔记
 
+### Zen of Python
+
+```python
+>>>import this
+The Zen of Python, by Tim Peters
+Beautiful is better than ugly.
+Explicit is better than implicit.
+Simple is better than complex.
+Complex is better than complicated.
+Flat is better than nested.
+Sparse is better than dense.
+Readability counts.
+Special cases aren't special enough to break the rules.
+Although practicality beats purity.
+Errors should never pass silently.
+Unless explicitly silenced.
+In the face of ambiguity, refuse the temptation to guess.
+There should be one-- and preferably only one --obvious way to do it.
+Although that way may not be obvious at first unless you're Dutch.
+Now is better than never.
+Although never is often better than *right* now.
+If the implementation is hard to explain, it's a bad idea.
+If the implementation is easy to explain, it may be a good idea.
+Namespaces are one honking great idea -- let's do more of those!
+```
+
 ### api
 
 1. enumerate()方法用于遍历 list/array：`for i,num in enumerate(list/array)`
@@ -28,11 +54,11 @@ meta:
 15. `sorted(list)`：列表升序排序；`sum(list)`：列表求和；`round(list,2)`：四舍五入保留 2 位小数；`'xx'.join(list)`：列表拼接；
 16. `max/min(list)`：列表最大/最小值；`list.count(2)`：list 中含有几个 2；`avg(list)`：列表求均值；
 17. 列表之间可以通过`+`拼接为一个列表
-18.
+18. 继承：
 
 ```python
 class Phone:
-    def __init__(self, os, types, is_waterproof):
+    def __init__(self, os, types, is_waterproof = True): # 默认参数
         self.os = os
         self.types = types
         self.is_waterproof = is_waterproof
@@ -48,6 +74,9 @@ class Phone:
         print(self.types)
         return
 
+    @property # 装饰器
+    def calcPro(self): # 计算属性
+        return f"OS = {self.os} , types = {self.types}"
 
 p1 = Phone("android", 13, True)
 p2 = Phone("ios", 15, True)
@@ -55,9 +84,10 @@ p2 = Phone("ios", 15, True)
 # 继承
 class Shanzhaiji(Phone):
     def __init__(self, os, types, is_waterproof, brand, price):
-        self.os = os
-        self.types = types
-        self.is_waterproof = is_waterproof
+        super().__init__(os, types, is_waterproof)
+        # self.os = os
+        # self.types = types
+        # self.is_waterproof = is_waterproof
         self.brand = brand
         self.price = price
         # print(self.brand, self.price)
@@ -274,3 +304,10 @@ def parse_weibo_video(url):
 ### 编码格式
 
 Python 默认使用了 ASCII ，而中文并不包含在 ASCII 码范围内，要改成 `UTF-8`。就是在 Python 文件的开头加入这一行:`# -*- coding:utf-8 -*-`
+
+### builtins
+
+1. 内置函数：`print(__builtins__)`
+2. `isinstance(obj, type)`：判断obj是否是type类型，返回布尔值
+3. `dir(obj)`：查看对象的所有属性和方法
+4. `with`：用于open文件时，不再需要手动close文件

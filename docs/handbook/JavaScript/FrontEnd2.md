@@ -1043,7 +1043,7 @@ token 中可以存储用户信息、登录信息、有效期、使用限制等�
 - 然后浏览器被重定向到 B 域下，带着 code 访问了 B 的 callback 接口，callback 接口通过 code 换取 ticket
 - 客户端拿到 ticket，保存起来，带着请求系统 B 接口
 
-1. OAuth2.0 使用第三方的登录验证，如 GitHub、微信扫码登录等等
+3. OAuth2.0 使用第三方的登录验证，如 GitHub、微信扫码登录等等
 
 ### preload 和 prefetch
 
