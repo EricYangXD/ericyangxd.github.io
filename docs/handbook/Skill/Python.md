@@ -183,6 +183,32 @@ connection.commit()
 connection.close()
 ```
 
+#### sqlite
+
+如图，在 PyCharm 中安装`DB Navigator`插件之后，可以通过图中步骤链接已创建的 sqlite 数据库，Python3 默认自带 sqlite3，不必特殊声明直接import就行，然后就可以跟Java开发时链接MySQL一样，可以可视化操作DB了。
+
+![steps](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202401030958025.png)
+
+```python
+import sqlite3
+
+# 连接到SQLite数据库
+conn = sqlite3.connect('your_database.db')
+
+# 创建一个游标对象
+cursor = conn.cursor()
+
+# 执行SQL语句
+cursor.execute('SELECT * FROM your_table')
+conn.commit()
+# 获取查询结果
+result = cursor.fetchall()
+
+# 关闭游标和连接
+cursor.close()
+conn.close()
+```
+
 ## 常见模块及用途用法
 
 ### urllib2
@@ -272,6 +298,23 @@ for stu in data:
   plt.show()
 ```
 
+### pickle
+
+Python 中一个用于序列化和反序列化对象结构的模块。序列化（又称为持久化或扁平化）过程是指将一个 Python 对象结构转换为一个字节流，以便将其保存到一个文件或数据库中，或通过网络传输到另一个远程机器。
+
+```python
+import pickle
+
+with open('example.pkl', 'wb') as f:
+    pickle.dump(obj, f)
+with open('example.pkl', 'rb') as f:
+    obj = pickle.load(f)
+```
+
+### flask
+
+### BeautifulSoup
+
 ### 下载视频
 
 ```python
@@ -301,6 +344,7 @@ def parse_weibo_video(url):
     finally:
         driver.quit()
 ```
+
 ### 编码格式
 
 Python 默认使用了 ASCII ，而中文并不包含在 ASCII 码范围内，要改成 `UTF-8`。就是在 Python 文件的开头加入这一行:`# -*- coding:utf-8 -*-`
@@ -308,6 +352,52 @@ Python 默认使用了 ASCII ，而中文并不包含在 ASCII 码范围内，�
 ### builtins
 
 1. 内置函数：`print(__builtins__)`
-2. `isinstance(obj, type)`：判断obj是否是type类型，返回布尔值
+2. `isinstance(obj, type)`：判断 obj 是否是 type 类型，返回布尔值
 3. `dir(obj)`：查看对象的所有属性和方法
-4. `with`：用于open文件时，不再需要手动close文件
+4. `with`：用于 open 文件时，不再需要手动 close 文件
+5. `from string import Template`：内置的轻量级模板字符串工具
+6. CGI 模块：通用网关接口，允许 web 服务器运行一个服务器端程序
+7. `cgi.FieldStorage()`：访问发给 web 请求中的数据，如 form 中的数据，通过 key-value 的形式取值
+8. `http.server`：顾名思义
+9. `glob` 模块用于查找符合特定规则的文件路径名，`for filename in glob.glob('*.txt'):`会查找到当前目录下所有扩展名为 `.txt` 的文件，`glob.iglob('*.txt'):`返回的是一个迭代器，适用于处理大量的文件，因为它不会一次性加载所有结果到内存中。glob 模块非常适合于需要文件名匹配的脚本和程序。它简单易用，但不具备递归查找目录的能力，对于复杂的文件查找需求，可能需要使用 os 模块的功能或是第三方库如 `scandir`。
+10.
+
+### http demo
+
+```python
+from http.server import HTTPServer, CGIHTTPRequestHandler
+
+port = 8080
+
+httpd = HTTPServer(('127.0.0.1', port), CGIHTTPRequestHandler)
+print("Starting simple_httpd on port: " + str(httpd.server_port))
+httpd.serve_forever()
+
+# 只需在同层级目录下准备一个index.html即可通过浏览器访问
+```
+
+### log 日志打印
+
+#### web 开发
+
+```python
+# 1. 使用 cgitb 模块：这是一个用于Web应用程序的CGI脚本的调试工具，它可以在浏览器中显示详细的错误报告。
+import cgitb
+cgitb.enable()
+
+# 2. 打印到浏览器：
+print(yate.start_response())
+print("Debug info: {}".format(repr(athletes)))
+
+# 3. 写入日志文件，注意路径
+with open('/tmp/debug.log', 'a') as debug_log:
+    print(str(athletes), file=debug_log)
+    print(str(form_data), file=debug_log)
+
+# 4. 使用Python的 logging 模块
+import logging
+logging.basicConfig(filename='/tmp/debug.log', level=logging.DEBUG)
+logging.debug(athletes)
+logging.debug(form_data)
+
+# 5. 使用断点：如果你在一个支持CGI调试的IDE（如PyCharm）中工作，你可以设置断点来暂停执行并检查变量的状态。
