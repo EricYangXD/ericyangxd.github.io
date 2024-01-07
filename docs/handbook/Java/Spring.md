@@ -411,20 +411,24 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
 管理 Java 版本，类似 nvm？也可以管理 Maven、groovy 等。
 
 1. `curl -s "https://get.sdkman.io" | bash`: 安装 sdkman
-2. `source "$HOME/.sdkman/bin/sdkman-init.sh"`: 刷新环境变量
+2. `source "$HOME/.sdkman/bin/sdkman-init.sh"`: 刷新环境变量，可以直接加到你的 shell 配置文件（比如 ~/.bash_profile、~/.zshrc 等）中，以便每次打开新终端时自动初始化 sdkman。
 3. `sdk version`
 4. `sdk list java`: 获取当前操作系统可用的 JDK 信息
 5. `sdk install java 11.0.18`: 安装特定版本 JDK
 6. `sdk install java 14.0.1 /Library/Java/JavaVirtualMachines/jdk-14.0.1.jdk/Contents/Home`: 关联本地已安装 JDK
 7. `sdk default java 11.0.18`: 设置默认版本（感觉并不管用，还得去改.zshrc 才会生效）
 8. `sdk use java 11.0.18`: 使用某个 jdk 版本
-9. `sdk install maven`: 安装 Maven，安装前要确保以正确安装 JDK
-10. Maven 镜像仓库，阿里云：`https://maven.aliyun.com/`，按使用指南修改 Maven 安装目录下的`conf/settings.xml`文件；也可以在用户目录的`.m2`子目录中创建`settings.xml`文件，并设置相应配置内容。
-11. `/Users/eric/.sdkman/candidates/maven/3.9.1/conf/settings.xml`: 配置举例
-12. `brew cask install intellij-idea-ce`: 安装 idea 社区版或直接去官网下载
-13. `IDEA->Help->Edit Custom VW Options`，在打开的 idea.vmoptions 文件中调整-Xms 和-Xmx 等 JVM 相关参数，让 ide 流畅运行
-14. 通过[Spring Initializr](https://start.spring.io)创建工程，打开网页，填写项目信息，点击生成，下载 helloworld.zip 压缩包
-15. Maven 设置 sdkman 的 settings.xml 为全局公用配置：
+9. `sdk uninstall java 8.0.252-open`: 移除 SDKMAN 中的某个特定版本
+10. `sudo rm -rf /Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk`: 移除本地 jdk 版本
+11. `ls /Library/Java/JavaVirtualMachines/`: Mac 上通过 .dmg 文件安装的 JDK 一般会在这个目录下
+12. `sudo rm -rf /Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk`: 使用 rm 命令来删除对应的 JDK 目录
+13. `sdk install maven`: 安装 Maven，安装前要确保已正确安装 JDK
+14. Maven 镜像仓库，阿里云：`https://maven.aliyun.com/`，按使用指南修改 Maven 安装目录下的`conf/settings.xml`文件；也可以在用户目录的`.m2`子目录中创建`settings.xml`文件，并设置相应配置内容。
+15. `/Users/eric/.sdkman/candidates/maven/3.9.1/conf/settings.xml`: 配置举例
+16. `brew cask install intellij-idea-ce`: 安装 idea 社区版或直接去官网下载
+17. `IDEA->Help->Edit Custom VW Options`，在打开的 idea.vmoptions 文件中调整-Xms 和-Xmx 等 JVM 相关参数，让 ide 流畅运行
+18. 通过[Spring Initializr](https://start.spring.io)创建工程，打开网页，填写项目信息，点击生成，下载 helloworld.zip 压缩包
+19. Maven 设置 sdkman 的 settings.xml 为全局公用配置：
     1. 在`.zshrc`中设置环境变量：一般来说 sdkman 默认安装的位置都是一样的
     ```sh
     export SDKMAN_DIR=$HOME/.sdkman

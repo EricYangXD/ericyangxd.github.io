@@ -22,6 +22,7 @@ meta:
 7. 浮点数 2 种：float:4 字节，double:8 字节（默认）
 8. 字符：char:2 字节（单引号&一个字符）
 9. 布尔：boolean：1 字节
+10. 较新版本：`java --version`，较旧版本：`java -version`
 
 ### Java 开发中的基础概念
 

@@ -489,4 +489,23 @@ TODO
 
 基于时间的一次性密码算法（Time-based One-Time Password，简称：TOTP）是一种根据预共享的密钥与当前时间计算一次性密码的算法。
 
-1. 前端库：`@nest-public/totp`，默认使用SHA1散列算法和30秒的时间步长。
+1. 前端库：`@nest-public/totp`，默认使用 SHA1 散列算法和 30 秒的时间步长。
+
+## 本地快速启动 server
+
+有时候我们需要给静态页面或文件，启动服务在浏览器中查看。推荐两个启动服务的 npm 包。
+
+```bash
+npx http-server [path] [options]
+
+# 比如
+npx http-server . -p 8090
+
+npm repo http-server 可直达仓库地址
+
+npx serve [path] [options]
+# 比如
+npx serve . -p 9090
+
+npm repo serve 可直达仓库地址
+```
