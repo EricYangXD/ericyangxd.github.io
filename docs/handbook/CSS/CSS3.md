@@ -186,13 +186,62 @@ mask-image: unset;
 
 ### 动态头像
 
-通过css实现一个鼠标hover时头像探出的效果
+通过 css 实现一个鼠标指针 hover 时头像探出的效果，头像图片背景色要透明
 
 ```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
 
+    <style>
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      img {
+        --s: 280px;
+        --c1: #c02942;
+        --c2: #ecd078;
+        --b: 5px;
+        --f: 1;
+        --bgOption: content-box no-repeat center/ calc(100% / var(--f)) 100%;
+        --shrink: calc((var(--s) / var(--f) - var(--s)) / 2 - var(--b));
 
+        width: var(--s);
+        height: var(--s);
+        cursor: pointer;
+        outline: 5px solid;
+        transition: 0.5s;
+        padding-top: 200px;
+        outline: var(--b) solid var(--c1);
+        outline-offset: var(--shrink);
+        border-radius: 0 0 999px 999px;
+        transform: scale(var(--f));
 
+        background: radial-gradient(
+            circle closest-side,
+            var(--c2) calc(99% - var(--b)),
+            var(--c1) calc(100% - var(--b)),
+            var(--c1) 99%,
+            transparent 100%
+          ) var(--bgOption);
 
-
-
+        -webkit-mask: linear-gradient(#000 0 0) no-repeat center calc(0px - var(--shrink)) / calc(
+              100% / var(--f) - 2 * var(--b)
+            )
+            50%, radial-gradient(circle closest-side, #000 99%, transparent) var(--bgOption);
+      }
+      img:hover {
+        --f: 1.35;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202401091434672.png" alt="avatar" />
+  </body>
+</html>
 ```
