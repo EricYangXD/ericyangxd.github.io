@@ -438,25 +438,33 @@ RUN ["sh", "-c", "/usr/local/bin/jenkins-agent"]
 
 3. `docker logs <container_id>` 的输出(如果容器有启动的话)
 
+### 报错
+
+1. `vm.max_map_count [65530] is too low, increase to at least [262144]`
+   - 解决方法：`sudo sysctl -w vm.max_map_count=262144`
+   - 永久生效：`sudo vim /etc/sysctl.conf`，添加`vm.max_map_count=262144`
+   - 官方临时：`https://github.com/rimelek/fix-docker-containers/blob/ce8905e06f3e683e9166fa0cc971eea7251ed49b/docker-for-mac.md`，先`docker run -it --rm --privileged --pid=host justincormack/nsenter1`，然后进入容器`sysctl -w vm.max_map_count=262144`，然后`exit`退出容器，不能重启 docker 服务，否则会失效。
+
+
 ### 总结
 
-Docker 是一种虚拟化技术，通过容器的方式，它的实现原理依赖 linux 的 Namespace、Control Group、UnionFS 这三种机制。
+Docker 是一种虚拟化技术，通过容器的方式，它的实现原理依赖 linux 的 `Namespace`、`Control Group`、`UnionFS` 这三种机制。
 
-Namespace 做资源隔离，Control Group 做容器的资源限制，UnionFS 做文件系统的镜像存储、写时复制、镜像合并。
+`Namespace` 做资源隔离，`Control Group` 做容器的资源限制，`UnionFS` 做文件系统的镜像存储、写时复制、镜像合并。
 
-一般我们是通过 dockerfile 描述镜像构建的过程，然后通过 `docker build` 构建出镜像，上传到 registry。
+一般我们是通过 `dockerfile` 描述镜像构建的过程，然后通过 `docker build` 构建出镜像，上传到 registry。
 
-镜像通过 docker run 就可以跑起来，对外提供服务。
+镜像通过 `docker run` 就可以跑起来，对外提供服务。
 
-用 dockerfile 做部署的最佳实践是分阶段构建，build 阶段单独生成一个镜像，然后把产物复制到另一个镜像，把这个镜像上传 registry。
+用 `dockerfile` 做部署的最佳实践是分阶段构建，build 阶段单独生成一个镜像，然后把产物复制到另一个镜像，把这个镜像上传 registry。
 
 这样镜像是最小的，传输速度、运行速度都比较快。
 
-Dockerfile 是一个文本文件，包含了用于构建 Docker 镜像的指令和参数。您可以使用 `docker build` 命令来构建一个 Docker 镜像，指定 Dockerfile 的路径即可。例如：`docker build -f /path/to/Dockerfile .`。
+`Dockerfile` 是一个文本文件，包含了用于构建 Docker 镜像的指令和参数。您可以使用 `docker build` 命令来构建一个 Docker 镜像，指定 `Dockerfile` 的路径即可。例如：`docker build -f /path/to/Dockerfile .`。
 
-一旦 Docker 镜像被构建出来，您可以使用 docker run 命令来创建容器。容器是基于 Docker 镜像的运行实例，可以在容器内运行应用程序。例如：`docker run myimage-name`。
+一旦 Docker 镜像被构建出来，您可以使用 `docker run` 命令来创建容器。容器是基于 Docker 镜像的运行实例，可以在容器内运行应用程序。例如：`docker run myimage-name`。
 
-简而言之，Dockerfile 用于构建 Docker 镜像，而 Docker 镜像用于创建 Docker 容器。
+简而言之，`Dockerfile` 用于构建 Docker 镜像，而 Docker 镜像用于创建 Docker 容器。
 
 一般我们都是在 jenkins 里跑，push 代码的时候，通过 web hooks 触发 jenkins 构建，最终产生运行时的镜像，上传到 registry。
 部署的时候把这个镜像 `docker pull` 下来，然后 `docker run` 就完成了部署。
