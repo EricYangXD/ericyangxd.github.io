@@ -467,7 +467,12 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
 `sudo lsof -i :8080`
 
-
 ### 微信桌面客户端多开
 
 1. `nohup /Applications/WeChat.app/Contents/MacOS/WeChat > /dev/null 2>&1 &`
+
+### zsh 报错
+
+1. `compinit:503: no such file or directory: /usr/local/share/zsh/site-functions/_brew_cask`
+   - `brew cleanup`:有可能是 brew 缓存记录导致的
+   - `brew doctor && brew cleanup && source ~/.zshrc`

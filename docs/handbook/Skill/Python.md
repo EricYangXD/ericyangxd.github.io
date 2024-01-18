@@ -107,7 +107,22 @@ print(szj.brand)
 print(szj.print_brand())
 print(szj.print_price())
 print(szj.is_ios())
+
+def square(n):
+    return n*n
+
+def test_square():
+    try:
+        assert square(3) == 9
+    except AssertionError:
+        print("3 squared was not 9")
+
+if __name__ == "__main__":
+    test_square()
 ```
+
+19. `if __name__ == "__main__": xxx`: 用于判断当前的模块是被直接运行还是被导入到其他模块中。如果模块被直接运行，则`__name__`变量的值会被设置为`"__main__"`。如果模块是被导入的，`__name__`的值将是模块的名字。使得模块既可以被执行也可以被导入而不触发主执行代码，增加了代码的可重用性。
+20.
 
 ### 读写文件
 
@@ -124,9 +139,10 @@ Python2 默认使用 ASCII 编码读取文件，所以如果是中文会有可�
 # -*- coding: utf-8 -*-
 # open()可以接受三个参数：文件路径；以什么模式打开文件mode:r,w,a；文件编码格式encoding="utf8"；
 invoice = open('./invoice.txt').read().split()
-lists = open('./lists.txt',mode='w',econding='utf8').read().split()
+lists = open('./lists.txt', mode='w', econding='utf8').read().split()
 
-lists.write('123543');
+lists.write('123543\n')
+lists.close()
 ```
 
 - Python 为我们提供的两个转换编码的方法 decode()与 encode()。
@@ -138,6 +154,17 @@ lists.write('123543');
 
 1. Python2 的对于字符编码的转换要以 unicode 作为“中间人”进行转化。
 2. 知道自己系统的字符编码（Linux 默认 utf-8，Windows 默认 GB2312），对症下药。
+
+### File I/O
+
+1. `file = open("filePath+fileName, "mode读写格式", "econding文件格式")`: 获取到字符串或者 buffer
+2. `with open('./invoice.txt', 'a') as file: xxx`
+3. `lines = file.readLines()`
+4. `line.rstrip().split(",").join("-").xxx`
+5. `a,b,c = line.rstrip().split(",")`: 赋值解析
+6. `sorted(list, key='xx', reverse=false)` 和 `list.sort()`: 不同！
+7. `writer = csv.DictWriter(file)`
+8. `writer.writerow({"name":name,"age":age})`:通过 csv 库，写入文件
 
 ### 连接数据库
 
@@ -185,7 +212,7 @@ connection.close()
 
 #### sqlite
 
-如图，在 PyCharm 中安装`DB Navigator`插件之后，可以通过图中步骤链接已创建的 sqlite 数据库，Python3 默认自带 sqlite3，不必特殊声明直接import就行，然后就可以跟Java开发时链接MySQL一样，可以可视化操作DB了。
+如图，在 PyCharm 中安装`DB Navigator`插件之后，可以通过图中步骤链接已创建的 sqlite 数据库，Python3 默认自带 sqlite3，不必特殊声明直接 import 就行，然后就可以跟 Java 开发时链接 MySQL 一样，可以可视化操作 DB 了。
 
 ![steps](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202401030958025.png)
 
@@ -401,3 +428,12 @@ logging.debug(athletes)
 logging.debug(form_data)
 
 # 5. 使用断点：如果你在一个支持CGI调试的IDE（如PyCharm）中工作，你可以设置断点来暂停执行并检查变量的状态。
+```
+
+### Unit Test
+
+1. `pip3 install pytest`: 库
+2. `assert`: 断言
+3. `pytest my_funs.py`: 直接写测试用例，不需要额外单独执行
+4. `with pytest.raises(TypeError): xxx`: 输入参数类型错误的测试用例
+5. 直接创建`test`目录并在下面创建`__init__.py`空文件即可，可以一次性执行该目录下的所有测试文件

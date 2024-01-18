@@ -509,3 +509,41 @@ npx serve . -p 9090
 
 npm repo serve 可直达仓库地址
 ```
+
+## JS 实现函数重载
+
+不同于 TS，JS 没有类型系统
+
+```js
+function createOverload() {
+  const fnMap = new Map();
+  function overload(...args) {
+    const keys = args.map((item) => typeof item).join(",");
+    const fn = fnMap.get(keys);
+    if (!fn) {
+      throw new TypeError("没有找到对应的实现");
+    }
+    return fn.apply(this, args);
+  }
+  overload.addImpl = function (...args) {
+    const fn = args.pop();
+    if (typeof fn !== "function") {
+      throw new TypeError("最后一个参数必须是函数");
+    }
+
+    const key = args.join(",");
+    fnMap.set(key, fn);
+  };
+  return overload;
+}
+
+// usage
+const getUsers = createOverload();
+
+getUsers.addImpl(() => console.log("查询所有用户"));
+const searchPage = (page, size = 10) => console.log("按照页码和数量查询用户");
+getUsers.addImpl("number", searchPage);
+getUsers.addImpl("string", () => console.log("按照姓名查询用户"));
+
+getUsers();
+```
