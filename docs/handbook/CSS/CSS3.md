@@ -245,3 +245,10 @@ mask-image: unset;
   </body>
 </html>
 ```
+
+### 纯CSS实现鼠标hover后的打字效果
+
+```html
+
+
+```

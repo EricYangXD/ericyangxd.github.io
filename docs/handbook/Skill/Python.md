@@ -37,32 +37,52 @@ Namespaces are one honking great idea -- let's do more of those!
 
 ### api
 
-1. enumerate()方法用于遍历 list/array：`for i,num in enumerate(list/array)`
-2. in 同 js 的 in
-3. range(start,end)：前闭后开
-4. if/else/elif
+1. `enumerate()`方法用于遍历 `list/array`：`for i,num in enumerate(list/array)`
+2. `in` 同 js 的 `in`
+3. `range(start,end)`：前闭后开
+4. `if/else/elif`
 5. 数组范围：`[start=0:end=length-1]`:前闭后开，可以是负数
 6. class 定义类，可以继承
-7. 通过 keys()/values()读取**字典**中的键/值，类似 js 的 map
+7. 通过 `keys()/values()`读取**字典**中的键/值，类似 js 的 `map`
 8. `csv.DictReader(infile)`：可以把文件内容读取成字典，字典可以转化为 list
 9. `csv.DictWriter(infile)`：把内容写入文件，`writer.writeHeader`/`writer.writeRow`用于写入标题 header 和行内容
-10. 与：and，或：or，非：not
+10. 与：`and`，或：`or`，非：`not`
 11. list/array：`append()`拼接一条数据
-12. with：用于文件流，可以自动关闭文件的读取，as：给读取的文件内容赋一个变量名称
+12. `with`：用于文件流，可以自动关闭文件的读取，as：给读取的文件内容赋一个变量名称
 13. `len(list/array)`：获取长度
 14. `socres=[int(num) for num in list[2:]]`：列表生成式，获取 list 第 2 个及之后的数字（从第 0 开始数），转换成 int 类型并生成一个新数组赋值给 scores，`float('1.23')`转换成浮点数
 15. `sorted(list)`：列表升序排序；`sum(list)`：列表求和；`round(list,2)`：四舍五入保留 2 位小数；`'xx'.join(list)`：列表拼接；
 16. `max/min(list)`：列表最大/最小值；`list.count(2)`：list 中含有几个 2；`avg(list)`：列表求均值；
 17. 列表之间可以通过`+`拼接为一个列表
-18. 继承：
+18. `random.choice([])`
+19. `raise`：抛出异常；`try/except`：捕获异常；`finally`：无论是否有异常都执行；`assert`：断言，用于测试；`with`：用于文件流，可以自动关闭文件的读取，as：给读取的文件内容赋一个变量名称；`@property`：装饰器，用于定义 getter 和 setter；`@classmethod`：装饰器，用于定义类方法；`@staticmethod`：装饰器，用于定义静态方法；
+20. 继承：
 
 ```python
 class Phone:
+    # __init__类似构造函数，self代表当前对象，可以给对象赋值
     def __init__(self, os, types, is_waterproof = True): # 默认参数
         self.os = os
         self.types = types
         self.is_waterproof = is_waterproof
 
+    # 类方法
+    @classmethod
+    def from_dict(cls, dict):
+        return cls(dict['os'], dict['types'], dict['is_waterproof'])
+
+    # 静态方法
+    @staticmethod
+    def say_hello():
+        print("Hello")
+        return
+
+    # 静态属性
+    @staticmethod
+    def version():
+        return "1.0"
+
+    # 实例方法
     def is_ios(self):
         return self.os == 'ios'
 
@@ -74,13 +94,20 @@ class Phone:
         print(self.types)
         return
 
-    @property # 装饰器
+    # 装饰器  getter
+    @property
     def calcPro(self): # 计算属性
-        return f"OS = {self.os} , types = {self.types}"
+        return f"OS = {self._os}, types = {self._types}"
+
+    # setter 可以加_来区分私有属性
+    @calcPro.setter
+    def calcPro(self, value):
+        self._os, self._types = value.split(',')
+        return
 
 p1 = Phone("android", 13, True)
 p2 = Phone("ios", 15, True)
-
+p3 = Phone.from_dict({'os': 'android', 'types': 18, 'is_waterproof': False})
 # 继承
 class Shanzhaiji(Phone):
     def __init__(self, os, types, is_waterproof, brand, price):
@@ -238,22 +265,73 @@ conn.close()
 
 ## 常见模块及用途用法
 
+### random
+
+### mmap
+
+### sys
+
+### json
+
+### os
+
+### time
+
+### datetime
+
+### hashlib
+
+### base64
+
+### subprocess
+
+### threading
+
+### multiprocessing
+
+### queue
+
+### logging
+
+### argparse
+
+### traceback
+
+### functools
+
+### itertools
+
+### math
+
+### decimal
+
+### statistics
+
+### urllib
+
 ### urllib2
 
 解析一个网页的 url，获取该网页的字符串。
 
 ### re
 
-正则匹配字符串。
+正则匹配字符串。正则的规则基本都是相同的。
 
 ```python
 import urllib2, re
 
-html=urllib2.urlopen("https://www.163.com").read()
-title=re.findall(r'<title>(.*?)</title>',html)[0]
+name = input("Please enter the name: ").strip()
+matches = re.search(r"^(.*), (.*)$", name)
+if matches:
+    last, first = matches.groups()
+    name = f"{first} {last}"
+url = input("Please enter the URL: ").strip()
+username = re.sub(r"^https://x.com/u/", "", url)
+html = urllib2.urlopen("https://www.163.com").read()
+title = re.findall(r'<title>(.*?)</title>', html)[0]
 
-unicode_title=title.decode('gb2312')
-utf8_title=unicode_title.encode('utf-8')
+unicode_title = title.decode('gb2312')
+utf8_title = unicode_title.encode('utf-8')
 
 print(utf8_title)
 ```
@@ -267,20 +345,21 @@ import csv
 
 with open('myExcel.csv') as infile:
   # 读取并转换为list
-  data=list(csv.DictReader(infile))
+  data = list(csv.DictReader(infile))
   for row in data:
-    print('original',row['name'],row['city'],row['addr'])
-    if row['city'][0]=='台':
-      row['city']='臺'+row['city'][1:]
+    print('original', row['name'], row['city'], row['addr'])
+    if row['city'][0] == '台':
+      row['city'] = '臺' + row['city'][1:]
     if 'F' in row['addr']:
-      row['addr']=row['addr'].replace('F','楼')
-    print('updated',row['name'],row['city'],row['addr'])
+      row['addr'] = row['addr'].replace('F', '楼')
+    print('updated', row['name'], row['city'], row['addr'])
 
-with open('myExcel_new.csv','w',newline='') as outfile:
-  writer=csv.DictWriter(outfile,fieldnames=data[0].keys())
+with open('myExcel_new.csv', 'w', newline = '') as outfile:
+  writer = csv.DictWriter(outfile, fieldnames = data[0].keys())
   writer.writeHeader()
   for e in data:
     writer.writerow(e)
+    writer.writerow({'name': 'Eric', 'city': 'Shanghai', 'addr': 'Pudong'})
 ```
 
 ### collections
@@ -437,3 +516,39 @@ logging.debug(form_data)
 3. `pytest my_funs.py`: 直接写测试用例，不需要额外单独执行
 4. `with pytest.raises(TypeError): xxx`: 输入参数类型错误的测试用例
 5. 直接创建`test`目录并在下面创建`__init__.py`空文件即可，可以一次性执行该目录下的所有测试文件
+
+
+## 面向对象编程
+
+### 类-class
+
+1. `raise ValueError('Invalid value for radius')`：抛出异常
+2. `__init__()`：构造函数，在创建对象时自动调用，用于初始化对象属性
+3. `__str__()`：类似于 Java 中的 toString()，用于打印对象时显示的内容
+4. `__repr__()`：类似于 Java 中的 toString()，用于打印对象时显示的内容
+5. `__eq__()`：类似于 Java 中的 equals()，用于判断两个对象是否相等
+6. `__lt__()`：类似于 Java 中的 compareTo()，用于判断两个对象的大小
+7. `__add__()`：类似于 Java 中的 +，用于两个对象相加
+8. `__len__()`：类似于 Java 中的 length()，用于获取对象的长度
+9. `__getitem__()`：类似于 Java 中的 get()，用于获取对象的某个属性或方法的值
+10. `__setitem__()`：类似于 Java 中的 set()，用于设置对象的某个属性或方法的值
+11. `__delitem__()`：类似于 Java 中的 remove()，用于删除对象的某个属性或方法的值
+12. `__getattr__()`：类似于 Java 中的 getAttribute()，用于获取对象的某个属性或方法的值，如果不存在，则会调用 `__getattribute__()`
+13. `__setattr__()`：类似于 Java 中的 setAttribute()，用于设置对象的某个属性或方法的值，如果不存在，则会调用 `__setattr__()`
+14. `__delattr__()`：类似于 Java 中的 removeAttribute()，用于删除对象的某个属性或方法的值，如果不存在，则会调用 `__delattr__()`
+15. `__call__()`：类似于 Java 中的 invoke()，用于调用对象的某个方法
+16. `__enter__()`：类似于 Java 中的 try-with-resources，用于在 with 语句中进入上下文管理器
+17. `__exit__()`：类似于 Java 中的 try-with-resources，用于在 with 语句中退出上下文管理器
+18. `__getattribute__()`：类似于 Java 中的 getAttribute()，用于获取对象的某个属性或方法的值，如果不存在，则会调用 `__getattr__()`，如果存在，则会调用 `__getattribute__()`，如果想要避免无限递归，可以使用 `super().__getattribute__(name)` 来获取属性或方法的值
+19. `__dir__()`：类似于 Java 中的 getMethods() 和 getFields()，用于获取对象的所有属性和方法
+20. `__iter__()`：类似于 Java 中的 iterator()，用于获取对象的迭代器
+21. `__next__()`：类似于 Java 中的 next()，用于获取对象的下一个值
+22. `__reversed__()`：类似于 Java 中的 reverse()，用于获取对象的逆序迭代器
+23. `__bool__()`：类似于 Java 中的 booleanValue()，用于获取对象的布尔值
+
+```python
+
+
+
+
+```
