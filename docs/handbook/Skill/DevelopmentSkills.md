@@ -483,6 +483,10 @@ echo "My public IP address is: $ip"
 
 或 `curl cip.cc`
 
+### 快速请求一个网址
+
+`http --pretty format get https://www.baidu.com/`
+
 ## wechat helper
 
 1. [WeChatExtension-ForMac](https://github.com/MustangYM/WeChatExtension-ForMac)

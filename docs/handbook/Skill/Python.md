@@ -60,11 +60,18 @@ Namespaces are one honking great idea -- let's do more of those!
 
 ```python
 class Phone:
+    times = 3
+
+    def print_n(self):
+        for _ in range(Phone.times):
+            print("meow")
+
     # __init__类似构造函数，self代表当前对象，可以给对象赋值
     def __init__(self, os, types, is_waterproof = True): # 默认参数
         self.os = os
         self.types = types
         self.is_waterproof = is_waterproof
+        self._balance = 0
 
     # 类方法
     @classmethod
@@ -94,6 +101,17 @@ class Phone:
         print(self.types)
         return
 
+    # 在class中，一种比较好的在类方法之间共用公共属性的方法就是使用计算属性
+    @property
+    def balance(self):
+        return self._balance
+
+    def deposit(self, n):
+        self._balance += n
+
+    def withdraw(self, n):
+        self._balance -= n
+
     # 装饰器  getter
     @property
     def calcPro(self): # 计算属性
@@ -106,6 +124,7 @@ class Phone:
         return
 
 p1 = Phone("android", 13, True)
+print(p1.calcPro)
 p2 = Phone("ios", 15, True)
 p3 = Phone.from_dict({'os': 'android', 'types': 18, 'is_waterproof': False})
 # 继承
@@ -135,6 +154,23 @@ print(szj.print_brand())
 print(szj.print_price())
 print(szj.is_ios())
 
+# 对于global的属性，函数中只能读取，不能直接修改，需要通过global声明
+global_var = 10
+
+def test(x, y):
+    '''
+    多行注释示例：这是一个测试函数
+    :param x: number
+    :param y: number
+    :return: None
+    '''
+    global global_var
+    global_var = 20
+    print(global_var)
+
+test()
+print(global_var)
+
 def square(n):
     return n*n
 
@@ -148,8 +184,23 @@ if __name__ == "__main__":
     test_square()
 ```
 
-19. `if __name__ == "__main__": xxx`: 用于判断当前的模块是被直接运行还是被导入到其他模块中。如果模块被直接运行，则`__name__`变量的值会被设置为`"__main__"`。如果模块是被导入的，`__name__`的值将是模块的名字。使得模块既可以被执行也可以被导入而不触发主执行代码，增加了代码的可重用性。
-20.
+21. `if __name__ == "__main__": xxx`: 用于判断当前的模块是被直接运行还是被导入到其他模块中。如果模块被直接运行，则`__name__`变量的值会被设置为`"__main__"`。如果模块是被导入的，`__name__`的值将是模块的名字。使得模块既可以被执行也可以被导入而不触发主执行代码，增加了代码的可重用性。
+22. 类型提示：`number: int = input("Number: ")`，`def meow(n: int) -> None: xxx`
+23. 多行注释：`"""   xxx    """`单双不限
+24. `argparse`库：在命令行直接执行`.py`文件时，可以通过`argparse`库来传递参数，`parser = argparse.ArgumentParser(description=xxx)`，`parser.add_argument("xxx", default=xx, type=int, help="xxx")`，`args = parser.parse_args()`，`args.xxx`获取参数值
+25. `unpacking`即把list或dict解包成一个个元素：`test(*my_list)`，`test(**my_dict)`
+26. `*args`：可变参数，接收任意多个参数，返回一个tuple；`**kwargs`：关键字参数，接收任意多个参数，返回一个dict
+27. `lambda`：匿名函数，`lambda x: x+1`，`lambda x,y: x+y`
+28. `print(*my_list)`：打印list中的每个元素，不用遍历
+29. `map(func, list)`：对list中的每个元素执行func函数，返回一个新的list
+30. `list comprehension`：列表生成式，`[x for x in range(10)]`，`[x for x in range(10) if x % 2 == 0]`，`[x+y for x in range(10) for y in range(10)]`
+31. `dictionary comprehension`：字典生成式，`{x: x+1 for x in range(10)}`
+32. `set comprehension`：集合生成式，`{x for x in range(10)}`
+33. `enumerate(list)`：遍历list，返回一个tuple，第一个元素是index，第二个元素是list中的元素
+34. `generators`：生成器，`[x for x in range(10)]`是一个list，`(x for x in range(10))`是一个生成器，可以通过`next()`方法来获取下一个元素，也可以通过`for`循环来遍历，`yield`关键字用于生成器函数中，用于返回一个值，但是不会终止函数的执行，而是暂停函数的执行，下次调用`next()`方法时，会从上次暂停的位置继续执行
+35. `iterators`：迭代器，`iter(list)`可以获取到一个迭代器，通过`next()`方法获取下一个元素，也可以通过`for`循环来遍历，`yield`关键字用于生成器函数中，用于返回一个值，但是不会终止函数的执行，而是暂停函数的执行，下次调用`next()`方法时，会从上次暂停的位置继续执行，`itertools`可以帮助我们快速生成迭代器。
+36. `itertools`：迭代工具库，`from itertools import count, cycle, repeat, accumulate, chain, compress, dropwhile, filterfalse, groupby, islice, permutations, product, takewhile, tee, zip_longest`
+37.
 
 ### 读写文件
 
@@ -309,6 +360,14 @@ conn.close()
 
 ### urllib
 
+### pyttsx3
+
+### pyaudio
+
+### pillow
+
+### requests
+
 ### urllib2
 
 解析一个网页的 url，获取该网页的字符串。
@@ -466,7 +525,6 @@ Python 默认使用了 ASCII ，而中文并不包含在 ASCII 码范围内，�
 7. `cgi.FieldStorage()`：访问发给 web 请求中的数据，如 form 中的数据，通过 key-value 的形式取值
 8. `http.server`：顾名思义
 9. `glob` 模块用于查找符合特定规则的文件路径名，`for filename in glob.glob('*.txt'):`会查找到当前目录下所有扩展名为 `.txt` 的文件，`glob.iglob('*.txt'):`返回的是一个迭代器，适用于处理大量的文件，因为它不会一次性加载所有结果到内存中。glob 模块非常适合于需要文件名匹配的脚本和程序。它简单易用，但不具备递归查找目录的能力，对于复杂的文件查找需求，可能需要使用 os 模块的功能或是第三方库如 `scandir`。
-10.
 
 ### http demo
 
@@ -516,7 +574,6 @@ logging.debug(form_data)
 3. `pytest my_funs.py`: 直接写测试用例，不需要额外单独执行
 4. `with pytest.raises(TypeError): xxx`: 输入参数类型错误的测试用例
 5. 直接创建`test`目录并在下面创建`__init__.py`空文件即可，可以一次性执行该目录下的所有测试文件
-
 
 ## 面向对象编程
 

@@ -246,9 +246,32 @@ mask-image: unset;
 </html>
 ```
 
-### 纯CSS实现鼠标hover后的打字效果
+### 纯 CSS 实现鼠标 hover 后的下划线效果
 
 ```html
+<style>
+  .title {
+    color: #333;
+    line-height: 2;
+  }
 
+  .title span {
+    background: linear-gradient(to right, #ec695c, #61c454) no-repeat right bottom;
+    background-size: 0 2px;
+    transition: background-size 1300ms;
+  }
 
+  .title span:hover {
+    background-position-x: left;
+    background-size: 100% 2px;
+  }
+</style>
+
+<h2 class="title">
+  <span> 十年后，你会发现CSS才是你永远都学不会的语言！</span>
+</h2>
 ```
+
+### CSS 打字机效果
+
+[参考链接](https://css-tricks.com/snippets/css/typewriter-effect/)

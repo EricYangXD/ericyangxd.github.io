@@ -270,8 +270,13 @@ fi
 #author: EricYangXD
 #version: v1.0
 #date: 2023-12-05
+#按模板格式把环境变量替换到runtimeconfig.js中，并且把appr字符串的替换成prod字符串
+#一个用法是在docker-entrypoint.sh中使用，在docker启动时初始化容器环境
 
-
+cat /usr/share/nginx/html/prd/assets/runtimeconfig.js.template \
+| envsubst \
+| sed 's/appr/prod/g' \
+> /usr/share/nginx/html/prd/assets/runtimeconfig.js
 ```
 
 ###

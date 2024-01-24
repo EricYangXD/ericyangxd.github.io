@@ -602,6 +602,7 @@ interface FunctionComponent<P = {}> {
 interface Seal {
   name: string;
   url: string;
+  [key: string]: any; // 不定项
 }
 interface API {
   "/user": { name: string; age: number; phone: string };
