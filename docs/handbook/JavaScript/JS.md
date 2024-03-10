@@ -342,6 +342,87 @@ var a = "world";
 f`Hello ${a}!`; // [["Hello", "!"], world]
 ```
 
+## JS 闭包的漏洞
+
+```js
+// 如何在不修改代码的情况下去修改obj
+var o = (function () {
+  var obj = {
+    a: 1,
+    b: 2,
+  };
+  // 防御方案1
+  // Object.setPrototypeOf(obj, null);
+  return {
+    get: function (k) {
+      return obj[k];
+      // 防御方案2
+      // if(obj.hasOwnProperty(k)){
+      //   return obj[k];
+      // }
+      // return undefined;
+    },
+  };
+})();
+```
+
+1. 通过`Object.defineProperty`返回 obj，通过原型攻击，这种方式可能会破坏第三方库的完整性
+
+```js
+Object.defineProperty(Object.prototype, "abc", {
+  get() {
+    return this;
+  },
+});
+var obj2 = o.get("abc");
+// 然后就可以修改获取到的obj了
+obj2.c = 3;
+obj2.a = 11;
+console.log(o.get("a")); // 11
+console.log(o.get("c")); // 3
+```
+
+2. 防御方案，参考代码
+
+## 如何避免输入中文拼音时触发 input 事件
+
+```js
+// 1. 通过监听compositionstart和compositionend事件
+// 2. 通过监听input事件，判断是否是中文输入法输入
+// 3. 通过监听keydown事件，判断是否是中文输入法输入
+// 4. 通过监听keyup事件，判断是否是中文输入法输入
+
+var input = document.getElementById("input");
+let isComposing = false;
+function search() {
+  console.log(input.value);
+}
+input.addEventListener("compositionstart", function () {
+  console.log("中文输入开始");
+});
+input.addEventListener("compositionend", function () {
+  console.log("中文输入结束");
+  search();
+});
+input.addEventListener("input", function (e) {
+  if (!isComposing && e.data) {
+    console.log("中文输入");
+    search();
+  }
+});
+
+input.addEventListener("keydown", function (e) {
+  if (e.key === "Unidentified") {
+    console.log("中文输入");
+  }
+});
+input.addEventListener("keyup", function (e) {
+  if (e.key === "Unidentified") {
+    console.log("中文输入");
+  }
+});
+```
+
 ## React 源码中的位运算
 
 ### 按位与（&）、或（|）、非（～）

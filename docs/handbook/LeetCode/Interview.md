@@ -15,30 +15,30 @@ date: "2022-04-09"
 ```ts
 // 双指针法，j指向第一个0，原地交换，实际上是把非0的值移到左侧
 function floatNum(arr) {
-	const length = arr?.length;
-	if (length <= 1) return arr;
+  const length = arr?.length;
+  if (length <= 1) return arr;
 
-	let i = 0,
-		j = -1;
+  let i = 0,
+    j = -1;
 
-	while (i < length) {
-		if (arr[i] === 0) {
-			// 先找到第一个0
-			if (j < 0) {
-				j = i;
-			}
-		}
-		if (arr[i] !== 0 && j >= 0) {
-			// 交换0到数组右侧，非0的到左侧
-			const temp = arr[i];
-			arr[i] = arr[j];
-			arr[j] = temp;
-			// 交换之后，j要往右移动一位
-			j++;
-		}
-		i++;
-	}
-	return arr;
+  while (i < length) {
+    if (arr[i] === 0) {
+      // 先找到第一个0
+      if (j < 0) {
+        j = i;
+      }
+    }
+    if (arr[i] !== 0 && j >= 0) {
+      // 交换0到数组右侧，非0的到左侧
+      const temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
+      // 交换之后，j要往右移动一位
+      j++;
+    }
+    i++;
+  }
+  return arr;
 }
 ```
 
@@ -48,31 +48,31 @@ function floatNum(arr) {
 
 ```js
 function maxLen(str) {
-	const res = { str: "", length: 0 };
-	const length = str?.length;
-	if (length <= 1) return { str, length };
+  const res = { str: "", length: 0 };
+  const length = str?.length;
+  if (length <= 1) return { str, length };
 
-	let i = 0,
-		j = 0,
-		tempLen = 0;
-	while (j < length) {
-		if (str[i] === str[j]) {
-			tempLen++;
-		}
-		if (str[i] !== str[j] || j === length - 1) {
-			if (tempLen > res.length) {
-				res.length = tempLen;
-				res.str = str[i];
-			}
-			tempLen = 0;
-			if (j < length - 1) {
-				i = j;
-				j--; // j在这次循环之后会++，所以要先--，然后i才和j相等。
-			}
-		}
-		j++;
-	}
-	return res;
+  let i = 0,
+    j = 0,
+    tempLen = 0;
+  while (j < length) {
+    if (str[i] === str[j]) {
+      tempLen++;
+    }
+    if (str[i] !== str[j] || j === length - 1) {
+      if (tempLen > res.length) {
+        res.length = tempLen;
+        res.str = str[i];
+      }
+      tempLen = 0;
+      if (j < length - 1) {
+        i = j;
+        j--; // j在这次循环之后会++，所以要先--，然后i才和j相等。
+      }
+    }
+    j++;
+  }
+  return res;
 }
 ```
 
@@ -80,31 +80,31 @@ function maxLen(str) {
 
 ```js
 function maxLen(str) {
-	const res = { str: "", length: 0 };
-	const length = str?.length;
-	if (length <= 1) return { str, length };
+  const res = { str: "", length: 0 };
+  const length = str?.length;
+  if (length <= 1) return { str, length };
 
-	let maxLength = 0;
-	for (let i = 0; i < length; i++) {
-		maxLength = 0;
-		for (let j = i; j < length; j++) {
-			if (str[i] === str[j]) {
-				maxLength++;
-			}
-			// 如果不相等或者已经匹配到最后
-			if (str[i] !== str[j] || j === length - 1) {
-				if (maxLength > res.length) {
-					res.length = maxLength;
-					res.str = str[i];
-				}
-				if (i < length - 1) {
-					i = j - 1; // 跳步
-				}
-				break;
-			}
-		}
-	}
-	return res;
+  let maxLength = 0;
+  for (let i = 0; i < length; i++) {
+    maxLength = 0;
+    for (let j = i; j < length; j++) {
+      if (str[i] === str[j]) {
+        maxLength++;
+      }
+      // 如果不相等或者已经匹配到最后
+      if (str[i] !== str[j] || j === length - 1) {
+        if (maxLength > res.length) {
+          res.length = maxLength;
+          res.str = str[i];
+        }
+        if (i < length - 1) {
+          i = j - 1; // 跳步
+        }
+        break;
+      }
+    }
+  }
+  return res;
 }
 ```
 
@@ -113,30 +113,30 @@ function maxLen(str) {
 ```js
 // 迭代
 var reverseList = function (head) {
-	if (head === null || head.next === null) {
-		return head;
-	}
-	let prev = null,
-		cur = head;
-	while (cur !== null) {
-		const next = cur.next;
-		cur.next = prev;
-		prev = cur;
-		cur = next;
-	}
-	return prev;
+  if (head === null || head.next === null) {
+    return head;
+  }
+  let prev = null,
+    cur = head;
+  while (cur !== null) {
+    const next = cur.next;
+    cur.next = prev;
+    prev = cur;
+    cur = next;
+  }
+  return prev;
 };
 
 // 递归
 var reverseList = function (head) {
-	// 递归终止条件
-	if (head == null || head.next == null) return head;
-	// 递
-	const newHead = reverseList(head.next);
-	// 归：这时候右边已经反转的node和左边未反转的node相邻的两个节点是互相指向对方的状态，此时的head指向递归调用栈这一层的node
-	head.next.next = head;
-	head.next = null;
-	return newHead;
+  // 递归终止条件
+  if (head == null || head.next == null) return head;
+  // 递
+  const newHead = reverseList(head.next);
+  // 归：这时候右边已经反转的node和左边未反转的node相邻的两个节点是互相指向对方的状态，此时的head指向递归调用栈这一层的node
+  head.next.next = head;
+  head.next = null;
+  return newHead;
 };
 ```
 
@@ -148,9 +148,9 @@ var reverseList = function (head) {
 
 ```js
 var deleteNode = function (head, val) {
-	if (!head) return head;
-	head.next = deleteNode(head.next, val);
-	return head.val === val ? head.next : head;
+  if (!head) return head;
+  head.next = deleteNode(head.next, val);
+  return head.val === val ? head.next : head;
 };
 ```
 
@@ -160,23 +160,23 @@ var deleteNode = function (head, val) {
 
 ```js
 var removeNthFromEnd = function (head, n) {
-	let slow = head,
-		fast = head;
-	// 先让 fast 往后移 n 位
-	while (n--) {
-		fast = fast.next;
-	}
-	// 如果 n 和 链表中总结点个数相同，即要删除的是链表头结点时，fast 经过上一步已经到外面了
-	if (!fast) {
-		return head.next;
-	}
-	// 然后 快慢指针 一起往后遍历，当 fast 是链表最后一个结点时，此时 slow 下一个就是要删除的结点
-	while (fast.next) {
-		slow = slow.next;
-		fast = fast.next;
-	}
-	slow.next = slow.next.next;
-	return head;
+  let slow = head,
+    fast = head;
+  // 先让 fast 往后移 n 位
+  while (n--) {
+    fast = fast.next;
+  }
+  // 如果 n 和 链表中总结点个数相同，即要删除的是链表头结点时，fast 经过上一步已经到外面了
+  if (!fast) {
+    return head.next;
+  }
+  // 然后 快慢指针 一起往后遍历，当 fast 是链表最后一个结点时，此时 slow 下一个就是要删除的结点
+  while (fast.next) {
+    slow = slow.next;
+    fast = fast.next;
+  }
+  slow.next = slow.next.next;
+  return head;
 };
 ```
 
@@ -186,17 +186,17 @@ var removeNthFromEnd = function (head, n) {
 
 ```js
 function findCenter(head) {
-	let slower = head,
-		faster = head;
-	while (faster && faster.next != null) {
-		slower = slower.next;
-		faster = faster.next.next;
-	}
-	// 如果 faster 不等于 null，说明是奇数个，slower 再移动一格
-	if (faster != null) {
-		slower = slower.next;
-	}
-	return slower;
+  let slower = head,
+    faster = head;
+  while (faster && faster.next != null) {
+    slower = slower.next;
+    faster = faster.next.next;
+  }
+  // 如果 faster 不等于 null，说明是奇数个，slower 再移动一格
+  if (faster != null) {
+    slower = slower.next;
+  }
+  return slower;
 }
 ```
 
@@ -206,18 +206,18 @@ function findCenter(head) {
 
 ```js
 var isPalindrome = function (head) {
-	let left = head;
-	function traverse(right) {
-		if (right == null) return true;
-		// 这里会递归到最后一个node，然后一层一层往前
-		let res = traverse(right.next);
-		// 记录左右指针是否相等，初始值是tailNode.next===null，也就是true
-		res = res && right.val === left.val;
-		// 左边的指针每次要右移一个
-		left = left.next;
-		return res;
-	}
-	return traverse(head);
+  let left = head;
+  function traverse(right) {
+    if (right == null) return true;
+    // 这里会递归到最后一个node，然后一层一层往前
+    let res = traverse(right.next);
+    // 记录左右指针是否相等，初始值是tailNode.next===null，也就是true
+    res = res && right.val === left.val;
+    // 左边的指针每次要右移一个
+    left = left.next;
+    return res;
+  }
+  return traverse(head);
 };
 ```
 
@@ -225,43 +225,43 @@ var isPalindrome = function (head) {
 
 ```js
 var isPalindrome = function (head) {
-	// 反转 slower 链表
-	let right = reverse(findCenter(head));
-	let left = head;
-	// 开始比较
-	while (right != null) {
-		if (left.val !== right.val) {
-			return false;
-		}
-		left = left.next;
-		right = right.next;
-	}
-	return true;
+  // 反转 slower 链表
+  let right = reverse(findCenter(head));
+  let left = head;
+  // 开始比较
+  while (right != null) {
+    if (left.val !== right.val) {
+      return false;
+    }
+    left = left.next;
+    right = right.next;
+  }
+  return true;
 };
 function findCenter(head) {
-	let slower = head,
-		faster = head;
-	while (faster && faster.next != null) {
-		slower = slower.next;
-		faster = faster.next.next;
-	}
-	// 如果 faster 不等于 null，说明是奇数个，slower 再移动一格
-	if (faster != null) {
-		slower = slower.next;
-	}
-	return slower;
+  let slower = head,
+    faster = head;
+  while (faster && faster.next != null) {
+    slower = slower.next;
+    faster = faster.next.next;
+  }
+  // 如果 faster 不等于 null，说明是奇数个，slower 再移动一格
+  if (faster != null) {
+    slower = slower.next;
+  }
+  return slower;
 }
 function reverse(head) {
-	let prev = null,
-		cur = head,
-		nxt = head;
-	while (cur != null) {
-		nxt = cur.next;
-		cur.next = prev;
-		prev = cur;
-		cur = nxt;
-	}
-	return prev;
+  let prev = null,
+    cur = head,
+    nxt = head;
+  while (cur != null) {
+    nxt = cur.next;
+    cur.next = prev;
+    prev = cur;
+    cur = nxt;
+  }
+  return prev;
 }
 ```
 
@@ -270,70 +270,70 @@ function reverse(head) {
 ```js
 // 迭代1
 function merge(l1, l2) {
-	if (l1 == null && l2 == null) return null;
-	if (l1 != null && l2 == null) return l1;
-	if (l1 == null && l2 != null) return l2;
-	let newHead = null,
-		head = null;
-	while (l1 != null && l2 != null) {
-		if (l1.val < l2.val) {
-			if (!head) {
-				newHead = l1;
-				head = l1;
-			} else {
-				newHead.next = l1;
-				newHead = newHead.next;
-			}
-			l1 = l1.next;
-		} else {
-			if (!head) {
-				newHead = l2;
-				head = l2;
-			} else {
-				newHead.next = l2;
-				newHead = newHead.next;
-			}
-			l2 = l2.next;
-		}
-	}
-	newHead.next = l1 ? l1 : l2;
-	return head;
+  if (l1 == null && l2 == null) return null;
+  if (l1 != null && l2 == null) return l1;
+  if (l1 == null && l2 != null) return l2;
+  let newHead = null,
+    head = null;
+  while (l1 != null && l2 != null) {
+    if (l1.val < l2.val) {
+      if (!head) {
+        newHead = l1;
+        head = l1;
+      } else {
+        newHead.next = l1;
+        newHead = newHead.next;
+      }
+      l1 = l1.next;
+    } else {
+      if (!head) {
+        newHead = l2;
+        head = l2;
+      } else {
+        newHead.next = l2;
+        newHead = newHead.next;
+      }
+      l2 = l2.next;
+    }
+  }
+  newHead.next = l1 ? l1 : l2;
+  return head;
 }
 
 // 迭代2
 function merge(l1, l2) {
-	if (l1 == null && l2 == null) return null;
-	if (l1 != null && l2 == null) return l1;
-	if (l1 == null && l2 != null) return l2;
-	// 自定义头结点，最后只需返回自定义头结点的next即可
-	const prehead = new ListNode(-1);
-	let prev = prehead; // 记录已排序的链表的尾指针，方便指向下一个排序节点
+  if (l1 == null && l2 == null) return null;
+  if (l1 != null && l2 == null) return l1;
+  if (l1 == null && l2 != null) return l2;
+  // 自定义头结点，最后只需返回自定义头结点的next即可
+  const prehead = new ListNode(-1);
+  let prev = prehead; // 记录已排序的链表的尾指针，方便指向下一个排序节点
 
-	while (l1 != null && l2 != null) {
-		if (l1.val <= l2.val) {
-			prev.next = l1;
-			l1 = l1.next;
-		} else {
-			prev.next = l2;
-			l2 = l2.next;
-		}
-		prev = prev.next; // 更新prev，指向最新的尾部node
-	}
-	prev.next = l1 === null ? l2 : l1; // 最后把剩余的有序链表直接合并进来
-	return prehead.next; // 返回自定义头结点的next
+  while (l1 != null && l2 != null) {
+    if (l1.val <= l2.val) {
+      prev.next = l1;
+      l1 = l1.next;
+    } else {
+      prev.next = l2;
+      l2 = l2.next;
+    }
+    prev = prev.next; // 更新prev，指向最新的尾部node
+  }
+  prev.next = l1 === null ? l2 : l1; // 最后把剩余的有序链表直接合并进来
+  return prehead.next; // 返回自定义头结点的next
 }
 
 // 递归
 var mergeTwoLists = function (l1, l2) {
-	if (l1 === null) return l2;
-	if (l2 === null) return l1;
-	if (l1.val < l2.val) {
-		l1.next = mergeTwoLists(l1.next, l2);
-		return l1;
-	} else {
-		l2.next = mergeTwoLists(l1, l2.next);
-		return l2;
-	}
+  if (l1 === null) return l2;
+  if (l2 === null) return l1;
+  if (l1.val < l2.val) {
+    l1.next = mergeTwoLists(l1.next, l2);
+    return l1;
+  } else {
+    l2.next = mergeTwoLists(l1, l2.next);
+    return l2;
+  }
 };
 ```
 
@@ -343,45 +343,45 @@ var mergeTwoLists = function (l1, l2) {
 
 ```js
 var mergeKLists = function (lists) {
-	if (lists.length === 0) return null;
-	return mergeArr(lists);
+  if (lists.length === 0) return null;
+  return mergeArr(lists);
 };
 function mergeArr(lists) {
-	if (lists.length <= 1) return lists[0];
-	let index = Math.floor(lists.length / 2);
-	const left = mergeArr(lists.slice(0, index));
-	const right = mergeArr(lists.slice(index));
-	return merge(left, right);
+  if (lists.length <= 1) return lists[0];
+  let index = Math.floor(lists.length / 2);
+  const left = mergeArr(lists.slice(0, index));
+  const right = mergeArr(lists.slice(index));
+  return merge(left, right);
 }
 function merge(l1, l2) {
-	if (l1 == null && l2 == null) return null;
-	if (l1 != null && l2 == null) return l1;
-	if (l1 == null && l2 != null) return l2;
-	let newHead = null,
-		head = null;
-	while (l1 != null && l2 != null) {
-		if (l1.val < l2.val) {
-			if (!head) {
-				newHead = l1;
-				head = l1;
-			} else {
-				newHead.next = l1;
-				newHead = newHead.next;
-			}
-			l1 = l1.next;
-		} else {
-			if (!head) {
-				newHead = l2;
-				head = l2;
-			} else {
-				newHead.next = l2;
-				newHead = newHead.next;
-			}
-			l2 = l2.next;
-		}
-	}
-	newHead.next = l1 ? l1 : l2;
-	return head;
+  if (l1 == null && l2 == null) return null;
+  if (l1 != null && l2 == null) return l1;
+  if (l1 == null && l2 != null) return l2;
+  let newHead = null,
+    head = null;
+  while (l1 != null && l2 != null) {
+    if (l1.val < l2.val) {
+      if (!head) {
+        newHead = l1;
+        head = l1;
+      } else {
+        newHead.next = l1;
+        newHead = newHead.next;
+      }
+      l1 = l1.next;
+    } else {
+      if (!head) {
+        newHead = l2;
+        head = l2;
+      } else {
+        newHead.next = l2;
+        newHead = newHead.next;
+      }
+      l2 = l2.next;
+    }
+  }
+  newHead.next = l1 ? l1 : l2;
+  return head;
 }
 ```
 
@@ -389,30 +389,30 @@ function merge(l1, l2) {
 
 ```js
 var reverseKGroup = function (head, k) {
-	let a = head,
-		b = head;
-	for (let i = 0; i < k; i++) {
-		if (b == null) return head;
-		b = b.next;
-	}
-	// 每次翻转a到b这一段
-	const newHead = reverse(a, b);
-	// 递归，a指向下一段新的head节点
-	a.next = reverseKGroup(b, k);
-	return newHead;
+  let a = head,
+    b = head;
+  for (let i = 0; i < k; i++) {
+    if (b == null) return head;
+    b = b.next;
+  }
+  // 每次翻转a到b这一段
+  const newHead = reverse(a, b);
+  // 递归，a指向下一段新的head节点
+  a.next = reverseKGroup(b, k);
+  return newHead;
 };
 // 翻转a->b
 function reverse(a, b) {
-	let prev = null,
-		cur = a,
-		nxt = a;
-	while (cur != b) {
-		nxt = cur.next;
-		cur.next = prev;
-		prev = cur;
-		cur = nxt;
-	}
-	return prev;
+  let prev = null,
+    cur = a,
+    nxt = a;
+  while (cur != b) {
+    nxt = cur.next;
+    cur.next = prev;
+    prev = cur;
+    cur = nxt;
+  }
+  return prev;
 }
 ```
 
@@ -422,15 +422,15 @@ function reverse(a, b) {
 
 ```js
 var hasCycle = function (head) {
-	if (head == null || head.next == null) return false;
-	let slower = head,
-		faster = head;
-	while (faster != null && faster.next != null) {
-		slower = slower.next;
-		faster = faster.next.next;
-		if (slower === faster) return true;
-	}
-	return false;
+  if (head == null || head.next == null) return false;
+  let slower = head,
+    faster = head;
+  while (faster != null && faster.next != null) {
+    slower = slower.next;
+    faster = faster.next.next;
+    if (slower === faster) return true;
+  }
+  return false;
 };
 ```
 
@@ -440,57 +440,57 @@ var hasCycle = function (head) {
 
 ```js
 var sortList = function (head) {
-	if (head == null) return null;
-	let newHead = head;
-	return mergeSort(head);
+  if (head == null) return null;
+  let newHead = head;
+  return mergeSort(head);
 };
 function mergeSort(head) {
-	if (head.next != null) {
-		let slower = getCenter(head);
-		let nxt = slower.next;
-		slower.next = null;
-		console.log(head, slower, nxt);
-		const left = mergeSort(head);
-		const right = mergeSort(nxt);
-		head = merge(left, right);
-	}
-	return head;
+  if (head.next != null) {
+    let slower = getCenter(head);
+    let nxt = slower.next;
+    slower.next = null;
+    console.log(head, slower, nxt);
+    const left = mergeSort(head);
+    const right = mergeSort(nxt);
+    head = merge(left, right);
+  }
+  return head;
 }
 function merge(left, right) {
-	let newHead = null,
-		head = null;
-	while (left != null && right != null) {
-		if (left.val < right.val) {
-			if (!head) {
-				newHead = left;
-				head = left;
-			} else {
-				newHead.next = left;
-				newHead = newHead.next;
-			}
-			left = left.next;
-		} else {
-			if (!head) {
-				newHead = right;
-				head = right;
-			} else {
-				newHead.next = right;
-				newHead = newHead.next;
-			}
-			right = right.next;
-		}
-	}
-	newHead.next = left ? left : right;
-	return head;
+  let newHead = null,
+    head = null;
+  while (left != null && right != null) {
+    if (left.val < right.val) {
+      if (!head) {
+        newHead = left;
+        head = left;
+      } else {
+        newHead.next = left;
+        newHead = newHead.next;
+      }
+      left = left.next;
+    } else {
+      if (!head) {
+        newHead = right;
+        head = right;
+      } else {
+        newHead.next = right;
+        newHead = newHead.next;
+      }
+      right = right.next;
+    }
+  }
+  newHead.next = left ? left : right;
+  return head;
 }
 function getCenter(head) {
-	let slower = head,
-		faster = head.next;
-	while (faster != null && faster.next != null) {
-		slower = slower.next;
-		faster = faster.next.next;
-	}
-	return slower;
+  let slower = head,
+    faster = head.next;
+  while (faster != null && faster.next != null) {
+    slower = slower.next;
+    faster = faster.next.next;
+  }
+  return slower;
 }
 ```
 
@@ -500,34 +500,34 @@ function getCenter(head) {
 
 ```js
 var getIntersectionNode = function (headA, headB) {
-	let lastHeadA = null;
-	let lastHeadB = null;
-	let originHeadA = headA;
-	let originHeadB = headB;
-	if (!headA || !headB) {
-		return null;
-	}
-	while (true) {
-		if (headB == headA) {
-			return headB;
-		}
-		if (headA && headA.next == null) {
-			lastHeadA = headA;
-			headA = originHeadB;
-		} else {
-			headA = headA.next;
-		}
-		if (headB && headB.next == null) {
-			lastHeadB = headB;
-			headB = originHeadA;
-		} else {
-			headB = headB.next;
-		}
-		if (lastHeadA && lastHeadB && lastHeadA != lastHeadB) {
-			return null;
-		}
-	}
-	return null;
+  let lastHeadA = null;
+  let lastHeadB = null;
+  let originHeadA = headA;
+  let originHeadB = headB;
+  if (!headA || !headB) {
+    return null;
+  }
+  while (true) {
+    if (headB == headA) {
+      return headB;
+    }
+    if (headA && headA.next == null) {
+      lastHeadA = headA;
+      headA = originHeadB;
+    } else {
+      headA = headA.next;
+    }
+    if (headB && headB.next == null) {
+      lastHeadB = headB;
+      headB = originHeadA;
+    } else {
+      headB = headB.next;
+    }
+    if (lastHeadA && lastHeadB && lastHeadA != lastHeadB) {
+      return null;
+    }
+  }
+  return null;
 };
 ```
 
@@ -541,75 +541,75 @@ var getIntersectionNode = function (headA, headB) {
 ```js
 // 二分 O(log(min(m,n)))
 var findMedianSortedArrays = function (nums1, nums2) {
-	// nums1长度比nums2小
-	if (nums1.length > nums2.length) {
-		[nums1, nums2] = [nums2, nums1];
-	}
+  // nums1长度比nums2小
+  if (nums1.length > nums2.length) {
+    [nums1, nums2] = [nums2, nums1];
+  }
 
-	let m = nums1.length;
-	let n = nums2.length;
-	// 在0～m中查找
-	let left = 0;
-	let right = m;
+  let m = nums1.length;
+  let n = nums2.length;
+  // 在0～m中查找
+  let left = 0;
+  let right = m;
 
-	// median1：前一部分的最大值
-	// median2：后一部分的最小值
-	let median1 = 0;
-	let median2 = 0;
+  // median1：前一部分的最大值
+  // median2：后一部分的最小值
+  let median1 = 0;
+  let median2 = 0;
 
-	while (left <= right) {
-		// 前一部分包含 nums1[0 .. i-1] 和 nums2[0 .. j-1]
-		// 后一部分包含 nums1[i .. m-1] 和 nums2[j .. n-1]
-		const i = left + Math.floor((right - left) / 2);
-		const j = Math.floor((m + n + 1) / 2) - i;
+  while (left <= right) {
+    // 前一部分包含 nums1[0 .. i-1] 和 nums2[0 .. j-1]
+    // 后一部分包含 nums1[i .. m-1] 和 nums2[j .. n-1]
+    const i = left + Math.floor((right - left) / 2);
+    const j = Math.floor((m + n + 1) / 2) - i;
 
-		const maxLeft1 = i === 0 ? -Infinity : nums1[i - 1];
-		const minRight1 = i === m ? Infinity : nums1[i];
+    const maxLeft1 = i === 0 ? -Infinity : nums1[i - 1];
+    const minRight1 = i === m ? Infinity : nums1[i];
 
-		const maxLeft2 = j === 0 ? -Infinity : nums2[j - 1];
-		const minRight2 = j === n ? Infinity : nums2[j];
+    const maxLeft2 = j === 0 ? -Infinity : nums2[j - 1];
+    const minRight2 = j === n ? Infinity : nums2[j];
 
-		if (maxLeft1 <= minRight2) {
-			median1 = Math.max(maxLeft1, maxLeft2);
-			median2 = Math.min(minRight1, minRight2);
-			left = i + 1;
-		} else {
-			right = i - 1;
-		}
-	}
-	return (m + n) % 2 == 0 ? (median1 + median2) / 2 : median1;
+    if (maxLeft1 <= minRight2) {
+      median1 = Math.max(maxLeft1, maxLeft2);
+      median2 = Math.min(minRight1, minRight2);
+      left = i + 1;
+    } else {
+      right = i - 1;
+    }
+  }
+  return (m + n) % 2 == 0 ? (median1 + median2) / 2 : median1;
 };
 
 // 双指针 O(m+n)
 var findMedianSortedArrays = function (nums1, nums2) {
-	let n1 = nums1.length;
-	let n2 = nums2.length;
+  let n1 = nums1.length;
+  let n2 = nums2.length;
 
-	// 两个数组总长度
-	let len = n1 + n2;
+  // 两个数组总长度
+  let len = n1 + n2;
 
-	// 保存当前移动的指针的值(在nums1或nums2移动)，和上一个值
-	let preValue = -1;
-	let curValue = -1;
+  // 保存当前移动的指针的值(在nums1或nums2移动)，和上一个值
+  let preValue = -1;
+  let curValue = -1;
 
-	//  两个指针分别在nums1和nums2上移动
-	let point1 = 0;
-	let point2 = 0;
+  //  两个指针分别在nums1和nums2上移动
+  let point1 = 0;
+  let point2 = 0;
 
-	// 需要遍历len/2次，当len是奇数时，最后取curValue的值，是偶数时，最后取(preValue + curValue)/2的值
-	for (let i = 0; i <= Math.floor(len / 2); i++) {
-		preValue = curValue;
-		// 需要在nums1上移动point1指针
-		if (point1 < n1 && (point2 >= n2 || nums1[point1] < nums2[point2])) {
-			curValue = nums1[point1];
-			point1++;
-		} else {
-			curValue = nums2[point2];
-			point2++;
-		}
-	}
+  // 需要遍历len/2次，当len是奇数时，最后取curValue的值，是偶数时，最后取(preValue + curValue)/2的值
+  for (let i = 0; i <= Math.floor(len / 2); i++) {
+    preValue = curValue;
+    // 需要在nums1上移动point1指针
+    if (point1 < n1 && (point2 >= n2 || nums1[point1] < nums2[point2])) {
+      curValue = nums1[point1];
+      point1++;
+    } else {
+      curValue = nums2[point2];
+      point2++;
+    }
+  }
 
-	return len % 2 === 0 ? (preValue + curValue) / 2 : curValue;
+  return len % 2 === 0 ? (preValue + curValue) / 2 : curValue;
 };
 ```
 
@@ -629,28 +629,28 @@ var findMedianSortedArrays = function (nums1, nums2) {
 
 ```js
 function findSubstring(s1, s2) {
-	const l1 = s1.length;
-	const l2 = s2.length;
-	let result = -1;
-	const target = s1.split("").sort().join("");
-	for (let i = 0; i < l2 - l1; i++) {
-		const s = s2.substring(i, i + l1);
-		const t = s.split("").sort().join("");
-		if (target === t) {
-			result = i;
-			break;
-		}
-	}
-	console.log(result);
+  const l1 = s1.length;
+  const l2 = s2.length;
+  let result = -1;
+  const target = s1.split("").sort().join("");
+  for (let i = 0; i < l2 - l1; i++) {
+    const s = s2.substring(i, i + l1);
+    const t = s.split("").sort().join("");
+    if (target === t) {
+      result = i;
+      break;
+    }
+  }
+  console.log(result);
 }
 
 const testList = [
-	{ str1: "abc", str2: "efghicabiii" },
-	{ str1: "abc", str2: "efghicaibii" },
+  { str1: "abc", str2: "efghicabiii" },
+  { str1: "abc", str2: "efghicaibii" },
 ];
 testList.forEach((v) => {
-	const { str1, str2 } = v;
-	findSubstring(str1, str2);
+  const { str1, str2 } = v;
+  findSubstring(str1, str2);
 });
 ```
 
@@ -662,50 +662,50 @@ testList.forEach((v) => {
 ```js
 // 递归
 function dfs1(root) {
-	visitNode(root);
-	const childNodes = root.childNodes; // childNodes与children不同！
-	if (childNodes.length) {
-		childNodes.forEach((child) => {
-			dfs1(child); // 递归
-		});
-	}
+  visitNode(root);
+  const childNodes = root.childNodes; // childNodes与children不同！
+  if (childNodes.length) {
+    childNodes.forEach((child) => {
+      dfs1(child); // 递归
+    });
+  }
 }
 // 不用递归，用栈
 function dfs2(root) {
-	const stack = [];
-	// 根节点入栈
-	stack.push(root);
-	while (stack.length) {
-		const curNode = stack.pop();
-		if (!curNode) break;
-		visitNode(curNode);
+  const stack = [];
+  // 根节点入栈
+  stack.push(root);
+  while (stack.length) {
+    const curNode = stack.pop();
+    if (!curNode) break;
+    visitNode(curNode);
 
-		// 子节点压栈
-		const childNodes = curNode.childNodes;
-		if (childNodes.length) {
-			// reverse反顺序压栈
-			Array.from(childNodes)
-				.reverse()
-				.forEach((child) => stack.push(child));
-		}
-	}
+    // 子节点压栈
+    const childNodes = curNode.childNodes;
+    if (childNodes.length) {
+      // reverse反顺序压栈
+      Array.from(childNodes)
+        .reverse()
+        .forEach((child) => stack.push(child));
+    }
+  }
 }
 function visitNode(node) {
-	if (node instanceof Comment) {
-		// 注释节点
-		console.log("Comment node ---", node.textContent);
-	}
-	if (node instanceof Text) {
-		// 文本节点
-		const t = node.textContent?.trim();
-		if (t) {
-			console.log("Text node ---", t);
-		}
-	}
-	if (node instanceof HTMLElement) {
-		// element节点
-		console.log("HTMLElement node ---", `<${node.tagName.toLowerCase()}>`);
-	}
+  if (node instanceof Comment) {
+    // 注释节点
+    console.log("Comment node ---", node.textContent);
+  }
+  if (node instanceof Text) {
+    // 文本节点
+    const t = node.textContent?.trim();
+    if (t) {
+      console.log("Text node ---", t);
+    }
+  }
+  if (node instanceof HTMLElement) {
+    // element节点
+    console.log("HTMLElement node ---", `<${node.tagName.toLowerCase()}>`);
+  }
 }
 ```
 
@@ -713,18 +713,18 @@ function visitNode(node) {
 
 ```js
 function bfs(root) {
-	const queue = [];
-	// 根节点入队
-	queue.unshift(root);
-	while (queue.length) {
-		const curNode = queue.pop();
-		visitNode(curNode); // 工具函数，判断节点类型然后做需要的处理
-		// 子节点入队
-		const childNodes = curNode.childNodes;
-		if (childNodes.length) {
-			childNodes.forEach((child) => queue.unshift(child));
-		}
-	}
+  const queue = [];
+  // 根节点入队
+  queue.unshift(root);
+  while (queue.length) {
+    const curNode = queue.pop();
+    visitNode(curNode); // 工具函数，判断节点类型然后做需要的处理
+    // 子节点入队
+    const childNodes = curNode.childNodes;
+    if (childNodes.length) {
+      childNodes.forEach((child) => queue.unshift(child));
+    }
+  }
 }
 ```
 
@@ -732,19 +732,19 @@ function bfs(root) {
 
 ```js
 function curry(fn) {
-	const fnArgsLength = fn.length;
-	let args = [];
+  const fnArgsLength = fn.length;
+  let args = [];
 
-	function calc(...newArgs) {
-		args = [...args, ...newArgs];
-		if (args.length < fnArgsLength) {
-			return calc;
-		} else {
-			return fn.apply(this, args.slice(0, fnArgsLength));
-		}
-	}
+  function calc(...newArgs) {
+    args = [...args, ...newArgs];
+    if (args.length < fnArgsLength) {
+      return calc;
+    } else {
+      return fn.apply(this, args.slice(0, fnArgsLength));
+    }
+  }
 
-	return calc;
+  return calc;
 }
 ```
 
@@ -752,21 +752,21 @@ function curry(fn) {
 
 ```js
 function customCall(ctx, ...args) {
-	if (ctx == null) {
-		ctx = globalThis;
-	}
-	// 值类型返回一个包装类
-	if (typeof ctx !== "object") {
-		ctx = new Object(ctx);
-	}
-	// 防止属性名覆盖
-	const fnKey = Symbol();
-	// this就是当前的函数
-	ctx[fnKey] = this;
-	const res = ctx[fnKey](...args);
-	// 清理掉fn，防止污染
-	delete ctx[fnKey];
-	return res;
+  if (ctx == null) {
+    ctx = globalThis;
+  }
+  // 值类型返回一个包装类
+  if (typeof ctx !== "object") {
+    ctx = new Object(ctx);
+  }
+  // 防止属性名覆盖
+  const fnKey = Symbol();
+  // this就是当前的函数
+  ctx[fnKey] = this;
+  const res = ctx[fnKey](...args);
+  // 清理掉fn，防止污染
+  delete ctx[fnKey];
+  return res;
 }
 ```
 
@@ -774,18 +774,18 @@ function customCall(ctx, ...args) {
 
 ```js
 function customApply(ctx, args) {
-	if (ctx == null) {
-		ctx = globalThis;
-	}
-	// 值类型返回一个包装类
-	if (typeof ctx !== "object") {
-		ctx = new Object(ctx);
-	}
-	const fnKey = Symbol();
-	ctx[fnKey] = this;
-	const res = ctx[fnKey](...args);
-	delete ctx[fnKey];
-	return res;
+  if (ctx == null) {
+    ctx = globalThis;
+  }
+  // 值类型返回一个包装类
+  if (typeof ctx !== "object") {
+    ctx = new Object(ctx);
+  }
+  const fnKey = Symbol();
+  ctx[fnKey] = this;
+  const res = ctx[fnKey](...args);
+  delete ctx[fnKey];
+  return res;
 }
 ```
 
@@ -796,41 +796,41 @@ function customApply(ctx, args) {
 	this.events：存放各种类型对应的全部事件函数，格式：{key1:[{fn:fn1, isOnce: false},{fn:fn2, isOnce: true}],key2:[],...}
 */
 class EventBus {
-	constructor() {
-		this.events = {};
-	}
-	on(type, fn, isOnce = false) {
-		const events = this.events;
-		if (events[type] == null) {
-			events[type] = [];
-		}
-		events[type].push({ fn, isOnce });
-	}
-	once(type, fn) {
-		this.on(type, fn, true);
-	}
-	off(type, fn) {
-		if (!fn) {
-			this.events = [type];
-		} else {
-			const fnList = this.events[type];
-			if (fnList) {
-				this.events[type] = fnList.filter((item) => item.fn !== fn);
-			}
-		}
-	}
-	emit(type, ...args) {
-		const fnList = this.events[type];
-		if (!fnList) return;
-		// 注意，使用filter，实现遍历执行并且把once的执行后移除
-		this.events[type] = fnList.filter((item) => {
-			const { fn, isOnce } = item;
+  constructor() {
+    this.events = {};
+  }
+  on(type, fn, isOnce = false) {
+    const events = this.events;
+    if (events[type] == null) {
+      events[type] = [];
+    }
+    events[type].push({ fn, isOnce });
+  }
+  once(type, fn) {
+    this.on(type, fn, true);
+  }
+  off(type, fn) {
+    if (!fn) {
+      this.events = [type];
+    } else {
+      const fnList = this.events[type];
+      if (fnList) {
+        this.events[type] = fnList.filter((item) => item.fn !== fn);
+      }
+    }
+  }
+  emit(type, ...args) {
+    const fnList = this.events[type];
+    if (!fnList) return;
+    // 注意，使用filter，实现遍历执行并且把once的执行后移除
+    this.events[type] = fnList.filter((item) => {
+      const { fn, isOnce } = item;
 
-			fn(...args);
+      fn(...args);
 
-			return isOnce ? false : true;
-		});
-	}
+      return isOnce ? false : true;
+    });
+  }
 }
 ```
 
@@ -840,29 +840,29 @@ class EventBus {
 
 ```js
 class LRUCache {
-	length = undefined;
-	data = new Map();
-	constructor(length) {
-		if (!length) throw new Error("Invalid length!");
-		this.length = length;
-	}
-	set(key, value) {
-		const data = this.data;
-		if (data.has(key)) data.delete(key);
-		data.set(key, value);
-		if (data.size > this.length) {
-			const deleteKey = data.keys().next().value;
-			data.delete(deleteKey);
-		}
-	}
-	get(key) {
-		const data = this.data;
-		if (!data.has(key)) return null;
-		const val = data.get(key);
-		data.delete(key);
-		data.set(key, val);
-		return val;
-	}
+  length = undefined;
+  data = new Map();
+  constructor(length) {
+    if (!length) throw new Error("Invalid length!");
+    this.length = length;
+  }
+  set(key, value) {
+    const data = this.data;
+    if (data.has(key)) data.delete(key);
+    data.set(key, value);
+    if (data.size > this.length) {
+      const deleteKey = data.keys().next().value;
+      data.delete(deleteKey);
+    }
+  }
+  get(key) {
+    const data = this.data;
+    if (!data.has(key)) return null;
+    const val = data.get(key);
+    data.delete(key);
+    data.set(key, val);
+    return val;
+  }
 }
 ```
 
@@ -870,24 +870,24 @@ class LRUCache {
 
 ```js
 function convert2Tree(arr) {
-	const idToTreeNode = new Map();
-	let root = null;
+  const idToTreeNode = new Map();
+  let root = null;
 
-	arr.forEach((item) => {
-		const { id, name, parentId } = item;
+  arr.forEach((item) => {
+    const { id, name, parentId } = item;
 
-		const treeNode = { id, name };
-		idToTreeNode.set(id, treeNode);
+    const treeNode = { id, name };
+    idToTreeNode.set(id, treeNode);
 
-		const parentNode = idToTreeNode.get(parentId);
-		if (parentNode) {
-			if (parentNode.children == null) parentNode.children = [];
-			parentNode.children.push(treeNode);
-		}
+    const parentNode = idToTreeNode.get(parentId);
+    if (parentNode) {
+      if (parentNode.children == null) parentNode.children = [];
+      parentNode.children.push(treeNode);
+    }
 
-		if (parentId === 0) root = treeNode;
-	});
-	return root;
+    if (parentId === 0) root = treeNode;
+  });
+  return root;
 }
 ```
 
@@ -895,32 +895,32 @@ function convert2Tree(arr) {
 
 ```js
 function convert2Array(root) {
-	const arr = [];
-	// 用来存 子节点和父节点的映射关系
-	const nodeToParent = new Map();
+  const arr = [];
+  // 用来存 子节点和父节点的映射关系
+  const nodeToParent = new Map();
 
-	// 广度优先用队列先进先出 unshift+pop
-	const queue = [];
-	queue.unshift(root);
+  // 广度优先用队列先进先出 unshift+pop
+  const queue = [];
+  queue.unshift(root);
 
-	while (queue.length) {
-		const curNode = queue.pop();
-		if (curNode == null) break;
+  while (queue.length) {
+    const curNode = queue.pop();
+    if (curNode == null) break;
 
-		const { id, name, children = [] } = curNode;
+    const { id, name, children = [] } = curNode;
 
-		const parentNode = nodeToParent.get(curNode);
-		const parentId = parentNode?.id || 0;
-		const item = { id, name, parentId };
-		arr.push(item);
+    const parentNode = nodeToParent.get(curNode);
+    const parentId = parentNode?.id || 0;
+    const item = { id, name, parentId };
+    arr.push(item);
 
-		children.forEach((node) => {
-			nodeToParent.set(node, curNode);
-			queue.unshift(node);
-		});
-	}
+    children.forEach((node) => {
+      nodeToParent.set(node, curNode);
+      queue.unshift(node);
+    });
+  }
 
-	return arr;
+  return arr;
 }
 ```
 
@@ -928,35 +928,35 @@ function convert2Array(root) {
 
 ```js
 class LazyMan {
-	constructor(name) {
-		this.name = name;
-		this.tasks = [];
-		setTimeout(() => {
-			this.next();
-		}, 0);
-	}
+  constructor(name) {
+    this.name = name;
+    this.tasks = [];
+    setTimeout(() => {
+      this.next();
+    }, 0);
+  }
 
-	next() {
-		const task = this.tasks.shift();
-		if (task) task();
-	}
+  next() {
+    const task = this.tasks.shift();
+    if (task) task();
+  }
 
-	sleep(delay) {
-		this.tasks.push(() => {
-			setTimeout(() => {
-				this.next();
-			}, delay * 1000);
-		});
-		return this;
-	}
+  sleep(delay) {
+    this.tasks.push(() => {
+      setTimeout(() => {
+        this.next();
+      }, delay * 1000);
+    });
+    return this;
+  }
 
-	eat(food) {
-		this.tasks.push(() => {
-			console.log(`eat ${food}`);
-			this.next();
-		});
-		return this;
-	}
+  eat(food) {
+    this.tasks.push(() => {
+      console.log(`eat ${food}`);
+      this.next();
+    });
+    return this;
+  }
 }
 ```
 
@@ -967,14 +967,14 @@ class LazyMan {
 
 ```js
 function process(arr, l, r) {
-	if (l === r) return arr[l]; // 只有一个数时直接返回
-	let mid = l + ((r - l) >> 1); // 位运算比除法快
-	let lMax = process(arr, l, mid);
-	let rMax = process(arr, mid + 1, r);
-	return Math.max(lMax, rMax);
+  if (l === r) return arr[l]; // 只有一个数时直接返回
+  let mid = l + ((r - l) >> 1); // 位运算比除法快
+  let lMax = process(arr, l, mid);
+  let rMax = process(arr, mid + 1, r);
+  return Math.max(lMax, rMax);
 }
 function getMax(arr) {
-	return process(arr, 0, arr.length - 1);
+  return process(arr, 0, arr.length - 1);
 }
 ```
 
@@ -1074,7 +1074,7 @@ rules: [
 
 ```html
 <script type="module">
-	import lodash from "https://cdn.skypack.dev/lodash";
+  import lodash from "https://cdn.skypack.dev/lodash";
 </script>
 ```
 
@@ -1091,12 +1091,12 @@ lodash.get({ a: 3 }, "a");
 
 ```html
 <script type="importmap">
-	{
-		"imports": {
-			"lodash": "https://cdn.skypack.dev/lodash",
-			"ms": "https://cdn.skypack.dev/ms"
-		}
-	}
+  {
+    "imports": {
+      "lodash": "https://cdn.skypack.dev/lodash",
+      "ms": "https://cdn.skypack.dev/ms"
+    }
+  }
 </script>
 ```
 
@@ -1104,9 +1104,9 @@ lodash.get({ a: 3 }, "a");
 
 ```html
 <script type="module">
-	import data from "./data.json" assert { type: "json" };
+  import data from "./data.json" assert { type: "json" };
 
-	console.log(data);
+  console.log(data);
 </script>
 ```
 
@@ -1496,7 +1496,7 @@ CDN 的核心点有两个，一个是缓存，一个是回源。“缓存”就�
 - 远程访问用户根据 DNS 负载均衡技术智能自动选择 Cache 服务器
 
 2. 缺点
-   
+
 - 当源服务器资源更新后，如果 CDN 节点上缓存数据还未过期，用户访问到的依旧是过期的缓存资源，这会导致用户最终访问出现偏差。因此，开发者需要手动刷新相关资源，使 CDN 缓存保持为最新的状态。
 
 ### 简述 bundless 的优势与不足
@@ -1753,16 +1753,16 @@ node_modules
 
 ```ts
 class SingleTon {
-	private static instance: SingleTon | null = null;
-	private constructor() {}
-	public static getInstance(): SingleTon {
-		if (this.instance === null) {
-			this.instance = new SingleTon();
-		}
-		return this.instance;
-	}
-	fn1() {}
-	fn2() {}
+  private static instance: SingleTon | null = null;
+  private constructor() {}
+  public static getInstance(): SingleTon {
+    if (this.instance === null) {
+      this.instance = new SingleTon();
+    }
+    return this.instance;
+  }
+  fn1() {}
+  fn2() {}
 }
 
 const sig = SingleTon.getInstance();
@@ -1887,9 +1887,9 @@ Decorator：装饰类或者方法，不会修改原有的功能，只是增加�
 
 ```js
 function MockNew(Parent, ...args) {
-	const obj = Object.create(Parent.prototype);
-	const result = Parent.apply(obj, args);
-	return typeof result === "object" ? result : obj;
+  const obj = Object.create(Parent.prototype);
+  const result = Parent.apply(obj, args);
+  return typeof result === "object" ? result : obj;
 }
 ```
 
@@ -1902,10 +1902,10 @@ function MockNew(Parent, ...args) {
 
 ```js
 function MockNew(Parent, ...args) {
-	const obj = {};
-	obj.proto = Parent.prototype;
-	const result = Parent.apply(obj, args);
-	return typeof result === "object" ? result : obj;
+  const obj = {};
+  obj.proto = Parent.prototype;
+  const result = Parent.apply(obj, args);
+  return typeof result === "object" ? result : obj;
 }
 ```
 
@@ -2375,32 +2375,32 @@ activated(){
 
 ```json
 {
-	"_input_charset": "utf-8",
-	"tk": "f88fe5116a335",
-	"_tb_token_": "f88fe5116a335",
-	"data": [
-		{
-			"shopId": "s_3910391259",
-			"comboId": 0,
-			"shopActId": 0,
-			"cart": [
-				{
-					"quantity": 43,
-					"cartId": "4117652227290",
-					"skuId": "4811854276366",
-					"itemId": "644712582517"
-				}
-			],
-			"operate": ["4117652227290"],
-			"type": "update"
-		}
-	],
-	"shop_id": 0,
-	"t": 1656004343910,
-	"type": "update",
-	"ct": "e5798e786c8a9627ee23ada7a462673c",
-	"page": 1,
-	"_thwlang": "zh_CN"
+  "_input_charset": "utf-8",
+  "tk": "f88fe5116a335",
+  "_tb_token_": "f88fe5116a335",
+  "data": [
+    {
+      "shopId": "s_3910391259",
+      "comboId": 0,
+      "shopActId": 0,
+      "cart": [
+        {
+          "quantity": 43,
+          "cartId": "4117652227290",
+          "skuId": "4811854276366",
+          "itemId": "644712582517"
+        }
+      ],
+      "operate": ["4117652227290"],
+      "type": "update"
+    }
+  ],
+  "shop_id": 0,
+  "t": 1656004343910,
+  "type": "update",
+  "ct": "e5798e786c8a9627ee23ada7a462673c",
+  "page": 1,
+  "_thwlang": "zh_CN"
 }
 ```
 
@@ -2427,10 +2427,10 @@ activated(){
  * 精确加法
  */
 function add(num1, num2) {
-	const num1Digits = (num1.toString().split(".")[1] || "").length;
-	const num2Digits = (num2.toString().split(".")[1] || "").length;
-	const baseNum = Math.pow(10, Math.max(num1Digits, num2Digits));
-	return (num1 * baseNum + num2 * baseNum) / baseNum;
+  const num1Digits = (num1.toString().split(".")[1] || "").length;
+  const num2Digits = (num2.toString().split(".")[1] || "").length;
+  const baseNum = Math.pow(10, Math.max(num1Digits, num2Digits));
+  return (num1 * baseNum + num2 * baseNum) / baseNum;
 }
 ```
 
@@ -2479,35 +2479,35 @@ Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSoc
 
 ```js
 const arr = [
-	{ id: 1, name: "部门1", pid: 0 },
-	{ id: 2, name: "部门2", pid: 1 },
-	{ id: 3, name: "部门3", pid: 1 },
-	{ id: 4, name: "部门4", pid: 3 },
-	{ id: 5, name: "部门5", pid: 4 },
+  { id: 1, name: "部门1", pid: 0 },
+  { id: 2, name: "部门2", pid: 1 },
+  { id: 3, name: "部门3", pid: 1 },
+  { id: 4, name: "部门4", pid: 3 },
+  { id: 5, name: "部门5", pid: 4 },
 ];
 // 转为tree
 [
-	{
-		id: 1,
-		name: "部门1",
-		pid: 0,
-		children: [
-			{
-				id: 2,
-				name: "部门2",
-				pid: 1,
-				children: [],
-			},
-			{
-				id: 3,
-				name: "部门3",
-				pid: 1,
-				children: [
-					// 结果 ,,,
-				],
-			},
-		],
-	},
+  {
+    id: 1,
+    name: "部门1",
+    pid: 0,
+    children: [
+      {
+        id: 2,
+        name: "部门2",
+        pid: 1,
+        children: [],
+      },
+      {
+        id: 3,
+        name: "部门3",
+        pid: 1,
+        children: [
+          // 结果 ,,,
+        ],
+      },
+    ],
+  },
 ];
 
 // 1
@@ -2515,85 +2515,85 @@ const arr = [
  * 递归查找，获取children
  */
 const getChildren = (data, result, pid) => {
-	for (const item of data) {
-		if (item.pid === pid) {
-			const newItem = { ...item, children: [] };
-			result.push(newItem);
-			getChildren(data, newItem.children, item.id);
-		}
-	}
+  for (const item of data) {
+    if (item.pid === pid) {
+      const newItem = { ...item, children: [] };
+      result.push(newItem);
+      getChildren(data, newItem.children, item.id);
+    }
+  }
 };
 
 /**
  * 转换方法
  */
 const arrayToTree = (data, pid) => {
-	const result = [];
-	getChildren(data, result, pid);
-	return result;
+  const result = [];
+  getChildren(data, result, pid);
+  return result;
 };
 
 // 2
 function arrayToTree(items) {
-	const result = []; // 存放结果集
-	const itemMap = {}; //
+  const result = []; // 存放结果集
+  const itemMap = {}; //
 
-	// 先转成map存储
-	for (const item of items) {
-		itemMap[item.id] = { ...item, children: [] };
-	}
+  // 先转成map存储
+  for (const item of items) {
+    itemMap[item.id] = { ...item, children: [] };
+  }
 
-	for (const item of items) {
-		const id = item.id;
-		const pid = item.pid;
-		const treeItem = itemMap[id];
-		if (pid === 0) {
-			result.push(treeItem);
-		} else {
-			if (!itemMap[pid]) {
-				itemMap[pid] = {
-					children: [],
-				};
-			}
-			itemMap[pid].children.push(treeItem);
-		}
-	}
-	return result;
+  for (const item of items) {
+    const id = item.id;
+    const pid = item.pid;
+    const treeItem = itemMap[id];
+    if (pid === 0) {
+      result.push(treeItem);
+    } else {
+      if (!itemMap[pid]) {
+        itemMap[pid] = {
+          children: [],
+        };
+      }
+      itemMap[pid].children.push(treeItem);
+    }
+  }
+  return result;
 }
 
 // 3 性能最优
 function arrayToTree(items, rootId) {
-	const result = []; // 存放结果集
-	const itemMap = {}; //
-	for (const item of items) {
-		const id = item.id;
-		const pid = item.pid;
+  const result = []; // 存放结果集
+  const itemMap = {}; //
+  for (const item of items) {
+    const id = item.id;
+    const pid = item.pid;
 
-		if (!itemMap[id]) {
-			itemMap[id] = {
-				children: [],
-			};
-		}
+    if (!itemMap[id]) {
+      itemMap[id] = {
+        children: [],
+      };
+    }
 
-		itemMap[id] = {
-			...item,
-			children: itemMap[id]["children"],
-		};
+    itemMap[id] = {
+      ...item,
+      children: itemMap[id]["children"],
+    };
 
-		const treeItem = itemMap[id];
+    const treeItem = itemMap[id];
 
-		if (pid === rootId) {
-			result.push(treeItem);
-		} else {
-			if (!itemMap[pid]) {
-				itemMap[pid] = {
-					children: [],
-				};
-			}
-			itemMap[pid].children.push(treeItem);
-		}
-	}
-	return result;
+    if (pid === rootId) {
+      result.push(treeItem);
+    } else {
+      if (!itemMap[pid]) {
+        itemMap[pid] = {
+          children: [],
+        };
+      }
+      itemMap[pid].children.push(treeItem);
+    }
+  }
+  return result;
 }
 ```
 
@@ -2604,15 +2604,69 @@ function arrayToTree(items, rootId) {
 
 ```js
 function test() {
-	var x = 2,
-		y = 4;
-	console.log(eval("x + y")); // 直接调用，使用本地作用域，结果是 6
+  var x = 2,
+    y = 4;
+  console.log(eval("x + y")); // 直接调用，使用本地作用域，结果是 6
 
-	var geval = eval; // 等价于在全局作用域调用
-	console.log(geval("x + y")); // 间接调用，使用全局作用域，throws ReferenceError 因为`x`未定义
+  var geval = eval; // 等价于在全局作用域调用
+  console.log(geval("x + y")); // 间接调用，使用全局作用域，throws ReferenceError 因为`x`未定义
 }
 ```
 
 3. `(0,eval)` 属于间接调用，使用的是 全局作用域，this 指向的是全局上下文。
 4. 为什么不用 call / apply 指定全局上下文 window ? 是为预防 call / apply 被篡改后，导致程序运行异常。
 5. 为什么逗号操作符用 0 ? 其实，用其他数字或者字符串也是没问题的。至于为什么用 (0, function) ? 可以说是业界的默认规则。如果硬要说个为什么，可能是 0 在二进制的物理存储方式上，占用的空间较小。
+
+## 并发请求
+
+```js
+// 给定一个待请求的url数组，和允许同时发出的最大请求数，写一个函数fetch并发请求，要求最大并发数为maxNum，并且尽可能快的完成所有请求
+const urls = [
+  "https://jsonplaceholder.typicode.com/posts/1",
+  "https://jsonplaceholder.typicode.com/posts/2",
+  "https://jsonplaceholder.typicode.com/posts/3",
+  "https://jsonplaceholder.typicode.com/posts/4",
+  "https://jsonplaceholder.typicode.com/posts/5",
+  "https://jsonplaceholder.typicode.com/posts/6",
+  "https://jsonplaceholder.typicode.com/posts/7",
+  "https://jsonplaceholder.typicode.com/posts/8",
+  "https://jsonplaceholder.typicode.com/posts/9",
+  "https://jsonplaceholder.typicode.com/posts/10",
+];
+function fetchUrls(urls, maxNum) {
+  return new Promise((resolve) => {
+    if (urls.length === 0) {
+      resolve([]);
+      return;
+    }
+    const results = [];
+    let count = 0;
+    let index = 0;
+    async function request() {
+      if (index === urls.length) {
+        return;
+      }
+      const url = urls[index];
+      const cur = index;
+      index++;
+
+      try {
+        const res = await fetch(url);
+        results[cur] = res;
+      } catch (e) {
+        results[cur] = e;
+      } finally {
+        count++;
+        if (count === urls.length) {
+          resolve(results);
+        }
+        request();
+      }
+    }
+    const times = Math.min(maxNum, urls.length);
+    for (let i = 0; i < times; i++) {
+      request();
+    }
+  });
+}
+```

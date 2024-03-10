@@ -9,6 +9,10 @@ meta:
 
 ## Tips
 
+### 复合属性
+
+设置复合属性如`background`、`flex`、`border`、`font`、`padding`、`margin`、`list-style`、`border-radius`、`transition`、`animation`等时，可以使用缩写，减少代码量。但同时要注意不要覆盖掉其他属性。
+
 ### 设置阴影
 
 当使用透明图像时，可以使用 `filter: drop-shadow()` 函数在图像上创建阴影，而不是使用 `box-shadow` 属性在元素的整个框后面创建矩形阴影。值与`box-shadow`相同，但不允许使用`inset`关键字和扩散值。可以随心所欲地添加阴影，通过在`filter`属性中添加多个`drop-shadow`值的实例。每个阴影将使用前一个阴影作为定位参考点。
@@ -33,7 +37,6 @@ meta:
 - `text-shadow`属性与`box-shadow`属性非常相似。它只对文本节点起作用。
 - `text-shadow`的值与`box-shadow`相同，而且顺序相同。唯一不同的是，`text-shadow`没有扩散值，也没有`inset`关键字。
 - 同样也可以给 `text-shadow`添加多个 shadow
--
 
 ### 平滑滚动
 
@@ -310,7 +313,7 @@ html {
 
 ### 毛玻璃效果
 
-使用 `backdrop-filter: blur(6px);` 给元素后面区域添加模糊效果.
+使用 `backdrop-filter: blur(6px);` 给元素后面区域添加模糊效果，比如准备一个彩色图片，然后在图片上放一个div，给这个div添加`backdrop-filter: blur(6px);`，就可以看到图片被模糊了；如果添加`backdrop-filter: grayscale(1);`，就可以看到图片变成了黑白的，鼠标移入的时候，结合`transition: 2s; width: 0;`，就可以看到图片变成了彩色的。
 
 ### 改变输入框光标颜色
 
@@ -940,7 +943,7 @@ CSS `border`属性是`border-width`(default:`medium`)，`border-style`和`border
   content="
     width=device-width,  // 设置viewport的宽等于屏幕宽
     initial-scale=1.0,  // 初始缩放为1
-    maximum-scale=1.0, 
+    maximum-scale=1.0,
     user-scalable=no,  // 不允许用户手动缩放
     viewport-fit=cover // 缩放以填充满屏幕
     " />
