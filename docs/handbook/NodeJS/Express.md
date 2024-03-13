@@ -26,9 +26,17 @@ date: "2024-01-27"
 16. 使用`body-parser`解析请求体
 17. 使用`mongoose`操作数据库
 18. 使用`mongodb`操作数据库
-19. 使用
-20. 使用
-21. 简单 demo：
+19. 使用`bcrypt`加密密码
+20. 使用`jsonwebtoken`生成 token
+21. 使用`express-rate-limit`限制请求频率
+22. 使用`helmet`设置安全相关的 HTTP 头
+23. 使用`compression`压缩响应体
+24. 使用`connect-mongo`将 session 存储到 mongodb 中
+25. 接入OAUTH2.0，使用`passport-oauth2`，`passport-google-oauth20`，`passport-facebook`等
+26. 使用`jest`进行单元测试
+27. 使用
+28. 使用
+29. 简单 demo：
 
 ```js
 import express from "express";
@@ -37,12 +45,13 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
 import mongoose from "mongoose";
+import MongoStore from "connect-mongo";
 import usersRouter from "./router/user.mjs";
 import {userValidationSchemas} from "./validation/validationSchemas.mjs";
 import {mockUsers} from "./mock/users.mjs";
 import "./passport-local.mjs";
 import {User} from "./mongoose/schemas/user.mjs";
-
+import {hashPassword} from "./utils/helper.mjs";
 
 // 注册passport策略
 // passport.use(require("./local-strategy.mjs"));
@@ -78,11 +87,19 @@ app.post("/api/auth", passport.authenticate("local"), (req, res) => {
 
 app.use(session({
   secret: "xxx",
-  saveUninitialized: false,
+  saveUninitialized: false, // 是否自动保存未初始化的会话，建议false
   resave: false,
   cookie: {
-    maxAge: 60*1000
-  }
+    maxAge: 60*60*1000
+  },
+  // MongoStore: MongoStore.create({
+  //   mongoUrl: "mongodb://localhost/test",
+  //   collectionName: "sessions"
+  // })
+  // 使用connect-mongo把session存储到mongodb中，这样就可以重启服务后不会丢失session
+  store: MongoStore.create({
+    client: mongoose.connection.getClient(),
+  })
 }));
 // 使用use注册路由
 app.use(usersRouter);
@@ -208,6 +225,8 @@ app.post(
     }
     const data = matchedData(req);
     // const {body} = req;
+    // 加密密码
+    data.password = await hashPassword(data.password);
     const user = new User(data);
     try {
       const savedData = await user.save();
@@ -241,7 +260,7 @@ app.listen(PORT, () => {
 
 
 // validationSchemas.mjs
-export const userValidationSchemas={
+export const userValidationSchemas = {
   username:{
     isLength:{
       options:{
@@ -275,30 +294,58 @@ export default router;
 // local-strategy.mjs
 import passport from "passport";
 import { Strategy } from "passport-local";
-
+import { mockUsers } from "./mock/users.mjs";
+import { User } from "./mongoose/schemas/user.mjs";
+import { comparePassword } from "./utils/helper.mjs";
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
 
-passport.deserializeUser((id, done) => {
-  const user = mockUsers.find(user => user.id === id);
-  if (!user) {
-    return done(null, false);
+passport.deserializeUser(async(id, done) => {
+  console.log(`Inside Deserializer`);
+  console.log(`Deserialize User ID: ${id}`);
+  try {
+    const user = await User.findById(id);
+    // const user = mockUsers.find(user => user.id === id);
+    if (!user) {
+      throw new Error("user not found");
+    }
+    done(null, user);
+  }catch (err) {
+    done(err, null);
   }
-  done(null, user);
 });
 
-export default passport.use(new Strategy({
-  usernameField: "username",
-  passwordField: "password"
-}, (username, password, done) => {
-  const user = mockUsers.find(user => user.username === username && user.password === password);
-  if (!user) {
-    return done(null, false, { message: "Incorrect username or password." });
-  }
-  return done(null, user);
-}));
+export default passport.use(
+  new Strategy(
+  //  {
+  //    usernameField: "username",
+  //    passwordField: "password"
+  //  },
+    async (username, password, done) => {
+      console.log(`username: ${username}, password: ${password}`);
+      try {
+        const findUser = await User.findOne({username});
+        if(!findUser){
+          throw new Error("user not found");
+        }
+        // if(findUser.password!==password){
+        if(comparePassword(password, findUser.password)){
+          throw new Error("password not match");
+        }
+        done(null, findUser);
+      } catch (err) {
+        done(err, null);
+      }
+    //  const user = mockUsers.find(user => user.username === username && user.password === password);
+    //  if (!user) {
+    //    return done(null, false, { message: "Incorrect username or password." });
+    //  }
+    //  return done(null, user);
+    }
+  )
+);
 
 
 // ./mongoose/schames/user.mjs
@@ -331,4 +378,20 @@ const userSchema = new mongoose.Schema({
 });
 
 export const User = mongoose.model("User", userSchema);
+
+// ./utils/helper.mjs
+import bcrypt from "bcrypt";
+
+const saltRounds = 10;
+
+export const hashPassword = async password => {
+  const salt = await bcrypt.genSaltSync(saltRounds);
+  const hash = await bcrypt.hashSync(password, salt);
+  return hash;
+};
+
+export const comparePassword = async (password, hash) => {
+  const result = await bcrypt.compareSync(password, hash);
+  return result;
+};
 ```

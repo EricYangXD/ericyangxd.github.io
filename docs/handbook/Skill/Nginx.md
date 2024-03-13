@@ -569,3 +569,10 @@ $request_uri 包含请求参数的原始URI
 $uri 不带请求参数的当前URI
 $document_uri 与$uri相同
 ```
+
+### 本地nginx
+
+1. 安装：`brew install nginx`
+2. 安装位置：`/usr/local/Cellar/nginx/1.25.3`
+3. 配置文件：`/usr/local/etc/nginx/nginx.conf`
+4. 重启（不一定有用）：`brew services restart nginx`

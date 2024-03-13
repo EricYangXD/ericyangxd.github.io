@@ -343,6 +343,10 @@ module.exports = {
             title: "Emoji表情",
             path: "/handbook/Skill/Emoji",
           },
+          {
+            title: "Tauri",
+            path: "/handbook/Skill/Tauri",
+          },
         ],
       },
       {
@@ -443,6 +447,10 @@ module.exports = {
           {
             title: "Nodejs相关知识点",
             path: "/handbook/NodeJS/Nodejs",
+          },
+          {
+            title: "Express Doc",
+            path: "/handbook/NodeJS/Express",
           },
         ],
       },

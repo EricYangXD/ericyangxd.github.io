@@ -474,22 +474,31 @@ export class AppModule {}
 2. DOM 中绑定变量
 
 ```html
-<input type="text" [(ngModel)]="username" (ngModelChange)="ngModelChangeHandler()" />
+<!-- 一般的双向绑定 -->
+<input type="text" [(ngModel)]="username1" />
+<!-- 更灵活 -->
+<input type="text" [ngModel]="username2" (ngModelChange)="ngModelChangeHandler($event)" />
 <button (click)="change()">在组件类中更改 username</button>
-<div>username: {{ username }}</div>
+<div>username1: {{ username1 }}</div>
+<div>username2: {{ username2 }}</div>
+<div>parsedname: {{ parsedName }}</div>
 ```
 
 3. js 中声明变量
 
 ```javascript
 export class AppComponent {
-  username: string = "";
+  username1: string = "";
+  username2: string = "";
+  parsedName: string = "";
+
   change() {
-    this.username = "hello Angular";
+    this.username2 = "hello Angular";
   }
   // ngModel绑定的数据发生变化时触发
-  ngModelChangeHandler() {
+  ngModelChangeHandler(e) {
     //...
+    this.parsedName = "Parsed" + e.trim();
   }
 }
 ```

@@ -547,3 +547,49 @@ getUsers.addImpl("string", () => console.log("按照姓名查询用户"));
 
 getUsers();
 ```
+
+## 画中画
+
+```html
+<body>
+  <video
+    id="video"
+    height="500px"
+    width="800px"
+    src="../Downloads//Have the superpower of fixing containers.mp4"></video>
+  <button id="pipButton">Open Picture-in-Picture</button>
+  <script>
+    const video = document.getElementById("video");
+    const pipButton = document.getElementById("pipButton");
+
+    pipButton.disabled = !document.pictureInPictureEnabled;
+
+    pipButton.addEventListener("click", async () => {
+      try {
+        if (video !== document.pictureInPictureElement) {
+          await video.requestPictureInPicture();
+        } else {
+          await document.exitPictureInPicture();
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        updateVideoButton();
+      }
+    });
+
+    video.addEventListener("enterpictureinpicture", () => {
+      pipButton.textContent = "Exit Picture-in-Picture";
+    });
+
+    video.addEventListener("leavepictureinpicture", () => {
+      pipButton.textContent = "Enter Picture-in-Picture";
+    });
+
+    function updateVideoButton() {
+      pipButton.textContent =
+        video === document.pictureInPictureElement ? "Exit Picture-in-Picture" : "Enter Picture-in-Picture";
+    }
+  </script>
+</body>
+```
