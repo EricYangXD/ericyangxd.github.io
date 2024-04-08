@@ -297,6 +297,16 @@ html {
 
 - `font-variant:small-caps;` 可以实现把段落设置为小型大写字母字体，这意味着所有的小写字母均会被转换为大写，但是所有使用小型大写字体的字母与其余文本相比，其字体尺寸更小。
 
+### text-transform
+
+使用 CSS 在网页上显示每个单词首字母大写的文本，你可以使用：
+
+```css
+p {
+  text-transform: capitalize;
+}
+```
+
 ### offsetWidth、clientWidth、scrollWidth、scrollTop 的区别
 
 1. offsetWidth：border+padding+content;
