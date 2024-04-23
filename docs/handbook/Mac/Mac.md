@@ -137,6 +137,51 @@ mkdir ~/Library/Application\ Support/Google/Chrome/NativeMessagingHosts
 chmod +wx ~/Library/Application\ Support/Google/Chrome/NativeMessagingHost
 ```
 
+### Postman 将接口响应设置为变量
+
+下面以调用高德地图地址街道信息查询接口为例，它有两个接口：第一个接口将地址转换为经纬度，第二个接口将经纬度转换为街道信息。我们需要先把第一个接口的返回值中的经纬度提取出来，设为环境变量，然后再调用第二个接口并带上经纬度信息。
+
+0. 先了解一下 Postman 中的一些关键字：
+
+   - responseBody：响应体
+   - pm.environment.set(key, value)：设置环境变量
+   - pm.environment.get(key)：获取环境变量
+   - pm.collectionVariables.set(key, value)：设置集合变量
+   - pm.collectionVariables.get(key)：获取集合变量
+   - eval()：执行返回的 JSONP 响应代码
+
+1. 在第一个接口的 Tests 中添加脚本
+
+```js
+// 这是从服务器返回的JSONP响应示例
+// let response = 'jsonp_350556_({"status":"1","info":"OK","infocode":"10000","count":"1","geocodes":[{"formatted_address":"上海市浦东新区潍坊路375弄","country":"中国","province":"上海市","citycode":"021","city":"上海市","district":"浦东新区","township":[],"neighborhood":{"name":[],"type":[]},"building":{"name":[],"type":[]},"adcode":"310115","street":"潍坊路375弄","number":[],"location":"121.531411,31.228451","level":"道路"}]})';
+
+// 接口返回一个JSONP响应字符串
+// 定义一个与JSONP响应中的回调函数同名的函数
+function jsonp_350556_(data) {
+  // 在这里处理你的数据
+  console.log(data);
+  return data.geocodes;
+}
+
+// 这是从服务器返回的JSONP响应
+let response = responseBody;
+
+// 执行返回的JSONP响应代码
+const geocodes = eval(response);
+const [long, lat] = geocodes[0].location.split(",");
+
+// pm.environment.set("longitude", long);
+// pm.environment.set("latitude", lat);
+
+pm.collectionVariables.set("longitude", long);
+pm.collectionVariables.set("latitude", lat);
+```
+
+2. 在第二个接口的 Params 中找到 location 并使用`{{longitude}},{{latitude}}`的形式使用环境变量，注意区分全局变量、集合变量等。此处可以直接存 location。
+
+3. 后面使用接口查询的时候，需要先调用接口一，待响应成功之后，再调用接口二，然后去响应中查看对应字段，此处是 formatted_address。
+
 ## 修改 host
 
 ### 一.系统偏好设置修改

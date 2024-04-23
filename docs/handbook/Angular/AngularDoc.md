@@ -4411,3 +4411,68 @@ trigger("routerAnimations", [
   ]),
 ]);
 ```
+
+### 17. 测试
+
+使用 Jasmine 测试框架，测试文件的扩展名必须是 `.spec.ts`，以便测试工具可以把它识别成一个包含测试的文件，也叫 spec（规约） 文件。
+
+#### 单元测试
+
+使用 jest
+
+- `ng test` 命令在监视模式下构建应用，并启动 karma 测试运行器，可以点击某一行测试，来单独重跑这个测试，或者点击一行描述信息来重跑所选测试组（“测试套件”）中的那些测试。
+- `ng generate config karma`Angular CLI 会为你处理 Jasmine 和 Karma 配置。它根据 angular.json 文件中指定的选项在内存中构建完整配置。如果你想自定义 Karma，你可以通过运行以下命令创建一个 `karma.conf.js`。
+- `ng test --code-coverage` 可以运行单元测试并创建代码覆盖率报告。代码覆盖率报告会向你展示代码库中可能无法通过单元测试进行正确测试的任意部位。运行完成后找到生成的 coverage 目录，打开 index.html 即可查看。如果要在每次测试时都创建代码覆盖率报告，可以在 CLI 配置文件 angular.json 中设置以下选项：`test.options.codeCoverage = true`
+- 假设你希望代码库的代码覆盖率至少达到 80％。要启用此功能，请打开 Karma 测试平台的配置文件 karma.conf.js，并在 coverageReporter: 键下添加 check 属性。
+- `ng test --code-coverage --ChromeHeadless`
+- `ng test --no-watch --no-progress` 要在持续集成 (CI) 中测试你的 Angular CLI 应用程序，请运行该命令
+- `karma.conf.js`示例：
+
+```js
+// Karma configuration file, see link for more information
+// https://karma-runner.github.io/1.0/config/configuration-file.html
+
+module.exports = function (config) {
+  config.set({
+    basePath: "",
+    frameworks: ["jasmine", "@angular-devkit/build-angular"],
+    plugins: [
+      require("karma-jasmine"),
+      require("karma-chrome-launcher"),
+      require("karma-jasmine-html-reporter"),
+      require("@angular-devkit/build-angular/plugins/karma"),
+      require("karma-coverage-istanbul-reporter"),
+    ],
+    client: {
+      jasmine: {},
+      clearContext: false,
+    },
+    jasmineHtmlReporter: {
+      suppressAll: true,
+    },
+    coverageIstanbulReporter: {
+      // coverageReporter 适用于karma-coverage插件
+      reports: ["html", "lcovonly", "text-summary"],
+      dir: require("path").join(__dirname, "./coverage/project-name"),
+      subdir: ".",
+      fixWebpackSourcePaths: true,
+      skipFilesWithNoCoverage: true,
+      global: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
+      // 如果使用`ng test --code-coverage`的话，这里加exclude没有用，要在angular.json中加exclude才会生效
+    },
+    combineBrowserReports: true,
+    reporters: ["progress", "kjhtml", "coverage-istanbul"],
+    browsers: ["Chrome"],
+    restartOnFileChange: true,
+  });
+};
+```
+
+#### 集成测试
+
+#### E2E 测试
