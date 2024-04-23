@@ -334,6 +334,14 @@ conn.close()
 
 ### base64
 
+```python
+import base64
+
+with open("path/to/your/image.jpg", "rb") as image_file:
+    encoded_string = base64.b64encode(image_file.read())
+    print(encoded_string.decode('utf-8'))
+```
+
 ### subprocess
 
 ### threading

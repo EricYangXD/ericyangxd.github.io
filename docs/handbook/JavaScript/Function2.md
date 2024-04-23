@@ -288,3 +288,50 @@ function decodeHexToUtf8(str: string, isJsonStr = false): string | object {
   return _str;
 }
 ```
+
+### 将图片转换为 Base64 格式
+
+#### 在浏览器中使用 JavaScript
+
+```js
+function convertToBase64() {
+  // 获取文件输入控件中的文件列表
+  var file = document.querySelector("input[type=file]").files[0];
+  var reader = new FileReader();
+
+  reader.onloadend = function () {
+    console.log("Base64 String:", reader.result);
+  };
+
+  // 读取文件内容，并在完成后触发`onloadend`事件
+  reader.readAsDataURL(file);
+}
+
+// HTML部分
+// <input type="file" onchange="convertToBase64()">
+```
+
+#### 在 Node.js 中
+
+```js
+const fs = require("fs");
+
+// 异步读取
+fs.readFile("path/to/your/image.jpg", "base64", (err, base64Image) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+  console.log("Base64 String:", base64Image);
+});
+
+// 同步读取
+const base64Image = fs.readFileSync("path/to/your/image.jpg", "base64");
+console.log("Base64 String:", base64Image);
+```
+
+#### 在命令行（例如 Linux 或 macOS）中
+
+```bash
+base64 -i ./image.jpg > image_base64.txt
+```

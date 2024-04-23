@@ -137,6 +137,10 @@ mkdir ~/Library/Application\ Support/Google/Chrome/NativeMessagingHosts
 chmod +wx ~/Library/Application\ Support/Google/Chrome/NativeMessagingHost
 ```
 
+### 基础教程
+
+[Postman基础知识教程](https://apifox.com/apiskills/postman-tutorial-series/#postman-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E6%95%99%E7%A8%8B)
+
 ### Postman 将接口响应设置为变量
 
 下面以调用高德地图地址街道信息查询接口为例，它有两个接口：第一个接口将地址转换为经纬度，第二个接口将经纬度转换为街道信息。我们需要先把第一个接口的返回值中的经纬度提取出来，设为环境变量，然后再调用第二个接口并带上经纬度信息。

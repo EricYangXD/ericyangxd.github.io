@@ -412,10 +412,10 @@ test("getConfig测试", () => {
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`getConfig测试 1`] = `
-Object {
-  "port": "8080",
-  "server": "https://demo.com",
-}
+  Object {
+    "port": "8080",
+    "server": "https://demo.com",
+  }
 `;
 ```
 
