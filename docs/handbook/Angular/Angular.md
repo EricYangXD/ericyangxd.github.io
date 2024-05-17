@@ -930,6 +930,192 @@ longRequest() {
 }
 ```
 
+### HttpClient
+
+1. Angular 中的 HttpClient 在请求数据时会自动把 response data 当成 JSON 来解析，这样去请求就可以防止它自动 parse：`this.http.get(normalizedUrl, { responseType: 'text' }).then(…)`
+
+### 使用 Store
+
+1. 安装：`npm install @ngrx/store --save`
+2. 创建一个 store，它是一个单例对象，用来存储整个应用的状态。
+3. 创建一个 reducer 函数，它接收两个参数：当前的状态和一个 action，然后返回一个新的状态。
+4. 创建一个 action，它是一个简单的对象，包含一个 type 属性和一个 payload 属性。
+5. 创建一个 selector，它是一个纯函数，用来从 store 中选择部分状态。
+6. 创建一个 service，它用来发送 action 到 store。
+7. 创建一个 effects，它用来处理副作用，一般是处理异步操作。
+8. 在组件中使用 store，通过 selector 选择部分状态，然后在组件中订阅这个状态。
+
+```ts
+// admin.reducer.ts
+import { createReducer, on } from "@ngrx/store";
+import * as AuthActions from "./admin.actions";
+
+export interface AppState {
+  data: any;
+  loading: boolean;
+  error: any;
+}
+
+export const initialState: AppState = {
+  data: null,
+  loading: false,
+  error: null,
+};
+
+export const adminReducer = createReducer(
+  initialState,
+  on(AuthActions.login, (state) => ({ ...state, loading: true })),
+  on(AuthActions.loginSuccess, (state, { data }) => ({ ...state, data, loading: false })),
+  on(AuthActions.loginFailure, (state, { error }) => ({ ...state, error, loading: false }))
+);
+```
+
+```ts
+// admin.actions.ts
+import { createAction, props } from "@ngrx/store";
+export const login = createAction("[Login Page] Login");
+export const loginSuccess = createAction("[Login Page] Login Success", props<{ data: any }>());
+export const loginFailure = createAction("[Login Page] Login Failure", props<{ error: any }>());
+```
+
+```ts
+// admin.selectors.ts
+import { createSelector, createFeatureSelector } from "@ngrx/store";
+import { AppState } from "./admin.reducer";
+
+export const selectAppState = createFeatureSelector<AppState>("admin");
+export const selectData = createSelector(selectAppState, (state: AppState) => state.data);
+export const selectLoading = createSelector(selectAppState, (state: AppState) => state.loading);
+export const selectError = createSelector(selectAppState, (state: AppState) => state.error);
+```
+
+```ts
+// admin.effects.ts
+import { Injectable } from "@angular/core";
+import { Actions, createEffect, ofType, Effect } from "@ngrx/effects";
+import { map, switchMap, catchError, mergeMap } from "rxjs/operators";
+import { of } from "rxjs";
+import { AuthService } from "./admin.service";
+import * as AuthActions from "./admin.actions";
+
+@Injectable({
+  providedIn: "root",
+})
+export class AuthEffects {
+  constructor(private actions$: Actions, private authService: AuthService) {}
+
+  login$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.login),
+      switchMap(() =>
+        this.authService.login().pipe(
+          map((data) => AuthActions.loginSuccess({ data })),
+          catchError((error) => of(AuthActions.loginFailure({ error })))
+        )
+      )
+    )
+  );
+}
+```
+
+```ts
+// admin.service.ts
+import { Injectable } from "@angular/core";
+import { Store } from "@ngrx/store";
+import * as AuthActions from "./admin.actions";
+import { HttpClient } from "@angular/common/http";
+import { tap, catchError } from "rxjs/operators";
+import { of } from "rxjs";
+
+@Injectable()
+export class AuthService {
+  constructor(private store: Store, private http: HttpClient) {}
+
+  login() {
+    return this.http.get("https://jsonplaceholder.typicode.com/todos/5").pipe(
+      tap((data) => this.store.dispatch(AuthActions.loginSuccess({ data }))),
+      catchError((error) => of(this.store.dispatch(AuthActions.loginFailure({ error }))))
+    );
+  }
+}
+```
+
+```ts
+// app.module.ts
+import { APP_INITIALIZER, NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
+import { StoreModule } from "@ngrx/store";
+import { EffectsModule } from "@ngrx/effects";
+import { adminReducer } from "./admin.reducer";
+import { AuthEffects } from "./admin.effects";
+import { AuthService } from "./admin.service";
+
+export function initLogin(authService: AuthService) {
+  return () => authService.login();
+}
+
+@NgModule({
+  imports: [StoreModule.forRoot({ admin: adminReducer }), EffectsModule.forRoot([AuthEffects])],
+  providers: [
+    AuthService,
+    // APP_INITIALIZER：在app启动时调用AuthService的login方法
+    { provide: APP_INITIALIZER, useFactory: initLogin, deps: [AuthService], multi: true },
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA], // 自定义属性不报错
+})
+export class AppModule {}
+```
+
+```ts
+// app.component.ts
+import { Store, select } from "@ngrx/store";
+import { AppState } from "./admin.reducer";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { selectData, selectError, selectLoading } from "./admin.selectors";
+import * as AuthActions from "./admin.actions";
+import { Subscription } from "rxjs";
+
+@Component({
+  selector: "app-root",
+  template: `
+    <div *ngIf="loading">Loading...</div>
+    <div *ngIf="error">{{ error }}</div>
+    <div *ngIf="data">{{ data | json }}</div>
+  `,
+})
+export class AppComponent implements OnInit, OnDestroy {
+  loading$ = this.store.pipe(select(selectLoading));
+  error$ = this.store.pipe(select(selectError));
+  data$ = this.store.pipe(select(selectData));
+  // data$ = this.store.select(selectData); // 也可以
+  data = [];
+  error = undefined;
+  loading = false;
+  private subscription: Subscription = new Subscription();
+
+  constructor(private store: Store<AppState>) {}
+
+  ngOnInit() {
+    this.subscription = this.data$.subscribe((data) => {
+      this.data = data;
+    });
+    this.subscription.add(
+      this.error$.subscribe((error) => {
+        this.error = error;
+      })
+    );
+    this.subscription.add(
+      this.loading$.subscribe((loading) => {
+        this.loading = loading;
+      })
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+}
+```
+
 ## 对于 material-design 的使用
 
 1. 一般使用@angular/material 和@angular/cdk，@angular/material 是基于@angular/cdk 的，@angular/cdk 是一些基础的组件，@angular/material 是一些高级的组件，@angular/material 会自动安装@angular/cdk。
@@ -948,7 +1134,3 @@ const dialogRef = this.dialog.open(UserProfileComponent, {
   panelClass: "custom-dialog",
 });
 ```
-
-### HttpClient
-
-1. Angular 中的 HttpClient 在请求数据时会自动把 response data 当成 JSON 来解析，这样去请求就可以防止它自动 parse：`this.http.get(normalizedUrl, { responseType: 'text' }).then(…)`

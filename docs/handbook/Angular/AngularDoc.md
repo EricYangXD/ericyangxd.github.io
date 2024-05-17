@@ -495,7 +495,7 @@ export class AppComponent {
   change() {
     this.username2 = "hello Angular";
   }
-  // ngModel绑定的数据发生变化时触发
+  // ngModel绑定的数据发生变化时触发，有点watch的感觉
   ngModelChangeHandler(e) {
     //...
     this.parsedName = "Parsed" + e.trim();
@@ -504,6 +504,8 @@ export class AppComponent {
 ```
 
 #### 4.6 内容投影
+
+类似 Vue 中的插槽，Angular 中的内容投影是指将组件模板中的内容插入到组件中。
 
 ```html
 <!-- app.component.html -->
@@ -687,6 +689,11 @@ export class HoverDirective implements AfterViewInit {
 	// 为元素添加鼠标移出事件
   @HostListener("mouseleave") leave() {
     this.element.style.backgroundColor = "skyblue"
+  }
+  // 根据权限为元素直接添加disabled属性，实现禁用效果。（高级用法）
+  private hasAuth: boolean = false;
+  @HostBinding('attr.disabled') get disabled() {
+    return this.hasAuth ? null : true;
   }
 }
 
