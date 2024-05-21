@@ -909,9 +909,7 @@ export class AppModule {}
 
 ```ts
 longRequest() {
-    const request = new HttpRequest(
-        "POST", "/api/test-request", {},
-         {reportProgress: true});
+    const request = new HttpRequest("POST", "/api/test-request", {}, {reportProgress: true});
 
     this.http.request(request)
         .subscribe(
@@ -1116,13 +1114,501 @@ export class AppComponent implements OnInit, OnDestroy {
 }
 ```
 
+## 指令使用
+
+1. `ng g d [path]/name`
+2. 一个指令可以同时接收多个参数
+3. 指令使用时需要注册到模块中
+4. 示例：
+
+```ts
+import {
+  Directive,
+  Input,
+  ElementRef,
+  Renderer2,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+  HostBinding,
+  SimpleChanges,
+} from "@angular/core";
+import { Store, select } from "@ngrx/store";
+import { Observable, Subscription, of } from "rxjs";
+import { map } from "rxjs/operators";
+import { AppState } from "src/app/store/admin.reducers";
+import { selectAuthCodes } from "src/app/store/admin.selectors";
+
+@Directive({
+  selector: "[btnAuth]",
+})
+export class AuthDirective implements OnInit, OnDestroy {
+  // 指令接收的参数1
+  @Input() btnAuth: string[] = [];
+  // 接收的另一个参数2：目的是根据是否有权限和表单是否有效这两个条件来一起判断按钮是否可用
+  @Input() isFormInvalid: boolean = false;
+  private userAuthCodes$: Observable<string[]> = of([]);
+  private subscription: Subscription = new Subscription();
+  private hasAuth: boolean = false;
+
+  // @HostBinding装饰器用于将指令的属性绑定到宿主元素的属性、样式或类。
+  // 可以认为它是模板绑定的一种替代方式，但是在指令的类文件中使用
+  @HostBinding("attr.disabled") get disabled() {
+    return this.hasAuth ? null : true;
+  }
+  // @HostBinding可以有多种使用形式
+  // @HostBinding('style.backgroundColor') backgroundColor: string;
+  // @HostBinding('class.active') isActive: boolean;
+
+  // @HostListener装饰器用于监听宿主元素上的事件，并在事件发生时执行指定的方法。
+  // @HostListener("mouseenter") onMouseEnter() {
+  //   this.highlight("yellow");
+  // }
+
+  // @HostListener("mouseleave") onMouseLeave() {
+  //   this.highlight(null);
+  // }
+
+  // private highlight(color: string | null) {
+  //   // 在这里，你可以使用 @HostBinding 或直接操作 DOM 来改变样式
+  // }
+
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2,
+    private cdRef: ChangeDetectorRef,
+    private store: Store<AppState> // @Host用于控制依赖注入的作用域，用于注入器的视图层级注入，它告诉Angular在注入依赖时应该从宿主元素的注入器开始查找。 // @Optional() @Host() private someService: SomeService
+  ) {}
+
+  ngOnInit() {
+    this.subscription = this.store.pipe(select(selectAuthCodes))?.subscribe((codes) => {
+      this.userAuthCodes$ = of(codes);
+      this.updateButtonStatus();
+    });
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.updateButtonStatus();
+  }
+
+  private updateButtonStatus(): Subscription {
+    if (!this.userAuthCodes$) {
+      console.warn("userAuthCodes$ is undefined or null. Make sure the Store is properly initialized.");
+      return new Subscription();
+    }
+
+    return this.userAuthCodes$.subscribe((authCodes: string[]) => {
+      if (!authCodes) {
+        console.warn("authCodes is undefined or null. The Store state might not be ready yet.");
+        return;
+      }
+      const hasPermission = authCodes.some((authCode: string) => this.btnAuth.includes(authCode));
+      this.hasAuth = hasPermission && !this.isFormInvalid;
+      // 理论上来说可以设置disabled属性，but没有生效，所以使用HostBinding来实现该功能
+      // this.renderer.setProperty(this.el.nativeElement, 'disabled', !this.hasAuth);
+      this.cdRef.detectChanges();
+    });
+  }
+}
+
+@Component({
+  template: ` <button btnAuth="['ADMIN']" [isFormInvalid]="false" type="submit">Submit</button> `,
+})
+class TestComponent3 {
+  btnAuth: string[] = [];
+  isFormInvalid?: boolean = false;
+}
+```
+
+## Renderer2
+
+1. Renderer2 是 Angular 中的一个抽象类，提供了一种在不直接操作 DOM 的情况下与宿主元素进行交互的方法。这种方法更安全，特别是当运行在不同平台上时（比如服务器端渲染、Web Worker 或者任何不直接支持 DOM 操作的环境）。使用 Renderer2，你可以添加或删除元素、添加或删除样式、监听事件等，而不用担心跨平台兼容性问题。
+2. Renderer2 的主要方法包括：
+   - createElement(name: string, namespace?: string|null): 创建一个新的元素。
+   - createText(value: string): 创建一个新的文本节点。
+   - appendChild(parent: any, newChild: any): 将一个子节点添加到父节点上。
+   - insertBefore(parent: any, newChild: any, refChild: any): 在参考子节点之前插入一个新的子节点。
+   - removeChild(parent: any, oldChild: any): 从父节点上移除一个子节点。
+   - selectRootElement(selectorOrNode: any): 选择根元素。
+   - setAttribute(el: any, name: string, value: string, namespace?: string|null): 设置元素的属性。
+   - removeAttribute(el: any, name: string, namespace?: string|null): 移除元素的属性。
+   - addClass(el: any, name: string): 给元素添加类。
+   - removeClass(el: any, name: string): 移除元素的类。
+   - setStyle(el: any, style: string, value: any, flags?: RendererStyleFlags2): 设置元素的样式。
+   - removeStyle(el: any, style: string, flags?: RendererStyleFlags2): 移除元素的样式。
+   - setProperty(el: any, name: string, value: any): 设置元素的属性。
+   - listen(target: 'window'|'document'|'body'|any, eventName: string, callback: (event: any) => boolean | void): 监听给定的事件。
+3. Renderer2 的使用示例：假设你有一个指令，当鼠标悬停在宿主元素上时，你想改变宿主元素的背景色。你可以使用 Renderer2 来实现这个功能，而不是直接操作 DOM：
+
+```ts
+import { Directive, ElementRef, Renderer2, HostListener } from "@angular/core";
+
+@Directive({
+  selector: "[appHighlight]",
+})
+export class HighlightDirective {
+  constructor(private el: ElementRef, private renderer: Renderer2) {}
+
+  @HostListener("mouseenter") onMouseEnter() {
+    this.highlight("yellow");
+  }
+
+  @HostListener("mouseleave") onMouseLeave() {
+    this.highlight(null);
+  }
+
+  private highlight(color: string | null) {
+    this.renderer.setStyle(this.el.nativeElement, "backgroundColor", color);
+  }
+}
+```
+
+## 单元测试
+
+1. 可以使用 jest 进行单元测试，也可以使用 karma 进行单元测试。以下以 karma 进行单元测试。
+2. `ng test`：运行单元测试。
+3. `ng test --code-coverage`：运行单元测试并生成代码覆盖率报告。
+4. `ng test --watch`：运行单元测试并监视文件变化。
+5. `ng test --browsers Chrome`：指定浏览器运行单元测试。
+6. `ng test --browsers ChromeHeadless`：指定无头浏览器运行单元测试。
+7. `ng test --no-watch --no-progress --browsers=CustomChromeHeadless --code-coverage`：不监视文件变化，不显示进度，指定无头浏览器运行单元测试并生成代码覆盖率报告，用于接入 SonarQube。
+
+### 测试平台的配置文件
+
+1. `karma.conf.js`：Karma 的配置文件，用于配置测试平台的各种参数。
+
+```js
+// Karma configuration file, see link for more information
+// https://karma-runner.github.io/1.0/config/configuration-file.html
+
+module.exports = function (config) {
+  config.set({
+    basePath: "",
+    frameworks: ["jasmine", "@angular-devkit/build-angular"],
+    plugins: [
+      require("karma-jasmine"),
+      require("karma-chrome-launcher"),
+      require("karma-jasmine-html-reporter"),
+      require("@angular-devkit/build-angular/plugins/karma"),
+      require("karma-coverage-istanbul-reporter"),
+    ],
+    client: {
+      jasmine: {},
+      clearContext: false,
+    },
+    jasmineHtmlReporter: {
+      suppressAll: true,
+    },
+    coverageIstanbulReporter: {
+      reports: ["html", "lcovonly", "text-summary"],
+      dir: require("path").join(__dirname, "./coverage/mu-ui"),
+      subdir: ".",
+      fixWebpackSourcePaths: true,
+      skipFilesWithNoCoverage: true,
+      thresholds: {
+        emitWarning: true,
+        global: {
+          statements: 80,
+          lines: 80,
+          branches: 80,
+          functions: 80,
+        },
+      },
+    },
+    combineBrowserReports: true,
+    reporters: ["progress", "kjhtml", "coverage-istanbul"],
+    // 接入SonarQube时使用
+    // browsers: ["CustomChromeHeadless"],
+    browsers: ["Chrome"],
+    customLaunchers: {
+      // 接入SonarQube时使用
+      // CustomChromeHeadless: {
+      //   base: 'Chrome',
+      //   flags: [
+      //     '--headless',
+      //     '--disable-gpu',
+      //     '--no-sandbox',
+      //     '--disable-translate',
+      //     '--disable-extensions',
+      //     '--remote-debugging-port=9222'
+      //   ]
+      // },
+      // 平时开发时使用
+      ChromeHeadless: {
+        base: "Chrome",
+        flags: [
+          "--headless",
+          "--disable-gpu",
+          "--no-sandbox",
+          "--disable-translate",
+          "--disable-extensions",
+          "--remote-debugging-port=9222",
+        ],
+      },
+    },
+    restartOnFileChange: true,
+    verbose: true,
+  });
+};
+```
+
+### 测试用例注意事项
+
+1. 注意把所有使用到的依赖项都引入 spec.ts 文件中。
+2. 使用`describe`和`it`来组织测试用例。
+3. 使用`beforeEach`和`afterEach`来初始化和清理测试用例。
+4. 使用`spyOn`来监视函数的调用情况。
+5. 使用`expect`来断言测试结果。
+6. 对于不易测试的较大的组件，可以通过模拟子组件的方式来进行测试，也就是将组件简化并进行 mock。
+7. 使用`TestBed`来创建组件的测试环境。
+8. 使用`TestBed.configureTestingModule`来配置测试模块。
+9. 使用`TestBed.createComponent`来创建组件的实例。
+10. 使用`fixture.detectChanges()`来触发组件的变更检测。
+11. 使用`fixture.nativeElement`来获取组件的 DOM 元素。
+12. 使用`fixture.debugElement`来获取组件的 DebugElement。
+13. 使用`fixture.componentInstance`来获取组件实例。
+14. 使用`fixture.autoDetectChanges()`来自动检测变更。
+15. 使用`fixture.whenStable()`来等待异步操作完成。
+16. 使用`fakeAsync, tick`来进行异步测试。
+17. 使用`TestBed.inject`来获取服务实例。
+
+### 测试用例示例
+
+```ts
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateService, TranslateLoader, TranslateFakeLoader, TranslateModule } from '@ngx-translate/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Store, StoreModule } from '@ngrx/store';
+import { UserComponent } from './user.component';
+import { MessageService } from './message.service';
+import { AuthDirective } from './auth.directive';
+import { UserService } from './user.service';
+import { UserWhiteListService } from './user.whitelist.service';
+import { Observable, of } from 'rxjs';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+
+// 模拟一个弹窗提示服务
+class MockMessageService {
+  showInfoMessage(msg: string) {}
+  showErrorMessage(msg: string) {}
+  showWarnMessage(msg: string) {}
+}
+
+class MockUserService {
+  getUserData(vin: string, referenceVin: string): Observable<any> {
+    return of({});
+  }
+
+  createUserData(vin: string, referenceVin: string): Observable<any> {
+    return of({});
+  }
+
+  deleteUserData(vin: string, referenceVin: string): Observable<any> {
+    return of({});
+  }
+}
+
+describe('UserComponent', () => {
+  let component: UserComponent;
+  let fixture: ComponentFixture<UserComponent>;
+  let store: Store<AppState>;
+  // 这是一种模拟service的方法
+  let mockMessageService: MessageService;
+  let storeSelectSpy: jasmine.Spy;
+  let mockDialog: jasmine.SpyObj<MatDialog>;
+  // 这是另一种模拟service的方法
+  let userWhiteListServiceSpy: jasmine.SpyObj<UserWhiteListService>;
+  // 模拟router
+  let mockRouter = {
+    navigate: jasmine.createSpy('navigate')
+  };
+  // 模拟TranslateService
+  const mockTranslationService = {
+    validateLanguage() {}
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [UserComponent, AuthDirective],
+      imports: [
+        StoreModule.forRoot({ admin: adminReducer }),
+        // mock Translate 服务
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: TranslateFakeLoader },
+        }),
+      ],
+      providers: [
+        TranslateService,
+        // mock MessageService 服务
+        { provide: MessageService, useClass: MockMessageService },
+        // mock UserService 服务
+        { provide: UserService, useClass: MockUserService },
+        // mock Store 服务，用来模拟用户权限
+        {
+          provide: Store,
+          useValue: {
+            select: jasmine.createSpy('select').and.returnValue(of(['USER'])),
+            pipe: jasmine.createSpy('pipe').and.returnValue(of(['USER']))
+          }
+        },
+        { provide: MatDialogRef, useValue: {} },
+        { provide: MatDialog, useValue: mockDialog },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: UserWhiteListService, useValue: userWhiteListServiceSpy }
+      ],
+      schemas: [NO_ERRORS_SCHEMA], // 忽略未知元素和属性
+    }).compileComponents();
+  });
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(UserComponent);
+    component = fixture.componentInstance;
+    mockMessageService = TestBed.inject(MessageService);
+    MockUserService = TestBed.inject(UserService);
+    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
+    userWhiteListServiceSpy = jasmine.createSpyObj(
+      'UserWhiteListService',['getUserWhiteList', 'addUserWhiteList', 'deleteUserWhiteList']);
+
+    store = TestBed.get(Store);
+    storeSelectSpy = store.select as jasmine.Spy;
+    storeSelectSpy.and.returnValue(of(['USER']));
+
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should call getUserData', () => {
+    // 监听组件的 getUserData 方法，并调用callThrough
+    const spy = spyOn(component, 'getUserData').and.callThrough();
+    component.getUserData('vin', 'referenceVin');
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should have user button and the user button can be clicked', () => {
+    const compiled = fixture.debugElement.nativeElement;
+    const userBtn = compiled.querySelector('#user-btn');
+    expect(userBtn).toBeTruthy();
+    // 防止点击不了
+    userBtn.removeAttribute('disabled');
+    userBtn.click();
+    // 假设组件上有一个 userBtnClicked 属性，用来标识用户按钮是否被点击
+    expect(component.userBtnClicked).toBeTrue();
+  });
+
+  it('should convert input to upper case', () => {
+    // 模拟点击事件对象
+    const eventMock = {
+      target: {
+        value: '5yj3e1ea7LF000316',
+        toUpperCase: function () {
+          this.value = this.value.toUpperCase();
+        }
+      }
+    };
+    component.toUpper(eventMock);
+    expect(eventMock.target.value).toBe('5YJ3E1EA7LF000316');
+  });
+
+  it('should show error message when search is not successful', () => {
+    // 模拟 UserService 的 getUserData 方法返回一个错误，返回值可以自定义
+    spyOn(MockUserService, 'getUserData').and.returnValue(
+      of({
+        status: 'success',
+        code: '500',
+        payload: null,
+        message: 'Error'
+      } as any)
+    );
+    spyOn(mockMessageService, 'showErrorMessage');
+
+    component.vinForm.controls['vin'].setValue('ABC1A23C6L3309793');
+    component.vinForm.controls['seller'].setValue('CBANEEF8Z19111804');
+    component.search();
+
+    expect(MockUserService.getUserData).toHaveBeenCalled();
+    expect(component.useData).toBeFalsy();
+    expect(component.uerData.name).toEqual('');
+    expect(mockMessageService.showErrorMessage).toHaveBeenCalledWith('Error');
+  });
+
+  it('should trigger file download and return "success" if response contains file data', () => {
+    const mockResponse = {
+      headers: {
+        get: (header: string) => {
+          if (header === 'Content-Type') return 'application/pdf';
+          if (header === 'Content-Disposition') return 'attachment; fileName=test.pdf';
+          return null;
+        }
+      },
+      body: 'fileData'
+    };
+    spyOn(document.body, 'appendChild').and.callThrough();
+    spyOn(document.body, 'removeChild').and.callThrough();
+    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:test');
+
+    component.handleDownloadResponse(mockResponse).subscribe((result) => {
+      expect(result).toEqual('success');
+      expect(document.body.appendChild).toHaveBeenCalled();
+      expect(document.body.removeChild).toHaveBeenCalled();
+      expect(window.URL.createObjectURL).toHaveBeenCalled();
+    });
+  });
+
+  it('should not delete VIN when confirmation dialog is closed', () => {
+    const mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    // 模拟 MatDialog 的 open 方法返回一个 MatDialogRef 对象
+    mockDialogRef.afterClosed.and.returnValue(of(false));
+    mockDialog.open.and.returnValue(mockDialogRef);
+    const userNum = 'ABC12345678901234';
+
+    component.openDeleteUserConfirmDialog(userNum);
+
+    expect(mockDialogRef.afterClosed).toHaveBeenCalled();
+    expect(MockUserService.deleteUserData).not.toHaveBeenCalled();
+  });
+
+  it('should add a user to the whitelist', () => {
+    userWhiteListServiceSpy.addUserWhiteList.and.returnValue(of({ status: 'success' } as any));
+    // 模拟一个错误的返回值
+    // const mockResponse = throwError({ status: 500, message: 'Failed' } as any);
+    const userNum = 'ABC12345678901234';
+    component.addUserToWhiteList(userNum);
+    expect(userWhiteListServiceSpy.addUserWhiteList).toHaveBeenCalledWith(userNum);
+  });
+});
+```
+
+## 代理配置
+
+同 Vue。通过`proxy.conf.json`文件进行配置。启动项目时添加配置`ng serve --proxy-config ./proxy.conf.json`。
+
+```js
+{
+  "/api/*": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": "api"
+    }
+  }
+}
+```
+
 ## 对于 material-design 的使用
 
-1. 一般使用@angular/material 和@angular/cdk，@angular/material 是基于@angular/cdk 的，@angular/cdk 是一些基础的组件，@angular/material 是一些高级的组件，@angular/material 会自动安装@angular/cdk。
+1. 一般使用`@angular/material` 和`@angular/cdk`，`@angular/material`是基于`@angular/cdk` 的，`@angular/cdk` 是一些基础的组件，`@angular/material` 是一些高级的组件，`@angular/material` 会自动安装`@angular/cdk`。
 
 ### mat-dialog
 
-1. open 的时候可以设置宽高，也可以设置 class，然后在全局的 styles.scss 中设置 class 的样式。
+1. open 的时候可以设置宽高，也可以设置 class，然后在全局的 `styles.scss` 中设置 class 的样式。
 2. 还可以传入数据，然后在 dialog 中使用。
 
 ```ts
