@@ -1620,3 +1620,90 @@ const dialogRef = this.dialog.open(UserProfileComponent, {
   panelClass: "custom-dialog",
 });
 ```
+
+### material-table
+
+1. 可以方便的设置分页等功能
+2. Demo
+
+```html
+<div class="wrapper">
+  <table id="listTable" mat-table [dataSource]="tableData" class="mat-elevation-z8" matSort>
+    <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID">ID</th>
+      <td mat-cell *matCellDef="let t">{{ t.id }}</td>
+    </ng-container>
+    <ng-container matColumnDef="userId">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by User">User</th>
+      <td mat-cell *matCellDef="let t">{{ t.userId }}</td>
+    </ng-container>
+    <ng-container matColumnDef="createdTime">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by TimeStamp">TimeStamp</th>
+      <td mat-cell *matCellDef="let t">{{ t.createdTime }}</td>
+    </ng-container>
+    <ng-container matColumnDef="operation">
+      <th mat-header-cell *matHeaderCellDef>Operation</th>
+      <td mat-cell *matCellDef="let t">
+        <button
+          mat-flat-button
+          color="warn"
+          (click)="onConfirm(t.id)"
+          Delete
+        </button>
+      </td>
+    </ng-container>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell no-matched" colspan="2">No data...</td>
+    </tr>
+  </table>
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements">
+  </mat-paginator>
+</div>
+```
+
+```ts
+import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import { MatTableDataSource } from "@angular/material/table";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatPaginator } from "@angular/material/paginator";
+import { MatSort } from "@angular/material/sort";
+import { UserService } from "./user.service";
+
+@Component({
+  selector: "app-user-list",
+  templateUrl: "./user-list.component.html",
+  styleUrls: ["./user-list.component.scss"],
+})
+export class UserListComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  tableData: any[] = [];
+  // 设置表头，这里的 id、userId、createdTime、operation 需要和 tableData 中的 key 一致，注意顺序
+  tableColumns: string[] = ["id", "userId", "createdTime", "operation"];
+
+  constructor(private userService: UserService) {}
+
+  ngOnInit() {
+    this.userService.getUserList().subscribe((data) => {
+      this.tableData = data;
+    });
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    // 设置排序规则
+    if (this.tableData.paginator) {
+      this.tableData.paginator.firstPage();
+    }
+  }
+
+  onConfirm(id: string) {
+    this.userService.deleteUser(id).subscribe(() => {
+      this.tableData = this.tableData.filter((item) => item.id !== id);
+    });
+  }
+}
+```

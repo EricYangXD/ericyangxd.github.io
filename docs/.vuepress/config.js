@@ -535,11 +535,19 @@ module.exports = {
         ],
       },
       {
-        title: "股海沉浮",
+        title: "股海浮沉",
         children: [
           {
             title: "通达信指标收集",
             path: "/handbook/Stock/TDX",
+          },
+          {
+            title: "风清扬",
+            path: "/handbook/Stock/FQY",
+          },
+          {
+            title: "可转债",
+            path: "/handbook/Stock/KZZ",
           },
         ],
       },
