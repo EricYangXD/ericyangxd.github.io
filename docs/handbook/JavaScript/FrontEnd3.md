@@ -593,3 +593,45 @@ getUsers();
   </script>
 </body>
 ```
+
+## for 和 forEach 的区别
+
+1. `for` 是一个语句，`forEach` 是一个方法。
+2. `for`循环是 js 提出时就有的循环方法。`forEach`是 ES5 提出的，挂载在可迭代对象原型上的方法，例如`Array` `Set` `Map`。`forEach`是一个迭代器，负责遍历可迭代对象。
+3. `forEach` 是负责遍历（`Array Set Map`）可迭代对象的，而 `for` 循环是一种循环机制，只是能通过它遍历出数组。
+4. 可迭代对象：ES6 中引入了 `iterable` 类型，`Array Set Map String arguments NodeList` 都属于 `iterable`，他们特点就是都拥有 `[Symbol.iterator]` 方法，包含他的对象被认为是可迭代的 `iterable`。
+5. `for` 可以使用`break`和`continue`，`forEach` 不能。
+6. `for` 可以使用`return`，直接在 Chrome 控制台会报错，用在函数中就行；`forEach` 中使用 return 的效果类似于 for 循环中的 continue，会跳过当前迭代进入下一个迭代，但不会停止整个 forEach 循环。
+7. `forEach`属于迭代器，只能按序依次遍历完成，所以不支持上述的中断行为。
+8. 一定要在 `forEach` 中跳出循环呢？其实是有办法的，借助`try/catch`，在`catch`中捕获异常，然后`return`，这样就可以实现跳出循环的效果。但是这样做不太好，因为`try/catch`会影响性能，所以不推荐这样做。
+   ```js
+   try {
+     arr.forEach((item) => {
+       if (item === 3) {
+         throw new Error("end");
+       }
+     });
+   } catch (e) {
+     if (e.message === "end") {
+       return;
+     }
+   }
+   ```
+9. `for` 可以使用`let`和`const`，`forEach` 不能。
+10. `for` 可以使用`var`，`forEach` 不能。
+11. `for` 可以使用`for...of`，`forEach` 不能。
+12. `for` 可以使用`for...in`，`forEach` 不能。
+13. `for` 可以使用`for await...of`，`forEach` 不能。
+14. `for` 可以使用`for await...in`，`forEach` 不能。
+15. `for` 可以使用`for...await...of`，`forEach` 不能。
+16. 只要是可迭代对象，调用内部的 `Symbol.iterator` 都会提供一个迭代器，并根据迭代器返回的`next` 方法来访问内部，这也是 `for...of` 的实现原理。
+17. 完整用法：`arr.forEach((self,index,arr) =>{},this)`
+18. `forEach` 删除自身元素，`index`不可被重置，在 forEach 中我们无法控制 index 的值，它只会无脑的自增直至大于数组的 length 跳出循环。所以也无法删除自身进行 index 重置。
+19. 在实际开发中，遍历数组同时删除某项的操作十分常见，在使用 forEach 删除时要注意。
+20. for 循环可以控制循环起点，forEach 的循环起点只能为 0 不能进行人为干预
+21. 性能比较：`for > forEach > map` 在 chrome 62 和 Node.js v9.1.0 环境下：for 循环比 forEach 快 1 倍，forEach 比 map 快 20%左右。
+22. 原因分析
+
+- for：for 循环没有额外的函数调用栈和上下文，所以它的实现最为简单。
+- forEach：对于 forEach 来说，它的函数签名中包含了参数和上下文，所以性能会低于 for 循环。
+- map：map 最慢的原因是因为 map 会返回一个新的数组，数组的创建和赋值会导致分配内存空间，因此会带来较大的性能开销。
