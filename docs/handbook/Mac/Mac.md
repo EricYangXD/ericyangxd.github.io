@@ -139,7 +139,7 @@ chmod +wx ~/Library/Application\ Support/Google/Chrome/NativeMessagingHost
 
 ### 基础教程
 
-[Postman基础知识教程](https://apifox.com/apiskills/postman-tutorial-series/#postman-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E6%95%99%E7%A8%8B)
+[Postman 基础知识教程](https://apifox.com/apiskills/postman-tutorial-series/#postman-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E6%95%99%E7%A8%8B)
 
 ### Postman 将接口响应设置为变量
 
@@ -516,7 +516,7 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
 `sudo lsof -i :8080`
 
-### 微信桌面客户端多开
+### Mac 微信桌面客户端多开
 
 1. `nohup /Applications/WeChat.app/Contents/MacOS/WeChat > /dev/null 2>&1 &`
 

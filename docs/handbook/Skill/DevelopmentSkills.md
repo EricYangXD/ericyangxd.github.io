@@ -629,19 +629,19 @@ chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
    - onlyoffice 可以私有部署社区版免费
 
 3. 主流的三个办公文件 excel、word、ppt 本质上都是一个包含多个文件目录且每个目录中含有一些.xml 文件的压缩包而已。另外他们的压缩算法通常都是 zip。
-4. 当我们的办公文件（excel、word、ppt）解压缩之后就变成一堆 xml 文件了，然后在浏览器端可以通过`DOMParser Api`进行解析，可以把数据提取出来生成「json」，也可以创建为「DOM」。第三方库将依据Microsoft Office Open XML 标准提取信息。
-5. PDF对应的就是电子世界的打印纸张，它拥有「不可编辑」、「占用空间小」、「稳定性强」、「可加密」等特点，它由「Adobe」于1993年首次提出，旨在实现跨平台和可靠性的文档显示。PDF文件可以包含文本、图形、图像和其他多媒体元素，并以一种独立于操作系统和硬件的方式呈现。PDF的本质就是一套有含义的指令集合，用来描述一份文档信息绝对位置。
-6. PDF文件不是压缩包，PDF中描述了文字的布局信息，相当于一个指针告诉解析器应该在哪个位置画一个怎样的符号。我们可以选择使用「embed」标签或者「iframe」标签来解析PDF。
+4. 当我们的办公文件（excel、word、ppt）解压缩之后就变成一堆 xml 文件了，然后在浏览器端可以通过`DOMParser Api`进行解析，可以把数据提取出来生成「json」，也可以创建为「DOM」。第三方库将依据 Microsoft Office Open XML 标准提取信息。
+5. PDF 对应的就是电子世界的打印纸张，它拥有「不可编辑」、「占用空间小」、「稳定性强」、「可加密」等特点，它由「Adobe」于 1993 年首次提出，旨在实现跨平台和可靠性的文档显示。PDF 文件可以包含文本、图形、图像和其他多媒体元素，并以一种独立于操作系统和硬件的方式呈现。PDF 的本质就是一套有含义的指令集合，用来描述一份文档信息绝对位置。
+6. PDF 文件不是压缩包，PDF 中描述了文字的布局信息，相当于一个指针告诉解析器应该在哪个位置画一个怎样的符号。我们可以选择使用「embed」标签或者「iframe」标签来解析 PDF。
 
-## 前端库
+## 有用的前端库
 
 1. `jszip`：用于创建、读取和编辑 `「.zip」` 文件的 JavaScript 库，支持浏览器和 Nodejs
 2. `turndown`：使用 JavaScript 开发的 HTML to Markdown 转换器
 3. `markmap`：使用思维导图的方式来实现 Markdown 文档的可视化
 4. `docx` 或 `html-docx-js`：前端动态生成 Word 文档
 5. `ni`：`npm i -g @antfu/ni`，智能安装前段依赖
-6. `pdf.js`：解析PDF文件
-7. ``：
+6. `pdf.js`：解析 PDF 文件
+7. `@nest-public/totp`：是一个用 TypeScript 编写的 TOTP 库。它提供了一个简单易用的 API，可以方便地生成和验证 TOTP 密码。
 
 ## DOM Api 解析 xml
 
@@ -727,9 +727,7 @@ for (var i = 0; i < employees.length; i++) {
               if (compressedData) {
                 return compressedData.async("string");
               } else {
-                reject(
-                  new Error("Unable to find compressed data in the zip file.")
-                );
+                reject(new Error("Unable to find compressed data in the zip file."));
               }
             })
             .then(resolve)
@@ -738,8 +736,7 @@ for (var i = 0; i < employees.length; i++) {
       }
 
       // 示例
-      const originalText =
-        "Hello, this is a sample text for compression and decompression with JSZip.";
+      const originalText = "Hello, this is a sample text for compression and decompression with JSZip.";
       console.log("Original Text:", originalText);
 
       // 压缩字符串

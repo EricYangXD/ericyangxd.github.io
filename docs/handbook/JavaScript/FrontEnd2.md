@@ -22,25 +22,25 @@ date: "2021-05-02"
 const fetchRef = useRef(0);
 
 const debounceFetcher = React.useMemo(() => {
-	const loadOptions = (value: string) => {
-		fetchRef.current += 1;
-		const fetchId = fetchRef.current;
+  const loadOptions = (value: string) => {
+    fetchRef.current += 1;
+    const fetchId = fetchRef.current;
 
-		setLoading(true);
-		getDataList(value).then((res) => {
-			if (fetchId !== fetchRef.current) {
-				return;
-			}
-			if (res.code === 1) {
-				setDataList(res.data);
-			} else {
-				setDataList([]);
-			}
-			setLoading(false);
-		});
-	};
+    setLoading(true);
+    getDataList(value).then((res) => {
+      if (fetchId !== fetchRef.current) {
+        return;
+      }
+      if (res.code === 1) {
+        setDataList(res.data);
+      } else {
+        setDataList([]);
+      }
+      setLoading(false);
+    });
+  };
 
-	return debounce(loadOptions, debounceTimeout);
+  return debounce(loadOptions, debounceTimeout);
 }, [xxx, yyy]);
 ```
 
@@ -50,11 +50,11 @@ const debounceFetcher = React.useMemo(() => {
 import { debounce } from "lodash";
 
 const useMyDebounce = (fun, wait, options) => {
-	const myRef = useRef();
-	if (!myRef.current) {
-		myRef.current = debounce(fun, wait, options);
-	}
-	return myRef.current;
+  const myRef = useRef();
+  if (!myRef.current) {
+    myRef.current = debounce(fun, wait, options);
+  }
+  return myRef.current;
 };
 export default useMyDebounce;
 ```
@@ -190,8 +190,7 @@ moment 转时间：moment(timestamp).format(); // 2018-08-28T09:17:42+08:00
 /*
 https://www.baidu.com/s?wd=Reflect.%20defineProperty&rsv_spt=1#123
 */
-const { href, origin, host, port, protocol, pathname, hash, search } =
-	window.location;
+const { href, origin, host, port, protocol, pathname, hash, search } = window.location;
 console.log(href); // 获取整个URL xxx
 console.log(origin); // 协议+域名+端口  https://www.baidu.com
 console.log(host); // 主机名+端口号（http或者https会省略端口号）  www.baidu.com
@@ -207,9 +206,7 @@ console.log(search); // 地址?后面所有参数
 ### URL
 
 ```js
-const url = new URL(
-	"https://www.baidu.com/s?wd=Reflect.%20defineProperty&rsv_spt=1#123"
-);
+const url = new URL("https://www.baidu.com/s?wd=Reflect.%20defineProperty&rsv_spt=1#123");
 console.log(url.search); // ?wd=Reflect.%20defineProperty&rsv_spt=1
 console.log(url.hash); // #123
 console.log(url.origin); // https://www.baidu.com
@@ -241,23 +238,23 @@ const { id, name } = qs.parse(search.replace(/^\?/, ""));
 
 ```js
 function formateQueryUrl() {
-	const { search } = window.location;
-	// 以？分割，获取url上的真正的参数
-	const [, searchStr] = search.split("?");
-	// 以&分割前后参数
-	const arr = searchStr.split("&");
-	const ret = {};
-	arr.forEach((v) => {
-		const [key, val] = v.split("=");
-		ret[key] = val;
-	});
-	return ret;
+  const { search } = window.location;
+  // 以？分割，获取url上的真正的参数
+  const [, searchStr] = search.split("?");
+  // 以&分割前后参数
+  const arr = searchStr.split("&");
+  const ret = {};
+  arr.forEach((v) => {
+    const [key, val] = v.split("=");
+    ret[key] = val;
+  });
+  return ret;
 }
 
 // 与上面formateQueryUrl方法等价
 function eazyFormateQueryUrl() {
-	const url = new URL(window.location);
-	return Object.fromEntries(url.searchParams.entries());
+  const url = new URL(window.location);
+  return Object.fromEntries(url.searchParams.entries());
 }
 // 如果当前浏览器地址 https://www.badu.com?a=1&b=2
 // {a:1,b:2}
@@ -288,35 +285,33 @@ function eazyFormateQueryUrl() {
 ```js
 const http = require("http");
 http
-	.createServer((req, res) => {
-		if (req.url === "/read") {
-			// 读取 Cookie
-			res.end(`Read Cookie: ${req.headers.cookie || ""}`);
-		} else if (req.url === "/write") {
-			// 设置 Cookie
-			res.setHeader("Set-Cookie", [
-				`name=scar;`,
-				//set-cookie 属性大小写不敏感，你可以写成 path=/ 或者 Path=/
-				`language=javascript;Path=/; HttpOnly;Expires=${new Date(
-					Date.now() + 1000
-				).toUTCString()};`,
-			]);
-			res.end("Write Success");
-		} else if (req.url === "/delete") {
-			// 删除 cookie
-			res.setHeader("Set-Cookie", [
-				// 设置过期时间为过去的时间
-				`name=;expires=${new Date(1).toUTCString()}`,
-				// 有效期 max-age 设置成 0 或 -1 这种无效秒，让 cookie 当场去世
-				// 有些浏览器不支持 max-age 属性，所以用此方法需要考虑兼容性
-				"language=javascript; max-age=0",
-			]);
-			res.end("Delete Success");
-		} else {
-			res.end("Not Found");
-		}
-	})
-	.listen(3000);
+  .createServer((req, res) => {
+    if (req.url === "/read") {
+      // 读取 Cookie
+      res.end(`Read Cookie: ${req.headers.cookie || ""}`);
+    } else if (req.url === "/write") {
+      // 设置 Cookie
+      res.setHeader("Set-Cookie", [
+        `name=scar;`,
+        //set-cookie 属性大小写不敏感，你可以写成 path=/ 或者 Path=/
+        `language=javascript;Path=/; HttpOnly;Expires=${new Date(Date.now() + 1000).toUTCString()};`,
+      ]);
+      res.end("Write Success");
+    } else if (req.url === "/delete") {
+      // 删除 cookie
+      res.setHeader("Set-Cookie", [
+        // 设置过期时间为过去的时间
+        `name=;expires=${new Date(1).toUTCString()}`,
+        // 有效期 max-age 设置成 0 或 -1 这种无效秒，让 cookie 当场去世
+        // 有些浏览器不支持 max-age 属性，所以用此方法需要考虑兼容性
+        "language=javascript; max-age=0",
+      ]);
+      res.end("Delete Success");
+    } else {
+      res.end("Not Found");
+    }
+  })
+  .listen(3000);
 ```
 
 2. 客户端，通过浏览器方法 document.cookie 读写当前界面的 Cookie。
@@ -343,39 +338,39 @@ await cookieStore.getAll();
 // 设置 Cookie
 const day = 24 * 60 * 60 * 1000;
 cookieStore
-	.set({
-		name: "enName",
-		value: "scar",
-		expires: Date.now() + day, // 过期时间，默认为会话关闭时间
-		domain: "scar.site", // 生效域名，是接受请求的域名
-		path: "/report_mgmt", // 生效路径，子路径也会被匹配
-		sameSite: "none", // 允许服务器设定 Cookie 不随着跨站请求一起发送，Lax|Strict|None，服务器要求某个 Cookie 在跨站请求时不会被发送，从而可以阻止跨站请求伪造攻击。限制了发送 Cookie 的域名
-		secure: false, // 仅 HTTPS 可用，标记为 Secure 的 Cookie 只应通过被 HTTPS 协议加密过的请求发送给服务端，因此可以预防 man-in-the-middle 攻击。
-		maxAge: 10000, // 有效期，单位秒，秒数为 0 或 -1 将会使 cookie 直接过期，如果 Expires 和Max-Age 同时存在时，Max-Age优先级更高。
-		sameParty: false, // 允许特定条件跨域共享 Cookie
-		priority: "Medium", // 优先级，仅 Chrome 支持， Low|Medium|High，如果设置了 Priority，Chrome 会先将优先级低的清除，并且每种优先级 Cookie 至少保留一个。
-		httpOnly: false, // 设置了 HttpOnly 属性的 cookie 不能使用 JavaScript 经由  document.cookie 属性、XMLHttpRequest 和  Request APIs、Cookie Store APIs 进行访问。
-	})
-	.then(
-		function () {
-			console.log("It worked!");
-		},
-		function (reason) {
-			console.error("It failed: ", reason);
-		}
-	);
+  .set({
+    name: "enName",
+    value: "scar",
+    expires: Date.now() + day, // 过期时间，默认为会话关闭时间
+    domain: "scar.site", // 生效域名，是接受请求的域名
+    path: "/report_mgmt", // 生效路径，子路径也会被匹配
+    sameSite: "none", // 允许服务器设定 Cookie 不随着跨站请求一起发送，Lax|Strict|None，服务器要求某个 Cookie 在跨站请求时不会被发送，从而可以阻止跨站请求伪造攻击。限制了发送 Cookie 的域名
+    secure: false, // 仅 HTTPS 可用，标记为 Secure 的 Cookie 只应通过被 HTTPS 协议加密过的请求发送给服务端，因此可以预防 man-in-the-middle 攻击。
+    maxAge: 10000, // 有效期，单位秒，秒数为 0 或 -1 将会使 cookie 直接过期，如果 Expires 和Max-Age 同时存在时，Max-Age优先级更高。
+    sameParty: false, // 允许特定条件跨域共享 Cookie
+    priority: "Medium", // 优先级，仅 Chrome 支持， Low|Medium|High，如果设置了 Priority，Chrome 会先将优先级低的清除，并且每种优先级 Cookie 至少保留一个。
+    httpOnly: false, // 设置了 HttpOnly 属性的 cookie 不能使用 JavaScript 经由  document.cookie 属性、XMLHttpRequest 和  Request APIs、Cookie Store APIs 进行访问。
+  })
+  .then(
+    function () {
+      console.log("It worked!");
+    },
+    function (reason) {
+      console.error("It failed: ", reason);
+    }
+  );
 
 // 删除 Cookie
 await cookieStore.delete("session_id");
 
 // 监听 Cookie 变化
 cookieStore.addEventListener("change", (event) => {
-	for (const cookie of event.changed) {
-		if (cookie.name === "name") sessionCookieChanged(cookie.value);
-	}
-	for (const cookie of event.deleted) {
-		if (cookie.name === "enName") sessionCookieChanged(null);
-	}
+  for (const cookie of event.changed) {
+    if (cookie.name === "name") sessionCookieChanged(cookie.value);
+  }
+  for (const cookie of event.deleted) {
+    if (cookie.name === "enName") sessionCookieChanged(null);
+  }
 });
 ```
 
@@ -520,17 +515,17 @@ webpack4+无需配置默认会压缩代码，如果你想亲自试试，Js 可�
 ```js
 // A.html
 window.addEventListener(
-	"hashchange",
-	function () {
-		// 监听 hash
-		alert(window.location.hash);
-	},
-	false
+  "hashchange",
+  function () {
+    // 监听 hash
+    alert(window.location.hash);
+  },
+  false
 );
 // B.html
 window.onbeforeunload = function (e) {
-	window.open("A.html#close", "A");
-	return "确定离开此页吗？";
+  window.open("A.html#close", "A");
+  return "确定离开此页吗？";
 };
 ```
 
@@ -544,17 +539,17 @@ postMessage 是 h5 引入的 API，postMessage() 方法允许来自不同源的�
 // A.html
 window.name = "A";
 function openB() {
-	window.open("B.html?code=123", "B");
+  window.open("B.html?code=123", "B");
 }
 window.addEventListener("message", receiveMessage, false);
 function receiveMessage(event) {
-	console.log("收到消息：", event.data);
+  console.log("收到消息：", event.data);
 }
 // B.html
 window.name = "B";
 function sendA() {
-	let targetWindow = window.opener;
-	targetWindow.postMessage("Hello A", "http://localhost:3000");
+  let targetWindow = window.opener;
+  targetWindow.postMessage("Hello A", "http://localhost:3000");
 }
 ```
 
@@ -572,6 +567,7 @@ function sendA() {
 2. 在新标签或窗口打开一个页面时会「复制」顶级浏览会话的上下文作为新会话的上下文，这点和 session cookies 的运行方式不同。彼此之间是独立的，不会相互影响。
 3. 打开多个相同的 URL 的 Tabs 页面，会创建各自的 sessionStorage。也就是说彼此之间是独立的，不会相互影响。
 4. 关闭对应浏览器标签或窗口，会清除对应的 sessionStorage。
+5. _注意_：sessionStorage 不能在多个窗口或标签页之间共享数据，但是当通过 `window.open` 或`链接`*打开新页面*时(不能是新窗口)，新页面会复制前一页的 sessionStorage。
 
 - sessionStorage 顾名思义是针对一个 session 的数据存储，生命周期为当前窗口，一旦窗口关闭，那么存储的数据将被清空。最后还有一个很主要的区别同一浏览器的相同域名和端口的不同页面间可以共享相同的 localStorage，但是不同页面间无法共享 sessionStorage 的信息。
 - 比如：打开了两个百度首页 A 和 B，在 A 的 localStorage 中添加删除或修改某个 key/value，在 B 中也能同步看到 localStorage 中数据的变化。而对于这两个页面的 sessionStorage，修改 A 的 sessionStorage 并不会同步到 B 页面。
@@ -579,10 +575,10 @@ function sendA() {
 
 ```js
 window.addEventListener("storage", function (event) {
-	// event.key:确认修改的locaStorage变化key，event.newValue:修改后的值，event.url:url，event.type:'storage'
-	if (event.key == "token") {
-		sessionStorage.setItem("token", event.newValue);
-	}
+  // event.key:确认修改的locaStorage变化key，event.newValue:修改后的值，event.url:url，event.type:'storage'
+  if (event.key == "token") {
+    sessionStorage.setItem("token", event.newValue);
+  }
 });
 ```
 
@@ -590,39 +586,36 @@ window.addEventListener("storage", function (event) {
 
 ```js
 (function () {
-	// 判断当前页面是否存在sessionStorage
-	if (!sessionStorage.length) {
-		// 这个调用能触发目标事件，从而达到共享数据的目的（若不存在则加上一个localStorage Item，key=getSessionStorageData）
-		localStorage.setItem("getSessionStorageData", Date.now());
-	}
+  // 判断当前页面是否存在sessionStorage
+  if (!sessionStorage.length) {
+    // 这个调用能触发目标事件，从而达到共享数据的目的（若不存在则加上一个localStorage Item，key=getSessionStorageData）
+    localStorage.setItem("getSessionStorageData", Date.now());
+  }
 
-	// 该事件是核心，增加window监听事件
-	window.addEventListener("storage", function (event) {
-		// 已存在的标签页会收到这个事件，如果监听到的事件key是getSessionStorageData
-		if (event.key == "getSessionStorageData") {
-			// 再新增一个localStorage Item，key=sessionStorageData，value就是当前的sessionStorage
-			localStorage.setItem(
-				"sessionStorage",
-				JSON.stringify(window.sessionStorage)
-			);
-			// 删除localStorage中key=sessionStorageData的item，同时写入和删除，不留下localSorage的记录。
-			localStorage.removeItem("sessionStorage");
-		}
-		if (event.key == "sessionStorageData" && !sessionStorage.length) {
-			// 新开启的标签页会收到这个事件，把sessionStorageData的资料parse出来
-			const data = JSON.parse(event.newValue);
-			//  赋值到当前页面的sessionStorage中
-			for (key in data) {
-				window.sessionStorage.setItem(key, data[key]);
-			}
-		}
-		// ===== 加下面这段 =====
-		if (event.key === "logout") {
-			// 接收到logout事件，进行sessionStorage的清除和页面reload
-			window.sessionStorage.clear();
-			window.location.clear();
-		}
-	});
+  // 该事件是核心，增加window监听事件
+  window.addEventListener("storage", function (event) {
+    // 已存在的标签页会收到这个事件，如果监听到的事件key是getSessionStorageData
+    if (event.key == "getSessionStorageData") {
+      // 再新增一个localStorage Item，key=sessionStorageData，value就是当前的sessionStorage
+      localStorage.setItem("sessionStorage", JSON.stringify(window.sessionStorage));
+      // 删除localStorage中key=sessionStorageData的item，同时写入和删除，不留下localSorage的记录。
+      localStorage.removeItem("sessionStorage");
+    }
+    if (event.key == "sessionStorageData" && !sessionStorage.length) {
+      // 新开启的标签页会收到这个事件，把sessionStorageData的资料parse出来
+      const data = JSON.parse(event.newValue);
+      //  赋值到当前页面的sessionStorage中
+      for (key in data) {
+        window.sessionStorage.setItem(key, data[key]);
+      }
+    }
+    // ===== 加下面这段 =====
+    if (event.key === "logout") {
+      // 接收到logout事件，进行sessionStorage的清除和页面reload
+      window.sessionStorage.clear();
+      window.location.clear();
+    }
+  });
 })();
 ```
 
@@ -643,8 +636,8 @@ SharedWorker 接口代表一种特定类型的 worker，可以从几个浏览上
 var sharedworker = new SharedWorker("worker.js");
 sharedworker.port.start();
 sharedworker.port.onmessage = (evt) => {
-	// evt.data
-	console.log(evt.data); // hello A
+  // evt.data
+  console.log(evt.data); // hello A
 };
 
 // B.html
@@ -655,13 +648,13 @@ sharedworker.port.postMessage("hello A");
 // worker.js
 const ports = [];
 onconnect = (e) => {
-	const port = e.ports[0];
-	ports.push(port);
-	port.onmessage = (evt) => {
-		ports
-			.filter((v) => v !== port) // 此处为了贴近其他方案的实现，剔除自己
-			.forEach((p) => p.postMessage(evt.data));
-	};
+  const port = e.ports[0];
+  ports.push(port);
+  port.onmessage = (evt) => {
+    ports
+      .filter((v) => v !== port) // 此处为了贴近其他方案的实现，剔除自己
+      .forEach((p) => p.postMessage(evt.data));
+  };
 };
 ```
 
@@ -749,34 +742,34 @@ navigator.serviceWorker.controller.postMessage("Hello A");
 
 ```js
 try {
-	self.addEventListener("install", function (e) {
-		self.skipWaiting();
-	});
+  self.addEventListener("install", function (e) {
+    self.skipWaiting();
+  });
 
-	self.addEventListener("activate", function (e) {
-		self.registration
-			.unregister()
-			.then(function () {
-				return self.clients.matchAll();
-			})
-			.then(function (clients) {
-				clients.forEach((client) => client.navigate(client.url));
-			});
-	});
+  self.addEventListener("activate", function (e) {
+    self.registration
+      .unregister()
+      .then(function () {
+        return self.clients.matchAll();
+      })
+      .then(function (clients) {
+        clients.forEach((client) => client.navigate(client.url));
+      });
+  });
 } catch (e) {
-	console.log("close sw: ", e);
+  console.log("close sw: ", e);
 }
 
 try {
-	if (window.navigator && navigator.serviceWorker) {
-		navigator.serviceWorker.getRegistrations().then(function (registrations) {
-			for (let registration of registrations) {
-				registration.unregister();
-			}
-		});
-	}
+  if (window.navigator && navigator.serviceWorker) {
+    navigator.serviceWorker.getRegistrations().then(function (registrations) {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
 } catch (e) {
-	console.log("unregister sw: ", e);
+  console.log("unregister sw: ", e);
 }
 ```
 
@@ -808,55 +801,55 @@ const CRASH_THRESHOLD = 15 * 1000;
 const pages = {};
 let timer;
 function checkCrash() {
-	const now = Date.now();
-	for (var id in pages) {
-		let page = pages[id];
-		if (now - page.t > CRASH_THRESHOLD) {
-			// 上报 crash
-			delete pages[id];
-		}
-	}
-	if (Object.keys(pages).length == 0) {
-		clearInterval(timer);
-		timer = null;
-	}
+  const now = Date.now();
+  for (var id in pages) {
+    let page = pages[id];
+    if (now - page.t > CRASH_THRESHOLD) {
+      // 上报 crash
+      delete pages[id];
+    }
+  }
+  if (Object.keys(pages).length == 0) {
+    clearInterval(timer);
+    timer = null;
+  }
 }
 
 worker.addEventListener("message", (e) => {
-	const data = e.data;
-	if (data.type === "heartbeat") {
-		pages[data.id] = {
-			t: Date.now(),
-		};
-		if (!timer) {
-			timer = setInterval(function () {
-				checkCrash();
-			}, CHECK_CRASH_INTERVAL);
-		}
-	} else if (data.type === "unload") {
-		delete pages[data.id];
-	}
+  const data = e.data;
+  if (data.type === "heartbeat") {
+    pages[data.id] = {
+      t: Date.now(),
+    };
+    if (!timer) {
+      timer = setInterval(function () {
+        checkCrash();
+      }, CHECK_CRASH_INTERVAL);
+    }
+  } else if (data.type === "unload") {
+    delete pages[data.id];
+  }
 });
 
 // B.html
 if (navigator.serviceWorker.controller !== null) {
-	let HEARTBEAT_INTERVAL = 5 * 1000; // 每五秒发一次心跳
-	let sessionId = uuid(); // B页面会话的唯一 id
-	let heartbeat = function () {
-		navigator.serviceWorker.controller.postMessage({
-			type: "heartbeat",
-			id: sessionId,
-			data: {}, // 附加信息，如果页面 crash，上报的附加数据
-		});
-	};
-	window.addEventListener("beforeunload", function () {
-		navigator.serviceWorker.controller.postMessage({
-			type: "unload",
-			id: sessionId,
-		});
-	});
-	setInterval(heartbeat, HEARTBEAT_INTERVAL);
-	heartbeat();
+  let HEARTBEAT_INTERVAL = 5 * 1000; // 每五秒发一次心跳
+  let sessionId = uuid(); // B页面会话的唯一 id
+  let heartbeat = function () {
+    navigator.serviceWorker.controller.postMessage({
+      type: "heartbeat",
+      id: sessionId,
+      data: {}, // 附加信息，如果页面 crash，上报的附加数据
+    });
+  };
+  window.addEventListener("beforeunload", function () {
+    navigator.serviceWorker.controller.postMessage({
+      type: "unload",
+      id: sessionId,
+    });
+  });
+  setInterval(heartbeat, HEARTBEAT_INTERVAL);
+  heartbeat();
 }
 ```
 
@@ -874,23 +867,23 @@ if (navigator.serviceWorker.controller !== null) {
 
 ```js
 const parent = {
-	get value() {
-		return "19Qingfeng";
-	},
+  get value() {
+    return "19Qingfeng";
+  },
 };
 
 const proxy = new Proxy(parent, {
-	// get陷阱中target表示原对象 key表示访问的属性名
-	get(target, key, receiver) {
-		console.log(receiver === proxy);
-		console.log(receiver === obj);
-		console.log(receiver === parent);
-		return target[key];
-	},
+  // get陷阱中target表示原对象 key表示访问的属性名
+  get(target, key, receiver) {
+    console.log(receiver === proxy);
+    console.log(receiver === obj);
+    console.log(receiver === parent);
+    return target[key];
+  },
 });
 
 const obj = {
-	name: "wang.haoyu",
+  name: "wang.haoyu",
 };
 
 // 设置obj继承与parent的代理对象proxy
@@ -1078,12 +1071,7 @@ token 中可以存储用户信息、登录信息、有效期、使用限制等�
 
 ```html
 <link rel="dns-prefetch" href="https://fonts.google.com/" />
-<link
-	rel="preconnect"
-	href="https://fonts.google.com/"
-	as="script"
-	crossorigin
-/>
+<link rel="preconnect" href="https://fonts.google.com/" as="script" crossorigin />
 <link rel="prerender" href="https://fonts.google.com/" />
 ```
 
@@ -1127,26 +1115,12 @@ meta 是文档级元数据元素，用来表示那些不能由其它 HTML 元相
 <img src="image.png" srcset="image.jpg, image_2x.jpg 2x, image_3x.jpg 3x" />
 
 <!-- 根据需要选择图片 -->
-<img
-	src="image.png"
-	srcset="
-		image_S.jpg   600w,
-		image_M.jpg   900w,
-		image_L.jpg  1500w,
-		image_XL.jpg 3000w
-	"
-/>
+<img src="image.png" srcset="image_S.jpg 600w, image_M.jpg 900w, image_L.jpg 1500w, image_XL.jpg 3000w" />
 <!-- 借助sizes实现更精细的控制 -->
 <img
-	src="image.png"
-	srcset="
-		image_S.jpg   600w,
-		image_M.jpg   900w,
-		image_L.jpg  1500w,
-		image_XL.jpg 3000w
-	"
-	sizes="(max-width:450px) 100vw,(max-width:900px) 50vw,(max-width:1300px) 33vw, 300px"
-/>
+  src="image.png"
+  srcset="image_S.jpg 600w, image_M.jpg 900w, image_L.jpg 1500w, image_XL.jpg 3000w"
+  sizes="(max-width:450px) 100vw,(max-width:900px) 50vw,(max-width:1300px) 33vw, 300px" />
 ```
 
 ### 适配 iPhone 的齐刘海
@@ -1194,25 +1168,21 @@ meta 是文档级元数据元素，用来表示那些不能由其它 HTML 元相
 let initialPageY = 0;
 
 scrollBox.addEventListener("touchstart", (e) => {
-	initialPageY = e.changedTouches[0].pageY;
+  initialPageY = e.changedTouches[0].pageY;
 });
 
 scrollBox.addEventListener("touchmove", (e) => {
-	const deltaY = e.changedTouches[0].pageY - initialPageY;
+  const deltaY = e.changedTouches[0].pageY - initialPageY;
 
-	// 禁止向上滚动溢出
-	if (e.cancelable && deltaY > 0 && scrollBox.scrollTop <= 0) {
-		e.preventDefault();
-	}
+  // 禁止向上滚动溢出
+  if (e.cancelable && deltaY > 0 && scrollBox.scrollTop <= 0) {
+    e.preventDefault();
+  }
 
-	// 禁止向下滚动溢出
-	if (
-		e.cancelable &&
-		deltaY < 0 &&
-		scrollBox.scrollTop + scrollBox.clientHeight >= scrollBox.scrollHeight
-	) {
-		e.preventDefault();
-	}
+  // 禁止向下滚动溢出
+  if (e.cancelable && deltaY < 0 && scrollBox.scrollTop + scrollBox.clientHeight >= scrollBox.scrollHeight) {
+    e.preventDefault();
+  }
 });
 ```
 
@@ -1283,13 +1253,13 @@ a.dispatchEvent(e);
 
 ```js
 const timer = window.setTimeout(() => {
-	// 失败回调
+  // 失败回调
 }, 3000);
 
 const successHandler = () => {
-	if (document.hidden) {
-		window.clearTimeout(timer);
-	}
+  if (document.hidden) {
+    window.clearTimeout(timer);
+  }
 };
 window.addEventListener("blur", successHandler, { once: true });
 window.addEventListener("visibilitychange", successHandler, { once: true });
@@ -1318,19 +1288,12 @@ HTML `<picture>` 元素通过包含零或多个 `<source>` 元素和一个 `<img
 ```html
 <!-- data-thumbnail是自定义属性 -->
 <picture>
-	<source
-		srcset="/media/cc0-images/surfer-240-200.jpg"
-		media="(min-width: 600px)"
-	/>
-	<source
-		srcset="/media/cc0-images/surfer-240-400.jpg"
-		media="(min-width: 1200px)"
-	/>
-	<img
-		data-thumbnail="data:image/jpeg;base64,PNNAABCFGHJ4678VBD..."
-		src="/media/cc0-images/painted-hand-298-332.jpg"
-		alt=""
-	/>
+  <source srcset="/media/cc0-images/surfer-240-200.jpg" media="(min-width: 600px)" />
+  <source srcset="/media/cc0-images/surfer-240-400.jpg" media="(min-width: 1200px)" />
+  <img
+    data-thumbnail="data:image/jpeg;base64,PNNAABCFGHJ4678VBD..."
+    src="/media/cc0-images/painted-hand-298-332.jpg"
+    alt="" />
 </picture>
 ```
 
@@ -1653,10 +1616,10 @@ readystatechange 和 DOMContentLoaded 是通过 document 监听的；load 事件
 
 ```js
 window.addEventListener("beforeunload", (event) => {
-	// Cancel the event as stated by the standard.
-	event.preventDefault();
-	// Chrome requires returnValue to be set.
-	event.returnValue = "";
+  // Cancel the event as stated by the standard.
+  event.preventDefault();
+  // Chrome requires returnValue to be set.
+  event.returnValue = "";
 });
 ```
 
@@ -1664,15 +1627,15 @@ window.addEventListener("beforeunload", (event) => {
 
 ```js
 document.onreadystatechange = function () {
-	console.log(document.readyState);
+  console.log(document.readyState);
 };
 
 document.addEventListener("DOMContentLoaded", (event) => {
-	console.log("DOMContentLoaded"); // 译者注："DOM完全加载以及解析"
+  console.log("DOMContentLoaded"); // 译者注："DOM完全加载以及解析"
 });
 
 window.addEventListener("load", (event) => {
-	console.log("load");
+  console.log("load");
 });
 
 // 打印结果如下：
