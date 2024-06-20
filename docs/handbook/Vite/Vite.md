@@ -93,13 +93,31 @@ Vite 的优化会跟踪所有的直接导入，无论导入的深度如何，都
 ```js
 // rollup.config.js
 export default {
-	input: "main.js",
-	output: {
-		file: "bundle.js",
-		format: "es",
-	},
+  input: "main.js",
+  output: {
+    file: "bundle.js",
+    format: "es",
+  },
 };
 ```
 
 8. 参数`-c`启用配置文件。
 9. rollup 还支持 ES 模块转成 CommonJS 模块，使用参数`--format cjs`就可以了。`rollup add.js --format cjs`
+
+## 配置解释
+
+### workspace:\*
+
+```json
+"devDependencies": {
+  "vite": "workspace:*"
+}
+```
+
+这里的`vite`是一个开发依赖项，它是一个现代化的前端构建工具，用于提高开发效率。`workspace:*`是一个特殊的语法，它指示 npm 或 yarn 从工作区（workspace）中获取 vite 的版本。
+
+工作区（workspace）是 npm 和 yarn 支持的一种功能，允许你在单个仓库中管理多个包（package），这些包可以相互依赖。当你使用工作区时，你可以指定依赖项从工作区中获取，而不是从 npm 注册表中获取。
+
+`workspace:*`中的`*`表示使用工作区中匹配的最新版本。这意味着如果 vite 是你的工作区中的一个包，那么这个配置会确保使用工作区中 vite 包的最新版本。
+
+这种配置通常用于 monorepo（单一代码仓库）设置中，其中多个相关的项目被组织在同一个仓库中，并且它们之间可能存在依赖关系。通过使用`workspace:*`，你可以确保依赖项的版本与工作区中的实际版本保持一致，这有助于避免版本冲突和确保依赖项的一致性。

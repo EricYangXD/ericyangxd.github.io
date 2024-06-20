@@ -2633,40 +2633,190 @@ const urls = [
   "https://jsonplaceholder.typicode.com/posts/9",
   "https://jsonplaceholder.typicode.com/posts/10",
 ];
+
 function fetchUrls(urls, maxNum) {
   return new Promise((resolve) => {
     if (urls.length === 0) {
       resolve([]);
       return;
     }
-    const results = [];
+
+    const results = new Array(urls.length);
     let count = 0;
     let index = 0;
+
     async function request() {
-      if (index === urls.length) {
+      if (index >= urls.length) {
         return;
       }
-      const url = urls[index];
-      const cur = index;
-      index++;
+
+      const curIndex = index++;
+      const url = urls[curIndex];
 
       try {
         const res = await fetch(url);
-        results[cur] = res;
+        results[curIndex] = await res.json(); // Assuming you want the JSON response
       } catch (e) {
-        results[cur] = e;
+        results[curIndex] = e;
       } finally {
         count++;
         if (count === urls.length) {
           resolve(results);
+        } else {
+          request(); // Start the next request
         }
-        request();
       }
     }
+
     const times = Math.min(maxNum, urls.length);
+    // 最开始先同时发出times个请求，然后每个请求结束后在finally中判断count也就是一共已经发出了多少个请求，如果还有请求没发出，那就继续调用request，否则就把results返回。
     for (let i = 0; i < times; i++) {
       request();
     }
   });
 }
+
+fetchUrls(urls, 3).then((results) => {
+  console.log(results);
+});
+```
+
+## 前端加载图片
+
+### CSS 中的 background 属性来实现
+
+利用 CSS 的 background 属性将图片预加载到屏幕外的背景上。只要这些图片的路径保持不变，当它们在 Web 页面的其他地方被调用时，浏览器就会在渲染过程中使用预加载（缓存）的图片。简单、高效，不需要任何 JavaScript。该方法虽然高效，但仍有改进余地。使用该法加载的图片会同页面的其他内容一起加载，增加了页面的整体加载时间。
+
+### 使用 JavaScript 方式来实现
+
+在 JS 中利用 Image 对象，为元素对象添加 src 属性，将对象缓存起来待后续使用。
+
+```JavaScript
+//banner img 高清加载
+function imgdownLoad(){
+    var setImg = function(imgLgUrl) {
+        if(imgLgUrl) {
+            var imgObject = new Image();
+            imgObject.src = imgLgUrl;
+            if(imgObject.complete){ //发现缓存则加载缓存
+                $img.attr("src", imgLgUrl);
+                return ;
+            }
+            imgObject.onload = function(){ //图片加载完成后替换图片
+                $img.attr("src", imgLgUrl);
+            }
+        }
+    }
+    $("img").each(function(){
+        var $img = $(this);
+        var imgLg = $img.attr("data-imglg"); //高清
+        var imgMd = $img.attr("data-imgmd"); //中等
+        var imgSm = $img.attr("data-imgsm"); //一般
+        setImg(imgSm);
+        setImg(imgMd);
+        setImg(imgLg);
+    });
+}
+```
+
+### 计算页面滚动位置进行预加载
+
+先给图片设置统一的占位图，然后再根据页面滚动情况使用自定义属性`data-src`去加载图片。
+
+```html
+<body>
+  <div>
+    <img class="lazy-load" data-src="https://fakeimg.pl/600x200" alt="images" />
+    <img class="lazy-load" data-src="https://fakeimg.pl/700x200" alt="images" />
+    <img class="lazy-load" data-src="https://fakeimg.pl/800x200" alt="images" />
+    <img class="lazy-load" data-src="https://fakeimg.pl/900x200" alt="images" />
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+    let lazyImages = [...document.querySelectorAll(".lazy-load")];
+    let inAdvance = 300;
+    function lazyLoad() {
+      console.log("lazyLoading...");
+      lazyImages?.forEach((image) => {
+        if (image.offsetTop < window.innerHeight + window.pageYOffset + inAdvance) {
+          image.src = image.dataset.src;
+        }
+      });
+    }
+    lazyLoad();
+    window.addEventListener("scroll", _.throttle(lazyLoad, 50));
+    window.addEventListener("resize", _.throttle(lazyLoad, 50));
+  </script>
+</body>
+```
+
+### 每次加载一张图片
+
+通过 onload 事件判断 Img 标签加载完成。
+
+```js
+const imgArrs = [
+  "https://fakeimg.pl/100x200",
+  "https://fakeimg.pl/200x200",
+  "https://fakeimg.pl/300x200",
+  "https://fakeimg.pl/400x200",
+  "https://fakeimg.pl/500x200",
+  "https://fakeimg.pl/600x200",
+]; // 图片地址
+const content = document.getElementById("content");
+const loadImg = () => {
+  if (!imgArrs.length) return;
+  const img = new Image(); // 新建一个Image对象
+  img.src = imgArrs[0];
+  img.setAttribute("class", "img-item");
+  img.onload = () => {
+    // 监听onload事件
+    // setTimeout(() => { // 使用setTimeout可以更清晰的看清实现效果
+    content.appendChild(img);
+    imgArrs.shift();
+    loadImg();
+    // }, 1000);
+  };
+  img.onerror = () => {
+    // do something here
+  };
+};
+loadImg();
+```
+
+#### img 标签加载时机
+
+img 标签是什么时候发送图片资源请求的？
+
+1. HTML 文档渲染解析，如果解析到 img 标签的 src 时，浏览器就会立刻开启一个线程去请求图片资源。
+2. 动态创建 img 标签，设置 src 属性时，即使这个 img 标签没有添加到 dom 元素中，也会立即发送一个请求。
+
+```js
+const img = new Image();
+img.src = "https://fakeimg.pl/100x200";
+```
+
+3. 创建了一个 div 元素，然后将存放 img 标签元素的变量添加到 div 元素内，而 div 元素此时并不在 dom 文档中，页面不会展示该 div 元素，那么浏览器会发送请求吗？-- 会！
+4. 通过设置 css 属性能否做到禁止发送图片请求资源？-- 不一定
+   - 给 img 标签设置样式`display: none`或者`visibility: hidden`，隐藏 img 标签，无法做到禁止发送请求。
+   - 将图片设置为元素的背景图片`background-image`，但此元素不存在，可以做到禁止发送请求。dom 文档中不存在 test 元素时，即使设置了背景图片，也不会发送请求，只有 test 元素存在时才会发送请求。
+
+```html
+<style>
+  .test {
+    background-image: url("https://fakeimg.pl/300x200");
+  }
+</style>
+<div id="container">
+  <div class="test1">test background-image</div>
+  <img src="https://fakeimg.pl/100x200" style="display: none" />
+  <img src="https://fakeimg.pl/200x200" style="visibility: hidden" />
+</div>
+<script>
+  const img = `<img src='https://fakeimg.pl/600x200'>`;
+  const dom = document.createElement("div");
+  dom.innerHTML = img;
+  // document.body.appendChild(dom);
+</script>
 ```

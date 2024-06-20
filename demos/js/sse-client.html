@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatGPT-like Typing Effect</title>
+  </head>
+  <body>
+    <div id="output"></div>
+
+    <script>
+      const eventSource = new EventSource("/events");
+      const output = document.getElementById("output");
+
+      eventSource.onopen = function () {
+        console.log("EventSource connected.");
+      };
+
+      eventSource.addEventListener("typing", function (event) {
+        console.log("Typing event:", event.data);
+      });
+
+      eventSource.addEventListener("message", function (event) {
+        console.log("Message event:", event.data);
+      });
+
+      eventSource.addEventListener("error", function (event) {
+        console.log(event.target.readyState);
+        if (event.target.readyState == EventSource.CLOSED) {
+          console.log("EventSource closed.");
+        } else {
+          console.error("Error event:", event);
+        }
+      });
+
+      eventSource.onmessage = function (event) {
+        // const message = document.createElement("div");
+        // message.textContent = event.data;
+        // output.appendChild(message);
+        console.log(event);
+        const data = JSON.parse(event.data);
+        output.innerText += `    ${data.message}    `;
+      };
+
+      eventSource.onerror = function (err) {
+        if (event.target.readyState == EventSource.CLOSED) {
+          console.log("EventSource closed.");
+        } else {
+          console.error("Error event:", event);
+        }
+        eventSource.close();
+      };
+    </script>
+  </body>
+</html>

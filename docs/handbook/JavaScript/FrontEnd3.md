@@ -626,11 +626,11 @@ getUsers();
 15. `for` 可以使用`for...await...of`，`forEach` 不能。
 16. 只要是可迭代对象，调用内部的 `Symbol.iterator` 都会提供一个迭代器，并根据迭代器返回的`next` 方法来访问内部，这也是 `for...of` 的实现原理。
 17. 完整用法：`arr.forEach((self,index,arr) =>{},this)`
-18. `forEach` 删除自身元素，`index`不可被重置，在 forEach 中我们无法控制 index 的值，它只会无脑的自增直至大于数组的 length 跳出循环。所以也无法删除自身进行 index 重置。
-19. 在实际开发中，遍历数组同时删除某项的操作十分常见，在使用 forEach 删除时要注意。
-20. for 循环可以控制循环起点，forEach 的循环起点只能为 0 不能进行人为干预
-21. 性能比较：`for > forEach > map` 在 chrome 62 和 Node.js v9.1.0 环境下：for 循环比 forEach 快 1 倍，forEach 比 map 快 20%左右。
+18. `forEach` 删除自身元素，`index`不可被重置，在 `forEach` 中我们无法控制 `index` 的值，它只会无脑的自增直至大于数组的 `length` 跳出循环。所以也无法删除自身进行 `index` 重置。
+19. 在实际开发中，遍历数组同时删除某项的操作十分常见，在使用 `forEach` 删除时要注意。
+20. `for` 循环可以控制循环起点，`forEach` 的循环起点只能为 0 不能进行人为干预
+21. 性能比较：`for > forEach > map` 在 Chrome 62 和 Node.js v9.1.0 环境下：`for` 循环比 `forEach` 快 1 倍，`forEach` 比 `map` 快 20%左右。
 22. 原因分析
-    - for：for 循环没有额外的函数调用栈和上下文，所以它的实现最为简单。
-    - forEach：对于 forEach 来说，它的函数签名中包含了参数和上下文，所以性能会低于 for 循环。
-    - map：map 最慢的原因是因为 map 会返回一个新的数组，数组的创建和赋值会导致分配内存空间，因此会带来较大的性能开销。
+    - `for`：for 循环没有额外的函数调用栈和上下文，所以它的实现最为简单。
+    - `forEach`：对于 forEach 来说，它的函数签名中包含了参数和上下文，所以性能会低于 for 循环。
+    - `map`：map 最慢的原因是因为 map 会返回一个新的数组，数组的创建和赋值会导致分配内存空间，因此会带来较大的性能开销。

@@ -567,10 +567,128 @@ reader.onloadend = function (event) {
 };
 
 // 当文件被选择后，读取文件内容为文本
-fileInput.addEventListener('change', event => {
+fileInput.addEventListener("change", (event) => {
   const file = event.target.files[0];
   if (file) {
     reader.readAsText(file);
   }
 });
+```
+
+### flatMap
+
+数组方法 `flatMap()` 本质上是 `map()`和 `flat()` 的组合，区别在于 flatMap 只能扁平 1 级，flat 可以指定需要扁平的级数，flatmap 比分别调用这两个方法稍微高效一些。
+
+### console
+
+1. 测量代码块的性能
+
+```js
+// console.profile profileEnd
+// 测量代码块的性能。这对于识别性能瓶颈以及优化代码以提高速度和效率非常有用。
+console.profile("MyProfile");
+// 想要测量性能的代码
+for (let i = 0; i < 100000; i++) {
+  // ...code
+}
+console.profileEnd("MyProfile");
+```
+
+### 深拷贝 structuredClone()
+
+现在，JavaScript 内置了一个 `structuredClone()` 的方法， 此方法提供了一种简单有效的方法来深度克隆对象， 且适用于大多数现代浏览器和 Node.js v17 以上。`structuredClone()` 允许您克隆循环引用，这是目前在 JavaScript 中使用深拷贝最简单的方法。
+
+### 带标签的模板
+
+是模板字符串(反引号)的一种更高级的形式，它允许你使用函数解析模板字面量。是安全的。
+
+```js
+const checkCurrency = function (currency, amount) {
+  const symbol = currency[0] === "USD" ? "$" : "¥";
+  console.log(currency[0], "--", currency[1]); // Outputs: USD -- RMB
+  return `${symbol}${amount}`;
+};
+const amount = 200;
+const currency = checkCurrency`USD${amount}RMB`;
+console.log(currency); // Outputs: $200
+// 1. checkCurrency是一个函数，标签函数的第一个参数currency包含一个字符串值数组
+// 2. 字符串数组由标签模板里的字符串组成，在`USD${amount}RMB`里，字符串有USD和RMB
+// 3. 因此 currency[0] 为第一个字符串 USD， currency[1] 则是第二个字符串 RMB
+// 3. checkCurrency函数的其余参数则根据表达式直接插入到字符串中，如 amount = 200
+// 4. 在checkCurrency函数的内部，判断第一个参数数组首项是否是‘USD’，是则选择"$"符号，否则是 "¥"
+// 5. 函数内部将symbol和amount结合在一起返回一个新的字符串，symbol代表货币符号，而amount代表传递给函数的金额。
+// 6. 返回的字符串赋值给 currency 常量， 因此 log为 $200
+```
+
+### 生成器 (Generator) 和 迭代器 (iterators)
+
+假如在一个获取数据的场景下，数据库/ API 的数据量可能是无限的，而你必须将它们传输到前端，最常用的方案就是无限加载方案。
+
+```js
+// 异步生成器(async generators)
+
+async function* fetchProducts() {
+  while (true) {
+    const productUrl = "https://fakestoreapi.com/products?limit=2";
+    const res = await fetch(productUrl);
+    const data = await res.json();
+    yield data;
+    // 在这里操作用户界面
+    // 或将其保存在数据库或其他地方
+    // 将其用作副作用的地方
+    // 即使某些条件匹配，也中断流程
+  }
+}
+async function main() {
+  const itr = fetchProducts();
+  // 这应该根据用户交互来调用
+  // 或者其他技巧，因为您不希望出现无限加载。
+  console.log(await itr.next());
+}
+main();
+```
+
+### 私有类字段
+
+现在，JavaScript 类支持使用#符号的私有字段。私有字段不能从类外部访问，从而提供封装和信息隐藏。
+
+```js
+class Counter {
+  #count = 0;
+
+  increment() {
+    this.#count++;
+  }
+
+  getCount() {
+    return this.#count;
+  }
+}
+
+const counter = new Counter();
+counter.increment();
+console.log(counter.getCount()); // 1
+console.log(counter.#count); // 1
+```
+
+### Promise.allSettled()
+
+Promise.allSettled() 方法返回一个 Promise，该 Promise 在所有给定的 Promise 已经 resolve 或 reject 后 resolve，提供每个 Promise 的结果数组。
+
+```js
+const promises = [Promise.resolve("Resolved"), Promise.reject("Rejected")];
+
+Promise.allSettled(promises).then((results) => {
+  console.log(results);
+});
+// [{ status: "fulfilled", value: "Resolved" }, { status: "rejected", reason: "Rejected" }]
+```
+
+### globalThis 全局对象
+
+globalThis 对象提供了一种在不同环境下（包括浏览器和 Node.js）访问全局对象的一致方式。
+
+```js
+console.log(globalThis === window); // 在浏览器场景下: true
+console.log(globalThis === global); // 在 Node.js 中: outputs: true
 ```

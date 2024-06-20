@@ -813,3 +813,73 @@ systemctl restart httpd
 9. 内存里有一段是跟寄存器相对应的，而寄存器是跟芯片的引脚相对应的，于是操作该段内存就能控制芯片引脚的电压变化。
 10. 硬件（比如说显示器）有引脚（或者说排线，这些也是一样的东西），这些引脚跟芯片的引脚相连可以接受芯片的控制。
 11. 通常我们（消费者或者非底层开发者）操作硬件就是直接调厂商提供的驱动啥的就可以了，就是调库调函数去控制/实现一些功能。
+
+## SSH Config
+
+### SSH 设置多个 SSH Key
+
+比如同一台电脑要登录多个 GitHub 账号并通过 ssh key 去登录验证推拉代码的时候，为了正确配置多个 GitHub 账号的 SSH key，你需要为每个账号设置一个不同的 Host 别名。
+
+1. 打开`~/.ssh/config`文件并修改
+2. 示例：
+
+```bash
+# CodeSandbox SSH Integration
+Include "csb/config"
+# End of CodeSandbox SSH Integration
+
+# 配置第一个 GitHub 账号
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_rsa
+
+# 配置第二个 GitHub 账号，使用别名
+Host github-second
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_rsa_github_second
+
+# 配置 gitlab 账号
+Host gitlab.com
+  HostName gitlab.com
+  User git
+  IdentityFile ~/.ssh/id_rsa
+```
+
+3. 使用别名 github-second: 在这种配置下，你需要在使用第二个 GitHub 账号时，使用别名 github-second。
+
+```bash
+# 使用第一个 GitHub 账号
+git clone git@github.com:your-username/your-repo.git
+
+# 使用第二个 GitHub 账号
+git clone git@github-second:your-username/your-repo.git
+```
+
+4. 配置现有项目使用别名: 如果你已经有一个项目需要切换到使用第二个 GitHub 账号，你可以修改项目的 Git 配置
+
+```bash
+cd your-repo
+git remote set-url origin git@github-second:your-username/your-repo.git
+```
+
+### SSH 将 IP 地址配置成别名
+
+使用 SSH 登录远端服务器时：`ssh myserver1`即可登录`10.21.22.233`
+
+```bash
+# 配置第一个服务器 -- 简单密码登录
+Host myserver1
+  HostName 10.21.22.233
+  User root
+
+# 配置第二个服务器 -- 使用秘钥登录
+Host myserver2
+  HostName 192.168.1.100
+  User root
+  Port 2222
+  IdentityFile ~/.ssh/id_rsa_myserver1  # 密钥文件本地路径
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
+```

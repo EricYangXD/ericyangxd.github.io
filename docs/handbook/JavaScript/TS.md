@@ -735,6 +735,96 @@ declare global {
 11. rootDirs:[]：将多个目录放在一个虚拟目录下，用于运行时
 12. references:[]：引用的其他工程 path、prepend 等
 
+### 基础配置
+
+```js
+{
+  "compilerOptions": {
+    "esModuleInterop": true,// 解决 ES Module 和 CommonJS 之间的兼容性问题
+    "skipLibCheck": true,// 跳过对加载的类型声明文件的检查，能进一步加快编译速度。
+    "target": "es2022",// 指定 ECMAScript 目标版本
+    "allowJs": true, // 允许编译 js 文件
+    "resolveJsonModule": true, // 允许导入 json 模块
+    "moduleResolution": "node", // 模块解析策略
+    "isolatedModules": true, // 将每个文件作为单独的模块
+    "noUnusedLocals": true // 禁用未使用的局部变量
+  }
+}
+```
+
+esm 有 default 这个概念，而 cjs 没有。任何导出的变量在 cjs 看来都是 `module.exports` 这个对象上的属性，esm 的 `default` 导出也只是 cjs 上的 `module.exports.default` 属性而已。
+
+### 严格模式
+
+```js
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true
+  }
+}
+```
+
+### 使用 tsc 编译
+
+```js
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "outDir": "dist"
+  }
+}
+```
+
+### 为库构建
+
+```js
+{
+  "compilerOptions": {
+    "declaration": true // 生成相应的 .d.ts 文件，对于 JavaScript 库来说非常有用
+  }
+}
+```
+
+### 对于构建 monorepo 的类库 (大型复杂项目同样适用)
+
+```js
+{
+  "compilerOptions": {
+    "declaration": true,
+    "composite": true,
+    "sourceMap": true,
+    "declarationMap": true
+  }
+}
+```
+
+### 不适用 tsc 编译
+
+```js
+{
+  "compilerOptions": {
+    "module": "preserve",
+    "noEmit": true
+  }
+}
+```
+
+### 在 DOM 中运行
+
+```js
+{
+  "compilerOptions": {
+    "lib": ["es2022", "dom", "dom.iterable"]
+  }
+}
+```
+
+### tsconfig.guide
+
+[tsconfig.guide](https://tsconfig.guide/)，可视化配置 tsconfig 的网站。
+
 ## alias 别名设置
 
 使用设置别名的方式解决上述问题，两个地方要同时修改，tsconfig 使 vscode 显示不报错,webpack.js 使打包编译不报错
@@ -924,3 +1014,5 @@ type B = typeof option[number]["value"];
 ```
 
 `option[number]`：表示 option 数组中的任意一个元素。在 TypeScript 类型定义中,number 表示一个不确定的数字索引,用于表示数组中任意一个元素
+
+##
