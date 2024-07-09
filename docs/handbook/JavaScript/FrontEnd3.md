@@ -634,3 +634,211 @@ getUsers();
     - `for`：for 循环没有额外的函数调用栈和上下文，所以它的实现最为简单。
     - `forEach`：对于 forEach 来说，它的函数签名中包含了参数和上下文，所以性能会低于 for 循环。
     - `map`：map 最慢的原因是因为 map 会返回一个新的数组，数组的创建和赋值会导致分配内存空间，因此会带来较大的性能开销。
+
+## 有用的 JS 函数片段
+
+### 如何平滑滚动到元素视图中
+
+```javascript
+const smoothScroll = (element) =>
+  document.querySelector(element).scrollIntoView({
+    behavior: "smooth",
+  });
+
+smoothScroll("#fooBar"); // 平滑滚动到id为fooBar的元素
+smoothScroll(".fooBar");
+// 平滑滚动到class为fooBar的第一个元素
+```
+
+### 如何生成 UUID？
+
+```javascript
+const UUIDGeneratorBrowser = () =>
+  ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+    (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+  );
+
+UUIDGeneratorBrowser(); // '7982fcfe-5721-4632-bede-6000885be57d'
+```
+
+### 如何获取选定的文本
+
+```javascript
+const getSelectedText = () => window.getSelection().toString();
+
+getSelectedText(); // 'Lorem ipsum'
+```
+
+### 如何将文本复制到剪贴板
+
+```javascript
+const copyToClipboard = (str) => {
+  if (navigator && navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(str);
+  return Promise.reject("The Clipboard API is not available.");
+};
+```
+
+### 如何切换全屏模式
+
+```javascript
+const fullscreen = (mode = true, el = "body") =>
+  mode ? document.querySelector(el).requestFullscreen() : document.exitFullscreen();
+
+fullscreen(); // 将body以全屏模式打开
+fullscreen(false); // 退出全屏模式
+```
+
+### 如何检测大写锁定是否打开
+
+```javascript
+const el = document.getElementById("password");
+const msg = document.getElementById("password-message");
+
+el.addEventListener("keyup", (e) => {
+  msg.style = e.getModifierState("CapsLock") ? "display: block" : "display: none";
+});
+```
+
+### 如何检查日期是否有效
+
+```javascript
+const isDateValid = (...val) => !Number.isNaN(new Date(...val).valueOf());
+
+isDateValid("December 17, 1995 03:24:00"); // true
+isDateValid("1995-12-17T03:24:00"); // true
+isDateValid("1995-12-17 T03:24:00"); // false
+isDateValid("Duck"); // false
+isDateValid(1995, 11, 17); // true
+isDateValid(1995, 11, 17, "Duck"); // false
+isDateValid({}); // false
+```
+
+### 如何检查当前用户的首选语言
+
+```javascript
+const detectLanguage = (defaultLang = "en-US") =>
+  navigator.language || (Array.isArray(navigator.languages) && navigator.languages[0]) || defaultLang;
+
+detectLanguage(); // 'nl-NL'
+```
+
+### 如何检查当前用户的首选颜色方案
+
+```javascript
+const prefersDarkColorScheme = () =>
+  window && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+prefersDarkColorScheme(); // true
+```
+
+### 如何检查设备是否支持触摸事件
+
+```javascript
+const supportsTouchEvents = () => window && "ontouchstart" in window;
+
+supportsTouchEvents(); // true
+```
+
+### 在浏览器分析 npm 包
+
+`[pkg-size.dev](https://pkg-size.dev/)`，可以直接在浏览器对 npm 包进行分析（包括占用大小、打包大小、间接依赖项等等）。它的目标是让像我们可以更轻松地探索 npm 生态系统。
+
+### 前端监听手机键盘是否弹起
+
+安卓和 ios 判断手机键盘是否弹起的写法是有所不同的：
+
+1. IOS 端可以通过 `focusin`、`focusout` 这两个事件来监听
+
+```javascript
+window.addEventListener("focusin", () => {
+  // 键盘弹出事件处理
+  alert("ios键盘弹出事件处理");
+});
+window.addEventListener("focusout", () => {
+  // 键盘收起事件处理
+  alert("ios键盘收起事件处理");
+});
+```
+
+2. 安卓只能通过 resize 来判断屏幕大小是否发生变化来判断
+
+由于某些 Android 手机收起键盘，输入框不会失去焦点，所以不能通过聚焦和失焦事件来判断。但由于窗口会变化，所以可以通过监听窗口高度的变化来间接监听键盘的弹起与收回。
+
+```javascript
+const innerHeight = window.innerHeight;
+window.addEventListener("resize", () => {
+  const newInnerHeight = window.innerHeight;
+  if (innerHeight > newInnerHeight) {
+    // 键盘弹出事件处理
+    alert("android 键盘弹出事件");
+  } else {
+    // 键盘收起事件处理
+    alert("android 键盘收起事件处理");
+  }
+});
+```
+
+3. 因为 ios 和安卓的处理不一样，所以还需要判断系统的代码
+
+```javascript
+const ua = typeof window === "object" ? window.navigator.userAgent : "";
+
+let _isIOS = -1;
+let _isAndroid = -1;
+
+export function isIOS() {
+  if (_isIOS === -1) {
+    _isIOS = /iPhone|iPod|iPad/i.test(ua) ? 1 : 0;
+  }
+  return _isIOS === 1;
+}
+
+export function isAndroid() {
+  if (_isAndroid === -1) {
+    _isAndroid = /Android/i.test(ua) ? 1 : 0;
+  }
+  return _isAndroid === 1;
+}
+```
+
+4. 复选框、单选框的点击也会导致`focusin` 和`focusout` 的触发，我们需要处理一下，使其点击复选框、单选框这类标签的时候不触发我们的回调函数
+
+```javascript
+// 主要是通过判断一下当前被focus的dom类型
+// document.activeElement.tagName
+// tagName为输入框的时候才算触发键盘弹起
+const activeDom = document.activeElement.tagName;
+if (!["INPUT", "TEXTAREA"].includes(activeDom)) {
+  console.log("只有");
+}
+```
+
+5. 当有横屏功能的时候，resize 也会被触发，增加宽度是否有改变的判断，没有改变，才是真正的键盘弹起
+
+```javascript
+//初始化的时候获取一次原始宽度
+const originWidth = document.documentElement.clientWidth || document.body.clientWidth;
+//结合处理复选框、单选框的点击也会导致`focusin` 和`focusout` 的触发问题的完整回调写法
+function callbackHook(cb) {
+  const resizeWeight = document.documentElement.clientWidth || document.body.clientWidth;
+  const activeDom = document.activeElement.tagName;
+  if (resizeWeight !== originWidth || !["INPUT", "TEXTAREA"].includes(activeDom)) {
+    return (isFocus = false);
+  }
+  cb && cb();
+}
+```
+
+6. 使用应当要注意销毁，也需要尽量减少绑定指令的次数，一般在 form 表单上绑定一个，即可监听这个表单下的所有输入框是否触发手机键盘唤起了
+
+###
+
+```javascript
+
+```
+
+###
+
+```javascript
+
+```

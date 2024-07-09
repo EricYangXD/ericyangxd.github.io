@@ -760,3 +760,87 @@ for (var i = 0; i < employees.length; i++) {
   </body>
 </html>
 ```
+
+## 如何在线上使用 SourceMap
+
+常见的使用姿势是通过浏览器的开发者工具进行本地调试，而在线上使用 SourceMap 则需要手动添加 SourceMap 地址。针对线上无法自动加载 SourceMap 的问题，可以尝试使用浏览器插件、Charles 进行转发或者私有静态服务托管 SourceMap。
+
+### 浏览器是如何识别并加载 SourceMap 的
+
+如果我们让构建工具开启了 `SourceMap`，例如 Webpack 的 `devtools`，源码经过构建过程（编译、混淆、压缩等）生成的部署代码会在底部增加一行注释，如下：`//# sourceMappingURL=detect_angular_for_extension_icon_bundle.js.map`
+
+`sourceMappingURL` 告诉我们，当前资源文件 `ConsoleSiteList.57ca29c2.chunk.js` 对应的 `SourceMap` 文件的路径是 `ConsoleSiteList.57ca29c2.chunk.js.map`。这是相对路径的写法，也就是说，在本地启用的服务中，构建后的 `chunk` 和对应的 `SourceMap` 文件的地址分别为：
+
+构建后的 `chunk` 地址：`http://localhost:3000/ConsoleSiteList.57ca29c2.chunk.js`
+
+对应 `SourceMap` 地址：`http://localhost:3000/ConsoleSiteList.57ca29c2.chunk.js.map`
+
+这样一来，浏览器就可以根据 `sourceMappingURL` 去自动加载 `SourceMap`，而不用苦哈哈的手动添加。
+
+### 查看浏览器是否加载了 SourceMap
+
+打开 `DevTools Network` 标签页，使用过滤器过滤 `.map` 文件，我们发现什么都没有！这是出于安全考虑有意为之。不过我们仍然有其他手段看到 `.map` 文件的请求，打开 `Charles` 抓一把，就可以看到一堆迷途的请求。或者打开浏览器`Developer Resources`（开发者工具右上角三个点->`More tools`） 标签页过滤出 `SourceMap` 相关的请求即可（也可以使用 `net-internals`）。
+
+### 为什么本地可以自动加载而线上不可以
+
+一般来讲，线上产物中会把 `SourceMap` 去除，除了为了加速构建过程，更重要的是避免有开发经验的人直接在浏览器中「阅读源码」。除了直接去除，企业内也常常利用内部的存储能力，将构建好的 `SourceMap` 资源转存到其他地方比如内网，这样一来，构建产物中的 `sourceMappingURL` 将无法正确指向 `SourceMap` 的资源地址，从而实现与直接去除接近的效果。
+
+这样一来，在生产环境下 Chrome 根据 `sourceMappingURL` 相对路径的写法就只能寻址到不存在的 404，浏览器会加载不到需要的资源。
+
+### 排查线上 bug 的做法
+
+前提是打包的时候生成了`SourceMap` 资源，否则也不好直接看源码。
+
+1. 发现控制台中报异常，根据 Chrome 提供的堆栈定位到报错文件
+2. 在代码编辑面板中，右键 - `Reveal in sidebar`，在文件树中定位到部署文件
+3. 右键部署文件，点击 `Copy link address`，在控制台中查看资源的地址，其实目的就是推测一下`SourceMap` 资源地址
+4. 确定构建产物对应的 `SourceMap` 资源地址
+5. 在代码编辑面板，右键 - `Add source map`，添加 `SourceMap` 地址，即上一步 4 的 `SourceMap` 资源地址
+6. 从已经映射到源码的堆栈信息再次进入，即可看到报错在源码中的位置
+
+### 具体做法尝试
+
+1. 基于浏览器插件 Redirect 资源请求 -- 比如使用 `XSwitch` 插件，不行！能够确定的是：
+
+   - 只有在 `DevTools` 打开时才会加载 `SourceMap`（性能优化 & 用户并不需要）
+   - `DevTools` 也是一种扩展，而扩展是无法拦截另一个扩展的请求的（安全性问题）
+   - `SourceMap` 的加载不能从 `Network` 中看到而要从 `Developer Resources` 看到（这也是故意的设计）
+   - 基于以上信息，可以理解为 `Chrome Extension` 主要还是用于折腾 content 区域，而不是希望你 hack 浏览器。
+
+2. 基于 `Charles -> Tools -> Map Remote` -- 可行
+
+   - 因为 `Chrome` 检测到 `sourceMappingURL` 后会实际发起请求，所以使用 `Charles` 进行转发是肯定可行的。
+
+3. 基于私有静态服务托管 SourceMap -- 可行
+
+在构建时将 `SourceMap` 上传至某个私有的地址（如 CDN 或 OSS），然后利用 `Webpack` 插件将 `sourceMappingURL` 改为该私有地址。这样开发人员在打开 `DevTools` 时，`Chrome` 将根据 `sourceMappingURL` 直接加载实际的 `SourceMap` 地址，而外部用户则完全被隔离(因为他们无法访问内网或没有权限)。
+
+4. 通过浏览器插件在响应头`Http Header`中添加 `SourceMap`，设为实际的`SourceMap`地址 -- 可行
+   - `SourceMap` 文件在命名上与源文件保持一致，仅额外多出 `.map` 后缀
+   - 添加 `Http Header：sourcemap`，浏览器将识别并加载 `SourceMap` 文件
+   - `sourceMappingURL` 注释的优先级比 `HttpHeader sourcemap` 的优先级高
+   - `Rollup`打包时 `sourcemap` 需指定为 `hidden`，其效果等同 `Webpack` 的 `hidden-source-map`，此时会构建出 `SourceMap` 但不会有 `sourceMappingURL` 的注释。这样我们就可以保证只有 `Http Header sourcemap` 生效。
+   - 以 Manifest V2 为例，插件代码如下:
+
+```js
+const REGEX = /^.*g\.alicdn\.com\/(马上到！|aimake|muyang-test)\/(.*)\.js.*/;
+const TARGET_TPL = "https://sourcemap.def.alibaba-inc.com/sourcemap/$1/$2.js.map?enableCatchAll=true";
+
+chrome.webRequest.onHeadersReceived.addListener(
+  function (details) {
+    if (details.url.match(REGEX)) {
+      const targetUrl = details.url.replace(REGEX, TARGET_TPL);
+      const headerSourcemap = { name: "sourcemap", value: targetUrl };
+      const responseHeaders = details.responseHeaders.concat(headerSourcemap);
+      return { responseHeaders };
+    }
+    return { responseHeaders: details.responseHeaders };
+  },
+  // filters
+  {
+    urls: ["<all_urls>"],
+  },
+  // extraInfoSpec
+  ["blocking", "responseHeaders", "extraHeaders"]
+);
+```

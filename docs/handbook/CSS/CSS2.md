@@ -264,9 +264,9 @@ html {
 ```html
 <style>
   .br::after {
-  content: '\A';
-  white-space: pre;
-}
+    content: "\A";
+    white-space: pre;
+  }
 </style>
 <div>
   <span class="br">test</span>
@@ -323,7 +323,7 @@ p {
 
 ### 毛玻璃效果
 
-使用 `backdrop-filter: blur(6px);` 给元素后面区域添加模糊效果，比如准备一个彩色图片，然后在图片上放一个div，给这个div添加`backdrop-filter: blur(6px);`，就可以看到图片被模糊了；如果添加`backdrop-filter: grayscale(1);`，就可以看到图片变成了黑白的，鼠标移入的时候，结合`transition: 2s; width: 0;`，就可以看到图片变成了彩色的。
+使用 `backdrop-filter: blur(6px);` 给元素后面区域添加模糊效果，比如准备一个彩色图片，然后在图片上放一个 div，给这个 div 添加`backdrop-filter: blur(6px);`，就可以看到图片被模糊了；如果添加`backdrop-filter: grayscale(1);`，就可以看到图片变成了黑白的，鼠标移入的时候，结合`transition: 2s; width: 0;`，就可以看到图片变成了彩色的。
 
 ### 改变输入框光标颜色
 
@@ -343,14 +343,47 @@ div {
 }
 ```
 
-### Filter 属性
+### filter 属性
 
 ```css
-filter: drop-shadow(16px 16px 20px red);
+/* 使用单个滤镜 （如果传入的参数是百分数，那么也可以传入对应的小数：40% --> 0.4）*/
 filter: blur(5px);
+filter: brightness(
+  40%
+); // 用于调整图像的明暗度。默认值是1；小于1时图像变暗，为0时显示为全黑图像；大于1时图像显示比原图更明亮。
 filter: contrast(200%);
-filter: grayscale(80%);
+filter: drop-shadow(16px 16px 20px blue);
+filter: grayscale(50%);
+filter: hue-rotate(90deg);
+filter: invert(75%);
+filter: opacity(25%);
+filter: saturate(30%);
+filter: sepia(60%);
+
+/* 使用多个滤镜 */
+filter: contrast(175%) brightness(3%);
+
+/* 不使用任何滤镜 */
+filter: none;
 ```
+
+通过`animation`和`@keyframes`配合，实现动画效果。
+
+### transition 和 transform
+
+transition 和 transform 是 CSS 中用于创建动画效果的两个不同的属性，它们各自有不同的用途和功能。
+
+#### transform 属性
+
+transform 属性允许你旋转、缩放、倾斜或平移元素。它通过一系列的函数来实现这些效果，例如 `rotate()`, `scale()`, `skew()`, 和 `translate()`。transform 属性直接改变元素的外观，但不会影响页面的布局。transform 通常用于静态效果。transform 不会触发页面重排（reflow）或重绘（repaint），因为它不会改变元素的布局。
+
+如果你想要改变元素的形状、大小或位置，而不影响其他元素，使用 transform。
+
+#### transition 属性
+
+transition 属性用于定义元素的样式如何从一个状态平滑过渡到另一个状态。它通常与 `hover`, `focus`, `active` 等伪类或者通过 JavaScript 改变的 CSS 属性一起使用。transition 可以让你指定哪些属性要过渡，过渡的持续时间，过渡的类型（如线性或缓动函数），以及延迟时间。transition 用于动态效果，即从一个状态过渡到另一个状态。transition 可能会触发重绘，尤其是当过渡的属性影响布局时。
+
+如果你想要让元素的某个或某些属性在一段时间内平滑地从一个值变化到另一个值，使用 transition。
 
 ### writing-mode 文字排版方向
 
@@ -360,7 +393,7 @@ writing-mode: vertical-lr;
 
 ### Grid 中的 place-items
 
-在 grid 布局中，align-items 属性控制垂直位置，justify-items 属性控制水平位置。这两个属性的值一致时，就可以合并写成一个值。所以，`place-items: center;`等同于`place-items: center center;`。
+在 grid 布局中，`align-items` 属性控制垂直位置，`justify-items` 属性控制水平位置。这两个属性的值一致时，就可以合并写成一个值。所以，`place-items: center;`等同于`place-items: center center;`。
 
 ```css
 place-items: center stretch;
@@ -1042,7 +1075,7 @@ CSS像素个数 = 物理像素个数
 
 - 友情提醒：桌面版 Chrome 支持的字体大小默认不能小于 12PX，可通过 「chrome://settings/ 显示高级设置－网络内容－自定义字体－最小字号（滑到最小）」设置后再到模拟器里体验 DEMO。
 
-### vw 适配方案
+### vw vh 适配方案
 
 vw 是视口单位，视口单位中的“视口”，在桌面端指的是浏览器的可视区域；在移动端指的就是 Viewport 中的 Layout Viewport（布局适口）。
 
@@ -1113,6 +1146,105 @@ $vw_base: 375;
 1. 移动端适配主要就分为两方面，一方面要适配不同机型的屏幕尺寸，一方面是对细节像素的处理过程。如果你在项目中直接写了 1px ，由于 dpr 的存在展示导致渲染偏粗，其实是不符合设计稿的要求。
 
 2. 如果你使用了 rem 布局计算出了对应的小数值，不同手机又有明显的兼容性问题。此时老项目的话整体修改 viewport 成本过高，可以采用第一种实现方案进行 1px 的处理；新项目的话可以采用动态设置 viewport 的方式，一键解决所有适配问题。
+
+## 大屏适配方案
+
+### vw vh 适配方案
+
+按照设计稿的尺寸，将 px 按比例计算转为 vw 和 vh。
+
+优点：
+
+- 1. 可以动态计算图表的宽高，字体等，灵活性较高
+- 2. 当屏幕比例跟 ui 稿不一致时，不会出现两边留白情况
+- 3. 屏幕尺寸发生变化后，需要手动刷新一下才能完成自适应调整
+
+缺点：
+
+- 1.可以动态计算图表的宽高，字体等，灵活性较高
+- 2.当屏幕比例跟 ui 稿不一致时，不会出现两边留白情况
+
+```scss
+// util.scss
+// 使用 scss 的 math 函数，https://sass-lang.com/documentation/breaking-changes/slash-div
+@use "sass:math";
+
+// 默认设计稿的宽度
+$designWidth: 1920;
+// 默认设计稿的高度
+$designHeight: 1080;
+
+// px 转为 vw 的函数
+@function vw($px) {
+  @return math.div($px, $designWidth) * 100vw;
+}
+
+// px 转为 vh 的函数
+@function vh($px) {
+  @return math.div($px, $designHeight) * 100vh;
+}
+
+// 使用
+.box {
+  width: vw(300);
+  height: vh(100);
+  font-size: vh(16);
+  background-color: black;
+  margin-left: vw(10);
+  margin-top: vh(10);
+  border: vh(2) solid red;
+}
+```
+
+### scale 适配方案
+
+通过 scale 属性，根据屏幕大小，对图表进行整体的等比缩放
+
+- 当屏幕宽高比 < 设计稿宽高比，我们需要缩放的比例是屏幕宽度 / 设计稿宽度
+- 当屏幕宽高比 > 设计稿宽高比，我们需要缩放的比例是屏幕高度 / 设计稿高度
+- 设置居中：首先我们利用 `transform:translate(-50%,-50%)` ，将动画的基点设为左上角，然后利用`transform:translate(-50%,-50%)`，将图表沿 x，y 轴移动 50%，接下来利用绝对定位将图表定位到中间位置。
+
+优点：
+
+- 1.代码量少，适配简单
+- 2.一次处理后不需要在各个图表中再去单独适配
+
+缺点：
+
+- 1.因为是根据 ui 稿等比缩放，当大屏跟 ui 稿的比例不一样时，会出现周边留白情况
+- 2.当缩放比例过大时候，字体会有一点点模糊，就一点点
+- 3.当缩放比例过大时候，事件热区会偏移。
+
+### rem + vw vh 适配方案
+
+关于 rem：rem(font size of the root element)，是 css3 中新增的一个大小单位，即相对于根元素 font-size 值的大小。
+
+1.获得 rem 的基准值, 2.动态的计算 html 根元素的`font-size`, 3.图表中通过 vm vh 动态计算字体、间距、位移等.
+
+优点：
+
+- 布局的自适应代码量少，适配简单
+
+缺点：
+
+- 1.因为是根据 ui 稿等比缩放，当大屏跟 ui 稿的比例不一样时，会出现周边留白情况
+- 2.图表需要单个做字体、间距、位移的适配
+
+自适应思路：
+
+动态的计算出页面的 fontsize 从而改变 rem 的大小。
+
+1. 拿 `1920 * 1080` 的标准屏幕大小为例，将屏幕分为 10 份，先计算 rem 的基准值: `1920 / 10 = 192`；
+2. 把所有元素的长、宽、位置、字体大小等原来的 px 单位全部转换成 rem；
+3. 网页加载后，用 js 去计算当前浏览器的宽度，并设置 html 的 `font-size` 为 (举例：当前浏览器窗口宽度 / 10) 。
+4. 屏幕变化后，图表自动调整字体、间距、位移等，让然需要写个工具函数（可以挂到全局下）来进行具体数值的转换。
+5. 屏幕尺寸发生变化后，需要手动刷新一下才能完成自适应调整：可以写个指令监听绑定的 div 大小变化，触发更新 echarts 大小。
+
+### 总结
+
+1. 如果想简单，客户能同意留白，选用 scale 即可
+2. 如果需要兼容不同比例的大屏，并且想在不同比例中都有比较好的效果，图表占满屏幕，类似于移动端的响应式，可以采用 vm vh 的方案
+3. 至于 rem，个人觉得就是 scale 和 vm vh 的综合，最终的效果跟 scale 差不多
 
 ## CSS 新特性
 
