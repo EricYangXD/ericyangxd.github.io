@@ -444,9 +444,9 @@ platformRef.bootstrapModule(AppModule2);
 
 #### ::ng-deep
 
-1. `::ng-deep`功能类似 Vue 中的`::v-deep`，比如在父组件对一些子组件样式进行穿透等（父组件的样式会没有 ng 生成的属性选择器）。可能会污染其他子组件的样式。
+1. `::ng-deep`功能类似 Vue 中的`::v-deep`(谁抄的谁咱也不敢说)，比如在父组件对一些子组件样式进行穿透等（父组件的样式会没有 ng 生成的属性选择器）。可能会污染其他子组件的样式。
 2. 解决样式污染使用`:host`放在`::ng-deep`前面，这时样式又会获得属性封装，把属性留在组件树内部。
-3. 全局样式可以在 styles.scss 中使用`:root`，但是要注意影响范围。
+3. 全局样式可以在 `styles.scss` 中使用`:root`，但是要注意影响范围。
 
 #### [attr] vs attr
 
@@ -538,24 +538,24 @@ export class ProductListComponent implements ControlValueAccessor {
   }
 ```
 
-1. checked 结尾的钩子会执行多次，其余都执行一次。
-2. ngOnChanges 只在输入属性变更时触发，且可以有一个参数，包含变更属性的信息。
-3. content 钩子是父组件先执行，view 钩子是子组件先执行。
-4. ngDoCheck 钩子的调用频率最高，不要在当中实现过重的业务。
-5. 初始化的业务应该放在 ngOnInit 中，而不是构造函数中。
+1. `checked` 结尾的钩子会执行多次，其余都执行一次。
+2. `ngOnChanges` 只在输入属性变更时触发，且可以有一个参数，包含变更属性的信息。
+3. `content` 钩子是父组件先执行，view 钩子是子组件先执行。
+4. `ngDoCheck` 钩子的调用频率最高，不要在当中实现过重的业务。
+5. 初始化的业务应该放在 `ngOnInit` 中，而不是构造函数中。
 
 #### 变更检查
 
 1. 单向数据流
-2. 触发变更检查的事件：Event、XHR、Timer 等
+2. 触发变更检查的事件：`Event、XHR、Timer` 等
 3. 解决`ExpressionChangedAfterItHasBeenCheckedError`报错的两个方法
-   1. 在父组件的 ngAfterViewInit 钩子中强制 Angular 进行变更检查：`this.changeDetectorRef.detectChanges()`
+   1. 在父组件的 `ngAfterViewInit` 钩子中强制 Angular 进行变更检查：`this.changeDetectorRef.detectChanges()`
    2. 在子组件中使用异步更新的方式修改父组件的内容（这其实是违背了单向数据流的原则，所以有错误并不奇怪）：`setTimeout(()=>...,0);`
 
 #### SharedModule
 
-1. 为那些可能会在应用中到处使用到的组件、指令和管道创建 SharedModule，这种模块应该只包含 declarations，并且应该导出几乎所有 declarations 里面的声明。
-2. SharedModule 不应该带有 providers。
+1. 为那些可能会在应用中到处使用到的组件、指令和管道创建 `SharedModule`，这种模块应该只包含 `declarations`，并且应该导出几乎所有 `declarations` 里面的声明。
+2. `SharedModule` 不应该带有 `providers`。
 
 #### XSS
 
@@ -805,7 +805,7 @@ combineLatest([request1$, request2$]).subscribe(([data1, data2]) => {
 });
 ```
 
-1. 另一种方法是使用 Promise.all：
+1. 另一种方法是使用 `Promise.all`：
 
 ```ts
 // 如果您更喜欢使用Promises而不是Observables，您可以将HTTP请求封装在Promises中，并使用Promise.all来等待它们全部完成。

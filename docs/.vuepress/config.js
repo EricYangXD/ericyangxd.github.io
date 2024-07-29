@@ -263,6 +263,10 @@ module.exports = {
             title: "小程序 & Taro",
             path: "/handbook/Applet/Taro",
           },
+          {
+            title: "小程序 & UniApp",
+            path: "/handbook/Applet/Uni",
+          },
         ],
       },
       {

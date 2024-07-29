@@ -713,6 +713,65 @@ export class HoverDirective implements AfterViewInit {
 
 ```html
 {{ date | date: "yyyy-MM-dd" }}
+<!-- 显示UTC时间，Angular datePipe会默认把时间转换为本地时间！UTC时间：`+0000` 表示 UTC
+时间，即没有时区偏移。-->
+{{ date | date: "yyyy-MM-dd" : "UTC" }}
+```
+
+##### 使用 dayjs 格式化 utc 格式时间
+
+```javascript
+import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
+import dayjs from "dayjs";
+// 引入utc插件
+import utc from "dayjs/plugin/utc";
+// 引入相关格式化适配器等
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from "@angular/material/core";
+import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from "@angular/material-moment-adapter";
+// 动画：表格折叠
+import { animate, state, style, transition, trigger } from "@angular/animations";
+
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: "DD/MM/YYYY",
+  },
+  display: {
+    dateInput: "DD/MM/YYYY",
+    monthYearLabel: "MMM YYYY",
+    dateA11yLabel: "LL",
+    monthYearA11yLabel: "MMMM YYYY",
+  },
+};
+
+@Component({
+  selector: "app-my",
+  templateUrl: "./my.component.html",
+  styleUrls: ["./my.component.scss"],
+  animations: [
+    trigger("detailExpand", [
+      state("collapsed", style({ height: "0px", minHeight: "0" })),
+      state("expanded", style({ height: "*" })),
+      transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+    ]),
+  ],
+  providers: [
+    // 注册相关service等
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+  ],
+})
+export class MyComponent implements OnInit, AfterViewInit {
+  constructor() {
+    // 注册utc插件
+    dayjs.extend(utc);
+
+    // 使用
+    // 此时的dateStr已经是UTC格式，不需要dayjs转换成本地时间localDate，dayjs默认会转换成本地时间！
+    const dateStr = "2024-02-01T01:20:00.000+0000";
+    // 通过设置utc(false)，即表示不转换成localDate
+    const utcDate = dayjs(dateStr).utc(false).format("YYYY-MM-DD HH:mm:ss");
+  }
+}
 ```
 
 #### 6.2 自定义管道
