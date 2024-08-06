@@ -267,7 +267,7 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 - 先`sudo spctl --master-disable`，然后`sudo xattr -r -d com.apple.quarantine ./路径/app名`。
 
-### m1 MacBook 安装 adb
+### m1/intel MacBook 安装 adb
 
 `brew install android-platform-tools`
 

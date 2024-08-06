@@ -191,7 +191,7 @@ console.log("path.join() : ", path.join());
 // path.join() :  .                // 表示当前工作路径
 
 console.log("path.resolve : ", path.resolve());
-// path.resolve :  /Users/valtechwh/workspace/my-blog     // 打印绝对路径
+// path.resolve :  /Users/eric/workspace/my-blog     // 打印绝对路径
 
 path.resolve("/a", "b", "c"); // returns:    '/a/b/c'
 path.resolve("/a", "/b", "c"); // returns:    '/b/c'

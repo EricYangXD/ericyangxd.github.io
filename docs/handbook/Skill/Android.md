@@ -88,4 +88,33 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 
 ## adb
 
-`D:\>adb pull /sdcard/AIUI/cfg/aiui.cfg aiui.cfg`
+如何通过 adb 把文件从手机上拉下来？
+
+0. 如果有多个模拟器或者手机连接着电脑，先通过`adb devices -l`查看一下设备号，然后通过`adb -s 设备号 pull /sdcard/AIUI/cfg/aiui.cfg aiui.cfg`，即`adb -s deviceId pull remote/path local/path`
+
+1. `D:\>adb pull /sdcard/AIUI/cfg/aiui.cfg aiui.cfg`
+
+2. 使用 `adb pull` 命令并不能直接使用通配符（如 `**`）来批量复制文件。`adb pull` 命令只支持指定单个文件或整个目录。
+3. 复制整个文件夹到指定目录下：`adb -s 4a790be6 pull /storage/emulated/0/DCIM/Camera/ /Users/eric/phone`
+4. 如果您只想复制 MP4 文件，可以使用 `adb shell` 和 `find` 命令结合 `pull` 来实现：
+   - 使用 find 命令查找 MP4 文件：`adb -s 4a790be6 shell find /storage/emulated/0/DCIM/Camera/ -name "*.mp4"`
+   - 使用 pull 命令逐个复制文件：`adb -s 4a790be6 shell find /storage/emulated/0/DCIM/Camera/ -name "*.mp4" > mp4_files.txt`，由于 adb pull 不支持直接批量操作，您可以将所有 MP4 文件路径输出到一个文本文件，然后使用脚本逐个复制。可以使用该命令创建一个文件并将路径保存
+   - 在 Mac 上读取该文件并逐个复制：`while read line; do adb -s 4a790be6 pull "$line" /Users/eric/phone; done < mp4_files.txt`
+
+## Mac 连接小米手机真机调试
+
+1. 小米手机开启开发者选项：
+   - 打开设置：在您的小米手机上，找到并打开“设置”应用。
+   - 找到“我的设备”点击进入，然后滚动到“全部参数与信息”选项并点击进入。
+   - 连续点击“OS 版本号”，直到看到提示“您已处于开发者模式，无需进行此操作”。
+   - 返回设置：返回到设置主菜单，滚动到最下面，点击“更多设置”，在最下面您会看到“开发者选项”。
+2. 开启 USB 调试：
+   - 进入开发者选项
+   - 开启 USB 调试：在开发者选项中，找到“USB 调试”并开启它。系统可能会弹出警告，点击“确定”以确认。
+   - 如果想用无线调试也可以打开，并自行设置。
+3. 连接手机和电脑：
+   - 使用 USB 数据线：使用 USB 数据线将小米手机连接到 Mac 电脑。
+   - 选择 USB 连接模式：在手机上，您可能会看到一个提示，询问您选择 USB 连接模式。选择“传输文件（MTP）”或“USB 调试”模式。
+4. 安装 ADB 工具：使用 Homebrew 安装 ADB
+5. 验证连接：打开终端运行 ADB 命令 -- `adb devices -l`，查看输出的内容里有无设备号，如果有，则表示连接成功。
+6. 在 Android Studio 中运行项目时，选择连接设备即可。
