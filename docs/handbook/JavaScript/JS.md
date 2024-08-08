@@ -242,6 +242,26 @@ xhr.send();
 
 - 然后可以对这个文件进行解析啥的`formatHtml(xhr.responseText)`，适用于抓到别人的网页之后，解析一下 body 放到自己的页面里。
 
+### JWT
+
+在 Node.js 中使用 jsonwebtoken 库生成和验证 JWT：
+
+```js
+const jwt = require("jsonwebtoken");
+
+// 生成 JWT
+const token = jwt.sign({ id: user.id }, "secretKey", { expiresIn: "1h" });
+
+// 验证 JWT
+jwt.verify(token, "secretKey", (err, decoded) => {
+  if (err) {
+    console.log("Token is not valid");
+  } else {
+    console.log("Decoded payload:", decoded);
+  }
+});
+```
+
 ### 移除 a 标签的默认跳转行为
 
 ```js

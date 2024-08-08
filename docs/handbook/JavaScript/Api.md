@@ -692,3 +692,49 @@ globalThis 对象提供了一种在不同环境下（包括浏览器和 Node.js�
 console.log(globalThis === window); // 在浏览器场景下: true
 console.log(globalThis === global); // 在 Node.js 中: outputs: true
 ```
+### clipborad
+
+在 JavaScript 中，操作剪贴板的功能主要依赖于 Clipboard API 和一些 DOM 方法。以下是关于如何使用这些 API 进行剪贴板操作的详细介绍，包括复制和粘贴文本的示例。
+
+
+1. 使用 `navigator.clipboard.writeText()` 方法可以将文本复制到剪贴板。
+```js
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text)
+        .then(() => {
+            console.log('文本已复制到剪贴板：', text);
+        })
+        .catch(err => {
+            console.error('复制失败：', err);
+        });
+}
+
+// 使用示例
+copyToClipboard('Hello, World!');
+```
+
+2. 从剪贴板粘贴文本
+使用 `navigator.clipboard.readText()` 方法可以从剪贴板读取文本。
+
+```js
+function pasteFromClipboard() {
+    navigator.clipboard.readText()
+        .then(text => {
+            console.log('从剪贴板中读取到的文本：', text);
+            // 你可以将读取到的文本插入到页面中
+            document.getElementById('output').innerText = text;
+        })
+        .catch(err => {
+            console.error('读取剪贴板内容失败：', err);
+        });
+}
+
+// 使用示例
+pasteFromClipboard();
+```
+
+3. 注意事项
+
+   1. 在使用 Clipboard API 之前，需要检查浏览器是否支持该功能。可以使用 `if ('clipboard' in navigator)` 语句来检查浏览器是否支持 Clipboard API。
+   2. 浏览器可能会要求用户的许可才能访问剪贴板。某些操作可能会受到限制。
+   3. Clipboard API 在安全上下文中（如 HTTPS）才能使用。确保你的应用在安全环境中运行。

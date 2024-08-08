@@ -89,6 +89,23 @@ module.exports = {
         children: [{ title: "About me", path: "/" }],
       },
       {
+        title: "Android",
+        children: [
+          {
+            title: "Android",
+            path: "/handbook/Skill/Android",
+          },
+          {
+            title: "Kotlin",
+            path: "/handbook/Skill/Kotlin",
+          },
+          {
+            title: "Flutter",
+            path: "/handbook/Skill/Flutter",
+          },
+        ],
+      },
+      {
         title: "React",
         // path: "/handbook/React/SourceCode",
         children: [
@@ -322,10 +339,6 @@ module.exports = {
           {
             title: "Windows",
             path: "/handbook/Skill/Windows",
-          },
-          {
-            title: "Android",
-            path: "/handbook/Skill/Android",
           },
           {
             title: "VSCode",
