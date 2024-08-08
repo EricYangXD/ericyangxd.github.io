@@ -93,15 +93,15 @@ module.exports = {
         children: [
           {
             title: "Android",
-            path: "/handbook/Skill/Android",
+            path: "/handbook/Android/Android",
           },
           {
             title: "Kotlin",
-            path: "/handbook/Skill/Kotlin",
+            path: "/handbook/Android/Kotlin",
           },
           {
             title: "Flutter",
-            path: "/handbook/Skill/Flutter",
+            path: "/handbook/Android/Flutter",
           },
         ],
       },
