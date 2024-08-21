@@ -127,6 +127,10 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 
 ### ViewBinding
 
+使用到了 Kotlin 委托，`ActivityViewBindings`就是一个 Kotlin 委托类，当获取 binding 的时候，去触发`fun getValue(thisRef: A, property: KProperty<*>): T`，而`vbFactory: (View) -> T`是我们从`MainActivity`传入的，实际就是在调用`ActivityMainBinding::bind`。
+
+看似炫酷的被施了魔法的`private val binding :ActivityMainBinding by viewbind()`实现`ViewBinding`，其实就是用到了`Kotlin`委托，并在委托类的`get()`方法中，通过`不反射` / `反射` 的方式 调用`ActivityMainBinding.java`的 i`nflate`或`bind`方法，然后，可以将`setContentView()`也在此处进行调用，这样，就不用再去写`ViewBinding`常规的那些代码了。
+
 #### 原生做法
 
 ```xml
@@ -183,8 +187,10 @@ override fun onDestroyView() {
 
 #### 第三方库
 
-1. `com.github.kirich1409:viewbindingpropertydelegate-full`
+1. `com.github.kirich1409:viewbindingpropertydelegate-full`：采用不反射的方式，性能上会比较好
+
 ```kotlin
+// 重点：Fragment这里要传入布局ID
 class ProfileFragment : Fragment(R.layout.profile) {
 
     // reflection API and ViewBinding.bind are used under the hood
@@ -193,7 +199,7 @@ class ProfileFragment : Fragment(R.layout.profile) {
     // reflection API and ViewBinding.inflate are used under the hood
     private val viewBinding: ProfileBinding by viewBinding(createMethod = CreateMethod.INFLATE)
 
-    // no reflection API is used under the hood
+    // no reflection API is used under the hood，在viewBinding()需要传参
     private val viewBinding by viewBinding(ProfileBinding::bind)
 }
 class ProfileActivity : AppCompatActivity(R.layout.profile) {
@@ -205,7 +211,9 @@ class ProfileActivity : AppCompatActivity(R.layout.profile) {
     private val viewBinding by viewBinding(ProfileBinding::bind, R.id.container)
 }
 ```
+
 2. `com.hi-dhl:binding`
+
 ```kotlin
 // ViewBinding
 val binding: ActivityViewBindBinding by viewbind()
@@ -221,7 +229,9 @@ init {
     }
 }
 ```
+
 3. `com.github.DylanCaiCoding.ViewBindingKTX`
+
 ```kotlin
 class MainActivity : AppCompatActivity() {
 
@@ -252,9 +262,9 @@ class FooAdapter : BaseQuickAdapter<Foo, BaseViewHolder>(R.layout.item_foo) {
 }
 ```
 
-### Retrofit网络请求
+### Retrofit 网络请求
 
-结合Gson对JSON数据进行解析
+结合 Gson 对 JSON 数据进行解析
 
 - `com.squareup.retrofit2:retrofit`
 - `com.squareup.retrofit2:converter-gson`
@@ -532,4 +542,76 @@ class ColorfulRingProgressView(private val mContext: Context, attrs: AttributeSe
         }
     }
 }
+```
+
+### ORM 框架
+
+ORM（Object-Relational Mapping，对象关系映射）是一种软件技术，用于在关系型数据库和面向对象编程语言之间建立映射关系。它的目标是将对象模型和关系数据库之间的数据转换和操作自动化。
+
+ORM 框架的作用是简化开发人员处理数据库的过程。它将数据库表和记录映射到编程语言中的对象和属性上，提供了一种更直观、面向对象的方式来操作和访问数据。通过使用 ORM，开发人员可以使用面向对象的编程语言来进行数据库操作，而无需编写原始的 SQL 查询。
+
+使用 ORM 框架可以简化数据库操作的编写和维护工作，提高开发效率和代码可读性。
+
+- 几种常用的 ORM 框架
+
+  - Room：可以视作官方推荐的方案代表，也是 google 推出的方案，用的软件多，支持数据驱动，google 官方支持，支持 sql 语句，基于 sqlite
+  - GreenDao：第三方封装的基于 sqlite 的 orm 框架，大量的使用者，较为中庸，没有特别明显的短板与长处，缺少对于数据变化的动态监听，不支持数据驱动式 coding，缺少一些新特性。部分功能不支持 kotlin：在使用 kotlin 文件编写 entity 时无法构建成功，必须使用 Java 代码写 entity。
+  - Realm：可以支持跨平台，基于 MongoDB 非关系型数据库
+  - ObjectBox：操作速度更快，greenDao 同家出品的数据库框架，支持 liveData，也支持 Flow、协程，支持懒加载，基于 nosql，非关系型数据库
+  - SQLite：跨平台的原生数据库能力
+
+- 读写速度
+  ● Realm，相比于其他插入大批量新数据慢一点，小批量插入差异不明显，大批量差异和 sqlite 类的慢 10%-20%左右；数据更新速度比 sqlite、greendao、room 等快一倍左右；删除和读取数据的操作速度快到无法比较，可能存在测试用例/缓存等问题导致数据不可信；
+  ● ObjectBox，除了删除操作外，其他的耗时都优于基于 sqlite 的 orm 框架，读取操作慢于 realm；
+  ● Room，在删除操作上优于其他 sqlite 框架，其他操作和 sqlite 的速度持平/稍慢于 sqlite；
+  ● GreenDao，读取操作上优于其他 sqlite 框架（30%-60%），其他操作持平；
+  ● Sqlite，更新操作稍快（10%-30%），其他持平
+
+## 常用控件
+
+### TextView
+
+```xml
+<TextView
+    android:id="@+id/tvHelloWorld"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Hello World!"
+    android:textSize="24sp"
+    android:textColor="@color/black"
+    android:layout_margin="16dp"
+    android:gravity="center"
+    android:background="@color/white"
+    android:padding="8dp"
+    android:textIsSelectable="true" // 复制其中的内容
+    android:descendantFocusability="blocksDescendants"  // 拦截事件的消费，使得textView无法消费触摸的事件
+/>
+
+```
+
+- 输入框与输入法遮挡：在`AndroidManifest.xml`对应的 Activity 里添加 `android:windowSoftInputMode="adjustPan"`或是`android:windowSoftInputMode="adjustResize"`属性
+- `adjustPan`：整个界面向上平移，使输入框露出，它不会改变界面的布局；界面整体可用高度还是屏幕高度
+- `adjustResize`：需要界面的高度是可变的，或者说 Activity 主窗口的尺寸是可以调整的，如果不能调整，则不会起作用。
+
+### EditText
+
+EditText 输入时被输入法挤压滚动到顶部：
+
+```xml
+// AndManifest.xml
+android:windowSoftInputMode="adjustResize|stateHidden"
+// xml layout viewGroup
+android:fitsSystemWindows="true"
+```
+
+### RecyclerView
+
+一直展示滚动条
+
+```xml
+android:scrollbarAlwaysDrawVerticalTrack="true"
+android:scrollbars="vertical"
+android:overScrollMode="always"
+android:fadeScrollbars="false"
+android:scrollbarFadeDuration="0"
 ```
