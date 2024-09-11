@@ -56,6 +56,137 @@ meta:
 1. 在 idea 的 terminal 输入：`jps`即可显示当前运行的类的 id
 2. 在 idea 的 terminal 输入：`jhsdb hsdb`即可显示 HSDB 面板，然后点击 file，选择 attach，输入对应的 id 查看
 
+### 不同类型的对象（即数据对象、数据传输对象、展示对象等）在不同的场景下使用
+
+这种分类和使用方式有助于代码解耦、维护、扩展和理解。
+
+#### 数据对象 (DO)
+
+使用场景: 数据对象通常直接映射到数据库中的表结构，用于持久化数据。
+
+目的: 主要用于 ORM（对象关系映射）框架，如 Hibernate、MyBatis 等，与数据库交互时使用。
+
+```java
+@Entity
+@Table(name = "user")
+public class UserDO {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String username;
+    private String password;
+    private String email;
+
+    // getters and setters
+}
+```
+
+#### 数据传输对象 (DTO)
+
+使用场景: DTO 用于在不同层（如控制层和服务层）之间传输数据。
+
+目的: 提高数据传输效率，减少数据传输中的冗余信息，确保数据传输的安全性和一致性。
+
+```java
+public class UserDTO {
+    private Long id;
+    private String username;
+    private String email;
+
+    // getters and setters
+}
+```
+
+#### 展示对象 (VO)
+
+使用场景: VO 用于前端展示数据，通常是 Web 应用的返回对象。
+
+目的: 将后端数据转换成适合前端展示的数据格式，通常包含界面上需要显示的所有信息。
+
+```java
+public class UserVO {
+    private Long id;
+    private String username;
+    private String email;
+    private List<String> roles; // 用户角色列表，展示时可能需要
+
+    // getters and setters
+}
+```
+
+#### 业务对象 (BO)
+
+使用场景: BO 通常用在业务逻辑层，用于封装业务逻辑处理的数据。
+
+目的: 使得业务逻辑更清晰，分离数据访问和业务处理，将复杂的业务逻辑封装起来，便于维护和扩展。
+
+```java
+public class UserBO {
+    private Long id;
+    private String username;
+    private String email;
+    private String hashedPassword; // 业务逻辑处理后生成的字段
+
+    // getters and setters
+}
+```
+
+#### demo:用户注册
+
+1. **控制层（Controller）**接收前端传递的用户注册信息，封装成 UserDTO。
+2. **服务层（Service）**接收 UserDTO，进行业务逻辑处理，将其转换为 UserBO。
+3. 服务层使用 UserDO 与数据库交互，保存用户信息。
+4. 服务层返回处理结果，封装成 UserVO，返回给前端进行展示。
+
+```java
+@RestController
+@RequestMapping("/users")
+public class UserController {
+    @Autowired
+    private UserService userService;
+
+    @PostMapping("/register")
+    public ResponseEntity<UserVO> registerUser(@RequestBody UserDTO userDTO) {
+        UserVO userVO = userService.registerUser(userDTO);
+        return ResponseEntity.ok(userVO);
+    }
+}
+
+@Service
+public class UserService {
+    @Autowired
+    private UserRepository userRepository;
+
+    public UserVO registerUser(UserDTO userDTO) {
+        // 1. 转换DTO到BO
+        UserBO userBO = new UserBO();
+        userBO.setUsername(userDTO.getUsername());
+        userBO.setEmail(userDTO.getEmail());
+        userBO.setHashedPassword(hashPassword(userDTO.getPassword()));
+
+        // 2. 转换BO到DO
+        UserDO userDO = new UserDO();
+        userDO.setUsername(userBO.getUsername());
+        userDO.setEmail(userBO.getEmail());
+        userDO.setPassword(userBO.getHashedPassword());
+        userRepository.save(userDO);
+
+        // 3. 转换DO到VO
+        UserVO userVO = new UserVO();
+        userVO.setId(userDO.getId());
+        userVO.setUsername(userDO.getUsername());
+        userVO.setEmail(userDO.getEmail());
+        return userVO;
+    }
+
+    private String hashPassword(String password) {
+        // 密码哈希逻辑
+        return hashedPassword;
+    }
+}
+```
+
 ### 继承
 
 #### 子类到底能继承父类中的哪些内容？

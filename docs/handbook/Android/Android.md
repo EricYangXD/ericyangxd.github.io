@@ -615,3 +615,11 @@ android:overScrollMode="always"
 android:fadeScrollbars="false"
 android:scrollbarFadeDuration="0"
 ```
+
+
+## 布局
+
+### ConstrainLayout 约束布局
+
+通过辅助线来控制具体的位置，当然也可以设置边距啥的。
+

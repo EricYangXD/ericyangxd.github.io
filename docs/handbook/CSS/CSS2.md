@@ -77,7 +77,7 @@ div {
 }
 ```
 
-还可以使用“-webkit-line-clamp”属性将文本截断为特定的行数。文本将在截断的地方会显示省略号：
+还可以使用`-webkit-line-clamp`属性将文本截断为特定的行数。文本将在截断的地方会显示省略号：
 
 ```css
 div {
@@ -91,7 +91,7 @@ div {
 
 ### 自定义选中样式
 
-CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样式。
+CSS 伪元素`::selection`，可以用来自定义用户选中文档的高亮样式。
 
 ```css
 .custom-highlighting::selection {
@@ -102,11 +102,11 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ### CSS 模态框
 
-使用 CSS 中的 :target 伪元素来创建一个模态框。
+使用 CSS 中的 `::target` 伪元素来创建一个模态框。
 
 ### 空元素样式
 
-可以使用 :empty 选择器来设置完全没有子元素或文本的元素的样式：
+可以使用 `:empty` 选择器来设置完全没有子元素或文本的元素的样式：
 
 ```css
 .box {
@@ -147,7 +147,7 @@ CSS 伪元素::selection，可以用来自定义用户选中文档的高亮样�
 
 ### 动态工具提示 tooltip
 
-可以使用 CSS 函数 attr() 来创建动态的纯 CSS 工具提示 。
+可以使用 CSS 函数 `attr()` 来创建动态的纯 CSS 工具提示 。
 
 ```html
 <h1>HTML/CSS tooltip</h1>
@@ -546,6 +546,14 @@ root.inner = `
 
 `gap: 1rem;`
 
+### clamp
+
+只有少数浏览器支持，设置绝对最小和最大尺寸以及实际尺寸：`width: clamp(23ch, 60%, 46ch);`
+
+### 保持宽高比
+
+`aspect-ratio: <width> / <height>`
+
 ### flex-flow
 
 使用速记 `flex-flow` 来设置 `flex-direction` 和 `flex-wrap` 属性
@@ -725,14 +733,14 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
 7. 隐式网格属性`grid-auto-areas`
 8. 间距属性`grid-column-gap`
 9. 间距属性`grid-row-gap`
-10. `auto-fill`:
-11. `auto-fit`:
-12. `minmax()`:
-13. `repeat()`:
-14. `gap`:
+10. `auto-fill`: 尽可能多地生成轨道，即使这些轨道可能是空的。
+11. `auto-fit`: 尽可能多地填充容器，并拉伸网格项以填满多余的空间。
+12. `minmax()`: 最大最小值
+13. `repeat()`: 重复
+14. `gap`: 间距
 15. `min/max/fit-content()`:min-content:The longest word or image
 16. `auto-placement`:
-17. `span`:你可以使自动放置的布局中的部分或全部项目跨越一个以上的轨道。使用 span 关键字加上要跨越的行数作为 `grid-column-end` 或 `grid-row-end` 的值。
+17. `span`: 你可以使自动放置的布局中的部分或全部项目跨越一个以上的轨道。使用 span 关键字加上要跨越的行数作为 `grid-column-end` 或 `grid-row-end` 的值。不用 span 时等效：`[start / end)`，不包含 end。
 18. `grid-column/row: start / end`: 作用在某个具体的 item 上，start 的值和 end 取值一样
 19. 如果 item 之间相互覆盖了，可以通过`z-index`来调整。
 20. `grid-area`: 通过还给每块区域命名，来实现布局的完全控制

@@ -313,6 +313,7 @@ Kotlin 使用类似 `(Int) -> String` 的函数类型来处理函数的声明：
 
 1. 所有函数类型都有一个圆括号括起来的参数类型列表以及一个返回类型：`(A, B) -> C` 表示接受类型分别为 A 与 B 两个参数并返回一个 C 类型值的函数类型。 参数类型列表可以为空，如 `() -> A`。Unit 返回类型不可省略。
 2. 函数类型可以有一个额外的接收者类型，它在表示法中的点之前指定： 类型 `A.(B) -> C` 表示可以在 A 的接收者对象上以一个 B 类型参数来调用并返回一个 C 类型值的函数。 带有接收者的函数字面值通常与这些类型一起使用。
+
 ```kotlin
 // 带有接收者类型的函数类型的定义：表示一个在 String 类型的接收者对象上调用，并以一个 Int 类型参数返回一个 String 类型值的函数。
 typealias StringTransformation = String.(Int) -> String
@@ -340,6 +341,7 @@ fun main() {
     println(result)  // 输出：HelloHello
 }
 ```
+
 3. 挂起函数属于函数类型的特殊种类，它的表示法中有一个 suspend 修饰符 ，例如 `suspend () -> Unit` 或者 `suspend A.(B) -> C`。
 4. 函数类型表示法可以选择性地包含函数的参数名：`(x: Int, y: Int) -> Point`。 这些名称可用于表明参数的含义。
 
@@ -372,4 +374,118 @@ println("product = $product")
 // acc = 10, i = 5, result = 15
 // 1,2,3,4,5
 // product = 120
+```
+
+### 闭包
+
+### 扩展函数
+
+#### apply
+
+apply 函数通常用于配置或初始化一个对象。它接受一个 lambda 表达式，并在 lambda 中提供该对象的上下文作为 this。在 lambda 表达式中，可以访问对象的成员变量和函数。这种方式非常适合在对象初始化时使用。
+
+```kotlin
+// 使用 apply 初始化对象
+val person = Person().apply {
+    name = "John"
+    age = 30
+    address = "123 Main St"
+}
+```
+
+#### also
+
+also 函数通常用于对一个对象执行某些附加操作，例如日志记录或其他副作用操作。它接受一个 lambda 表达式，并在 lambda 中提供该对象的上下文作为 it。also 更适用于那些不需要在对象内直接修改其属性，而是对对象本身进行某些操作的场景。
+
+```kotlin
+// 使用 also 进行附加操作
+val person = Person().also {
+    it.name = "John"
+    it.age = 30
+    it.address = "123 Main St"
+    println("Creating a person named ${it.name}")
+}
+```
+
+#### let
+
+```kotlin
+
+```
+
+#### with
+
+```kotlin
+
+```
+
+#### run
+
+```kotlin
+
+```
+
+#### let
+
+```kotlin
+
+```
+
+### 协程
+
+Coroutine：以同步方式编写异步代码，解决回调（Callback）嵌套地狱问题。类似 async/await 的作用。
+
+1. 协程是一种轻量级的线程，可以在任何地方挂起并恢复。
+
+#### CoroutineScope 作用域 & Job
+
+1. CoroutineScope 是所有协程开始运行的“容器”， 它的主要作用是控制着协程运行的生命周期，包括协程的创建、启动协程、取消、销毁。CoroutineScope 的取消也表示着在此作用域内开启的协程将会被全部取消. CoroutineScope 内还可以创建子 CoroutineScope ， 不同类型的作用域作用域代表着在此作用域内协程最大运行的时间不同。 例如 GlobalScope 表示协程的最大可运行时间为整个 APP 的运行生命周期，`Activity CoroutineScope（lifecycleScope）` 表示协程的最大可运行时间为 Activity 的生命周期，协程伴随着 CoroutineScope 销毁而取消停止运行。 Android 中常用的 CoroutineScope 类型和作用域：`GlobalScope > ViewModelScope > Activity LifecycleScope > Fragment LifecycleScope > View LifecycleScope`。
+2. Job 表示在一个 CoroutineScope 内开启的一个协程任务， Job 内可以开启多个子 Job ， 通常每开启一个协程任务后会返回一个 Job 对象，可以通过执行 `Job.cancel()` 方法取消协程运行。
+3. CoroutineScope 可以开启多个 Job ， Job内也可以存在多个 CoroutineScope。不推荐这样使用。
+4. coroutineScope vs supervisorScope (推荐使用)，假设有一个coroutineScope和一个supervisorScope，它们各有两个job：job1和job2。
+    - 如果job2发生异常：coroutineScope的job1和job2都会被取消，supervisorScope的job2会被取消，但job1不受影响，正常执行。
+    - 在coroutineScope内执行cancel()方法取消协程，它的job1和job2都会被取消
+    - 在supervisorScope内执行cancel()方法取消协程，它的job1和job2都会被取消
+5. SupervisorJob vs Job，SupervisorJob 、 Job 可以在开启一个协程时设置任务类型，默认开启一个协程方式为 `launch(){....}` 内部实现为J`ob(coroutineContext[Job])`，也可以通过 `launch(SupervisorJob(coroutineContext[Job])) { }` ， `async(SupervisorJob(coroutineContext[Job])) { }` 方式指定Job类型：
+   - Job：默认情况下，一个协程失败会导致其父协程和所有兄弟协程都被取消。Job内的子Job发生异常时，会取消兄弟协程，异常会继续向上传递，直到向上传递的对应层级协程Job类型为 null或 SupervisorJob 为止， 并取消对应层级的协程和子协程。
+   - SupervisorJob：内的子Job发生异常时，不会影响到其父协程和兄弟协程，允许更细粒度地控制异常处理和任务取消。
+6. 只有在开启的协程任务在发生异常时不希望影响到父协程和兄弟协程时，可以使用 在 launch() 或者 async() 指定job类型为 SupervisorJob ， 通常情况下无需单独设置SupervisorJob。
+
+
+#### 自定义CoroutineScope
+
+```kotlin
+// 自定义一个 GlobalCoroutineScope
+object MyGlobalScope : CoroutineScope {
+    override val coroutineContext: CoroutineContext
+    get() = EmptyCoroutineContext
+}
+
+fun MyGlobalScope() {
+    MyGlobalScope.launch {
+        // xxxxxx
+    }
+}
+```
+
+```kotlin
+// 自定义一个 ViewCoroutineScope
+class ViewCoroutineScope(override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main) : CoroutineScope
+
+
+class MyView @JvmOverloads constructor(
+context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr), CoroutineScope by ViewCoroutineScope() {
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        this.cancel()
+    }
+
+    fun test() {
+        launch {
+            // 在自定义作用域内开启协程.
+        }
+    }
+}
 ```
