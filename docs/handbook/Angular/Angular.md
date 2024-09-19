@@ -430,6 +430,36 @@ platformRef.bootstrapModule(AppModule2);
 6. Angular 的 AOT 编译器会在构建阶段，在浏览器下载并运行这些代码之前，把 Angular 的 HTML 和 TypeScript 代码转换成高效的 JavaScript 代码。这是生产环境的最佳编译模式，与即时(JIT)编译相比，它可以减少加载时间并提高性能。
 7. 通过使用`ngc`命令行工具编译你的应用，你可以直接引导到模块工厂，所以你不需要在你的 JavaScript 包中包含 Angular 编译器。
 
+### 移除打包时关于文件体积限制的warning
+
+在angular.json 文件里`architect.build.options.budgets`配置，以及在`architect.build.configurations`中的每个环境中的budgets中单独配置，比如：production、styling-mode等
+
+```json
+{
+...
+    "budgets": [
+      {
+        "type": "initial",
+        "maximumWarning": "2mb",
+        "maximumError": "5mb"
+      },
+      {
+        "type": "anyComponentStyle",
+        "maximumWarning": "8kb",
+        "maximumError": "10kb"
+      }
+    ],
+    // 根据环境使用不同的参数打不同的包
+    "fileReplacements": [
+      {
+        "replace": "src/environments/environment.ts",
+        "with": "src/environments/environment.target.ts"
+      }
+    ]
+...
+}
+```
+
 ### 踩坑系列
 
 #### service 注册和使用

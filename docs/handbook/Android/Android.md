@@ -86,9 +86,9 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 
 [ijkplayer 编译 so 库](https://juejin.cn/post/6844903554084241415)
 
-## adb
+## adb 命令
 
-如何通过 adb 把文件从手机上拉下来？
+### 如何通过 adb 把文件从手机上拉下来？
 
 0. 如果有多个模拟器或者手机连接着电脑，先通过`adb devices -l`查看一下设备号，然后通过`adb -s 设备号 pull /sdcard/AIUI/cfg/aiui.cfg aiui.cfg`，即`adb -s deviceId pull remote/path local/path`
 
@@ -100,6 +100,39 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
    - 使用 find 命令查找 MP4 文件：`adb -s 4a790be6 shell find /storage/emulated/0/DCIM/Camera/ -name "*.mp4"`
    - 使用 pull 命令逐个复制文件：`adb -s 4a790be6 shell find /storage/emulated/0/DCIM/Camera/ -name "*.mp4" > mp4_files.txt`，由于 adb pull 不支持直接批量操作，您可以将所有 MP4 文件路径输出到一个文本文件，然后使用脚本逐个复制。可以使用该命令创建一个文件并将路径保存
    - 在 Mac 上读取该文件并逐个复制：`while read line; do adb -s 4a790be6 pull "$line" /Users/eric/phone; done < mp4_files.txt`
+
+### 调试命令
+
+1. 查看连接的设备：`adb devices`
+2. 网络连接设备：`adb connect ip地址 // 不用加引号，可加端口号，默认为5555`，`adb disconnect ...`
+3. 证书管理页面：`adb shell am start -n com.android.certinstaller/.CertInstallerMain`
+4. 安装路径下的证书到系统：`adb shell am start -n com.android.certinstaller/.CertInstallerMain -a android.intent.action.VIEW -t application/x-x509-ca-cert file:///sdcard/cacert.cer`
+5. 查看某个设备的根目录：`adb -s 192.168.200.205:5555 shell ls /`，如果是数据线直连的设备，可以把`ip:端口`换为`adb devices`里面对应的设备 id
+6. 给当前网络设置代理：`adb -s 192.168.200.205:5555 shell settings put global http_proxy 192.168.200.102:8888`
+7. 移除代理：`adb shell settings delete global http_proxy`，增加下面这一句，不然只删除了规则，但是代理没移除：`adb shell settings put global http_proxy :0`
+8. 录屏：`adb shell screenrecord /sdcard/aijia_record01.mp4（adb shell命令）`，下载到本地`adb pull /sdcard/aijia_record.mp4 /Users/niuzilin/Desktop(此命令切记不是 adb shell)`
+9. 导出日志(包括ANR日志)：`adb bugreport`
+10. 键入文本：给当前连接的手机文本输入框通过adb的方式键入文本`adb shell input text 123`
+11. 获取系统安装应用列表：`adb shell pm list package`
+12. 查看在手机上应用安装到的路径：`adb shell pm path "your app package name"`
+13. 发送广播：` adb shell am broadcast -n  com.didi.davinci.conservices/.BootReceiver -a "com.didi.davinci.chaoandhao"`
+14. 设置系统时间：`adb shell "su 0 toybox date 123123592016.59"`// 2016年12月31日23点59分59s
+15. 杀掉某个进程：`adb shell am force-stop  com.didi.app`后面是包名
+16. 杀掉某个进程：`adb shell am kill com.didi.app`后面是包名
+17. 杀掉某个进程：`adb shell am kill 37456`后面是进程pid号
+18. 杀掉某个进程：`adb shell kill -9 pid`用命令`kill -l`可以查看linux下的所有信号，SIGKILL：9号信号，Kill signal（杀死进程信号，linux规定进程不可以忽略这个信号）。`kill -9`中，9代表的就是9号信号，带有强制执行的意思，它告诉进程：“无论你现在在做什么，立刻停止”。
+19. 杀掉某个进程：`killall -9 com.android.simple.demo`，killall （kill processes by name）用于杀死进程，与 kill 不同的是killall 会杀死指定名字的所有进程。kill 命令杀死指定进程 PID，需要配合 ps 使用，而 killall 直接对进程对名字进行操作，更加方便。killall 是进程名敏感类型，所以后面跟着的进程名需要是全部的名称
+20. 杀掉某个进程：`pkill simple`，`pkill -u mark,danny`--结束mark,danny用户的所有进程。pkill 命令和 killall 命令的用法相同，都是通过进程名杀死一类进程，除此之外，pkill 还有一个更重要的功能，即按照终端号来踢出用户登录。pkill是进程名不敏感类型，所以可以只输入一部分名称
+21. 杀掉某个进程：``
+22. ：``
+23. ：``
+24. ：``
+25. ：``
+26. ：``
+27. ：``
+28. ：``
+
+###
 
 ## Mac 连接小米手机真机调试
 
@@ -616,10 +649,8 @@ android:fadeScrollbars="false"
 android:scrollbarFadeDuration="0"
 ```
 
-
 ## 布局
 
 ### ConstrainLayout 约束布局
 
 通过辅助线来控制具体的位置，当然也可以设置边距啥的。
-

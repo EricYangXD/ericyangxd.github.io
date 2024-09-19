@@ -208,3 +208,8 @@ use-node-version=^16.x
 5. pnpm prune 移除项目中不需要的依赖包，配置项支持 --prod(删除在 devDependencies 中指定的包)和 --no-optional(删除在 optionalDependencies 中指定的包。)。
 6. pnpm list 别名: ls。此命令会以一个树形结构输出所有的已安装 package 的版本及其依赖。添加参数--json 后会输出 JSON 格式的日志。
 7. pnpm run 别名: run-script。运行一个在 package 的 manifest 文件中定义的脚本。
+
+
+## 有用的第三方库
+
+1.  `"@ianvs/prettier-plugin-sort-imports": "4.1.1"`

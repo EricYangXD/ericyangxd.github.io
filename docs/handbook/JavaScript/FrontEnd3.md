@@ -831,6 +831,32 @@ function callbackHook(cb) {
 
 6. 使用应当要注意销毁，也需要尽量减少绑定指令的次数，一般在 form 表单上绑定一个，即可监听这个表单下的所有输入框是否触发手机键盘唤起了
 
+### 页面滚动的代码
+
+```javascript
+window.scroll({ top: document.body.scrollHeight, behavior: "smooth" });
+
+window.scrollTo(0, document.body.scrollHeight);
+```
+
+###
+
+```javascript
+
+```
+
+###
+
+```javascript
+
+```
+
+###
+
+```javascript
+
+```
+
 ###
 
 ```javascript
