@@ -9,7 +9,7 @@ meta:
 
 ## Kotlin 学习笔记
 
-### note
+### Notes
 
 1. Java 与 Kotlin 互相调用处理时，要特别注意是否为空的问题。
 2. `is`某种意义上是安全的。
@@ -24,13 +24,16 @@ meta:
 8. `Elvis Operator`：也称为安全调用操作符或空安全调用操作符，用于简化处理可能为空（null）的引用的情况。
    - `val length: Int? = str?.length`
    - `val result = str?.toUpperCase()?.substring(0, 5) ?: "default"`
-9.
+9. `val nullableCar: Car? = (input as? Car)`：Will not throw ClassCastException
+10. `val nonNullDepartmentHead: String = person?.department?.head?.name.orEmpty()`
+11. 可以使用解构赋值
 
 ### 自定义 View 与方法重载
 
 Kotlin 的方法指定默认参数与 Java 的方法重载，并不等价。只能说它们在某些场景下，特性是类似的。
 
 解决方法：
+
 使用方法三，当 Kotlin 使用了默认值的方法，被增加了 `@JvmOverloads` 注解后，它的含义就是在编译时，保持并暴露出该方法的多个重载方法。这样，Java 就可以调用到这些重载方法了。
 
 ```kotlin
@@ -289,16 +292,23 @@ val arrayInt = IntArray(3) { 1;2;3 }
 
 ![Collection](<https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/image%20(1).png>)
 
-### 静态字段
+### 静态字段&方法
 
 ```kotlin
-class Person {
+class Person(name: String) {
     companion object {
         val NAME_KEY = "name_key"
+
+        fun newInstance(name: String): Person {
+            return Person(name)
+        }
     }
 }
 
 val key = Person.NAME_KEY
+val xiaoming = Person.newInstance("xiaoming")
+// or
+val xiaoming = Person("xiaoming")
 ```
 
 ### 函数
@@ -345,6 +355,18 @@ fun main() {
 3. 挂起函数属于函数类型的特殊种类，它的表示法中有一个 suspend 修饰符 ，例如 `suspend () -> Unit` 或者 `suspend A.(B) -> C`。
 4. 函数类型表示法可以选择性地包含函数的参数名：`(x: Int, y: Int) -> Point`。 这些名称可用于表明参数的含义。
 
+#### 函数扩展
+
+可以在已有的函数上增加自定义方法，比如：
+
+```kotlin
+fun Int.timesTwo(): Int {
+    return this * 2
+}
+
+val four = 2.timesTwo()
+```
+
 ### Lambda 表达式
 
 以集合的函数式风格的 fold 为例：它接受一个初始累积值与一个接合函数，并通过将当前累积值与每个集合元素连续接合起来代入累积值来构建返回值
@@ -380,22 +402,29 @@ println("product = $product")
 
 ### 扩展函数
 
+- `apply`: 在对象初始化时执行一些操作，并返回这个对象。
+- `also`: 在对象上执行一些操作，并返回这个对象，常用于日志记录或调试。
+- `let`: 在对象上执行代码块，并返回代码块结果，常用于避免空指针异常。
+- `run`: 在对象上下文中执行代码块，或作为无接收者的代码块执行，并返回代码块结果。
+- `with`: 在对象上下文中执行代码块，并返回代码块结果，适用于对同一个对象执行多个操作的场景。
+
 #### apply
 
-apply 函数通常用于配置或初始化一个对象。它接受一个 lambda 表达式，并在 lambda 中提供该对象的上下文作为 this。在 lambda 表达式中，可以访问对象的成员变量和函数。这种方式非常适合在对象初始化时使用。
+apply 函数通常用于配置或初始化一个对象。它接受一个 lambda 表达式，并在 lambda 中提供该对象的上下文作为 this。在 lambda 表达式中，可以访问对象的成员变量和函数。这种方式非常适合在对象初始化时使用。它的接收者对象为 this，因此可以直接访问该对象的成员。
 
 ```kotlin
+data class Person(var name: String, var age: Int)
 // 使用 apply 初始化对象
 val person = Person().apply {
     name = "John"
     age = 30
-    address = "123 Main St"
 }
+println(person) // 输出：Person(name=Jane, age=30)
 ```
 
 #### also
 
-also 函数通常用于对一个对象执行某些附加操作，例如日志记录或其他副作用操作。它接受一个 lambda 表达式，并在 lambda 中提供该对象的上下文作为 it。also 更适用于那些不需要在对象内直接修改其属性，而是对对象本身进行某些操作的场景。
+also 函数通常用于对一个对象执行某些附加操作，例如日志记录或其他副作用操作。它接受一个 lambda 表达式，并在 lambda 中提供该对象的上下文作为 it。also 更适用于那些不需要在对象内直接修改其属性，而是对对象本身进行某些操作的场景。它的接收者对象为 it，因此通常用于日志记录或调试。
 
 ```kotlin
 // 使用 also 进行附加操作
@@ -405,30 +434,61 @@ val person = Person().also {
     it.address = "123 Main St"
     println("Creating a person named ${it.name}")
 }
+val numbers = mutableListOf(1, 2, 3)
+numbers.also {
+    println("The list contains: $it")
+}.add(4)
+println(numbers) // 输出：[1, 2, 3, 4]
 ```
 
 #### let
 
-```kotlin
+let 函数用于在对象上执行代码块，并返回代码块的执行结果。它的接收者对象为 it，常用于避免空指针异常。
 
+```kotlin
+val name: String? = "Kotlin"
+val length = name?.let {
+    println("The name is $it")
+    it.length
+} ?: 0
+println(length) // 输出：6
 ```
 
 #### with
 
-```kotlin
+with 函数用于在对象上执行代码块，并返回代码块的执行结果。它不是扩展函数，而是一个顶层函数。它的接收者对象为 this。
 
+```kotlin
+data class Person(var name: String, var age: Int)
+
+val person = Person("John", 25)
+val details = with(person) {
+    "Name: $name, Age: $age"
+}
+println(details) // 输出：Name: John, Age: 25
 ```
 
 #### run
 
-```kotlin
-
-```
-
-#### let
+run 函数用于在对象上执行代码块，并返回代码块的执行结果。它的接收者对象为 this，因此可以直接访问该对象的成员。它也可以作为无接收者的代码块来执行。
 
 ```kotlin
+// 对象上下文：
+data class Person(var name: String, var age: Int)
 
+val person = Person("John", 25)
+val details = person.run {
+    "Name: $name, Age: $age"
+}
+println(details) // 输出：Name: John, Age: 25
+
+// 无接收者：
+val result = run {
+    val a = 5
+    val b = 10
+    a + b
+}
+println(result) // 输出：15
 ```
 
 ### 协程
@@ -441,18 +501,17 @@ Coroutine：以同步方式编写异步代码，解决回调（Callback）嵌套
 
 1. CoroutineScope 是所有协程开始运行的“容器”， 它的主要作用是控制着协程运行的生命周期，包括协程的创建、启动协程、取消、销毁。CoroutineScope 的取消也表示着在此作用域内开启的协程将会被全部取消. CoroutineScope 内还可以创建子 CoroutineScope ， 不同类型的作用域作用域代表着在此作用域内协程最大运行的时间不同。 例如 GlobalScope 表示协程的最大可运行时间为整个 APP 的运行生命周期，`Activity CoroutineScope（lifecycleScope）` 表示协程的最大可运行时间为 Activity 的生命周期，协程伴随着 CoroutineScope 销毁而取消停止运行。 Android 中常用的 CoroutineScope 类型和作用域：`GlobalScope > ViewModelScope > Activity LifecycleScope > Fragment LifecycleScope > View LifecycleScope`。
 2. Job 表示在一个 CoroutineScope 内开启的一个协程任务， Job 内可以开启多个子 Job ， 通常每开启一个协程任务后会返回一个 Job 对象，可以通过执行 `Job.cancel()` 方法取消协程运行。
-3. CoroutineScope 可以开启多个 Job ， Job内也可以存在多个 CoroutineScope。不推荐这样使用。
-4. coroutineScope vs supervisorScope (推荐使用)，假设有一个coroutineScope和一个supervisorScope，它们各有两个job：job1和job2。
-    - 如果job2发生异常：coroutineScope的job1和job2都会被取消，supervisorScope的job2会被取消，但job1不受影响，正常执行。
-    - 在coroutineScope内执行cancel()方法取消协程，它的job1和job2都会被取消
-    - 在supervisorScope内执行cancel()方法取消协程，它的job1和job2都会被取消
-5. SupervisorJob vs Job，SupervisorJob 、 Job 可以在开启一个协程时设置任务类型，默认开启一个协程方式为 `launch(){....}` 内部实现为J`ob(coroutineContext[Job])`，也可以通过 `launch(SupervisorJob(coroutineContext[Job])) { }` ， `async(SupervisorJob(coroutineContext[Job])) { }` 方式指定Job类型：
-   - Job：默认情况下，一个协程失败会导致其父协程和所有兄弟协程都被取消。Job内的子Job发生异常时，会取消兄弟协程，异常会继续向上传递，直到向上传递的对应层级协程Job类型为 null或 SupervisorJob 为止， 并取消对应层级的协程和子协程。
-   - SupervisorJob：内的子Job发生异常时，不会影响到其父协程和兄弟协程，允许更细粒度地控制异常处理和任务取消。
-6. 只有在开启的协程任务在发生异常时不希望影响到父协程和兄弟协程时，可以使用 在 launch() 或者 async() 指定job类型为 SupervisorJob ， 通常情况下无需单独设置SupervisorJob。
+3. CoroutineScope 可以开启多个 Job ， Job 内也可以存在多个 CoroutineScope。不推荐这样使用。
+4. coroutineScope vs supervisorScope (推荐使用)，假设有一个 coroutineScope 和一个 supervisorScope，它们各有两个 job：job1 和 job2。
+   - 如果 job2 发生异常：coroutineScope 的 job1 和 job2 都会被取消，supervisorScope 的 job2 会被取消，但 job1 不受影响，正常执行。
+   - 在 coroutineScope 内执行 cancel()方法取消协程，它的 job1 和 job2 都会被取消
+   - 在 supervisorScope 内执行 cancel()方法取消协程，它的 job1 和 job2 都会被取消
+5. SupervisorJob vs Job，SupervisorJob 、 Job 可以在开启一个协程时设置任务类型，默认开启一个协程方式为 `launch(){....}` 内部实现为 J`ob(coroutineContext[Job])`，也可以通过 `launch(SupervisorJob(coroutineContext[Job])) { }` ， `async(SupervisorJob(coroutineContext[Job])) { }` 方式指定 Job 类型：
+   - Job：默认情况下，一个协程失败会导致其父协程和所有兄弟协程都被取消。Job 内的子 Job 发生异常时，会取消兄弟协程，异常会继续向上传递，直到向上传递的对应层级协程 Job 类型为 null 或 SupervisorJob 为止， 并取消对应层级的协程和子协程。
+   - SupervisorJob：内的子 Job 发生异常时，不会影响到其父协程和兄弟协程，允许更细粒度地控制异常处理和任务取消。
+6. 只有在开启的协程任务在发生异常时不希望影响到父协程和兄弟协程时，可以使用 在 launch() 或者 async() 指定 job 类型为 SupervisorJob ， 通常情况下无需单独设置 SupervisorJob。
 
-
-#### 自定义CoroutineScope
+#### 自定义 CoroutineScope
 
 ```kotlin
 // 自定义一个 GlobalCoroutineScope
@@ -488,4 +547,103 @@ context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         }
     }
 }
+```
+
+### Collections 集合
+
+常用的集合种类有：List, Set, Map, Sequence, Collection, Iterable, MutableList, MutableSet, MutableMap, MutableCollection, MutableIterable。
+
+#### Creation
+
+```kotlin
+val numArray = arrayOf(1, 2, 3)
+val numList = listOf(1, 2, 3)
+val mutableNumList = mutableListOf(1, 2, 3)
+```
+
+#### Accessing
+
+```kotlin
+val firstItem = numList[0]
+val firstItem = numList.first()
+val firstItem = numList.firstOrNull()
+```
+
+#### Maps
+
+```kotlin
+val faceCards = mutableMapOf("Jack" to 11, "Queen" to 12, "King" to 13)
+val jackValue = faceCards["Jack"] // 11
+faceCards["Ace"] = 1
+```
+
+#### Mutability
+
+```kotlin
+val immutableList = listOf(1, 2, 3)
+val mutableList = immutableList.toMutableList()
+
+val immutableMap = mapOf("Jack" to 11, "Queen" to 12, "King" to 13)
+val mutableMap = immutableMap.toMutableMap()
+```
+
+#### Iterating
+
+```kotlin
+for (item in myList) {
+    print(item)
+}
+
+myList.forEach {
+    print(it)
+}
+
+myList.forEachIndexed { index, item ->
+    print("Item at $index is: $item")
+}
+```
+
+#### Filtering & Searching
+
+```kotlin
+val evenNumbers = numList.filter { it % 2 == 0 }
+val containsEven = numList.any { it % 2 == 0 }
+val containsNoEvens = numList.none { it % 2 == 0 }
+// 判断numList的每个值是否都满足同一个条件，返回Boolean
+val containsNoEvens = numList.all { it % 2 == 1 }
+val firstEvenNumber: Int = numList.first { it % 2 == 0 }
+val firstEvenOrNull: Int? = numList.firstOrNull { it % 2 == 0 }
+val fullMenu = objList.map { "${it.name} - $${it.detail}" }
+```
+
+### Destructuring Declarations 解构赋值
+
+#### ComponentN Functions
+
+```kotlin
+class Person(val name: String, val age: Int) {
+	operator fun component1(): String {
+		return name
+	}
+
+	operator fun component2(): Int {
+		return age
+	}
+}
+
+val person = Person("Alice", 29)
+val (name, age) = person
+```
+
+#### Objects & Lists
+
+```kotlin
+val person = Person("Adam", 100)
+val (name, age) = person
+
+val pair = Pair(1, 2)
+val (first, second) = pair
+
+val coordinates = arrayOf(1, 2, 3)
+val (x, y, z) = coordinates
 ```
