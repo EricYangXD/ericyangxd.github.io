@@ -602,6 +602,48 @@ ORM 框架的作用是简化开发人员处理数据库的过程。它将数据�
 
 ## 常用控件
 
+要使用app这个命名空间，需要在最外层父节点设置`xmlns:app="http://schemas.android.com/apk/res-auto"`
+
+### Button
+
+SDK >= 28，使用MaterialButton，先引入依赖`com.google.android.material:material:1.3.0`，然后修改App的主题为`android:theme="@style/Theme.MaterialComponents.**Light.NoActionBar"`
+
+```xml
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/btnHelloWorld"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:cornerRadius="20dp"
+    android:text="Hello World!"
+    android:textColor="@color/white"
+    app:strokeColor="@color/white"  // 描边
+    app:strokeWidth="4dp"  // 描边
+    app:icon="icon图片src"  // 图标
+    app:iconTint="@color/red"  // 图标着色
+    app:iconPadding="10dp"  // 图标和文本之间的间距
+    app:iconGravity="end"  // 图标在文本的位置：textStart/start/end/textEnd/textTop/top
+    android:textSize="24sp"
+    android:layout_margin="16dp"
+    app:backgroundTint="@color/colorAccent"  // 按钮背景色，不能使用android:background设置！
+    android:onClick="onBtnClick()" // 点击事件
+    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" // 去掉按钮自带的阴影
+    android:insetBottom="0dp"  // 删除按钮默认样式中的空隙间距，否则会导致按钮的长度宽度并不是我们自己设置的值
+    android:insetTop="0dp"
+/>
+```
+
+
+- 如果闪退，修改主题为：`android:theme="@style/Theme.MaterialComponents.**Light.NoActionBar"`之类的
+- `MaterialButtonToggleGroup`：可以把多个Button聚合成一个组，实现单选多选等功能
+    - `app:checkedButton`：默认选中
+    - `app:singleSelection`：是否单选
+    - `app:selectionRequired`：设置为true后，强制至少选中一个
+
+```xml
+
+
+```
+
 ### TextView
 
 ```xml
@@ -618,6 +660,14 @@ ORM 框架的作用是简化开发人员处理数据库的过程。它将数据�
     android:padding="8dp"
     android:textIsSelectable="true" // 复制其中的内容
     android:descendantFocusability="blocksDescendants"  // 拦截事件的消费，使得textView无法消费触摸的事件
+    android:clickable="true" // 默认TextView不可点击，该属性设置为true后可以点击，获取焦点
+    android:ellipsize="marquee" // 设置文字末尾截断省略号和位置，start、middle等
+    android:marqueeRepeatLimit="marquee_forever"  // 不停循环
+    android:focusable="true"  // 可获取焦点
+    android:focusableInTouchMode="true"  // 可获取焦点
+    android:singleLine="true" // 单行
+    android:drawableLeft="icon图片src" // 在TextView左侧显示图片icon，同理：drawableRight、drawableTop、drawableDown
+    android:drawableTint="#ffffff" // 设置icon的颜色
 />
 
 ```
@@ -625,6 +675,8 @@ ORM 框架的作用是简化开发人员处理数据库的过程。它将数据�
 - 输入框与输入法遮挡：在`AndroidManifest.xml`对应的 Activity 里添加 `android:windowSoftInputMode="adjustPan"`或是`android:windowSoftInputMode="adjustResize"`属性
 - `adjustPan`：整个界面向上平移，使输入框露出，它不会改变界面的布局；界面整体可用高度还是屏幕高度
 - `adjustResize`：需要界面的高度是可变的，或者说 Activity 主窗口的尺寸是可以调整的，如果不能调整，则不会起作用。
+- `ellipsize+marqueeRepeatLimit+focusable+focusableInTouchMode+singleLine`：设置文字跑马灯效果
+- `drawableRight`：通过这种设置的icon会紧贴TextView的边框显示，如果想贴近text显示，则需要使用`MaterialButton`控件
 
 ### EditText
 
