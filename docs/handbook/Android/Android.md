@@ -154,7 +154,30 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 
 ## 安卓开发笔记
 
-### 常用图标绘制库
+### 各个文件的作用简介
+
+- `local.properties`：配置本地Android SDK的路径，供Gradle使用，例：`sdk.dir=/Users/eric/Library/Android/sdk`
+- `settings.gradle.kts`：主要配置插件、库包等的仓库，例：`maven("https://jitpack.io")`
+- `gradle-wrapper.properties`：配置Gradle等路径，例：`distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip`
+- `gradle.properties`：
+    - Global：可以配置一些代理设置，例：`systemProp.http.proxyHost=vpn.ericyangxd.com`
+    - Project：配置jvm等参数，例：`org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8`
+- `build.gradle.kts`：
+    - Module：配置plugins、compileSdk、buildFeatures、dependencies等等
+    - Project：可以配置一些全局的配置plugins等
+- `proguard-rules.pro`：配置一些打包时的混淆策略等
+- `libs.versions.toml`：配置一些插件依赖的仓库名称版本等
+- ``：
+- ``：
+- ``：
+
+### 主题及主题切换
+
+使用主题`Theme.Material3.Light.NoActionBar`，之后可以通过创建文件夹`drawable`/`drawable-night`的形式来实现day/night的icon的适配。
+
+
+
+### 常用图表绘制库
 
 1. MPAndroidChart
 
@@ -295,9 +318,264 @@ class FooAdapter : BaseQuickAdapter<Foo, BaseViewHolder>(R.layout.item_foo) {
 }
 ```
 
+### okhttp 网络请求
+
+okhttp是一个通用的高性能网络请求框架，支持同步和异步请求，支持缓存，支持重定向，支持GZIP压缩，支持HTTPS、配置自定义拦截器等。okhttp出现之前，可以使用系统自带的HttpClient、HttpURLConnection或者Volley、AsyncHttpClient等开源库进行网络请求。
+
+1. 同时支持HTTP1.0和HTTP2.0
+2. 同时支持同步与异步请求
+3. 同时具备HTTP与WebSocket功能
+4. 拥有自动维护的socket连接池，减少握手次数
+5. 拥有队列线程池，轻松写并发
+6. 拥有Interceptors拦截器，轻松处理请求与响应额外需求，如请求失败重试、响应内容重定向等
+
+使用之前：
+1. 在AndroidManifest.xml中添加网络访问权限：`<uses-permission android:name="android.permission.INTERNET" />`
+2. 在app/build.gradle中的dependencies中添加依赖：`com.squareup.okhttp3:okhttp:4.9.0`、打印网络请求日志`com.squareup.okhttp3:logging-interceptor:4.9.0`
+3. 同步GET：一直等待http请求，直到返回响应，在这之间会阻塞线程，所以同步请求不能放在安卓主线程中，会报NetworkMainThreadException。
+    - 安卓8.0之后不能直接发起http请求，需要配置：在AndroidManifest.xml中添加`android:usesCleartextTraffic="true"`
+4. 异步GET：在另外的工作线程中执行http请求，请求时不会阻塞当前的线程，所以可以在Android主线程中使用。`onFailure`、`onResponse`的回调是在子线程中的，我们需要切换到主线程才能操作UI控件。
+    -
+
+```kotlin
+// 使用object声明的类可以直接当做实例来使用，不需要new了
+
+object HiOkHttp {
+    private val BASE_URL = "xxx"
+    private val client: OkHttpClient
+
+    init {
+      val httpLoggingInterceptor = HttpLoggingInterceptor()
+      httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY) // 打印详细的请求body信息
+      // 先创建一个OkHttpClient实例并设置基本的超时配置
+      client = OkHttpClient.Builder()
+                  .connectTimeout(10, TimeUnit.SECONDS)
+                  .readTimeout(10, TimeUnit.SECONDS)
+                  .writeTimeout(10, TimeUnit.SECONDS)
+                  .addInterceptor(httpLoggingInterceptor) // okhttp拦截器
+                  // .addInterceptor(LoggingInterceptor()) // 自定义的拦截器
+                  .build()
+    }
+
+    // GET请求
+
+    // 同步GET: 一直等待http请求，直到返回响应，在这之间会阻塞线程，所以同步请求不能放在安卓主线程中，会报NetworkMainThreadException
+    // 要起一个子线程来执行。
+    fun runGet(url: String, params: Any?){
+      Thread(Runnable {
+        // 0.根据需求处理参数或者请求url
+        // 1.构造请求体
+        val request: Request = Request.Builder()
+                              .url(url)
+                              .build()
+        // 2.构造请求对象
+        val call = client.newCall(request)
+        // 3.发起同步请求
+        val response = call.execute()
+        // 4.处理响应
+        val body = response.body?.string()
+        println("get response: $body")
+      }).start()
+    }
+
+    // 异步GET:
+    fun runGetAsync(url: String, body: Any){
+      // 1.构造请求体
+      val request: Request = Request.Builder()
+                              .url(url)
+                              .build()
+      // 2.构造请求对象
+      val call = client.newCall(request)
+      // 3.发起异步请求
+      call.enqueue(object: Callback {
+        override fun onFailure(call: Call, e: IOException) {
+          println("onFailure: ${e.message}")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+          val body = response.body?.toString()
+          println("onResponse: $body")
+        }
+      })
+
+    }
+
+    // POST请求
+
+    // 同步POST
+    fun runPost(url: String, key: String, value: String){
+      val body = new FormBody.Builder()
+                  .add(key, value)
+                  .build()
+      val request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build()
+      // client 还是上面那个统一的OkHttpClient实例对象
+      val call = client.newCall(request)
+      Thread(Runnable{
+        val response = call.execute()
+        val body = response.body?.string()
+        println("onResponse: $body")
+      }).start()
+    }
+
+    // 异步POST
+    fun runPostAsync(url: String, key: String, value: String){
+      val body = new FormBody.Builder()
+                  .add(key, value)
+                  .build()
+      val request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build()
+      // client 还是上面那个统一的OkHttpClient实例对象
+      val call = client.newCall(request)
+      call.enqueue(object: Callback {
+        override fun onFailure(call: Call, e: IOException) {
+          println("onFailure: ${e.message}")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+          val body = response.body?.string()
+          println("onResponse: $body")
+        }
+      })
+    }
+
+    // 异步表单文件上传
+    fun runPostFile(url: String, file: Any){
+      val file = File(Environment.getExternalStorageDirectory(), "test.jpg")
+      if(!file.exists()){
+        Toast.makeText(this, "File not exists!", Toast.LENGTH_SHORT).show()
+        return
+      }
+      val multipartBody: RequestBody = MuiltipartBody.Builder()
+                                      .setType(MuiltipartBody.FORM)
+                                      .addFormDataPart("username", "Eric")
+                                      // .addFormDataPart("file", "test.jpg", RequestBody.create(MediaType.parse("application/octet-stream"), file))
+                                      .addFormDataPart("file", "test.jpg", RequestBody.create("application/octet-stream".toMediaType(), file))
+                                      .build()
+      val request: Request = Request.Builder()
+                            .url(url)
+                            .post(body)
+                            .build()
+      val call = client.newCall(request)
+      call.enqueue(object: Callback {
+        override fun onFailure(call: Call, e: IOException) {
+          println("onFailure: ${e.message}")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+          val body = response.body?.string()
+          println("onResponse: $body")
+        }
+      })
+    }
+
+    // 异步提交字符串
+    fun runPostStringAsync(url: String, params: Any?){
+      val jsonObj = JSONObject()
+      jsonObj.put("key1", "value1")
+      jsonObj.put("key2", "value2")
+
+      val body = RequestBody.create("application/json;charset=utf-8".toMediaType(), jsonObj.toString())
+      // val body = RequestBody.create("text/plain;charset=utf-8".toMediaType(), params.toString())
+      val request: Request = Request.Builder()
+                            .url(url)
+                            .post(body)
+                            .build()
+      val call = client.newCall(request)
+      call.enqueue(object: Callback {
+        override fun onFailure(call: Call, e: IOException) {
+          println("onFailure: ${e.message}")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+          val body = response.body?.string()
+          println("onResponse: $body")
+        }
+      })
+    }
+}
+
+// 调用GET，安卓8.0之后不能直接发起http请求，需要配置：在AndroidManifest.xml中添加`android:usesCleartextTraffic="true"`
+HiOkHttp.runGet("https://baidu.map.com/xxx")
+
+```
+
+#### LoggingInterceptor拦截器
+
+```kotlin
+
+class LoggingInterceptor: Interceptor{
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val time_start = System.nanoTime()
+        val request = chain.request()
+        val response = chain.proceed(request)
+
+        val buffer = Buffer()
+        // request里可以设置缓存策略，是否使用https等等
+        request.body?.writeTo(buffer)
+        val requestBodyStr = buffer.readUtf8()
+
+        println("Sending request: ${request.url} on ${chain.connection()} with params ${requestBodyStr.toString()}")
+
+        val businessData = response.body?.string() ?: "response body is null"
+        val mediaType = response.body?.contentType()
+        // 构建自定义的响应体
+        val newBody = ResponseBody.create(mediaType, businessData)
+        val newResponse = response.newBuilder().body(newBody).build()
+
+        val t1 = time_start
+        val t2 = System.nanoTime()
+        println("Received response from ${request.url} in ${(t2 - t1) / 1e6} ms")
+
+        return newResponse
+    }
+}
+
+
+
+```
+
+#### GSON数据解析
+
+```kotlin
+// 1. 添加依赖
+// "com.google.code.gson:gson:2.8.6"
+// 2. 创建数据类 data class可以不用赋初始值/默认值
+// 例如：Account.kt
+// 3. 解析数据
+// 将JSON转换成对象
+val json = "\"name\":\"json string...\""
+val gson = Gson()
+val jsonObj = gson.fromJson(json, Account::class.java)
+println(jsonObj.name)
+
+// 将对象转换成JSON
+val myObj = new Account()
+val myObjStr = gson.toJson(myObj)
+println(myObjStr)
+
+// 将集合转换成JSON
+val accountList = ArrayList<Account>()
+accountList.add(acc1)
+accountList.add(acc2)
+val josnStr = gson.toJson(accountList)
+println(josnStr)
+
+// 将JSON转换成集合
+val josnListStr = "[{\"name\":\"json string...\"}]"
+val accountList = gson.fromJson(josnListStr, object: TypeToken<List<Account>>(){}.getType())
+println(accountList.size())
+```
+
+JsonToKotlin插件：JsonToKotlinClass github上。
+
 ### Retrofit 网络请求
 
-结合 Gson 对 JSON 数据进行解析
+Retrofit以OkHttp作为底层网络框架，对OkHttp进行了二次封装，结合 Gson 对 JSON 数据进行解析
 
 - `com.squareup.retrofit2:retrofit`
 - `com.squareup.retrofit2:converter-gson`
@@ -639,10 +917,6 @@ SDK >= 28，使用MaterialButton，先引入依赖`com.google.android.material:m
     - `app:singleSelection`：是否单选
     - `app:selectionRequired`：设置为true后，强制至少选中一个
 
-```xml
-
-
-```
 
 ### TextView
 
@@ -706,3 +980,5 @@ android:scrollbarFadeDuration="0"
 ### ConstrainLayout 约束布局
 
 通过辅助线来控制具体的位置，当然也可以设置边距啥的。
+
+
