@@ -37,10 +37,10 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 
 为什么找不到呢，估计是 IDE 抽风 先记录下:
 
-1. 剪切一下 settings.gradle 下的 include ‘:app’，
+1. 剪切一下 settings.gradle 下的 include ':app'，
 2. 然后 Sync Project with gradle files，
-3. 再然后，粘贴回去 include ‘:app’,
-4. 再 build 一下就可以了.
+3. 再然后，粘贴回去 include ':app'，
+4. 再 build 一下就可以了。
 
 - 2. project moudle
 
@@ -154,6 +154,94 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 
 ## 安卓开发笔记
 
+### 四大组件
+
+1. Activity（+ Fragment）、Service、Broadcast Receiver、Content Provider。都要在AndroidManifest.xml中注册才能使用。
+2. Activity必须要有name，如果声明了intent-filter，那么如果有action的话，就需要设置category。action的name可以是自定义的：app包名+大写的具体名称，以便使用隐式intent去启动这个Activity。主Activity的category name一般是`android.intent.category.LAUNCHER`。label现在可以不设置，它主要是在actionbar上显示name。
+3.
+
+#### Activity
+
+##### Activity启动方式与数据传递
+
+1. 显示intent启动，通过包名来启动
+
+```kotlin
+// 常规跳转
+// val intent = Intent(MainActivity.this, SecondActivity.class)
+val intent = Intent(this, SecondActivity::class.java)
+startActivity(intent)
+
+// 携带参数跳转
+val intent = Intent(this, SecondActivity::class.java)
+intent.putExtra("name", "Eric")
+intent.putExtra("age", 30)
+startActivity(intent)
+
+// SecondActivity中获取参数
+val nameStr = intent.getStringExtra("name")
+val ageNum = intent.getStringExtra("age", 0)
+
+// 期待从目标页获取数据：startActivityForResult --> 比如启动相册获取图片，如下三步：
+// 1. 从A到B
+val intent = Intent(MainActivity.this, SecondActivity.class)
+startActivityForResult(intent, 100)
+// 2. 从B到A
+val resultIntent = Intent()
+resultIntent.putExtra("result_extra_string", "result_extra_string")
+resultIntent.putExtra("result_extra_int", 888)
+setResult(Activity.RESULT_OK, resultIntent)
+finish()
+// 3. 回到A接收处理数据
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
+  super.onActivityResult(requestCode, resultCode, data)
+  if(requestCode == 100 && resultCode == Activity.RESULT_OK && data != null){
+    val resultStr = data.getStringExtra("result_extra_string")
+    val resultInt = data.getIntExtra("result_extra_int", 0)
+  }
+}
+```
+
+2. 隐式intent启动，通过注册Activity时，添加intent-filter+action+category来启动，其中一定要有：android.intent.category.DEFAULT这个category。
+
+```kotlin
+val intent = Intent()
+intent.action = "com.ericyangxd.intent.action.SecondActivity"
+intent.addCategory("com.ericyangxd.intent.action.SecondActivity")
+intent.putExtra("extra_data", "extra_data")
+intent.putExtra("extra_int_data", 100)
+startActivity(intent)
+// 接受返回数据的用法是一致的
+startActivityForResult(intent, 1000)
+```
+
+#### Fragment
+
+Fragment不能单独使用，需要嵌套在Activity中使用，并且他有自己的生命周期，但是会受到宿主Activity的生命周期影响。一个Activity可以嵌套多个Fragment。使用Fragment把一个Activity划分成多个部分分别管理，方便后续迭代维护。
+
+生命周期：onAttach -> onCreate -> onCreateView -> onActivityCreated -> onStart -> onResume -> onPause -> onStop -> onDestroyView -> onDestroy -> onDetach
+
+onInflate -> 只有在直接用标签在布局文件中定义时才会被调用。-> onAttach -> ...
+
+##### Activity中动态添加Fragment
+
+
+
+#####
+
+#####
+
+
+#### Service
+
+
+#### Broadcast Receiver
+
+
+#### Content Provider
+
+
+
 ### 各个文件的作用简介
 
 - `local.properties`：配置本地Android SDK的路径，供Gradle使用，例：`sdk.dir=/Users/eric/Library/Android/sdk`
@@ -174,8 +262,6 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 ### 主题及主题切换
 
 使用主题`Theme.Material3.Light.NoActionBar`，之后可以通过创建文件夹`drawable`/`drawable-night`的形式来实现day/night的icon的适配。
-
-
 
 ### 常用图表绘制库
 
@@ -573,61 +659,22 @@ println(accountList.size())
 
 JsonToKotlin插件：JsonToKotlinClass github上。
 
-### Retrofit 网络请求
+### Retrofit 网络请求框架
 
-Retrofit以OkHttp作为底层网络框架，对OkHttp进行了二次封装，结合 Gson 对 JSON 数据进行解析
+Retrofit是一个注解驱动型上层网络请求框架，以OkHttp作为底层网络框架，对OkHttp进行了二次封装，结合 Gson 对 JSON 数据进行解析。使用注解简化请求！
 
-- `com.squareup.retrofit2:retrofit`
-- `com.squareup.retrofit2:converter-gson`
+- `com.squareup.retrofit2:retrofit:2.3.0`
+- `com.squareup.retrofit2:converter-gson:2.3.0` // JSON转换
 
-```kotlin
-private val retrofit = Retrofit.Builder()
-    .baseUrl("https://mock.apipost.net/")
-    .addConverterFactory(GsonConverterFactory.create())
-    .build()
+**注意**，Retrofit的onResponse和onFailure是运行在主线程上的，可以直接操作UI，而OkHttp的是运行在子线程上的，不能直接操作UI。
 
-private val weatherApiService: WeatherApiService =
-    retrofit.create(WeatherApiService::class.java)
+3种注解：
 
-// 在onViewCreated中调用fetchWeatherData()即可
+- 用于标注网络请求方式的注解
+- 用于标记网络请求参数的注解
+- 用于标记网络请求和响应格式的注解
 
-private fun fetchWeatherData() {
-    Log.d("WeatherFragment", "fetchWeatherData called")
-    weatherApiService.getWeatherData().enqueue(object : Callback<WeatherResponse> {
-        override fun onResponse(
-            call: Call<WeatherResponse>,
-            response: Response<WeatherResponse>
-        ) {
-
-            Log.d("fetchWeatherData", response.body().toString())
-            if (response.isSuccessful && response.body() != null) {
-                val weatherData = response.body()!!
-                val rainChance = weatherData.result.additional_info.rain_chance.value.toFloat()
-
-                with(weatherInfoChartBinding) {
-                    // update ColorfulRingProgressView 填充数据
-                    rainChancePieChart.percent = rainChance
-                }
-            } else {
-                Log.e("fetchWeatherData", "response is not successful!")
-            }
-        }
-
-        override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-            Log.e("fetchWeatherData", "Request failed: ${t.message}")
-        }
-    })
-}
-```
-
-```kotlin
-// WeatherApiService.kt  写个interface就行
-interface WeatherApiService {
-    @GET("mock/3093cexxxx2404c/weather/mock?apipost_id=3093xxx4e")
-    fun getWeatherData(): Call<WeatherResponse>
-}
-```
-
+> 第一步：定义相应的数据类
 ```kotlin
 // WeatherResponse
 data class WeatherResponse(
@@ -637,6 +684,65 @@ data class WeatherResponse(
 )
 // ...
 ```
+
+> 第二步：定义一个Service
+```kotlin
+// WeatherApiService.kt  写个interface就行
+interface WeatherApiService {
+    @Headers({"User-Agent:android", "apikey:123431aa"}) // 通过不同的注解实现需要的功能
+    // @GET("mock/3093cexxxx2404c/weather/mock?apipost_id=3093xxx4e") // 把参数通过Query注解放到入参那里获取
+    @GET("mock/3093cexxxx2404c/weather/mock")
+    fun getWeatherData(@Query("apipost_id") apipost_id: String): Call<WeatherResponse>
+}
+```
+
+> 第三步：通过Retrofit来调用这个Service
+```kotlin
+private val retrofit = Retrofit.Builder()
+    .baseUrl("https://mock.apipost.net/")
+    .addConverterFactory(GsonConverterFactory.create())
+    .build()
+
+private fun fetchWeatherData() {
+
+    private val weatherApiService: WeatherApiService =
+        retrofit.create(WeatherApiService::class.java)
+    private val call = weatherApiService.getWeatherData("3093xxx4e")
+
+    call.enqueue(object : Callback<WeatherResponse> {
+        override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
+            if (response.isSuccessful && response.body() != null) {
+                val weatherResponse = response.body()
+                // Handle the successful response here
+                println(weatherData)
+            } else {
+                // Handle the error response here
+            }
+        }
+
+        override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
+            println("Request failed: ${t.message}")
+        }
+    })
+}
+```
+
+常用的一下注解及用法：
+
+1. `@GET`：GET请求，通过`@Query`和`@QueryMap`注解传递参数
+2. `@POST`：POST请求，通过`@Body`注解传递对象参数，也可以通过`@Field`、`@FieldMap`和`@PartMap`等传递参数
+3. `@PUT`：PUT请求，通过`@Body`注解传递对象参数
+4. `@DELETE`：DELETE请求，通过`@Path`注解传递参数
+5. `@Header`：设置请求头
+6. `@Headers`：设置多个请求头
+7. `@Body`：设置请求体
+8. `@Field`：设置表单字段
+9. `@FieldMap`：设置多个表单字段
+10. `@Part`：设置文件上传
+11. `@PartMap`：设置多个文件上传
+12. `@Url`：设置请求URL
+13. `@Multipart`：设置表单上传
+14. `@FormUrlEncoded`：设置表单提交（键值对提交）
 
 ### 自定义圆环"Chart"
 
@@ -981,4 +1087,337 @@ android:scrollbarFadeDuration="0"
 
 通过辅助线来控制具体的位置，当然也可以设置边距啥的。
 
+## 常用库
 
+### Glide
+图片加载
+
+###
+
+## 控件生命周期及函数
+
+
+### 1. Activity
+
+**`onCreate(Bundle savedInstanceState)`**
+
+- 作用: 初始化Activity，通常在这里加载布局、初始化控件和数据。
+- 常见操作:
+   -  设置布局 setContentView(R.layout.activity_main)
+   -  初始化控件 findViewById(R.id.button)
+   -  初始化数据
+
+```java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    Button myButton = findViewById(R.id.my_button);
+    // 初始化操作
+}
+```
+
+**`onStart()`**
+
+- 作用: Activity即将变为可见状态。
+- 常见操作:
+   - 开始动画
+   - 初始化资源（如Sensor）
+
+```java
+@Override
+protected void onStart() {
+    super.onStart();
+    // 开始动画或初始化资源
+}
+```
+
+
+**`onResume()`**
+
+- 作用: Activity即将与用户交互。
+- 常见操作：
+   - 恢复暂停的任务（如游戏的刷新）
+   - 开始播放音乐
+
+```java
+@Override
+protected void onResume() {
+    super.onResume();
+    // 恢复暂停的任务
+}
+```
+
+**`onPause()`**
+
+- 作用: Activity即将失去焦点，但仍部分可见。
+- 常见操作:
+   - 暂停动画或音乐
+   - 保存临时数据
+
+```java
+@Override
+protected void onPause() {
+    super.onPause();
+    // 暂停动画或音乐
+}
+```
+
+**`onStop()`**
+
+- 作用: Activity即将完全不可见。
+- 常见操作:
+   - 释放不必要的资源
+   - 停止动画
+
+```java
+@Override
+protected void onStop() {
+    super.onStop();
+    // 释放不必要的资源
+}
+```
+
+**`onDestroy()`**
+
+- 作用: Activity即将被销毁。
+- 常见操作:
+   - 释放所有资源
+   - 终止所有后台任务
+
+```java
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+    // 释放所有资源
+}
+```
+
+### 2. Fragment
+
+**`onAttach(Context context)`**
+
+- 作用: Fragment与Activity相关联。
+- 常见操作:
+   - 获取Activity的引用
+
+```java
+@Override
+public void onAttach(Context context) {
+    super.onAttach(context);
+    // 获取Activity的引用
+}
+```
+
+
+**`onCreate(Bundle savedInstanceState)`**
+
+- 作用: 初始化Fragment，通常在这里加载布局、初始化控件和数据。
+- 常见操作:
+   - 初始化数据
+
+```java
+@Override
+public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    // 初始化数据
+}
+```
+
+
+**`onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)`**
+
+- 作用: 为Fragment创建视图层次结构。
+- 常见操作:
+   - 装载布局文件
+   - 初始化控件
+
+```java
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    View view = inflater.inflate(R.layout.fragment_layout, container, false);
+    Button myButton = view.findViewById(R.id.my_button);
+    // 初始化控件
+    return view;
+}
+```
+
+
+**`onActivityCreated(Bundle savedInstanceState)`**
+
+- 作用: Fragment所在的Activity已经完成onCreate()。
+- 常见操作:
+   - 设置与Activity相关的操作
+
+```java
+@Override
+public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    // 设置与Activity相关的操作
+}
+```
+
+
+**`onStart()`**
+
+- 作用: Fragment即将变为可见状态。
+- 常见操作:
+   - 开始动画或初始化资源
+
+```java
+@Override
+public void onStart() {
+    super.onStart();
+    // 开始动画或初始化资源
+}
+```
+
+
+**`onResume()`**
+
+- 作用: Fragment即将与用户交互。
+- 常见操作:
+   -  恢复暂停的任务
+
+```java
+@Override
+public void onResume() {
+    super.onResume();
+    // 恢复暂停的任务
+}
+```
+
+
+**`onPause()`**
+
+- 作用: Fragment即将失去焦点，但仍部分可见。
+- 常见操作:
+   - 暂停动画或音乐
+
+```java
+@Override
+public void onPause() {
+    super.onPause();
+    // 暂停动画或音乐
+}
+```
+
+
+**`onStop()`**
+
+- 作用: Fragment即将完全不可见。
+- 常见操作:
+   - 释放不必要的资源
+
+```java
+@Override
+public void onStop() {
+    super.onStop();
+    // 释放不必要的资源
+}
+```
+
+
+**`onDestroyView()`**
+
+- 作用: Fragment的视图即将销毁。
+- 常见操作:
+   - 清理视图相关的资源
+
+```java
+@Override
+public void onDestroyView() {
+    super.onDestroyView();
+    // 清理视图相关的资源
+}
+```
+
+
+**`onDestroy()`**
+
+- 作用: Fragment即将被销毁。
+- 常见操作:
+   - 释放所有资源
+
+```java
+@Override
+public void onDestroy() {
+    super.onDestroy();
+    // 释放所有资源
+}
+```
+
+
+**`onDetach()`**
+
+- 作用: Fragment与Activity解除关联。
+- 常见操作:
+   - 清理一些相关联的资源
+
+```java
+@Override
+public void onDetach() {
+    super.onDetach();
+    // 清理一些相关联的资源
+}
+```
+
+### 3. View
+
+**`onAttachedToWindow()`**
+
+- 作用: 当View附加到Window时调用。
+- 常见操作:
+   - 开始动画或初始化资源
+
+```java
+@Override
+protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    // 开始动画或初始化资源
+}
+```
+
+**`onDetachedFromWindow()`**
+
+- 作用: 当View从Window分离时调用。
+- 常见操作:
+   - 释放资源或停止动画
+
+```java
+@Override
+protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    // 释放资源或停止动画
+}
+```
+
+
+**`onSizeChanged(int w, int h, int oldw, int oldh)`**
+
+- 作用: 当View的大小发生变化时调用。
+- 常见操作:
+   - 处理尺寸变化后的操作
+
+```java
+@Override
+protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    super.onSizeChanged(w, h, oldw, oldh);
+    // 处理尺寸变化后的操作
+}
+```
+
+
+**`onDraw(Canvas canvas)`**
+
+- 作用: 绘制View的内容。
+- 常见操作:
+   - 自定义绘制逻辑
+
+```java
+@Override
+protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+    // 自定义绘制逻辑
+}
+```

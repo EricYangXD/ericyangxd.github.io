@@ -95,6 +95,60 @@ data class Person(var name: String, var age: Int) {
 }
 ```
 
+### object 和 class的区别
+
+在Kotlin中，object和class关键字用于声明不同类型的类，它们有一些关键的区别。
+
+#### object关键字
+1. 定义和特点
+   - 单例模式: 使用object关键字定义的类是单例的，也就是说整个应用程序中只有一个实例。你无需显式地创建实例，Kotlin会自动创建并确保只有一个实例。
+   - 线程安全: Kotlin确保单例对象是线程安全的。
+   - 可以包含初始化代码: 当单例对象首次使用时，其初始化代码会被执行。
+2. 代码示例
+   ```kotlin
+    object ApiClient {
+      val baseUrl = "https://api.example.com"
+      private val client = OkHttpClient()
+
+      fun getRequest(endpoint: String): String {
+        // 实现网络请求的逻辑
+        return "Response from $endpoint"
+      }
+    }
+   ```
+3. 使用场景
+    - 全局唯一实例: 例如，配置管理、日志记录、网络客户端等需要全局唯一实例的场景。
+    - 伴生对象: 在类中使用companion object来定义伴生对象，相当于Java中的静态成员。
+
+#### class关键字
+
+1. 定义和特点
+   - 普通类: 使用class关键字定义的类是普通类，每次创建对象时都会生成新的实例。
+   - 需要显式创建实例: 你需要使用构造函数显式地创建对象。
+   - 可以有构造函数: 类可以有一个主构造函数和多个次构造函数。
+2. 代码示例
+    ```kotlin
+    class ApiClient(val baseUrl: String) {
+      fun getRequest(endpoint: String): String {
+        // 实现网络请求的逻辑
+        return "Response from $endpoint"
+      }
+    }
+
+    // 创建实例
+    val apiClient = ApiClient("https://api.example.com")
+    ```
+3. 使用场景
+   - 需要多个实例: 例如，表示用户、订单、商品等实体类，每个实例表示不同的对象。
+   - 依赖注入: 需要通过依赖注入框架（如Dagger或Koin）来管理实例的创建和依赖关系。
+
+#### 选择object还是class
+选择使用object或class取决于具体需求：
+
+- 如果需要一个全局唯一的实例并且不需要传递实例化参数，那么选择object。例如，配置管理、数据库连接、网络客户端等。
+- 如果需要多个实例或需要传递实例化参数，那么选择class。例如，表示业务实体（用户、订单等）的类。
+
+
 ### bean 类继承了父类并在主构造函数中覆盖了父类的属性
 
 使用 Gson 解析 json 时，如果 bean 类继承了父类并在主构造函数中覆盖了父类的属性，那么会报错：declares multiple JSON fields named name（声明多个名为 name 的 JSON 字段） 比如：
@@ -227,6 +281,8 @@ public inline fun <A : ComponentActivity, T : ViewBinding> ComponentActivity.vie
 4. `crossinline` 是 Kotlin 中的一个关键字，用于在内联函数中声明不允许跳转（non-local returns）的 lambda 表达式参数。在 Kotlin 中，内联函数会将函数的代码插入到调用它的位置，以提高性能。但是，内联函数无法直接传递非局部控制流（如 return 语句）给 lambda 表达式。这是因为内联函数的实现方式会将函数体作为调用者的一部分，而 lambda 表达式则会在内联函数外部执行。使用 crossinline 关键字修饰的 lambda 参数将不允许在 lambda 表达式中使用 return 语句，以避免非局部控制流的问题。
 
 5. `crossinline viewProvider: (A) -> View = ::findRootView`，这里的`::findRootView`怎么理解？-- `::` 是 Kotlin 中的操作符，用于获取一个函数或属性的引用。在这里，`::findRootView` 获取了函数 `findRootView` 的引用，而不是调用函数。通过将 `::findRootView` 作为参数传递给 `viewProvider`，我们实际上是将函数 `findRootView` 作为参数传递给了 `viewProvider`。这样在调用 `viewProvider` 时，它就可以使用传递的参数 `A` 来调用函数 `findRootView`。换句话说，`viewProvider: (A) -> View = ::findRootView` 表示将函数 `findRootView` 的引用作为默认值赋给了 `viewProvider` 参数。如果没有显式提供 `viewProvider` 的值，它将使用 `::findRootView` 作为默认实现。
+
+6. 泛型方法：类型参数要放在方法名的前面：`fun <T> fromJson(Json: String, tClass: Class<T>): T? {...}`
 
 ### 数组创建时类型的装箱
 
@@ -647,3 +703,4 @@ val (first, second) = pair
 val coordinates = arrayOf(1, 2, 3)
 val (x, y, z) = coordinates
 ```
+
