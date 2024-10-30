@@ -81,6 +81,7 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 这样就可以调试成功了。
 
 4. MacOSX 修改 Android Studio 使用本地 gradle, `gradle-wrapper.properties: distributionUrl=file:/Users/eric/.gradle/wrapper/dists/gradle-5.6.4-all/ankdp27end7byghfw1q2sw75f/gradle-5.6.4-all.zip`
+5. MacOSX 通过命令行启动安卓模拟器，以使模拟器可以访问外网：`/Users/eric/Library/Android/sdk/emulator/emulator -avd Automotive_1080p_landscape_API_33 -selinux permissive -writable-system -dns-server 8.8.8.8 -http-proxy http://your-proxy.com`，需要替换`/Users/eric/Library/Android/sdk/emulator/emulator`为自己机器上的路径，`Automotive_1080p_landscape_API_33`替换为自己模拟器的名称，至于proxy、dns，区别不大。
 
 ## ijkplayer 编译 so 库
 
@@ -157,8 +158,7 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 ### 四大组件
 
 1. Activity（+ Fragment）、Service、Broadcast Receiver、Content Provider。都要在AndroidManifest.xml中注册才能使用。
-2. Activity必须要有name，如果声明了intent-filter，那么如果有action的话，就需要设置category。action的name可以是自定义的：app包名+大写的具体名称，以便使用隐式intent去启动这个Activity。主Activity的category name一般是`android.intent.category.LAUNCHER`。label现在可以不设置，它主要是在actionbar上显示name。
-3.
+2. Activity必须要有name，如果声明了intent-filter，那么如果有action的话，就需要设置category。action的name可以是自定义的：app包名+大写的具体名称，以便使用隐式intent去启动这个Activity。主Activity的category name一般是`android.intent.category.LAUNCHER`，还要设置DEFAULT。label现在可以不设置，它主要是在actionbar上显示name。
 
 #### Activity
 
@@ -219,30 +219,553 @@ startActivityForResult(intent, 1000)
 
 Fragment不能单独使用，需要嵌套在Activity中使用，并且他有自己的生命周期，但是会受到宿主Activity的生命周期影响。一个Activity可以嵌套多个Fragment。使用Fragment把一个Activity划分成多个部分分别管理，方便后续迭代维护。
 
-生命周期：onAttach -> onCreate -> onCreateView -> onActivityCreated -> onStart -> onResume -> onPause -> onStop -> onDestroyView -> onDestroy -> onDetach
-
-onInflate -> 只有在直接用标签在布局文件中定义时才会被调用。-> onAttach -> ...
+生命周期：
+- 添加Fragment到Activity中 -> onAttach -> ...
+- onInflate -> 只有在直接用标签在布局文件中定义时才会被调用。-> onAttach -> ...
+- onAttach -> 当该Fragment被添加到Activity中时会回调，只会被回调一次
+- onCreate -> 创建Fragment时回调
+- onCreateView -> 每次创建、绘制该Fragment的View组件时回调，会将显示的View返回，所以**需要return一个view**
+- onActivityCreated -> 当Fragment所在的Activity启动完成后回调
+- onStart -> 启动Fragment时被回调
+- onResume -> 恢复Fragment时被回调，onStart方法后一定回调onResume方法，onStart可见，onResume后才能交互
+- 运行状态 -> 1当该Activity转到后台或者Fragment被删除/替换时；2当该Fragment被添加到Back栈时；-> onPause ...
+- onPause -> 暂停Fragment时被回调
+- 暂停状态
+- onStop -> 停止Fragment时回调
+- 停止状态
+- onDestroyView -> 销毁该Fragment所包含的View组件时使用 -> 如果该Fragment从Back栈返回界面，则进入 -> onCreateView -> ...
+- onDestroy -> 销毁Fragment时被回调
+- onDetach ：将该Fragment从Activity被删除/替换完成后回调该方法；onDestroy后一定会回调该方法。该方法只调用一次。
+- 销毁状态
+- 对于一个Activity里包含多个Fragment的情况，通过fragment.hide/show方法切换Fragment时，不会反复调用onResume和onPause方法，此时可以重写onHiddenChanged(hidden: Boolean)方法，该方法会在每次切换Fragment时触发回调。
 
 ##### Activity中动态添加Fragment
 
+1. 先定义一个StudyFragment，需要继承自Fragment并绑定布局文件`class StudyFragment: Fragment(R.layout.fragment_study) {..}`
+2. 在Activity中，使用supportFragmentManager管理Fragment，添加到界面上
+```kotlin
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val studyFragment = StudyFragment()
+        val ft = supportFragmentManager.beginTransaction() // 开启事务
+        if(!fragment.isAdded) {
+            ft.add(R.id.container, studyFragment) // 添加，当且仅当该Fragment没有被添加到Activity中时才添加
+        }
+        // ft可以对fragment进行的几种操作如下：
+        ft.show(fragment)
+        ft.hide(fragment)
+        ft.remove(fragment)
+        ft.replace(R.id.container, fragment) // 替换，并把之前添加的Fragment移除出去
 
+        ft.commitAllowingStateLoss() // 提交事务，之后才能正常显示Fragment
+        // supportFragmentManager.beginTransaction()
+        //         .replace(R.id.container, AnotherFragment())
+        //         .commit()
+        // supportFragmentManager.startFragment(AnotherFragment::class.java)
+    }
+}
+```
+1. 在布局文件中定义一个容器，用于放置Fragment，例：`<FrameLayout android:id="@+id/container" android:layout_width="match_parent" android:layout_height="match_parent" />`
 
-#####
+##### Fragment间通信
 
-#####
+1. 通过Bundle传递数据
+```kotlin
+// 发送数据
+val bundle = Bundle()
+bundle.putString("key", "value")
+fragment.setArguments(bundle)
 
+// 接收数据
+val bundle = fragment.arguments
+val value = bundle.getString("key")
+```
+2. 通过接口回调
+```kotlin
+// 定义接口
+interface OnFragmentInteractionListener {
+    fun onFragmentInteraction(uri: Uri)
+}
+
+// 在Fragment中实现接口
+class StudyFragment : Fragment(), OnFragmentInteractionListener {
+    override fun onFragmentInteraction(uri: Uri) {
+        // 处理数据
+    }
+}
+
+// 在Activity中实现接口
+class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
+    override fun onFragmentInteraction(uri: Uri) {
+        // 处理数据
+    }
+}
+
+// 在Fragment中调用接口
+val listener = activity as OnFragmentInteractionListener
+listener.onFragmentInteraction(uri)
+```
+3. 通过EventBus
+```kotlin
+// 发送数据
+EventBus.getDefault().post(Event("value"))
+
+// 接收数据
+@Subscribe(threadMode = ThreadMode.MAIN)
+fun onEvent(event: Event) {
+    // 处理数据
+}
+EventBus.getDefault().register(this)
+```
+4. 通过LiveData
+```kotlin
+// 发送数据
+val liveData = MutableLiveData<String>()
+liveData.value = "value"
+
+// 接收数据
+liveData.observe(this, Observer { value ->
+    // 处理数据
+})
+```
+5. 通过ViewModel
+```kotlin
+// 发送数据
+val viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
+viewModel.setData("value")
+
+// 接收数据
+val viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
+viewModel.data.observe(this, Observer { value ->
+    // 处理数据
+})
+```
+6. 通过SharedPreference
+```kotlin
+// 发送数据
+val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+val editor = sharedPreferences.edit()
+editor.putString("key", "value")
+editor.apply()
+
+// 接收数据
+val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+val value = sharedPreferences.getString("key", "")
+```
+
+##### 向Fragment传递数据并解析使用数据
+
+1. 在Activity中创建bundle对象、并填充数据赋值给目标StudyFragment的arguments字段
+
+```kotlin
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val studyFragment = StudyFragment()
+
+        val bundle = Bundle()
+        bundle.putInt("key_int", 100)
+        bundle.putString("key_string", "key_string_value")
+        studyFragment.arguments = bundle
+
+        val ft = supportFragmentManager.beginTransaction() // 开启事务
+        if(!fragment.isAdded) {
+            ft.add(R.id.container, studyFragment) // 添加，当且仅当该Fragment没有被添加到Activity中时才添加
+        }
+
+        ft.commitAllowingStateLoss() // 提交事务，之后才能正常显示Fragment
+    }
+}
+```
+2. 在StudyFragment中获取数据
+
+```kotlin
+class StudyFragment: Fragment(R.layout.fragment_study) {
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val intArg = arguments?.getInt("key_int")
+        val stringArg = arguments?.getString("key_string")
+        // println(..)
+  }
+
+}
+```
+
+##### Fragment向Activity中传递数据
+
+1. 在StudyFragment中创建一个接口，并在Activity中实现该接口
+
+```kotlin
+// 定义接口
+interface OnFragmentInteractionListener {
+    fun onFragmentInteraction(uri: Uri)
+}
+
+// 在StudyFragment中实现接口
+class StudyFragment : Fragment(), OnFragmentInteractionListener {
+    override fun onFragmentInteraction(uri: Uri) {
+        // 处理数据
+    }
+}
+
+// 在Activity中实现接口
+class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
+    override fun onFragmentInteraction(uri: Uri) {
+        // 处理数据
+    }
+}
+
+// 在Fragment中调用接口
+val listener = activity as OnFragmentInteractionListener
+listener.onFragmentInteraction(uri)
+```
+2. 在Activity中调用Fragment的方法
+
+```kotlin
+// 在Activity中找到Fragment实例
+val studyFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as StudyFragment
+
+// 调用Fragment的方法
+studyFragment.someMethod()
+```
+
+### 通信机制
 
 #### Service
 
+是Android提供的一种不需要和用户交互且需要长期运行任务的解决方案。Service是一个Android四大组件之一，它是一种可以在后台执行长时间运行操作而没有用户界面的应用组件。Service可以在后台运行，即使用户切换到其他应用，Service仍然可以继续运行。Service可以通过`startService()`方法启动，也可以通过`bindService()`方法绑定。Service的生命周期和Activity有些类似，也有`onCreate()`、`onStartCommand()`、`onBind()`、`onUnbind()`、`onDestroy()`等方法。启动后默认运行在主线程，如果需要在子线程中运行，需要自己创建子线程，如果应用程序进程被杀死，那么所有依赖该进程的Service服务也会停止运行。
+
+##### 启动方式
+
+1. 通过`startService()`方法启动：在Activity中调用`startService(Intent)`方法启动Service
+2. 通过`bindService()`方法绑定：在Activity中调用`bindService(Intent, ServiceConnection, int)`方法绑定Service
+
+##### 生命周期
+
+两种启动方式的生命周期有所不同：
+
+1. 通过`startService()`方法启动：onCreate -> onStartCommand -> Service 运行 -> Service 被自己或调用者停止 -> onDestroy -> Service被关闭
+   - 首次启动会创建一个Service实例，依次调用onCreate、onStartCommand方法进入运行状态
+   - 如果再次调用startService启动Service，将不会再调用onCreate创建新的Service对象，系统将直接复用之前创建的Service对象然后调用他的onStartCommand方法
+   - 所以，这样的Service与他的调用者无必然联系，即启动Service后，Service会一直运行，直到调用`stopSelf()`或`stopService()`方法停止（回调onDestroy），即使调用者已经结束了自己的生命周期。生命周期跟应用程序的生命周期一样长！只要应用不被杀死就会一直运行。
+   - 无论启动了多少次Service，只需要调用一次stopService即可停掉Service
+   - 一般用于创建一个长时间持续运行的后台任务时才会使用，比如：socket、文件上传下载服务
+2. 通过`bindService()`方法绑定：onCreate -> onBind -> 客户端绑定到Service -> 调用unbindService取消绑定 -> onUnbind -> onDestroy -> Service被关闭
+   - 这种方式Service可以绑定多个客户端。
+   - bindService和unbindService要成对出现，不然会内存泄漏。
+   - 当有客户端绑定到Service时，Service会一直运行，直到所有客户端都取消绑定。
+   - 适用于运行一些和Activity生命周期相等的后台任务，比如：跨进程通信IPC。
+   - Android8.0及以上不允许后台启动Service服务。使用`Context.startForegroundService`函数启动一个前台服务，但是应用必须在创建服务后的5秒内调用该服务的startForeground函数。
+3. 示例代码：
+```kotlin
+// TestService.kt // 不要忘了在AndroidManifest.xml中注册Service
+class TestService : Service() {
+    private var count = 0
+    private var quit = false
+
+    inner class MyBinder: Binder(){
+      fun getCount(): Int {
+          return count
+      }
+    }
+    // 定义onBind方法所返回的对象
+    private val binder: MyBinder = MyBinder()
+
+    override fun onCreate() {
+        super.onCreate()
+        Log.d("TestService", "onCreate")
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("TestService", "onStartCommand")
+        return START_STICKY
+    }
+
+    // bindService
+    override fun onBind(intent: Intent?): IBinder? {
+        return binder
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("TestService", "onDestroy")
+    }
+}
+
+// MainActivity.kt
+class MainActivity : AppCompatActivity() {
+    private var binder: TestService.MyBinder = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // startService启动Service
+        start_service_btn.setOnClickListener {
+          val intent = Intent(this, TestService::class.java)
+          startService(intent)
+        }
+
+        // stopService停止Service
+        stop_service_btn.setOnClickListener {
+          val intent = Intent(this, TestService::class.java)
+          stopService(intent)
+        }
+
+        // bindService绑定Service
+        val intent2 = Intent(this, TestService::class.java)
+        bindService(intent2, serviceConnection, Context.BIND_AUTO_CREATE)
+        println(binder?.getCount())
+    }
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            // 服务连接成功
+          binder = service as TestService.MyBinder
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            // 服务断开连接
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // unbindService解绑Service，防止内存泄漏
+        unbindService(serviceConnection)
+    }
+}
+```
+4. 解决Android8.0及以上不允许后台启动Service服务：
+   1. 声明权限：`<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />`
+   2. 服务启动兼容写法：
+   ```kotlin
+    if(Build.VERSION.SDK_INT >= 26){
+        context.startForegroundService(intent)
+    }else{
+        context.startService(intent)
+    }
+
+    Handler().postDelayed(Runnable {
+        startService(Intent(this@TestServiceActivity, TestService2::class.java))
+    }, 3000)
+   ```
+5. 系统认定的应用从前台切换到后台的时长是60秒。
+
+##### 与Activity通信
+
+1. 通过`startService()`方法启动：在Service中通过`Intent`发送广播，Activity中通过`BroadcastReceiver`接收广播
+2. 通过`bindService()`方法绑定：在Service中通过`IBinder`接口返回数据，Activity中通过`ServiceConnection`接口接收数据
+
+```kotlin
+// TestService.kt
+class TestService : Service() {
+    private val binder = object : ITestService.Stub() {
+        override fun doSomething() {
+            //
+
+        }
+    }
+}
+```
 
 #### Broadcast Receiver
 
+广播接收者，是系统提供的一种通讯方式。通过广播接收者，我们可以接收系统或其他应用发送的广播消息。广播接收者是Android四大组件之一，它可以在后台接收系统的广播消息，即使应用程序退出，广播接收者仍然可以接收广播消息。广播接收者的生命周期很短，只有10秒左右，所以不适合做耗时操作。广播接收者可以通过`<receiver>`标签在AndroidManifest.xml中注册，也可以通过`registerReceiver()`方法动态注册。
+
+
+##### 标准广播
+
+1. 定义一个广播接收者
+```kotlin
+// 监听网络连接状态的变化，并toast提示
+class TestBroadcastReceiver: BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        if(intent?.action?.equals(ConnectivityManager.CONNECTIVITY_ACTION) == true){
+            val connectivityManager: ConnectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val info = connectivityManager.activeNetworkInfo
+            if(info != null && info.isAvailable){
+                val typeName = info.typeName
+                Toast.makeText(context, "network changes: ${typeName}", Toast.LENGTH_LONG).show()
+            }else{
+                Toast.makeText(context, "network no changes", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+}
+
+```
+
+2. 注册广播接收者
+
+不要在收到广播之后进行任何耗时操作，因为在广播中是不允许开辟线程的，（广播默认运行在主线程），当onReceiver方法运行较长时间（超过10秒）还没有结束的话，那么程序会报错（ANR）。广播更多时候扮演的是一个打开其他组件的角色，比如：启动Service，Notification提示，Activity等。
+
+- 运行时动态注册
+```kotlin
+class TestBroadcastReceiverActivity: AppCompatActivity(){
+    private lateinit var myReceiver: TestBroadcastReceiver
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_test_broadcast_receiver)
+
+        myReceiver = TestBroadcastReceiver()
+        val intentFilter = IntentFilter()
+        // intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED)
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(myReceiver, intentFilter)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(myReceiver) // 防止内存泄漏
+    }
+}
+```
+- 静态注册：需要在AndroidManifest.xml中注册广播。安卓8.0之后不推荐使用了，不好用！
+
+```xml
+<receiver android:name=".components.TestBroadcastReceiver"></receiver>
+```
+
+```kotlin
+val intent = Intent()
+intent.action = "com.example.myapp.TEST_BROADCAST_RECEVIER"
+// 下面这行在安卓7.0及以下版本不是必须的，在安卓8.0或更高版本，则需要加上
+// 第一个参数是接收广播类的包名，第二个参数是接受广播类的完整类名
+intent.component = ComponentName("com.example.myapp", "com.example.myapp.components.TestBroadcastReceiver")
+sendBroadcast(intent)
+```
+
+##### 有序广播
+
+不推荐使用了。一个接收者处理完之后下一个接收者才能继续处理。
+
+##### 全局发送广播
+
+要写完整的广播接收类类名，包括包名，否则会报错。如果其他app也注册了这个广播，那么其他app也会收到这个广播。
+```kotlin
+sendBroadcast(Intent("com.example.myapp.TEST_BROADCAST_RECEVIER"))
+```
+
+##### 应用内发送广播
+可以理解为一种局部广播，发送者和接收者都属于一个app，不会被其他app接收到。相比于全局广播，局部广播更加安全，因为其他app无法接收到这个广播，也就无法获取到广播中的数据。
+```kotlin
+// 使用LocalBroadcastManager注册和发送广播
+LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver, intentFilter)
+
+LocalBroadcastManager.getInstance(this).sendBroadcast(Intent("com.example.myapp.TEST_BROADCAST_RECEVIER"))
+
+LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver)
+```
 
 #### Content Provider
 
+内容提供者，是Android四大组件之一，它提供了一种统一的数据访问方式，允许一个应用程序访问另一个应用程序的数据。Content Provider可以实现数据共享，允许一个应用程序访问另一个应用程序的数据，也可以实现数据保护，只允许指定的应用程序访问数据。Content Provider可以通过`<provider>`标签在AndroidManifest.xml中注册，也可以通过`ContentResolver`类访问。
 
+
+##### 权限检查和动态申请
+
+1. 运行时动态申请权限，请求用户授权
+```kotlin
+// 检查是否已授权
+ActivityCompat.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED
+// 发起权限申请，弹出对话框
+ActivityCompat.requestPermissions(this,
+                                  arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                                  PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
+
+// ContextCompat.checkSelfPermission(this.applicationContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
+//                                   ==
+//                                   PackageManager.PERMISSION_GRANTED
+
+// 检查用户是否已永久拒绝
+ActivityCompa.shouldShowRequestPermissionRationale() // 如果已经永久拒绝，那么再调用ActivityCompat.requestPermissions也没有用，不会弹框，此时需要自己弹对话框，引导用户去开启授权
+// 处理授权结果，重写
+override fun onRequestPermissionsResult(requestCode: Int,
+                                        permissions: Array<out String>,
+                                        grantResults: IntArray){}
+
+```
+仍然需要在ANdroidManifest.xml中添加权限。
+
+##### 读取联系人
+
+```kotlin
+val resolver = contentResolver
+val uri = Uri.parse("content://com.android.contacts/data/phones")
+val cursor = resolver.query(uri, null, null, null, null) ?: return
+while(cursor.moveToNext()){
+   val cName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+   val cNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+  //  println...
+}
+cursor.close()
+```
+
+##### 新增联系人
+
+`<uses-permission android:name="android.permission.WRITE_CONTACTS" />`
+
+```kotlin
+val resolver = contentResolver
+val values = ContentValues()
+val rawContactUri = resolver.insert(ContactsContract.RawContacts.CONTENT_URI, values)!!
+val rawContactId = ContentUris.parseId(rawContactUri)
+// 插入名称
+values.clear()
+values.put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+values.put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+values.put(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, "Eric")
+val result1 = resolver.insert(ContactsContract.Data.CONTENT_URI, values)
+// 插入手机号
+values.clear()
+values.put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+values.put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+values.put(ContactsContract.CommonDataKinds.Phone.NUMBER, "1234567890")
+values.put(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+val result2 = resolver.insert(ContactsContract.Data.CONTENT_URI, values)
+// 插入邮箱
+values.clear()
+values.put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+values.put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+values.put(ContactsContract.CommonDataKinds.Email.ADDRESS, "eric@123.com")
+values.put(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+val result3 = resolver.insert(ContactsContract.Data.CONTENT_URI, values)
+```
+##### 更新联系人
+```kotlin
+val phone = "1234567890"
+val uri = Uri.parse("content://com.android.contacts/data/phones/filter/$phone")
+val resolver = contentResolver
+val cursor = resolver.query(uri, arrayOf(ContactsContract.Data.CONTACT_ID), null, null, null) ?: return null
+if(cursor.moveToFirst()){
+    val contractId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID))
+    if(contractId == null){
+        Toast.makeText(this, "联系人不存在，无法更新", Toast.LENGTH_LONG).show()
+    }else{
+      val values = ContentValues()
+      // values.clear()
+      values.put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+      values.put(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, "Eric Yang")
+      val result = resolver.update(ContactsContract.Data.CONTENT_URI, values, "${ContactsContract.Data.CONTACT_ID}=?", arrayOf(contractId))
+    }
+    // return contractId
+}
+
+```
+##### 删除联系人
+```kotlin
+// 根据用户名删除，其他同理
+val result = contentResolver.delete(ContactsContract.RawContacts.CONTENT_URI, CommonDataKinds.Phone.DISPLAY_NAME+"=?", arrayOf("Eric Yang"))
+if(result > 0) {
+    println("success")
+} else {
+    println("failed")
+}
+```
 
 ### 各个文件的作用简介
+安卓项目工程目录结构及各个文件的简介：
 
 - `local.properties`：配置本地Android SDK的路径，供Gradle使用，例：`sdk.dir=/Users/eric/Library/Android/sdk`
 - `settings.gradle.kts`：主要配置插件、库包等的仓库，例：`maven("https://jitpack.io")`
@@ -587,13 +1110,11 @@ object HiOkHttp {
 
 // 调用GET，安卓8.0之后不能直接发起http请求，需要配置：在AndroidManifest.xml中添加`android:usesCleartextTraffic="true"`
 HiOkHttp.runGet("https://baidu.map.com/xxx")
-
 ```
 
 #### LoggingInterceptor拦截器
 
 ```kotlin
-
 class LoggingInterceptor: Interceptor{
     override fun intercept(chain: Interceptor.Chain): Response {
         val time_start = System.nanoTime()
@@ -620,9 +1141,6 @@ class LoggingInterceptor: Interceptor{
         return newResponse
     }
 }
-
-
-
 ```
 
 #### GSON数据解析
@@ -1014,15 +1532,48 @@ SDK >= 28，使用MaterialButton，先引入依赖`com.google.android.material:m
     android:insetBottom="0dp"  // 删除按钮默认样式中的空隙间距，否则会导致按钮的长度宽度并不是我们自己设置的值
     android:insetTop="0dp"
 />
-```
 
+<!-- 底部导航栏可以通过 `MaterialButtonToggleGroup`来实现 -->
+<com.google.android.material.button.MaterialButtonToggleGroup
+    android:id="@+id/toggleGroup"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:singleSelection="true"
+    app:selectionRequired="true"
+    app:checkedButton="@id/btn1"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintVertical_bias="1.0">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn1"
+        android:layout_width="0"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Button 1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn2"
+        android:layout_width="0"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Button 2" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn3"
+        android:layout_width="0"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Button 3" />
+```
 
 - 如果闪退，修改主题为：`android:theme="@style/Theme.MaterialComponents.**Light.NoActionBar"`之类的
 - `MaterialButtonToggleGroup`：可以把多个Button聚合成一个组，实现单选多选等功能
     - `app:checkedButton`：默认选中
     - `app:singleSelection`：是否单选
     - `app:selectionRequired`：设置为true后，强制至少选中一个
-
 
 ### TextView
 
@@ -1080,6 +1631,15 @@ android:overScrollMode="always"
 android:fadeScrollbars="false"
 android:scrollbarFadeDuration="0"
 ```
+
+### ImageView
+
+```xml
+
+```
+
+###
+
 
 ## 布局
 

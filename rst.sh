@@ -29,8 +29,9 @@ fi
 # 启动一个叫做eso-sdk-container的容器
 docker run -dit --name eso-sdk-container ubuntu:16.04
 
-# 进入/Users/valtechwh/job/mbbb-dopi-carapp-mib3-asia目录执行
-docker exec -it eso-sdk-container /bin/bash -c "cd /Users/valtechwh/job/mbbb-dopi-carapp-mib3-asia; ./mbbb-commons-carapp-mib3/build/build.sh -t deployProd"
+# 注意路径脱敏
+# 进入/Users/eric/job/mbbb-dopi-carapp-mib3-asia目录执行
+docker exec -it eso-sdk-container /bin/bash -c "cd /Users/eric/job/mbbb-dopi-carapp-mib3-asia; ./mbbb-commons-carapp-mib3/build/build.sh -t deployProd"
 echo -e "\nScript executed"
 
 # 检查docker daemon是否在运行
@@ -43,6 +44,6 @@ fi
 docker start eso-sdk-container
 
 # 进入mbbb-dopi-carapp-mib3-asia目录
-cd /Users/valtechwh/job/mbbb-dopi-carapp-mib3-asia
+cd /Users/eric/job/mbbb-dopi-carapp-mib3-asia
 # 执行mbbb-commons-carapp-mib3/build/build.sh -t deployProd
 ./mbbb-commons-carapp-mib3/build/build.sh -t deployProd
