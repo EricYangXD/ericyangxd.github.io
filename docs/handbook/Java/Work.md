@@ -96,3 +96,58 @@ Tomcat 环境变量配置：
 4. MySQL 怎么知道 varchar(n) 实际占用数据的大小？
 5. varchar(n) 中 n 最大取值为多少？
 6. 行溢出后，MySQL 是怎么处理的？
+
+## 项目
+
+
+### 秒杀系统
+
+使用SpringMVC+Spring+MyBatis框架，原因：
+
+1. 框架易于使用和轻量级
+2. 低代码侵入性
+3. 成熟的社区和用户群
+
+#### 系统分析
+
+1. 秒杀业务的核心：对产品库存的处理。
+2. 难点在于“竞争”
+3. 优化方向：减少事务行级锁的竞争
+
+
+> 创建项目
+
+命令：`mvn archetype:create -DgroupId=org.seckill -DartifactId=seckill -DarchetypeArtifactId=maven-archetype-webapp`
+
+
+
+> MyBatis
+#### MySQL表设计-DAO层设计与开发
+
+
+#### MyBatis合理使用
+
+
+#### MyBatis与Spring整合
+
+> Spring
+#### Spring IOC整合Service
+
+
+#### 声明式事务
+
+> SpringMVC
+#### Restful接口设计和使用
+#### 框架运作流程
+#### Controller开发技巧
+
+> 高并发
+#### 高并发点和高并发瓶颈分析
+
+#### 高并发优化思路及实现
+####
+####
+####
+####
+
+
