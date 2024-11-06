@@ -19,7 +19,7 @@ meta:
 2. @SpringBootConfiguration：Spring Boot 的配置类，标注在某个类上，表示这是一个 Spring Boot 的配置类；
 3. @Configuration 配置类上来标注这个注解；配置类 - 配置文件；配置类也是容器中的一个组件；
 4. @Component 表示一个类是由 Spring 管理的组件；
-5. @EnableAutoConfiguration 开启自动配置功能；以前我们需要配置的东西，Spring Boot 帮我们自动配置；告诉 SpringBoot 开启自动配置功能；这样自动配置才能生效；
+5. @EnableAutoConfiguration 开启自动配置功能；以前我们需要配置的东西，Spring Boot 帮我们自动配置；告诉 Spring Boot 开启自动配置功能；这样自动配置才能生效；
 6. @Controller：表示一个类是 Spring MVC 控制器。
 7. @Autowired：用于 bean 的自动依赖注入
 8. @Service：表示一个类是一个 Spring 服务
@@ -41,6 +41,7 @@ meta:
 - controller：这个 package 包含处理传入的 HTTP 请求的类，并将它们路由到适当的服务方法。
 - model/bean/dto：这个 package 包含定义应用程序的数据模型的类。这包括实体、数据传输对象（DTO）和其他特定领域的对象。
 - dao/repository(jpa/jdbc)/mapper(mybatis)：这个 package 包含处理应用程序中数据持久性的类。这包括数据库访问、查询和其他与数据相关的操作。
+   - dao的实现一般放在impl包下，即dao一般是些interface，而具体的sql语句则写在impl类中，比如基于myBatis实现DAO。
 - service：这个 package 包含实现应用程序的业务逻辑的类。这包括处理数据、应用规则和其他特定于应用程序领域的操作。
 - eg.
 

@@ -123,20 +123,65 @@ Tomcat 环境变量配置：
 
 > MyBatis
 #### MySQL表设计-DAO层设计与开发
-
-
 #### MyBatis合理使用
-
-
 #### MyBatis与Spring整合
+
+JDBC、Hibernate、MyBatis都是用来简化数据库操作的框架，把Entity（Bean）对象映射成数据库中的对象也能把数据库中的数据映射成Entity对象，从而让开发者可以通过代码实现对数据库的操作，并得到相应的数据。MyBatis是基于Java的持久层框架，它支持定制化SQL、存储过程以及高级映射。MyBatis避免了几乎所有的JDBC代码和手动设置参数以及获取结果集。MyBatis可以使用简单的XML或注解来配置和映射原生信息，将接口和Java的POJOs（Plain Old Java Objects）映射成数据库中的记录。Hibernate、MyBatis都是orm对象关系映射框架。
+
+1. MyBatis特点：参数+SQL=Entity/List
+2. SQL写在哪？可以写在xml文件中或者写在注解中@SQL
+3. 如何实现DAO接口？Mapper自动实现DAO接口impl或者API编程方式实现DAO接口
+4. Mapper自动实现DAO接口impl：创建对应的DAO.xml文件，然后设置正确的DOCTYPE，然后在`<mapper></mapper>`标签中编写对应的sql语句，命名正确的namespace。即xml提供SQL，Mapper自动实现DAP接口。
+5. `jdbc.properties`中配置driver、url等数据库信息
+```txt
+driver=com.mysql.jdbc.Driver
+url=jdbc:mysql://127.0.0.1:3307
+username=root
+password=root
+```
+6. 在xml中，通过bean标签配置c3p0连接池class，在property标签中配置`jdbc.properties`中的属性，比如设置c3p0连接池的私有属性：`<property name="maxPoolSize" value="30"/><property name="minPoolSize" value="10"/>`这种。还要配置SqlSessionFactory对象，在其下注入数据库连接池，配置MyBatis全局配置文件，对扫描的Entity包、sql配置文件等使用别名配置正确。然后还要配置扫描DAO接口包，动态实现DAO接口注入到Spring容器中--MapperScannerConfigurer，sqlSessionFactoryBeanName。
+7. `classpath`相当于java和resources两个文件夹的路径别名，比如`classpath:jdbc.properties`能直接找到jdbc.properties这个配置文件。
+8. 在MyBatis中，DAO接口方法的参数需要使用`@Param("myId") long id`的形式来在单元测试中识别多个参数，单个参数可以不用。
 
 > Spring
 #### Spring IOC整合Service
 
+1. dto文件夹下存放service返回的数据类，关注的是web和web service之间的数据传递。Entity下面放的是业务数据的封装。
+    - DTO 用于数据传输，主要用于在不同层之间传递数据，尤其是在 Web 层和服务层之间。关注的是接口层的需求，更多用于表示向客户端提供的数据结构。简化数据传输，解耦和安全，序列化友好。
+    - Entity 则是业务数据的核心表示，通常表示业务数据和数据库表之间的映射。关注的是数据持久化和业务逻辑。与数据库表映射，业务逻辑，持久化。
+2. 站在使用者角度设计Service，而不是站在实现者角度设计Service，方法定义粒度明确，参数要简洁，返回类型要友好
+3. service文件夹下创建impl文件夹实现service
+4. 使用Spring托管service，并提供一致的访问接口，可以通过注解或者applicationContext去拿实例
+5. Spring IOC注入方式和场景：xml、注解、Java配置类。
+    - xml：1:Bean实现类来自第三方类库，如：DataSource等；2：需要命名空间配置如：context，aop，mvc等
+    - 注解：项目中自身开发使用的类，可直接在代码中使用注解如：@Service，@Controller，@Dao，@Component等
+    - Java配置类：需要通过代码控制对象创建逻辑的场景如：自定义修改依赖类库。
+6. xml配置 -> package-scan -> Annotation注解 `<context:component-scan base-package="com.example.xxx" />`
 
 #### 声明式事务
 
+1. 使用方式：
+    - ProxyFactoryBean+xml
+    - tx:advice+aop命名空间
+    - 注解@Transactional
+2. 事务方法嵌套：新的事务会加入到已有的事务中，如果之前没有事务才会新建一个事务
+3. 什么时候回滚事务：抛出运行期异常RuntimeException时。小心不当的try catch，会导致部分事务即使失败了也不会自动回滚。
+
 > SpringMVC
+
+在xml中配置SpringMVC
+
+1. 开启SpringMVC注解模式：`<mvc:annotation-driven/>`
+    - 简化配置：1. 自动注册DefaultAnnotationHandlerMapping，AnnotationMethodHandlerAdapter；2. 提供一系列数据绑定、数字和日期的format-@NumberFormat、@DateTimeFormat，xml、json默认读写支持
+2. 静态资源默认servlet配置：`<mvc:default-servlet-handler/>`
+    - servlet-mapping映射路径："/"
+    - 加入对静态资源的处理：js，jpg，png，css，gif...
+    - 允许使用"/"做整体映射
+3. 配置jsp显示ViewResolver：`<bean class="...InternalResourceViewResolver"><property xxx></property></bean>`
+    - 配置jsp，放置位置，后缀名，prefix，suffix，viewClass等
+    - 通过ViewResolver实现页面跳转
+4. 扫描web相关的bean：`<context:component-scan base-package="com.xx.xx" />`
+
 #### Restful接口设计和使用
 #### 框架运作流程
 #### Controller开发技巧
@@ -144,10 +189,30 @@ Tomcat 环境变量配置：
 > 高并发
 #### 高并发点和高并发瓶颈分析
 
+1. 数据库操作加解锁，事务竞争，排队，GC
+2. 网络延迟，异地机房，CDN
+
 #### 高并发优化思路及实现
-####
-####
-####
-####
+
+1. 减少操作数据库时上锁的时间，减少数据库的压力
+2. 使用缓存，减少数据库的访问
+3. 使用异步处理，减少用户等待时间
+4. 使用CDN，减少网络延迟
+5. 使用分布式，减少单机压力
+
+#### 如何判断Update更新数据库成功
+1. update没报错+客户端确认update影响记录数
+
+优化思路：把客户端逻辑放到MySQL服务端，避免网络延迟和GC的影响
+
+方案：
+1. 定制SQL方案：`update /* + [auto_commit] */`，需要修改MySQL源码
+2. 使用存储过程：整个事务在MySQL端完成
+
+#### Redis后端缓存优化
+1.
+
+#### 并发优化
 
 
+####

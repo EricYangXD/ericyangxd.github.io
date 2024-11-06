@@ -124,16 +124,25 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 18. 杀掉某个进程：`adb shell kill -9 pid`用命令`kill -l`可以查看linux下的所有信号，SIGKILL：9号信号，Kill signal（杀死进程信号，linux规定进程不可以忽略这个信号）。`kill -9`中，9代表的就是9号信号，带有强制执行的意思，它告诉进程：“无论你现在在做什么，立刻停止”。
 19. 杀掉某个进程：`killall -9 com.android.simple.demo`，killall （kill processes by name）用于杀死进程，与 kill 不同的是killall 会杀死指定名字的所有进程。kill 命令杀死指定进程 PID，需要配合 ps 使用，而 killall 直接对进程对名字进行操作，更加方便。killall 是进程名敏感类型，所以后面跟着的进程名需要是全部的名称
 20. 杀掉某个进程：`pkill simple`，`pkill -u mark,danny`--结束mark,danny用户的所有进程。pkill 命令和 killall 命令的用法相同，都是通过进程名杀死一类进程，除此之外，pkill 还有一个更重要的功能，即按照终端号来踢出用户登录。pkill是进程名不敏感类型，所以可以只输入一部分名称
-21. 杀掉某个进程：``
-22. ：``
-23. ：``
-24. ：``
-25. ：``
-26. ：``
-27. ：``
-28. ：``
-
-###
+21. 清除某个进程的数据：`adb shell pm clear packageName`
+22. 查看后台进程信息：`ps // 查看全格式的全部进程 或者 ps -ef 或者 ps | gerp "didi"`
+23. 查看当前设备的所有用户：`adb shell pm list users`
+24. 进入系统设置页面：`adb shell am start com.android.settings/com.android.settings.Settings`
+25. 查看本机全部已安装应用：`adb shell pm list packages`
+26. 获取手机某个应用的安装包：`adb shell pm path packageName  然后  adb pull /app的path /想放到的地址`
+27. 屏幕信息：`adb shell wm`
+28. 点击某个位置：`adb shell input tap 50 250` x:50, y:250. 在屏幕上做划屏操作，前四个数为坐标点，后面是滑动的时间（单位毫秒）
+29. 获取当前展示的Activity信息：`adb shell dumpsys activity top`
+30. 获取应用信息/应用版本：`adb shell dumpsys package com.tencent.mm | [grep] version`
+31. 安装应用：`adb install -t apk.apk`或者在项目中的gradle.properties全局配置中设置：`android.injected.testOnly=false`
+32. 切换root用户：`adb root`、`adb unroot`、`adb shell`、`su`、`su root`、`su shell`
+33. 强制安装apk：`adb install -f a.apk`
+34. 查看用户信息：`adb shell dumpsys user`
+35. 创建一个guest类型用户：`adb shell pm create-user --guest "guest"`
+36. 启动和切换用户：`adb shell am switch-user userId / adb shell am start-user userId`
+37. 删除用户：`adb shell pm remove-user userId` 如果是当前用户，先做一下switch-user
+38. 卸载apk：`adb shell rm -rf /system/app/packagename.apk / adb shell rm -rf /product/app/packagename.apk`
+39. 重启：`adb root / adb remount / adb reboot`
 
 ## Mac 连接小米手机真机调试
 
