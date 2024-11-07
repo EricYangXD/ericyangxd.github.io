@@ -210,9 +210,13 @@ password=root
 2. 使用存储过程：整个事务在MySQL端完成
 
 #### Redis后端缓存优化
-1.
+
+0. 需要手动在xml中注入RedisDao，因为MyBatis不处理Redis，构造函数需要通过`<constructor-arg index="0" value="localhost" />`传入
+1. 使用protobuf对json数据进行序列化反序列化，性能最强！
+2. 创建RedisPool连接池，缓存优化
+3. 在超时的基础上维护一致性
 
 #### 并发优化
 
-
-####
+1. MyBatis调用存储过程，在xml中配置
+2. ![后端系统部署架构](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411071613279.png)
