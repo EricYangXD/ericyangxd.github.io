@@ -439,8 +439,220 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
     3. `cp /path/to/your/settings.xml $M2_HOME/conf/`
     4. 这样当你切换 Maven 版本之后，也依然会使用公用的 settings
 
-### 快速新建一个 spring-boot 项目
+### 快速新建一个 SpringBoot 项目
 
+0. 一个web开发框架
 1. 在这个[网站](https://start.spring.io/)选择配置，作用可以理解为前端的 vue-cli、create-react-app 等脚手架，选好配置依赖之后下载；
 2. idea 中打开刚才下载的项目
-3.
+3. 项目结构：
+    1. `src/main/java/com/example/demo/DemoApplication.java`：主类，启动类
+    2. `src/main/java/com/example/demo/controller/HelloController.java`：控制器类
+    3. `src/main/resources/application.properties`：配置文件
+    4. `src/main/resources/static`：静态资源目录
+    5. `src/main/resources/templates`：模板目录
+4. `DemoApplication.java`：
+    ```java
+    package com.example.demo;
+
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+    @SpringBootApplication
+    public class DemoApplication {
+        public static void main(String[] args) {
+            SpringApplication.run(DemoApplication.class, args);
+        }
+    }
+    ```
+5. `HelloController.java`：
+    ```java
+    package com.example.demo.controller;
+
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RestController;
+
+    @RestController
+    @RequestMapping("/hello")
+    public class HelloController {
+        @GetMapping
+        public String sayHello() {
+            return "Hello, World!";
+        }
+    }
+    ```
+6. `application.properties`：
+    ```properties
+    server.port=8080
+    ```
+7. 运行项目，访问`http://localhost:8080/hello`，会看到`Hello, World!`
+
+### SpringBoot 常用注解
+
+1. `@SpringBootApplication`：启动类注解，包含`@Configuration`、`@EnableAutoConfiguration`、`@ComponentScan`
+2. `@Configuration`：配置类注解，用于定义配置类
+3. `@EnableAutoConfiguration`：自动配置类注解，用于启用自动配置
+4. `@ComponentScan`：组件扫描类注解，用于指定扫描组件的包路径
+5. `@RestController`：组合注解，用于定义控制器类，包含`@Controller`和`@ResponseBody`
+6. `@RequestMapping`：请求映射注解，用于定义请求路径和请求方法
+7. `@GetMapping`：组合注解，用于定义 GET 请求路径
+8. `@PostMapping`：组合注解，用于定义 POST 请求路径
+9. `@PutMapping`：组合注解，用于定义 PUT 请求路径
+10. `@DeleteMapping`：组合注解，用于定义 DELETE 请求路径
+11. `@PathVariable`：路径变量注解，用于获取路径变量值
+
+### 依赖管理
+
+1. 在`pom.xml`中添加依赖：
+    ```xml
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+    ```
+2. 在`pom.xml`中添加插件：
+    ```xml
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    ```
+3. 在`pom.xml`中添加仓库：
+    ```xml
+    <repositories>
+        <repository>
+            <id>aliyun</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+        </repository>
+    </repositories>
+    ```
+4. 在`pom.xml`中添加属性：
+    ```xml
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    ```
+
+### SpringBoot 配置文件
+
+1. `application.properties`：用于配置 SpringBoot 应用程序的属性
+2. `application.yml`：用于配置 SpringBoot 应用程序的属性，使用 YAML 格式
+3. 配置文件的优先级：`application.properties` > `application.yml` > `application-{profile}.properties` > `application-{profile}.yml`
+
+### SpringBoot 自动配置
+
+1. SpringBoot 会根据类路径中的依赖自动配置应用程序
+2. 自动配置类位于`spring-boot-autoconfigure`模块中
+3. 自动配置类使用`@Conditional`注解来决定是否应用配置
+
+### SpringBoot 测试
+
+1. 在`pom.xml`中添加测试依赖：
+    ```xml
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    ```
+2. 使用`@SpringBootTest`注解来启动测试应用程序
+3. 使用`@Autowired`注解来注入测试所需的依赖
+4. 使用`@Test`注解来定义测试方法
+
+### SpringBoot 部署
+
+1. 使用`mvn clean package`命令打包 SpringBoot 应用程序
+2. 构建：`mvn install`
+3. 构建跳过测试类 `mvn install -Dmaven.test.skip=true`
+4. 生成的 JAR 文件位于`target`目录下
+5. 使用`java -jar your-application.jar`命令启动应用程序
+6. 使用`nohup java -jar your-application.jar &`命令在后台启动应用程序
+7. 使用`systemd`或`init.d`脚本来管理应用程序的启动和停止
+
+### SpringBoot 安全
+
+1. 使用`spring-boot-starter-security`依赖来添加安全功能
+2. 配置安全规则，例如使用`@EnableWebSecurity`注解来启用安全配置
+3. 使用`@Override`方法来重写安全配置，例如配置登录页面、权限等
+4. 使用`@PreAuthorize`、`@PostAuthorize`、`@Secured`等注解来控制方法的访问权限
+
+### SpringBoot 日志
+
+1. 使用`spring-boot-starter-logging`依赖来添加日志功能
+2. 配置日志级别，例如使用`logging.level.root=INFO`来设置根日志级别
+3. 配置日志文件，例如使用`logging.file.name=app.log`来设置日志文件名
+4. 使用`@Slf4j`注解来简化日志记录
+
+### SpringBoot 配置中心
+
+1. 使用`spring-cloud-config`依赖来添加配置中心功能
+2. 配置配置中心的地址，例如使用`spring.cloud.config.uri=http://localhost:8888`来设置配置中心地址
+3. 使用`@Value`注解来注入配置中心的配置
+4. 使用`@ConfigurationProperties`注解来注入配置中心的配置到配置类中
+
+### SpringBoot 微服务
+
+1. 使用`spring-cloud-starter-netflix-eureka-client`依赖来添加 Eureka 客户端功能
+2. 配置 Eureka 客户端的地址，例如使用`eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka/`来设置 Eureka 客户端地址
+3. 使用`@EnableEurekaClient`注解来启用 Eureka 客户端
+4. 使用`@EnableDiscoveryClient`注解来启用服务发现功能
+
+### SpringBoot 任务调度
+
+1. 使用`spring-boot-starter-quartz`依赖来添加 Quartz 任务调度功能
+2. 配置 Quartz
+3. 任务调度类使用`@Component`注解来定义
+4. 任务调度方法使用`@Scheduled`注解来定义
+
+### SpringBoot 数据库
+
+1. 使用`spring-boot-starter-data-jpa`依赖来添加 JPA 数据库访问功能
+2. 配置数据库连接信息，例如使用`spring.datasource.url=jdbc:mysql://localhost:3306/your_database`来设置数据库连接信息
+3. 使用`@Entity`注解来定义实体类
+4. 使用`@Repository`注解来定义数据访问层
+
+### SpringBoot 消息队列
+
+1. 使用`spring-boot-starter-activemq`依赖来添加 ActiveMQ 消息队列功能
+2. 配置 ActiveMQ 连接信息，例如使用`spring.activemq.broker-url=tcp://localhost:61616`来设置 ActiveMQ 连接信息
+3. 使用`@JmsListener`注解来监听消息队列中的消息
+4. 使用`JmsTemplate`来发送消息
+
+### SpringBoot 文件上传
+
+1. 使用`spring-boot-starter-web`依赖来添加 Web 功能
+2. 配置文件上传大小限制，例如使用`spring.servlet.multipart.max-file-size=10MB`来设置文件上传大小限制
+3. 使用`MultipartFile`来接收文件上传
+4. 使用`File`来保存上传的文件
+
+### SpringBoot 文件下载
+
+1. 使用`spring-boot-starter-web`依赖来添加 Web 功能
+2. 使用`ResponseEntity`来设置响应头和响应体
+3. 使用`InputStreamResource`来设置响应体
+4. 使用`HttpServletResponse`来设置响应头和响应体
+
+### SpringBoot 文件压缩
+
+1. 使用`spring-boot-starter-web`依赖来添加 Web 功能
+2. 使用`ZipOutputStream`来压缩文件
+3. 使用`ZipInputStream`来解压缩文件
+
+### SpringBoot 文件解压缩
+
+1. 使用`spring-boot-starter-web`依赖来添加 Web 功能
+2. 使用`ZipOutputStream`来压缩文件
+3. 使用`ZipInputStream`来解压缩文件
+
+### SpringBoot 文件加密
+
+1. 使用`spring-boot-starter-web`依赖来添加 Web 功能
+2. 使用`Cipher`类来加密和解密文件
