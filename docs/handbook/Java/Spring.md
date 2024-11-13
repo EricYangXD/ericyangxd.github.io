@@ -15,24 +15,25 @@ meta:
 
 ### Spring-Boot 注解类型
 
-1. @SpringBootApplication：来标注一个主程序类，说明这是一个 Spring Boot 应用。
+1. @SpringBootApplication：来标注一个主程序类，说明这是一个 Spring Boot 应用；
 2. @SpringBootConfiguration：Spring Boot 的配置类，标注在某个类上，表示这是一个 Spring Boot 的配置类；
-3. @Configuration 配置类上来标注这个注解；配置类 - 配置文件；配置类也是容器中的一个组件；
-4. @Component 表示一个类是由 Spring 管理的组件；
+3. @Configuration 配置类上来标注这个注解，创建一个class配置文件；配置类 - 配置文件；配置类也是容器中的一个组件；
+4. @Component 表示一个类是由 Spring 管理的组件，通用型注解；@Component("idxxx")可以指定id；
 5. @EnableAutoConfiguration 开启自动配置功能；以前我们需要配置的东西，Spring Boot 帮我们自动配置；告诉 Spring Boot 开启自动配置功能；这样自动配置才能生效；
-6. @Controller：表示一个类是 Spring MVC 控制器。
-7. @Autowired：用于 bean 的自动依赖注入
-8. @Service：表示一个类是一个 Spring 服务
-9. @Repository：用来表示一个类是 Spring 的存储库。
-10. @RequestMapping：用于将 URL 请求映射到控制器方法。
-11. @PathVariable：用于从 URL 路径中提取一个变量。
-12. @RequestParam：用于从查询字符串或表单数据中提取一个变量。
-13. @ResponseBody：用来表示一个方法应该直接返回响应体。
-14. @ExceptionHandler：用于处理由控制器方法抛出的异常。
-15. @Transactional：用来表示一个方法应该在一个事务中被执行。
-16. @Bean：用于表示一个方法产生一个由 Spring 管理的 bean。
-17. @Value：用于从属性文件或环境变量中注入值。
-18. @Profile：用来激活一个特定的 Spring 配置文件。
+6. @Controller：表示一个类是 Spring MVC 控制器；
+7. @Autowired：用于 bean 的自动依赖注入；
+8. @Service：表示一个类是一个 Spring 服务；
+9. @Repository：用来表示一个类是 Spring 的存储库；被标注在DAO层；
+10. @RequestMapping：用于将 URL 请求映射到控制器方法；
+11. @PathVariable：用于从 URL 路径中提取一个变量；
+12. @RequestParam：用于从查询字符串或表单数据中提取一个变量；
+13. @ResponseBody：用来表示一个方法应该直接返回响应体；
+14. @ExceptionHandler：用于处理由控制器方法抛出的异常；
+15. @Transactional：用来表示一个方法应该在一个事务中被执行；
+16. @Bean：用于表示一个方法产生一个由 Spring 管理的 Bean；
+17. @Value：用于从属性文件或环境变量中注入值；
+18. @Profile：用来激活一个特定的 Spring 配置文件；
+19. @ComponentScan：开启包扫描，不用再在每个Bean上加注解，Bean即data class上需要加@Component注解；
 
 ### 项目结构
 
@@ -125,12 +126,15 @@ meta:
    2. 静态工厂方法：用得少，bean 中增加`factory-method`属性告诉 Spring 调哪个方法获得实例，当然也要自己先实现工厂类
    3. 实例工厂方法：先添加 bean 使用实例工厂实例化 bean，然后再在原来的 bean 中移除 class，增加`factory-method`属性设置为新增 bean 的 id，并修改`factory-method`属性为 class 中的实际方法。
    4. 3 的改进型：不需要增加一个 bean。先在工厂方法类中实现`FactoryBean<要返回的实例的类>`接口，重写两个 get 方法，`getObjectType()->UserDao.class`类似这样。
-4. 报错从最后几行往前看
-5. 生命周期：
+   5. Bean的别名，生成的是同一个Bean实例。
+4. ![实例化Bean的几种方法示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131014585.png)
+5. ![实例化Bean的几种方法的测试示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131019310.png)
+6. 报错从最后几行往前看
+7. 生命周期：
    1. 初始化容器：创建对象（内存分配），执行构造方法，执行属性注入（set 操作），执行 bean 初始化方法。init-method、destroy-method 等。
    2. 使用 bean：执行业务操作
    3. 关闭/销毁容器：执行 bean 销毁方法
-6. 关闭容器的方式：
+8. 关闭容器的方式：
    1. 手动关闭：ConfigurableApplicationContext 接口 close()操作
    2. 注册关闭钩子，在虚拟机退出前先关闭容器，再退出虚拟机：ConfigurableApplicationContext 接口 registerShutdownHook()操作
 
@@ -143,16 +147,137 @@ meta:
    2. 引用类型：同上
 2. 构造器注入：
    1. 简单类型：先在 bean 中定义构造方法，然后在 `bean` -> `constructor-arg` 中设置 name 和 ref/value 进行传递
-   2. 引用类型：
-3. 自己开发的模块用 setter 注入
-4. 依赖自动装配：
+   2. 引用类型：同上
+3. ![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131037749.png)
+4. ![简化方法示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131039986.png)
+5. 自己开发的模块用 setter 注入
+6. 依赖自动装配：
    1. bean 中添加 `autowire="byType/byName"` 字段，配合 setter
    2. 只用于引用类型，不能对简单类型操作
    3. 使用按类型装配时必须保障容器中相同类型的 bean 唯一，推荐使用
    4. 使用按名称装配时必须保障容器中具有指定名称的 bean，因变量名与配置耦合，不推荐
    5. 自动装配优先级低于 setter 注入与构造器注入，同时出现时自动装配失效
-5. 集合注入：
+7. 集合类型注入：
    1. array/list/set/map 等：在 ApplicationContext.xml 中，新建一个 bean，然后通过 property 标签配合 name 属性通过 value 或者 ref 来配置
+   2. ![集合注入示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131041519.png)
+   3. ![List和Set](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131047492.png)
+   4. ![Map和Property](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131048499.png)
+8. 注入null：![注入null示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131043420.png)
+9. 注入的时候创建内部Bean：![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131046711.png)
+
+### Bean的作用域
+
+#### Singleton作用域
+
+在一个ApplicationContext上下文环境中，只创建一个Bean实例，`<bean id="xx" ... scope="singleton" ></bean>`。
+
+#### prototype作用域
+
+创建多个Bean实例，`<bean id="xx" ... scope="prototype" ></bean>`。
+
+![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131347903.png)
+
+有如下场景：
+![方法注入](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131355020.png)
+
+此时需要通过方法注入的方式实现：
+1. 在Bean1中增加抽象方法createBean2()用于生成Bean2的实例，![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131359648.png)
+2. 在spring.xml中：通过`<lookup-method name="createBean2" bean="bean2"></lookup-method>`来实现
+3. ![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131358771.png)
+
+#### Web环境作用域
+1. request作用域
+2. session作用域
+3. application作用域
+4. websocket作用域
+
+![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131406410.png)
+
+#### 自定义作用域
+SimpleThreadScope作用域
+
+1. 自定义作用域![自定义作用域](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131518679.png)
+2. ![注册自定义scope](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131519393.png)
+3. SimpleThreadScope![SimpleThreadScope](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131520184.png)
+
+
+### Bean的懒加载
+
+默认的情况下，Singleton作用域下，Bean会在Context之前就被创建完成。即Spring容器会在创建容器时提前初始化Singleton作用域下的Bean。如果想要在使用时才创建Bean，可以使用懒加载。但是如果Bean被标注了`lazy-init="true"`，则该Bean只有在其被需要时才会被初始化
+
+1. 如果把`<beans ... default-lazy-init="true"></beans>`，则该标签下的Bean都开启懒加载
+2. 节省资源，但可能会增加某些资源的的响应时间
+
+### Bean初始化及销毁逻辑处理
+
+1. 初始化：
+    1. `<bean ... init-method="onInit"></bean>`
+    2. 实现InitializingBean接口，重写afterPropertiesSet()方法
+2. 销毁：
+    1.  `<bean ... destroy-method="onDestroy"></bean>`
+    2. 实现DisposableBean接口，重写destroy()方法
+3. 为所有的Bean设定默认的初始化方法和销毁方法：`<beans ... default-init-method="onInit" default-destroy-method="onDestroy"></beans>`
+
+### Bean属性继承
+
+场景一：Child类继承了Parent类：
+1. 使用`<bean id="parent" class="com.example.Parent" abstract="true"><property name="attr1" value="val1"/></bean>`定义一个抽象的父类，通过`abstract="true"`告诉Spring这个Bean不需要实例化。
+2. 使用`<bean id="child1" class="com.example.Child1" parent="parent"><property name="attrC1" value="valC1"/></bean>`定义一个子类，继承父类
+3. 使用`<bean id="childN" class="com.example.ChildN" parent="parent"><property name="attrCN" value="valCN"/></bean>`定义一个子类，继承父类
+4. 子类会继承父类的属性，但不会继承父类的构造方法和初始化方法
+5. 子类可以重写父类的属性，但不能重写父类的构造方法和初始化方法
+
+场景二：Child类没有继承Parent类，但是多个Child类中有相同的属性和值，此时Parent基类Bean上删除`class="com.example.Parent"`即可。
+
+Bean的别名：只能在@Configuration中使用，不能在@Component中使用。![Bean的别名](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131647632.png)
+
+
+
+
+### Bean的依赖注入
+
+1. 构造器注入：在构造器中注入依赖，使用`<bean id="xx" class="com.example.Xx" constructor-arg ref="yy"></bean>`
+2. setter注入：在 setter 方法中注入依赖，使用`<bean id="xx" class="com.example.Xx"><property name="yy" ref="yy"></property></bean>`
+3. 自动装配：使用`<bean id="xx" class="com.example.Xx" autowire="byType"></bean>`，byName、byType、constructor、no
+4. 使用`@Autowired`注解，可以自动装配，可以标注在构造器、setter 方法、字段上
+5. 使用`@Qualifier`注解，可以指定具体的 bean，可以标注在构造器、setter 方法、字段上
+6. ![注入Bean示例1](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131715018.png)
+7. ![通过属性注入Bean示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131716175.png)
+8. ![实例化和注入时指定Bean的id](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131718520.png)
+9. ![List和Set注入示例1](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131721241.png)
+10. ![List和Set注入示例2](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131723461.png)，通过order指定顺序。
+11. ![Map注入示例1](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131725961.png)
+12. ![Map注入示例2](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131726824.png)
+13. ![简单类型注入示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131726595.png)
+14. ![SpringIoC容器内置接口实例注入示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131727344.png)
+
+### Bean的生命周期
+
+1. 实例化：通过构造器或工厂方法创建 bean 实例
+2. 属性赋值：通过 setter 方法或工厂方法设置 bean 属性
+3. 初始化：通过 init-method 方法或 InitializingBean 接口的 afterPropertiesSet 方法进行初始化
+4. 使用：bean 可以被使用
+5. 销毁：通过 destroy-method 方法或 DisposableBean 接口的 destroy 方法进行销毁
+
+### 通过注解设置Bean的作用域
+
+1. 通过@Scope注解设置作用域及名称![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131738557.png)
+2. ![自定义作用域](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131739528.png)
+3. ![方法注入](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131740488.png)
+
+### 通过注解设置Bean的懒加载
+
+@Lazy注解，通过@Lazy注解设置懒加载，可以标注在类上，也可以标注在方法上。![对比示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131744600.png)
+
+### 通过注解实现Bean的初始化及销毁
+
+1. 使用@PostConstruct 注解，方法在依赖注入完成后执行，可以标注在方法上。
+2. 使用@PreDestroy 注解，方法在 bean 销毁前执行，可以标注在方法上。
+
+3. 使用 InitializingBean 接口的 afterPropertiesSet 方法进行初始化，可以实现 InitializingBean 接口。
+4. 使用 DisposableBean 接口的 destroy 方法进行销毁，可以实现 DisposableBean 接口。
+
+5. 在Bean实例上使用`@Bean(initMethod="onInit", destroyMethod="onDestroy")`注解，可以指定初始化和销毁方法。
 
 ### 加载 properties 配置文件
 

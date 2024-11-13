@@ -265,7 +265,7 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 苹果 macOS Catalina 系统打开软件出现：无法打开“XXXX”，因为 Apple 无法检查其是否包含恶意软件。怎么解决?
 
-- 先`sudo spctl --master-disable`，然后`sudo xattr -r -d com.apple.quarantine ./路径/app名`。
+- 先`sudo spctl --master-disable`，然后`sudo xattr -r -d com.apple.quarantine ./路径/app名`，如果不好打印可以在仿达里找到拖到命令行里。
 
 ### m1/intel MacBook 安装 adb
 

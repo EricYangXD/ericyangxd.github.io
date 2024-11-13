@@ -69,3 +69,22 @@ public interface EmpMapper {
     4. foreach 用于遍历集合或数组，形式：`<foreach collection="list" item="item" index="index" open="(" close=")" separator=",">#{item}</foreach>`
     5. include 用于引入外部 sql 文件(也可以直接在 xml 中通过`<sql id="xxx"></sql>`标签直接定义可重用的 sql 片段)，形式：`<include refid="userMap"/>`，引入的 sql 文件中的 sql 语句的 id 属性值必须与 mapper 接口中的方法名相同，并且保持返回类型一致
 19. `<select></select>`
+
+
+## MyBatis Plus
+
+MyBatis Plus （简称 MP） 是一款持久层框架，说白话就是一款操作数据库的框架。它是一个 MyBatis 的增强工具，就像 iPhone手机一般都有个 plus 版本一样，它在 MyBatis 的基础上只做增强不做改变，为简化开发、提高效率而生。
+
+
+```xml
+  <!-- Mybatis Plus -->
+  <dependency>
+      <groupId>com.baomidou</groupId>
+      <artifactId>mybatis-plus-boot-starter</artifactId>
+      <version>${mybatis-plus.version}</version>
+  </dependency>
+```
+
+
+1. p6spy 组件打印完整的 SQL 语句、执行耗时。请使用 Mybatis Plus 3.1.0 以上版本。
+2. 不要在生产环境用！

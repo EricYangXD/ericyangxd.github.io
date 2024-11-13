@@ -53,6 +53,27 @@ meta:
    - 保存更改后的 my.cnf 文件后，重启下 mysql，然后输入 status 再次查看，"Server/Db characterset"已经是 utf-8。
 
 6. 命令行启动：`mysql -h 192.168.0.124 -P 3306 -u root -p`，输入密码即可登录。
+7. 重置mysql密码：
+```bash
+1. brew services stop mysql
+
+2. sudo mysqld_safe --skip-grant-tables &
+
+3. mysql -u root
+
+4.  >= 5.7
+    FLUSH PRIVILEGES;
+    ALTER USER 'root'@'localhost' IDENTIFIED BY 'new_password';
+    <=5.6
+    FLUSH PRIVILEGES;
+    SET PASSWORD FOR 'root'@'localhost' = PASSWORD('new_password');
+    确保将 new_password 替换为您的新密码。
+    输入 exit 退出 MySQL 提示符，然后按下列步骤重新启动 MySQL：
+
+5. brew services start mysql
+
+6. mysql -u root -p
+```
 
 ### Demos
 

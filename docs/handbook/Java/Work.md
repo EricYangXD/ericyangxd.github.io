@@ -220,3 +220,60 @@ password=root
 
 1. MyBatis调用存储过程，在xml中配置
 2. ![后端系统部署架构](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411071613279.png)
+
+## IDEA
+
+### 设置注释对齐
+
+![设置注释对齐](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411111111171.png)
+
+## 工具
+
+### Knife4j和Swagger
+Knife4j 是一个为 Java 项目生成和管理 API 文档的工具。实际上，它是 Swagger UI 的一个增强工具集，旨在让 Swagger 生成的 API 文档更优雅、更强大。
+
+### slf4j、logback和log4j
+
+#### slf4j
+
+slf4j 是一个日志门面，它提供了一个统一的日志接口，使得开发者可以在不同的日志实现之间进行切换，而不需要修改大量的代码。slf4j 本身并不提供日志实现，它只是一个接口。
+
+#### logback
+
+logback 是一个基于 slf4j 的日志框架，它提供了灵活的日志配置和高效的日志记录功能。logback 是 slf4j 的默认实现之一。
+
+#### log4j
+
+log4j 是另一个广泛使用的日志框架，它提供了丰富的日志配置选项和灵活的日志记录功能。log4j 是 slf4j 的另一个实现之一。
+
+### MyBatis Generator
+
+MyBatis Generator 是一个用于自动生成 MyBatis 相关代码的工具。它可以自动生成实体类、Mapper 接口和 XML 映射文件，从而减少手动编写代码的工作量。
+
+### SonarQube
+
+SonarQube 是一个代码质量管理工具，它可以帮助开发者检测代码中的缺陷、代码风格和代码复杂度等。
+
+### JUnit
+
+JUnit 是一个用于编写和运行单元测试的框架，它可以帮助开发者验证代码的正确性和稳定性。
+
+### Mockito
+
+Mockito 是一个用于编写单元测试的模拟框架，它可以帮助开发者模拟对象的行为，从而实现对代码的隔离测试。
+
+### Spring Boot
+
+Spring Boot 是一个用于简化 Spring 应用程序开发的框架，它提供了自动配置、嵌入式服务器和简化配置等功能。
+
+### Spring Security
+
+Spring Security 是一个用于实现安全控制的框架，它提供了认证、授权、加密和会话管理等功能。提供了强大的功能，帮助开发人员实现身份认证、授权、会话管理以及其他与安全相关的任务。
+
+### Spring Data JPA
+
+Spring Data JPA 是一个用于简化 JPA 开发的框架，它提供了自动仓库、查询方法和简化配置等功能。
+
+### Spring Cloud
+
+Spring Cloud 是一个用于构建分布式系统的框架，它提供了服务注册、服务发现、负载均衡和断路器等功能。
