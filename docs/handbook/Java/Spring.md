@@ -669,6 +669,56 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
 1. `application.properties`：用于配置 SpringBoot 应用程序的属性
 2. `application.yml`：用于配置 SpringBoot 应用程序的属性，使用 YAML 格式
 3. 配置文件的优先级：`application.properties` > `application.yml` > `application-{profile}.properties` > `application-{profile}.yml`
+4. application.yml 示例：
+```yml
+spring:
+  profiles:
+    # 默认激活 dev 环境
+    active: dev
+#  jackson:
+#    # 设置后台返参，若字段值为 null, 则不返回
+#    default-property-inclusion: non_null
+#    # 设置日期字段格式
+#    date-format: yyyy-MM-dd HH:mm:ss
+  datasource: # 配置数据库连接
+  #    p6spy组件的数据库驱动
+  driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+  url: jdbc:p6spy:mysql://127.0.0.1:3306/weblog?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+  #    JDBC的数据库驱动
+  #    driver-class-name: com.mysql.cj.jdbc.Driver
+  #    url: jdbc:mysql://127.0.0.1:3306/weblog?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+  username: root
+  password: xxx
+  hikari:
+    minimum-idle: 5
+    maximum-pool-size: 20
+    auto-commit: true
+    idle-timeout: 30000
+    pool-name: Weblog-HikariCP
+    max-lifetime: 1800000
+    connection-timeout: 30000
+    connection-test-query: SELECT 1
+security:
+  # 自定义登录用户名、密码
+  user:
+    name: admin # 登录用户名
+    password: xxx # 登录密码
+jwt:
+  # 过期时间
+  expiration: 86400
+  # 签名算法
+  algorithm: HS512
+  # 签发人 瞎写的
+  issuer: ericyang
+  # 秘钥
+  secret: xxx
+logging:
+  level:
+    root: info
+    com.example.demo: debug # trace级别更低，比debug输出的信息更多？
+  pattern:
+    console: '%p%m%n'
+```
 
 ### SpringBoot 自动配置
 

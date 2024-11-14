@@ -66,21 +66,21 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 1. 查看版本
 
-- docker --version
-- docker-compose --version
-- docker-machine --version
+   - docker --version
+   - docker-compose --version
+   - docker-machine --version
 
 2. 查看 docker 系统信息（包括镜像和容器的数量等）
 
-- docker info
+   - docker info
 
 3. 帮助命令
 
-- docker help
+   - docker help
 
 4. 查看 cpu 的状况
 
-- docker stats
+   - docker stats
 
 ## docker 的基本命令
 
@@ -98,15 +98,15 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 可选项：
 
-- --name webserver ：容器名称，用来区分容器
-- -p 81:80 ：端口进行映射，将本地的 81 端口映射到容器内部的 80 端口
-- -v ～/nginx/html:/usr/share/nginx/html 数据卷挂载 ro/rw，将主机项目中的目录挂载到容器的目录下，默认 rw 只能在宿主机外改变，容器内部不能改变
-- -d：设置容器中在后台一直运行
-- -it：使用交互方式运行，进入容器查看内容
-- -P：随机端口
-- -e：环境配置设置
-- 注意：后台启动运行，必须要有一个前台进程，docker 发现没有应用，就会自动停止
-- 重点：数据卷挂载分为具名/匿名/指定路径挂载，容器数据卷挂载可以实现数据共享，容器的持久化和同步操作，可以使用 `docker volume` 查看卷的情况，可以使用 volumes-from 实现多个容器之间的数据共享。
+   - --name webserver ：容器名称，用来区分容器
+   - -p 81:80 ：端口进行映射，将本地的 81 端口映射到容器内部的 80 端口
+   - -v ～/nginx/html:/usr/share/nginx/html 数据卷挂载 ro/rw，将主机项目中的目录挂载到容器的目录下，默认 rw 只能在宿主机外改变，容器内部不能改变
+   - -d：设置容器在后台一直运行
+   - -it：使用交互方式运行，进入容器查看内容
+   - -P：随机端口
+   - -e：环境配置设置
+   - 注意：后台启动运行，必须要有一个前台进程，docker 发现没有应用，就会自动停止
+   - 重点：数据卷挂载分为具名/匿名/指定路径挂载，容器数据卷挂载可以实现数据共享，容器的持久化和同步操作，可以使用 `docker volume` 查看卷的情况，可以使用 volumes-from 实现多个容器之间的数据共享。
 
 4. 停止 nginx 服务
 
@@ -126,30 +126,30 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 说明：
 
-- REPOSITORY 镜像的仓库源
-- TAG 镜像的标签
-- IMAGE ID 镜像的 id
-- CREATED 镜像的创建时间
-- SIZE 镜像的大小
+   - REPOSITORY 镜像的仓库源
+   - TAG 镜像的标签
+   - IMAGE ID 镜像的 id
+   - CREATED 镜像的创建时间
+   - SIZE 镜像的大小
 
 可选项：
 
-- -a：列出所有的镜像
-- -q：只显示镜像的 id
+   - -a：列出所有的镜像
+   - -q：只显示镜像的 id
 
 注意：镜像 ID 是唯一标识，一个镜像可以对应多个标签
 
-8. 查看镜像、容器、数据卷所占用的空间
+1. 查看镜像、容器、数据卷所占用的空间
 
 `docker system df`
 
 9. 删除镜像
 
-- 指定镜像：`docker rmi [镜像名称/镜像短ID/镜像长ID/镜像摘要]`
+   - 指定镜像：`docker rmi [镜像名称/镜像短ID/镜像长ID/镜像摘要]`
 
-- 多个镜像：`docker rmi 镜像ID 镜像ID 镜像ID`
+   - 多个镜像：`docker rmi 镜像ID 镜像ID 镜像ID`
 
-- 全部镜像：`docker rmi $(docker images -aq)`
+   - 全部镜像：`docker rmi $(docker images -aq)`
 
 10. 删除 docker images ls 命令配合 删除所有仓库名为 redis 的镜像
 
@@ -176,37 +176,37 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 可选项：
 
-- -a：显示所有的容器，包括未运行的
-- -l：显示最近创建的容器
-- -n：列出最近创建的 n 个容器
-- -q：只显示容器的编号
+   - -a：显示所有的容器，包括未运行的
+   - -l：显示最近创建的容器
+   - -n：列出最近创建的 n 个容器
+   - -q：只显示容器的编号
 
 2. 进入容器
 
-- `docker exec -it [容器名称] /bin/bash`
-- `docker atthch 容器id`
+   - `docker exec -it [容器名称] /bin/bash`
+   - `docker atthch 容器id`
 
-区别：`docker exec`进入容器后开启一个新的终端，可以在里面操作；`docker attach`进入容器正在执行的终端，不会启动新的进程
+区别：`docker exec`用于在运行中的容器中执行命令，进入容器后开启一个新的终端，可以在里面操作；`docker attach`进入容器正在执行的终端，不会启动新的进程
 
 3. 退出容器
 
-- 容器停止退回主机 `exit`
-- 容器不停止退出 `ctrl+p+q`
+   - 容器停止退回主机 `exit`
+   - 容器不停止退出 `ctrl+p+q`
 
 4. 删除容器
 
-- 指定容器：`docker rm [容器id]`
-- 多个容器：`docker rm 容器id 容器id 容器id`
-- 所有容器：`docker rm $(docker ps -aq) docker ps -a -q|xargs docker rm`
+   - 指定容器：`docker rm [容器id]`
+   - 多个容器：`docker rm 容器id 容器id 容器id`
+   - 所有容器：`docker rm $(docker ps -aq) docker ps -a -q|xargs docker rm`
 
 注意：不能删除正在运行的容器，要删除正在运行的容器需要加 -f 参数，`docker rm -f 容器id`
 
 5. 启动/重启容器
 
-- `docker start/restart 容器id`:只运行 container 不进入命令行
-- `docker start -i 74cb2f9141728b8`:运行 container 并进入命令行
+   - `docker start/restart 容器id`:只运行 container 不进入命令行
+   - `docker start -i 74cb2f9141728b8`:运行 container 并进入命令行
 
-1. 停止/强制停止容器
+6. 停止/强制停止容器
 
 `docker stop/kill 容器id`
 
@@ -214,7 +214,7 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 `docker logs -f -t --tail 100 容器id`
 
-- --tail 后面必须加参数条数
+   - --tail 后面必须加参数条数
 
 8. 查看容器中的进程信息
 
@@ -230,8 +230,8 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 11. 查看一个容器中 Linux 的版本
 
-- 1. `docker exec -it [containerId/containerName] /bin/sh`
-- 2. `cat /etc/*-release`
+    - 1. `docker exec -it [containerId/containerName] /bin/sh`
+    - 2. `cat /etc/*-release`
 
 ## Dockerfile 的指令
 
@@ -327,7 +327,7 @@ $ docker run -it --rm fe-app
 
 2. 如何启动应用
 
-启动：`docker start 应用名称`
+启动：`docker start 应用（容器container）名称`
 
 ### 2. 容器的构建等基本操作
 
@@ -422,12 +422,12 @@ RUN yum install -y net-tools
 
 - 通过`docker exec -it <container_id> sh`无法进入容器进行调试，此时可以：
 
-0. 检查 Dockerfile 和构建输出中的错误信息
-1. 使用`docker run -it --entrypoint sh <image_id>`来启动容器
-   - 使用你构建的镜像启动一个容器
-   - 覆盖默认的 ENTRYPOINT,使用 sh 命令作为入口点
-   - -it 参数可以让你进入容器内部的 shell
-2. 一种方式是使用 Dockerfile 的 RUN 指令，在构建阶段就检查容器内部（示例如下），这样不需要启动容器:这会直接在构建输出中返回命令执行结果，你可以根据输出来检查问题所在。
+    1. 检查 Dockerfile 和构建输出中的错误信息
+    2. 使用`docker run -it --entrypoint sh <image_id>`来启动容器
+       - 使用你构建的镜像启动一个容器
+       - 覆盖默认的 ENTRYPOINT,使用 sh 命令作为入口点
+       - -it 参数可以让你进入容器内部的 shell
+    3. 一种方式是使用 Dockerfile 的 RUN 指令，在构建阶段就检查容器内部（示例如下），这样不需要启动容器:这会直接在构建输出中返回命令执行结果，你可以根据输出来检查问题所在。
 
 ```sh
 # dockerfile

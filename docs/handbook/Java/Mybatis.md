@@ -88,3 +88,62 @@ MyBatis Plus （简称 MP） 是一款持久层框架，说白话就是一款操
 
 1. p6spy 组件打印完整的 SQL 语句、执行耗时。请使用 Mybatis Plus 3.1.0 以上版本。
 2. 不要在生产环境用！
+3. 序列化反序列化：
+
+```java
+//序列化操作
+ObjectMapper objectMapper = new ObjectMapper();
+String jsonStr = objectMapper.writeValueAsString(list);
+System.out.println(jsonStr);
+//反序列化操作
+List<Video> temp = objectMapper.readValue(jsonStr,List.class);
+```
+4. jackson处理相关自动
+    - 指定字段不返回：`@JsonIgnore`
+    - 指定日期格式：`@JsonFormat(pattern="yyyy-MM-dd hh:mm:ss",locale="zh",timezone="GMT+8")`
+    - 空字段不返回：`@JsonInclude(Include.NON_NULL)`
+    - 指定别名：`@JsonProperty`
+
+5. 数据库字段使用下划线命名，代码中会自动转为驼峰命名
+6. 排除非表字段的三种方式：实体中的某个变量不对应数据库表中的任何字段时：
+   1. 使用transient关键字，但是就不会被序列化了
+   2. 使用static关键字，需要生成get、set方法，但是是静态的共用的，不推荐
+   3. 使用@TableField(exist = false)注解
+7. 普通条件构造器：
+
+```java
+  // 2种方式
+  QueryWrapper<UserDO> queryWrapper1 = new QueryWrapper<UserDO>();
+  QueryWrapper<UserDO> queryWrapper2 = Wrappers.<UserDO>query();
+
+  queryWrapper1.like("username", "犬").lt("age", 50);
+  // queryWrapper.select("id","username","age").like("username", "犬").lt("age", 50);
+  // 返回值中不包含null的项
+  List<Map<String, Object>> userList = userMapper.selectMaps(queryWrapper1);
+  userList.forEach(System.out::println);
+```
+
+8. Lambda条件构造器：还可防误写，直接调方法名，防止打错字。
+```java
+  // 四种方式
+  LambdaQueryWrapper<UserDO> user1 = new QueryWrapper<UserDO>().lambda();
+  LambdaQueryWrapper<UserDO> user2 = new LambdaQueryWrapper<UserDO>();
+  LambdaQueryWrapper<UserDO> user3 = Wrappers.<UserDO>lambdaQuery();
+
+  user3.like(UserDO::getUsername, "犬").lt(UserDO::getAge, 50);
+  userMapper.selectList(user3).forEach(System.out::println);
+
+  // 第四种
+  LambdaQueryChainWrapper<UserDO> chainWrapper = new LambdaQueryChainWrapper<>(userMapper);
+  List<UserDO> userList = chainWrapper.like(UserDO::getUsername, "犬").lt(UserDO::getAge, 50).list();
+  userList.forEach(System.out::println);
+```
+
+
+### 常用注解
+
+1. @TableName：用在DO上表示数据库表的别名，如果不加默认是类名
+2. @TableId：用在DO的属性上，表示这个属性是主键，默认会找一个叫 id 的属性作为主键，如果没有，需要加上这个注解
+3. @TableField：用在DO的属性上，可以表示这个属性对应数据库表的字段，如果不加默认是属性名
+4. @TableField(condition = SqlCondition.LIKE_RIGHT)：表示在查询时使用LIKE_RIGHT而不是默认的EQUAL
+5.

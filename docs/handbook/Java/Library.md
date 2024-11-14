@@ -123,7 +123,9 @@ public @interface Validated {
 
 总的来说，绝大多数场景下，我们使用 @Validated 注解即可。而在有嵌套校验的场景，我们使用 @Valid 注解添加到成员属性上。
 
-#### com.github.xiaoymin:knife4j-spring-boot-starter
+### com.github.xiaoymin:knife4j-spring-boot-starter
+
+Knife4j。是一个基于 Spring Boot 的 Swagger 增强工具，可以帮助我们更好的管理和维护我们的接口文档。它提供了一些增强功能，比如：接口文档的美化、接口文档的分组、接口文档的权限控制等等。
 
 swagger 相关，调试接口。启动程序，然后再浏览器里我们就可以进行输入: swagger 访问地址：`http://localhost:8080/doc.html#/home` 打开 swagger 文档 就可以进行测试了。
 
@@ -134,6 +136,93 @@ swagger 相关，调试接口。启动程序，然后再浏览器里我们就可
 #### spring-boot-starter-web
 
 spring web
+
+#### JWT鉴权身份认证
+
+Spring Security 整合 JWT。它是一种基于 JSON 的轻量级令牌，由三部分组成：头部（Header）、载荷（Payload）和签名（Signature）。JWT 被广泛用于实现身份验证和授权，特别适用于前后端分离的应用程序。由 `header.payload.signature` 三部分组成，你可以在此网站: `https://jwt.io/` 上获得解析结果。
+
+```xml
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>${jjwt.version}</version>
+</dependency>
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-impl</artifactId>
+    <version>${jjwt.version}</version>
+</dependency>
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-jackson</artifactId>
+    <version>${jjwt.version}</version>
+</dependency>
+```
+
+#### 日志
+
+Log4j基本被淘汰了，一般使用slf4j+logback的形式。SLF4J 是一个日志门面（facade），使得应用程序可以在运行时更换日志实现。Logback 是日志框架 SLF4J 的一个实现，它被设计用来替代 log4j。Logback 提供了更高的性能，更丰富的日志功能和更好的配置选项。
+
+Spring Boot 默认使用 Logback，所以当你在 pom.xml 中加入 `spring-boot-starter-web` 依赖时，它会自动包含 Logback 相关依赖，无需额外添加。
+
+```xml
+<!-- logback.xml示例 -->
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <jmxConfigurator/>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- 应用名称 -->
+    <property scope="context" name="appName" value="weblog"/>
+    <!-- 自定义日志输出路径，以及日志名称前缀 -->
+    <property name="LOG_FILE" value="logs/${appName}.%d{yyyy-MM-dd}"/>
+    <!-- 使用 %X 来引用MDC中的值 [TraceId: %X{traceId}] -->
+    <property name="FILE_LOG_PATTERN"
+              value="[TraceId: %X{traceId}] %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"/>
+    <!--<property name="CONSOLE_LOG_PATTERN" value="${FILE_LOG_PATTERN}"/>-->
+
+    <!-- 按照每天生成日志文件 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 日志文件输出的文件名 -->
+            <FileNamePattern>${LOG_FILE}-%i.log</FileNamePattern>
+            <!-- 日志文件保留天数 -->
+            <MaxHistory>30</MaxHistory>
+            <!-- 日志文件最大的大小 -->
+            <maxFileSize>10MB</maxFileSize>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!-- 格式化输出：%d 表示日期，%thread 表示线程名，%-5level：级别从左显示 5 个字符宽度 %errorMessage：日志消息，%n 是换行符-->
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- dev 环境（仅输出到控制台） -->
+    <springProfile name="dev">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <root level="info">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- prod 环境（仅输出到文件中） -->
+    <springProfile name="prod">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+</configuration>
+```
+
+####
+####
+
+#### com.baomidou:mybatis-plus-boot-starter
+
+#### p6spy:p6spy
+
+组件打印完整的 SQL 语句、执行耗时。
 
 ### xml 文件解析
 
@@ -161,6 +250,24 @@ spring web
 ### 配置文件解析
 
 1. org.springframework.boot:spring-boot-configuration-processor
+
+### 常见实现热部署的方式
+
+1. JRebel：旨在通过即时应用代码更改来加快开发周期，提高开发效率，通过动态地重载 Java 类，可以大幅减少开发人员在开发应用程序时的等待时间。
+2. Spring Loaded
+3. spring-boot-devtools
+
+### com.google.guava:guava
+
+集合类增强，缓存，函数式编程支持，字符串处理，并发工具
+### org.apache.commons:commons-lang3
+
+为 Java 提供各种实用程序类，如 StringUtils, ArrayUtils, NumberUtils 等，简化了常见的操作。时间和日期工具类DateUtils。异常处理辅助：提供类如 ExceptionUtils，帮助更轻松地处理和记录异常。随机数生成：RandomStringUtils。
+###
+###
+###
+###
+###
 
 ## xml
 
