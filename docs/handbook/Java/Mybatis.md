@@ -109,7 +109,7 @@ List<Video> temp = objectMapper.readValue(jsonStr,List.class);
    1. 使用transient关键字，但是就不会被序列化了
    2. 使用static关键字，需要生成get、set方法，但是是静态的共用的，不推荐
    3. 使用@TableField(exist = false)注解
-7. 普通条件构造器：
+7. 普通条件构造器：用于直接通过代码构造 SQL 语句
 
 ```java
   // 2种方式
@@ -137,6 +137,16 @@ List<Video> temp = objectMapper.readValue(jsonStr,List.class);
   LambdaQueryChainWrapper<UserDO> chainWrapper = new LambdaQueryChainWrapper<>(userMapper);
   List<UserDO> userList = chainWrapper.like(UserDO::getUsername, "犬").lt(UserDO::getAge, 50).list();
   userList.forEach(System.out::println);
+```
+
+9. 如果条件构造器不能满足需求了，还可以通过自定义sql的方式来查询：
+   1. 在Mapper中定义方法，然后在方法上使用注解@Select，@Update，@Delete，@Insert，并将SQL语句传入
+
+```java
+public interface UserMapper extends BaseMapper<User> {
+  @Select("select * from user ${ew.customSqlSegment}")  // ew是固定写法
+  List<User> selectAll(@Param(Constants.WRAPPER)cWrapper<User> wrapper);
+}
 ```
 
 
