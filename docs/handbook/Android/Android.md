@@ -171,6 +171,8 @@ Android Studio>sidebar>project 切换找不到 app moudle 和 project moudle
 
 #### Activity
 
+安卓启动流程：![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411150940016.png)
+
 ##### Activity启动方式与数据传递
 
 1. 显示intent启动，通过包名来启动
@@ -1990,3 +1992,8 @@ protected void onDraw(Canvas canvas) {
     // 自定义绘制逻辑
 }
 ```
+
+
+## Jetpack组件库
+
+![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411150954310.png)
