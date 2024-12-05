@@ -308,6 +308,11 @@ console.log(Object.values(myObject)); // ["John", 30]
 
 使用场景：在某些情况下，可能需要获取对象的可枚举属性或属性值。使用 Object.entries()和 Object.values()可以方便地实现这些功能。
 
+#### demo示例
+
+1.
+
+
 ### IntersectionObserver
 
 IntersectionObserver 可以用于检测元素是否进入视口，可以用于实现无限滚动、懒加载等功能。

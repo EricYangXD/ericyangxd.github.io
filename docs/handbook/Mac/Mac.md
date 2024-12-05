@@ -14,6 +14,8 @@ meta:
 ## 安装 Homebrew
 
 1. Mac 下镜像飞速安装 Homebrew 教程: https://zhuanlan.zhihu.com/p/90508170
+   - `/bin/bash -c "$(curl -fsSL https://gitee.com/ineo6/homebrew-install/raw/master/install.sh)"`
+   - 备用：`/bin/bash -c "$(curl -fsSL https://b.idayer.com/brew.sh)"`
 2. M1 芯片 Mac 上 Homebrew 安装教程: https://zhuanlan.zhihu.com/p/341831809
 
 ## 设置三指拖移
