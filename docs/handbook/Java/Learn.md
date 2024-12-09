@@ -4,7 +4,7 @@ author: EricYangXD
 date: "2022-09-30"
 meta:
   - name: keywords
-    content: JAVA,java
+    content: JAVA,java,Java
 ---
 
 ## Learn Java - Basic
@@ -23,6 +23,7 @@ meta:
 8. 字符：char:2 字节（单引号&一个字符）
 9. 布尔：boolean：1 字节
 10. 较新版本：`java --version`，较旧版本：`java -version`
+11. Java中都是值传递：对于基本数据类型，传递的是值的副本；对于对象引用，传递的是引用的副本，但这并不改变对象本身的可变性。
 
 ### Java 开发中的基础概念
 

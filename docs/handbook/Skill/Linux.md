@@ -883,3 +883,8 @@ Host myserver2
   StrictHostKeyChecking no
   UserKnownHostsFile=/dev/null
 ```
+
+## 服务器面板工具
+
+1. 宝塔面板
+2. [1panel](https://github.com/1Panel-dev/1Panel)：现代化、开源的 Linux 服务器运维管理面板，`curl -sSL https://resource.fit2cloud.com/1panel/package/quick_start.sh -o quick_start.sh && sudo bash quick_start.sh`一键安装。
