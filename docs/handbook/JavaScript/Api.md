@@ -310,7 +310,7 @@ console.log(Object.values(myObject)); // ["John", 30]
 
 #### demo示例
 
-1.
+1. TODO
 
 
 ### IntersectionObserver

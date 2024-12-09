@@ -34,8 +34,6 @@ date: "2024-01-27"
 24. 使用`connect-mongo`将 session 存储到 mongodb 中
 25. 接入OAUTH2.0，使用`passport-oauth2`，`passport-google-oauth20`，`passport-facebook`等
 26. 使用`jest`进行单元测试
-27. 使用
-28. 使用
 29. 简单 demo：
 
 ```js
