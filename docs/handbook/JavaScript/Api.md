@@ -312,7 +312,6 @@ console.log(Object.values(myObject)); // ["John", 30]
 
 1. TODO
 
-
 ### IntersectionObserver
 
 IntersectionObserver 可以用于检测元素是否进入视口，可以用于实现无限滚动、懒加载等功能。
