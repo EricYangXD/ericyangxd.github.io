@@ -269,6 +269,11 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 - 先`sudo spctl --master-disable`，然后`sudo xattr -r -d com.apple.quarantine ./路径/app名`，如果不好打印可以在仿达里找到拖到命令行里。
 
+### Big Sur打开应用提示，您没有权限来打开应用程序
+
+1. `codesign --force --deep --sign - /Applications/Sketch.app` -- ok
+2. `brew install upx` + `upx -d /Applications/Sketch.app` -- TBD
+
 ### m1/intel MacBook 安装 adb
 
 `brew install android-platform-tools`

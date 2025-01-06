@@ -54,13 +54,57 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 - [启动 docker daemon](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/docker-brew.jpg)
 
-- 配置阿里云镜像加速：`vi /etc/docker/daemon.json`
+- Linux上配置Docker源镜像加速：`vi /etc/docker/daemon.json`
+- Docker Desktop上直接在设置的`Docker Engine`里配置Docker源镜像加速
 
 ```json
-{ "registry-mirrors": ["https://5xok66d4.mirror.aliyuncs.com"] }
+// 2024-12-11 更新
+{
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "experimental": false,
+  "features": {
+    "buildkit": true
+  },
+  "registry-mirrors": [
+    "https://docker.hpcloud.cloud",
+    "https://docker.m.daocloud.io",
+    "https://docker.unsee.tech",
+    "https://docker.1panel.live",
+    "http://mirrors.ustc.edu.cn",
+    "https://docker.chenby.cn",
+    "http://mirror.azure.cn",
+    "https://dockerpull.org",
+    "https://dockerhub.icu",
+    "https://hub.rat.dev",
+    "https://docker.1panel.dev",
+    "https://docker.fxxk.dedyn.io",
+    "https://docker.xn--6oq72ry9d5zx.cn",
+    "https://docker.zhai.cm",
+    "https://docker.5z5f.com",
+    "https://a.ussh.net",
+    "https://docker.cloudlayer.icu",
+    "https://hub.littlediary.cn",
+    "https://hub.crdz.gq",
+    "https://docker.kejilion.pro",
+    "https://registry.dockermirror.com",
+    "https://dhub.kubesre.xyz",
+    "https://docker.nastool.de",
+    "https://docker.udayun.com",
+    "https://docker.rainbond.cc",
+    "https://hub.geekery.cn",
+    "https://docker.1panelproxy.com",
+    "https://atomhub.openatom.cn",
+  ]
+}
 ```
 
-- 重启：`systemctl daemon-reload && systemctl restart docker`
+- 配置镜像源之后需要重启Docker：`sudo systemctl daemon-reload && sudo systemctl restart docker`
+- 查看是否成功：`docker info`
 
 ## Docker 的使用
 
