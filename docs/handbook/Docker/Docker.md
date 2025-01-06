@@ -279,27 +279,56 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 ## Dockerfile 的指令
 
-- FROM 基础镜像，一切从这里开始
+Dockerfile 是一个文本文件，里面包含了一系列的指令，用于定义如何构建一个 Docker 镜像（Image）。它是 Docker 的核心组件之一，是自动化构建 Docker 镜像的重要工具。
+
+通过编写 Dockerfile，开发者可以按照需求定义一个镜像的环境、依赖、配置和运行方式，从而生成可移植、轻量级、统一的应用程序运行环境。
+
+- FROM指令：指定构建容器镜像时的基础镜像，一切从这里开始
 - MAINTAINER 镜像的作者 姓名<邮箱>
-- RUN 镜像构建需要运行的命令
-- ADD 步骤，添加内容
-- WORKDIR 镜像的工作目录
+- RUN 在镜像构建过程中执行一条命令。
+- ADD <源路径> <目标路径>：将构建上下文中的文件复制到镜像中。ADD 和 COPY 都可以用于复制文件，但 ADD 功能更复杂，可以解压归档文件（如 .tar.gz）和下载 URL。
+- WORKDIR 指定容器内的/镜像的工作目录（类似于进入一个目录），后续的指令会以这个目录为上下文。
 - VOLUME 挂载的目录
 - EXPOST 端口配置
-- CMD 指定容器启动要运行的命令，只有最后一个会生效，可被替代
-- ENTRYPOINT 指定这个容器启动要运行的命令，可以追加命令
+- EXPOSE <端口号>：声明容器监听的端口（只是一个文档性指令，不会自动开放端口）。
+- CMD ["可执行文件", "参数1", "参数2"]： 指定容器启动时要运行的命令。如果同时定义了多个 CMD，只有最后一个会生效，可被覆盖 。
+- ENTRYPOINT ["可执行文件", "参数1", "参数2"]：指定这个容器启动要运行的命令，可以追加命令。与 CMD 类似，但不会被用户的命令覆盖，而是将用户的命令作为参数附加到 ENTRYPOINT 后。
 - ONBUILD 当构建一个被继承的 Dockerfile 时会运行
-- COPY 类似 ADD 将我们文件拷贝到镜像中
-- ENV 构建的时候设置环境变量
+- COPY <源路径> <目标路径>：类似ADD，将文件拷贝到镜像中
+- ENV <变量名>=<值>：构建的时候设置环境变量
+
+
+Demo1：
+```dockerfile
+# FROM node:latest
+FROM node:alpine # 是一个官方的轻量化 Node.js 基础镜像，它基于 Alpine Linux，体积小，性能高，更适合生产环境，启动快，内存占用低。
+
+ENV NODE_ENV=production
+ENV PORT=8080
+WORKDIR /app  # 这里将 /app 作为容器内的工作目录。后续的所有命令（如文件添加、执行等）都将在 /app 目录下运行。如果目录 /app 不存在，WORKDIR 会自动创建它。
+
+RUN apt-get update && apt-get install -y nginx       # 使用 apt 安装 Nginx
+RUN pip install -r requirements.txt                 # 使用 pip 安装 Python 依赖
+ADD package*.json ./  # 将文件从构建上下文（本地机器的代码目录）复制到镜像内的工作目录（WORKDIR）。在构建镜像时，只复制依赖配置文件以减少构建时间。
+RUN npm install  # 在镜像构建过程中执行命令。依赖包会被安装到 /app/node_modules 中。
+ADD . .  # 将上下文目录中的所有文件（. 指代当前目录）复制到容器的 /app 目录中。第一个`.`：本地上下文目录（Dockerfile 所在的目录）。第二个`.`：容器内的工作目录，前面通过 WORKDIR /app 设置为 /app。
+# ADD app.tar.gz /app   # 解压 app.tar.gz 到镜像的 /app 目录
+
+CMD ["npm", "start"]  # 运行 npm start
+
+# CMD node index.js
+```
+
 
 ## .dockerignore
 
-用来忽略相应文件
+用来忽略相应文件：使用 .dockerignore 文件可以避免将不必要的文件（如 .git 文件夹、日志、临时文件等）复制到镜像中。类似.gitignore。
 
 ## DockerFile Demo
 
 ```dockerfile
 FROM node:16-alpine as builder
+LABEL maintainer="developer@example.com" version="1.0"
 
 WORKDIR /code
 
@@ -321,10 +350,14 @@ COPY --from=builder code/build/ /usr/share/nginx/html/
 
 ```bash
 # 构建镜像
-$ docker build -t fe-app .
+$ docker build -t fe-app .  # -t fe-app为镜像命名为fe-app，.：表示当前目录包含 Dockerfile。
 
 # 运行容器
-$ docker run -it --rm fe-app
+# 1.以交互模式启动，用户可以直接进入容器终端与容器内部环境进行交互。容器停止后会自动删除，不会保留运行记录，也不会生成新的容器 ID。适合运行临时处理的任务，比如在容器内执行某个脚本，任务完成后直接销毁容器。非常适合需要进入容器交互式操作的场景，比如测试某些命令是否正常运行，检查容器环境等。实时输出容器日志到终端。
+$ docker run -it --rm fe-app /bin/bash
+# 2.以守护进程模式启动，容器会在后台运行，用户无法直接进入容器终端与容器内部环境进行交互。容器停止后不会自动删除，会保留运行记录，会生成新的容器 ID。主机的 3000 端口将转发到容器的 3000 端口，因此可以通过访问主机的 http://localhost:3000 来访问容器中的服务。后台运行的模式适合需要高可用的生产环境服务。适合运行 Web 应用、API 服务等长期运行的服务。不输出日志，需要通过 docker logs 查看。必须指定端口映射
+$ docker run -d -p 3000:3000 my-node-app
+
 ```
 
 ## MAC 彻底删除 docker
@@ -407,6 +440,24 @@ $ docker run -it --rm fe-app
 
 1. 基于 Docker Commit 制作镜像
 2. 基于 dockerfile 制作镜像，Dockerfile 方式为主流的制作镜像方式
+
+基于Dockerfile多阶段构建镜像，将构建和运行分开，减少最终镜像中不必要的文件！
+
+```dockerfile
+# 第一阶段：构建阶段
+FROM node:16-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# 第二阶段：运行阶段
+FROM node:16-alpine
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+CMD ["npm", "start"]
+```
 
 ### 4. Commit 构建自定义镜像
 
