@@ -454,6 +454,270 @@ public class BookDaoImpl implements BookDao{
    1. 如果某个接口或方法需要单独开启事务，需在`@Transactional(propagation=Propagation.REQUIRE_NEW)`这样配置
    2. ![事务传播行为](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221021155835.png)
 
+### Spring中有哪些方法可以实现异步流式接口防止接口超时？
+
+1. 使用 DeferredResult，异步处理，通过延迟返回结果，避免线程阻塞。当后台任务完成时，通过 DeferredResult 设置结果并返回给客户端。常用于需要等待后台任务完成再返回结果的场景。非阻塞：主线程不需要等待任务完成。超时可控：可以设置超时时间，避免客户端长时间等待。有局限性，处理结果仅返回单个值。
+```java
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import java.util.concurrent.CompletableFuture;
+
+@RestController
+@RequestMapping("/async")
+public class AsyncController {
+
+    @GetMapping("/deferred")
+    public DeferredResult<String> deferredResponse() {
+        // 创建 DeferredResult，设置超时时间为10秒
+        DeferredResult<String> deferredResult = new DeferredResult<>(10000L, "请求超时，返回默认值");
+
+        // 模拟异步任务
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(3000); // 模拟处理耗时任务
+                deferredResult.setResult("异步处理完成，返回成功结果！"); // 设置最终结果
+            } catch (InterruptedException e) {
+                deferredResult.setErrorResult("处理异常");
+            }
+        });
+
+        return deferredResult;
+    }
+}
+```
+
+2. 使用 ResponseBodyEmitter，适用于要动态生成内容并逐步发送给客户端的场景，可以在任务执行过程中逐步向客户端发送更新，而不是等待整个接口执行完成后一次性返回。适合需要分批返回数据的场景，比如文件上传进度、实时日志或大数据集的返回。数据分块响应，减小单次数据传输的压力。实时性好：可以逐步将数据发送给客户端，而非一次性返回。减少内存消耗：适合大数据集的场景。
+
+```java
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+
+@RestController
+@RequestMapping("/async")
+public class AsyncStreamController {
+
+    @GetMapping("/stream")
+    public ResponseBodyEmitter streamResponse() {
+      // 创建一个ResponseBodyEmitter，-1/0：代表不超时，如果不设置，到达默认的超时时间后连接会自动断开。
+        ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+
+        // 模拟异步任务不断推送数据
+        CompletableFuture.runAsync(() -> {
+            try {
+                for (int i = 0; i < 5; i++) {
+                    emitter.send("数据块 " + i + "\n"); // 推送数据块
+                    Thread.sleep(1000); // 模拟延迟
+                }
+                emitter.complete(); // 完成数据发送
+            } catch (IOException | InterruptedException e) {
+                emitter.completeWithError(e); // 发送错误
+            }
+        });
+
+        return emitter;
+    }
+}
+```
+
+3. 使用 SseEmitter (Server-Sent Events)，是 ResponseBodyEmitter 的一个子类，它同样能够实现动态内容生成，不过主要将它用在服务器向客户端推送实时数据，如实时消息推送、状态更新等场景。基于 HTTP 的单向事件流（Server-Sent Events 协议）。适用于实时数据推送场景，比如通知系统、日志流或进度更新。SSE有一点比较好，客户端与服务端一旦建立连接，即便服务端发生重启，也可以做到自动重连。轻量级协议：基于 HTTP 协议的简单实现，无需使用 WebSocket。适合前端支持 SSE 的场景。
+
+```java
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+
+@RestController
+@RequestMapping("/async")
+public class SseController {
+
+    private static final Map<String, SseEmitter> EMITTER_MAP = new ConcurrentHashMap<>();
+
+    @GetMapping("/subSseEmitter/{userId}")
+    public SseEmitter sseEmitter(@PathVariable String userId) {
+        log.info("sseEmitter: {}", userId);
+        SseEmitter emitterTmp = new SseEmitter(-1L);
+        EMITTER_MAP.put(userId, emitterTmp);
+        CompletableFuture.runAsync(() -> {
+            try {
+                SseEmitter.SseEventBuilder event = SseEmitter.event()
+                        .data("sseEmitter" + userId + " @ " + LocalTime.now())
+                        .id(String.valueOf(userId))
+                        .name("sseEmitter");
+                emitterTmp.send(event);
+            } catch (Exception ex) {
+                emitterTmp.completeWithError(ex);
+            }
+        });
+        return emitterTmp;
+    }
+
+    @GetMapping("/sendSseMsg/{userId}")
+    public void sseEmitter(@PathVariable String userId, String msg) throws IOException {
+        SseEmitter sseEmitter = EMITTER_MAP.get(userId);
+        if (sseEmitter == null) {
+            return;
+        }
+        sseEmitter.send(msg);
+    }
+}
+```
+
+前端代码示例：
+
+```html
+<body>
+  <div id="content" style="text-align: center;">
+      <h1>SSE 接收服务端事件消息数据</h1>
+      <div id="message">等待连接...</div>
+  </div>
+  <script>
+      let source = null;
+      let userId = 7777
+
+      function setMessageInnerHTML(message) {
+          const messageDiv = document.getElementById("message");
+          const newParagraph = document.createElement("p");
+          newParagraph.textContent = message;
+          messageDiv.appendChild(newParagraph);
+      }
+
+      if (window.EventSource) {
+          // 建立连接
+          source = new EventSource('http://127.0.0.1:9033/subSseEmitter/'+userId);
+          setMessageInnerHTML("连接用户=" + userId);
+          /**
+           * 连接一旦建立，就会触发open事件
+           * 另一种写法：source.onopen = function (event) {}
+           */
+          source.addEventListener('open', function (e) {
+              setMessageInnerHTML("建立连接。。。");
+          }, false);
+          /**
+           * 客户端收到服务器发来的数据
+           * 另一种写法：source.onmessage = function (event) {}
+           */
+          source.addEventListener('message', function (e) {
+              setMessageInnerHTML(e.data);
+          });
+          // onerror
+          source.onerror = (err) => {
+              console.error("连接出错:", err);
+          };
+      } else {
+          setMessageInnerHTML("你的浏览器不支持SSE");
+      }
+  </script>
+</body>
+```
+
+4. 使用 CompletableFuture + @Async，Spring 提供的 @Async 注解可以让方法异步执行，返回 CompletableFuture 以提高处理性能。简单易用，基于线程池实现异步任务。适合后台异步处理任务，接口快速返回结果。简单直观，易于集成。配合线程池提高异步执行效率。有局限性，处理结果仅返回单个值。
+
+```java
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.CompletableFuture;
+
+@RestController
+@RequestMapping("/async")
+@EnableAsync
+public class AsyncServiceController {
+
+    private final AsyncService asyncService;
+
+    public AsyncServiceController(AsyncService asyncService) {
+        this.asyncService = asyncService;
+    }
+
+    @GetMapping("/future")
+    public CompletableFuture<String> futureResponse() {
+        return asyncService.processAsyncTask();
+    }
+}
+
+@Service
+class AsyncService {
+
+    @Async
+    public CompletableFuture<String> processAsyncTask() {
+        try {
+            Thread.sleep(3000); // 模拟耗时任务
+            return CompletableFuture.completedFuture("异步任务完成！");
+        } catch (InterruptedException e) {
+            return CompletableFuture.completedFuture("任务失败！");
+        }
+    }
+}
+```
+
+5. 基于 WebFlux 的响应式流式接口，如果服务使用的是 Spring WebFlux（基于 Reactor 的响应式框架），可以直接返回 Flux 或 Mono 类型的数据流。完全异步非阻塞。适合高并发场景，充分利用 Reactor 框架的响应式特性。完全异步非阻塞，性能高效。支持响应式编程，流式处理数据。
+
+```java
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+
+import java.time.Duration;
+
+@RestController
+@RequestMapping("/async")
+public class WebFluxController {
+
+    @GetMapping("/flux")
+    public Flux<String> fluxResponse() {
+        // 每隔1秒，发送一个数据块，持续5次
+        return Flux.interval(Duration.ofSeconds(1))
+                   .map(i -> "数据块 " + i)
+                   .take(5); // 限制发送5个数据块
+    }
+}
+```
+
+6. StreamingResponseBody 与其他响应处理方式略有不同，主要用于处理大数据量或持续数据流的传输，支持将数据直接写入OutputStream。例如，当我们需要下载一个超大文件时，使用 StreamingResponseBody 可以避免将文件数据一次性加载到内存中，而是持续不断的把文件流发送给客户端，从而解决下载大文件时常见的内存溢出问题。接口实现直接返回 StreamingResponseBody 对象，将数据写入输出流并刷新，调用一次flush就会向客户端写入一次数据。
+
+```java
+// ...
+
+@RestController
+@RequestMapping("/async")
+public class StreamingResponseBodyController {
+  @GetMapping("/streamingResponse")
+  public ResponseEntity<StreamingResponseBody> handleRbe() {
+
+      StreamingResponseBody stream = out -> {
+          String message = "streamingResponse";
+          for (int i = 0; i < 1000; i++) {
+              try {
+                  out.write(((message + i) + "\r\n").getBytes());
+                  out.write("\r\n".getBytes());
+                  //调用一次flush就会像前端写入一次数据
+                  out.flush();
+                  TimeUnit.SECONDS.sleep(1);
+              } catch (InterruptedException e) {
+                  e.printStackTrace();
+              }
+          }
+      };
+      return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(stream);
+  }
+}
+```
+
+7. 总结：
+    - DeferredResult：适合异步处理任务后一次性返回结果。
+    - ResponseBodyEmitter：适合分批或流式返回数据。
+    - SseEmitter：适合实时推送消息（支持 SSE 协议的场景）。
+    - Flux（WebFlux）：高性能响应式流式接口，适合高并发场景。
+    - @Async + CompletableFuture：适合后台异步任务执行，快速返回结果。
+    - StreamingResponseBody：适合大数据量或持续数据流传输，避免内存溢出。
+
 ## SpringMVC
 
 SpringMVC 技术与 Servlet 技术功能等同，均属于 web 层开发技术。SpringMVC 是一种基于 Java 实现 MVC 模型的轻量级 Web 框架。使用简单，开发便捷（相较于 Servlet）。灵活性强。
@@ -718,6 +982,17 @@ logging:
     com.example.demo: debug # trace级别更低，比debug输出的信息更多？
   pattern:
     console: '%p%m%n'
+# springboot默认使用Tomcat，配置最大连接数等可以控制程序同时处理的请求数：max-connections + accept-count
+server:
+  tomcat:
+    threads:
+      # 最少线程数
+      min-spare: 10
+      max: 20
+    # 最大连接数
+    max-connections: 8192 # 默认8192
+    # 最大等待数
+    accept-count: 100 # 默认100
 ```
 
 ### SpringBoot 自动配置

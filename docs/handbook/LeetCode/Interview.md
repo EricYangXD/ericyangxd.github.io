@@ -2005,7 +2005,7 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
 
 #### 一个页面打开比较慢，怎么处理？
 
-1.  通过 Chrome 的 performance 面板或者 Lighthouse 等工具分析页面性能，通过查看 FP（首次渲染）、FCP（首次内容渲染）、DOMContentLoaded（DCL）、Largest Contentfull Paint 最大内容渲染（LCP）、Load（L)等性能指标，结合资源的加载情况，来判断是哪个过程有问题：加载过程慢还是渲染过程慢？
+1.  通过 Chrome 的 performance 面板或者 Lighthouse 等工具分析页面性能，通过查看 FP（首次渲染）、FCP（首次内容渲染）、DOMContentLoaded（DCL）、Largest Contentfull Paint 最大内容渲染（LCP）、Load（L）等性能指标，结合资源的加载情况，来判断是哪个过程有问题：加载过程慢还是渲染过程慢？
 2.  对于加载过程慢：说明是网络问题比较严重。
     1.  优化服务端硬件配置，静态资源上 cdn 或者是压缩图片、使用 base64 等减少请求数，服务端开启 gzip 等；
     2.  路由懒加载，大组件异步加载，减少主包的体积；
@@ -2019,6 +2019,24 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
     1. 性能优化是一个循序渐进的过程，不像 bug 一次性解决；
     2. 持续跟进统计结果，再逐步分析性能瓶颈，持续优化；
     3. 可以使用第三方统计服务，如阿里云 ARMS，百度统计等；
+
+#### typeof
+
+
+#### 中断for循环
+
+1. break 是最直接、常规的中断循环的方式。
+2. 在函数中：可以使用 return。注意：return 只能在函数内部使用。直接在浏览器里跑for循环会报错。
+3. 嵌套循环：可以使用 label 和 break。
+4. 替代方式：修改循环条件。比如把i加到最大。
+5. 不推荐：抛出异常。
+
+拓展：js中常见循环的中断方式：
+1. forEach：
+2. map：
+3. reduce：
+4.
+
 
 ## 数组和链表
 
@@ -2820,3 +2838,4 @@ img.src = "https://fakeimg.pl/100x200";
   // document.body.appendChild(dom);
 </script>
 ```
+

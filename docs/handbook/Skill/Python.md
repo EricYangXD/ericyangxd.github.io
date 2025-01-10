@@ -376,10 +376,84 @@ with open("path/to/your/image.jpg", "rb") as image_file:
 
 ### requests
 
+在爬虫中发送网络请求
+
+```python
+import requests
+
+# 找一些免费的代理ip
+proxies = [
+  {'http':'xxx'},
+  {'http':'xxx'},
+  {'http':'xxx'},
+  ...
+]
+
+def main():
+  headers = {"User-Agent":"xxx", ...} # cookie等也可以加进来
+  res = requests.get(url, headers = headers, proxies = proxies[0])
+  print(res.status_code)
+  print(res.content.toString())
+  print(res.content.decode())
+```
+
+### selenium
+
+可以执行js代码！-- `driver.execute_script( "window.scrollTo( 0, document.body.scrollHeight);"）`，这样就可以模拟网页滚动，进而可以爬取到一些懒加载的内容。这种适用于整个页面可以滚动的情况。对于页面中有部分区域可以滚动的情况参考下面：iframe或者某个content区域滚动的情况：
+
+
+```python
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
+
+iframe = driver.find_element(By.TAG_NAME, 'iframe')
+scroll_origin = ScrollOrigin.from_element(iframe)
+ActionChains(driver).scroll_from_origin(scroll_origin, 0 , 200).perform()
+
+# 或者
+from selenium.webdriver import ActionChains, Keys
+ActionChains(driver).send_keys(Keys.PAGE_DOWN).perform()
+```
+
+
+```python
+from selenium import webdriver
+
+config = {
+  "USERNAME": "user_name",
+  "PASSWORD": "password"
+}
+loginUrl = "xxx"
+
+def main():
+  driver = webdriver.Chrome("./chromedriver")
+  driver.get(loginUrl)
+  assert 'SpringServe' in driver.title
+  elem = driver.find_element_by_name("user[email]")
+  elem.clear()
+  elem.send_keys(config["USERNAME"])
+  elem.send_keys(config["PASSWORD"])
+  elem = driver.find_element_by_name("user[password]")
+  elem.clear()
+  elem.send_keys(config["PASSWORD"])
+  elem.send_keys(Keys.RETURN)
+  time.sleep(5)
+  print(driver.page_source)
+  driver.quit()
+```
+
 ### urllib2
 
 解析一个网页的 url，获取该网页的字符串。
 
+### time
+
+```python
+from time import sleep
+
+sleep(1)
+```
 ### re
 
 正则匹配字符串。正则的规则基本都是相同的。

@@ -1389,6 +1389,195 @@ Integer sum = task.get();
 System.out.println(sum);
 ```
 
+#### 异步请求
+
+- DeferredResult：适合异步处理任务后一次性返回结果。
+- ResponseBodyEmitter：适合分批或流式返回数据。
+- SseEmitter：适合实时推送消息（支持 SSE 协议的场景）。
+- Flux（WebFlux）：高性能响应式流式接口，适合高并发场景。
+- @Async + CompletableFuture：适合后台异步任务执行，快速返回结果。
+- StreamingResponseBody：适合大数据量或持续数据流传输，避免内存溢出。
+
+CompletableFuture的常用api方法：，支持非阻塞的任务执行、任务依赖和结果组合。
+
+  - 任务创建：supplyAsync、runAsync。
+  - 结果处理：thenApply、thenAccept、thenRun、whenComplete、handle。
+  - 任务组合：thenCombine、thenCompose、allOf、anyOf。
+  - 异常处理：exceptionally、handle。
+  - 超时处理：orTimeout、completeOnTimeout。
+  - 阻塞获取结果：join、get。
+
+1. CompletableFuture.supplyAsync：用于执行有返回值的异步任务。内部使用 默认线程池 ForkJoinPool.commonPool() 异步执行任务。
+2. CompletableFuture.runAsync：用于执行没有返回值的异步任务。
+3. 上述两种方法都可以接受自定义线程池。
+
+```java
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    // 模拟耗时操作
+    simulateDelay();
+    return "Hello, CompletableFuture!";
+});
+
+CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+    // 模拟耗时操作
+    simulateDelay();
+    System.out.println("Task completed!");
+});
+
+Executor executor = Executors.newFixedThreadPool(3);
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    simulateDelay();
+    return "Custom ThreadPool Task";
+}, executor);
+```
+
+4. thenApply：用于对异步任务的结果进行变换（有返回值）。
+5. thenAccept：对异步任务结果进行消费（无返回值）。
+6. thenRun：在前一个任务完成后执行一个新的任务，不关心前一个任务的结果。
+7. whenComplete：用于在任务完成后（无论正常完成还是异常完成）运行回调，允许查看任务结果或异常。
+8. handle：类似于 whenComplete，但可以对正常结果或异常结果进行转换（有返回值）。
+
+```java
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> "Hello")
+        .thenApply(result -> result + ", World!");
+System.out.println(future.join()); // 输出: Hello, World!
+
+CompletableFuture.supplyAsync(() -> "Result")
+        .thenAccept(result -> System.out.println("The result is: " + result));
+
+CompletableFuture.supplyAsync(() -> "Task finished")
+        .thenRun(() -> System.out.println("Running another task..."));
+
+CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> 10 / 2)
+        .whenComplete((result, exception) -> {
+            if (exception == null) {
+                System.out.println("Result: " + result);
+            } else {
+                System.err.println("Exception: " + exception.getMessage());
+            }
+        });
+
+CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> 10 / 0)
+        .handle((result, exception) -> {
+            if (exception != null) {
+                return -1; // 返回默认值
+            }
+            return result;
+        });
+
+System.out.println(future.join()); // 输出: -1
+```
+9. thenCombine：用于将两个 CompletableFuture 的结果组合起来。
+10. thenCompose：用于在一个任务完成后，基于其结果启动另一个异步任务。
+11. allOf：用于等待多个 CompletableFuture 全部完成。
+12. anyOf：用于等待多个 CompletableFuture 中的任意一个完成。
+
+```java
+// 9
+CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> 5);
+CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> 3);
+
+CompletableFuture<Integer> result = future1.thenCombine(future2, Integer::sum);
+System.out.println(result.join()); // 输出: 8
+// 10
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> "Hello")
+        .thenCompose(result -> CompletableFuture.supplyAsync(() -> result + ", World!"));
+System.out.println(future.join()); // 输出: Hello, World!
+// 11
+CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> "Task 1");
+CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> "Task 2");
+CompletableFuture<String> future3 = CompletableFuture.supplyAsync(() -> "Task 3");
+
+CompletableFuture<Void> allFutures = CompletableFuture.allOf(future1, future2, future3);
+allFutures.join(); // 等待所有任务完成
+
+System.out.println(future1.join()); // 输出: Task 1
+System.out.println(future2.join()); // 输出: Task 2
+System.out.println(future3.join()); // 输出: Task 3
+
+// 12
+CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> "Task 1");
+CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> "Task 2");
+
+CompletableFuture<Object> anyOfFuture = CompletableFuture.anyOf(future1, future2);
+System.out.println(anyOfFuture.join()); // 输出: Task 1 或 Task 2 (最先完成的任务)
+```
+
+13. exceptionally：用于处理任务中的异常，并返回一个默认值。
+14. handle：参考前面的 handle 方法，它既可以处理异常，也可以转换结果。
+15. completeExceptionally：主动触发异常，模拟任务失败。
+
+```java
+CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> 1 / 0)
+        .exceptionally(exception -> {
+            System.err.println("Exception: " + exception.getMessage());
+            return -1; // 返回默认值
+        });
+
+System.out.println(future.join()); // 输出: -1
+
+
+CompletableFuture<String> future = new CompletableFuture<>();
+future.completeExceptionally(new RuntimeException("Forced exception"));
+
+try {
+    System.out.println(future.join()); // 抛出异常
+} catch (Exception e) {
+    System.err.println("Caught exception: " + e.getMessage());
+}
+```
+
+16. join：阻塞当前线程并获取异步任务的结果（抛出 CompletionException 异常）。
+17. get：类似于 join，但会抛出 ExecutionException 和 InterruptedException。
+
+```java
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> "Result");
+System.out.println(future.join()); // 输出: Result
+
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> "Result");
+try {
+    System.out.println(future.get()); // 输出: Result
+} catch (Exception e) {
+    e.printStackTrace();
+}
+```
+
+18. complete：主动设置任务的完成结果。
+19. completeExceptionally：主动触发异常（参考上文）。
+20. orTimeout：在指定时间内未完成，则触发超时异常。
+21. completeOnTimeout：在指定时间内未完成，则返回默认值。
+22. delayedExecutor：创建一个延迟执行任务的 Executor。
+
+```java
+CompletableFuture<String> future = new CompletableFuture<>();
+future.complete("Manually completed!");
+System.out.println(future.join()); // 输出: Manually completed!
+
+
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    simulateDelay();
+    return "Result";
+}).orTimeout(1, TimeUnit.SECONDS);
+
+try {
+    System.out.println(future.join());
+} catch (Exception e) {
+    System.err.println("Timeout: " + e.getMessage());
+}
+
+
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    simulateDelay();
+    return "Result";
+}).completeOnTimeout("Default Value", 1, TimeUnit.SECONDS);
+
+System.out.println(future.join()); // 输出: Default Value
+
+
+Executor delayedExecutor = CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS);
+CompletableFuture.runAsync(() -> System.out.println("Delayed Task"), delayedExecutor);
+```
+
 #### 死锁
 
 1. 死锁：多个线程同时被阻塞，它们中的一个或者全部都在等待某个资源被释放。由于线程被无限期地阻塞，因此程序不可能正常终止。实际开发中注意避免死锁。
