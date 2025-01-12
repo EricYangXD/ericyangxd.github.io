@@ -17,13 +17,13 @@ meta:
 
 1. @SpringBootApplication：来标注一个主程序类，说明这是一个 Spring Boot 应用；
 2. @SpringBootConfiguration：Spring Boot 的配置类，标注在某个类上，表示这是一个 Spring Boot 的配置类；
-3. @Configuration 配置类上来标注这个注解，创建一个class配置文件；配置类 - 配置文件；配置类也是容器中的一个组件；
-4. @Component 表示一个类是由 Spring 管理的组件，通用型注解；@Component("idxxx")可以指定id；
+3. @Configuration 配置类上来标注这个注解，创建一个 class 配置文件；配置类 - 配置文件；配置类也是容器中的一个组件；
+4. @Component 表示一个类是由 Spring 管理的组件，通用型注解；@Component("idxxx")可以指定 id；
 5. @EnableAutoConfiguration 开启自动配置功能；以前我们需要配置的东西，Spring Boot 帮我们自动配置；告诉 Spring Boot 开启自动配置功能；这样自动配置才能生效；
 6. @Controller：表示一个类是 Spring MVC 控制器；
 7. @Autowired：用于 bean 的自动依赖注入；
 8. @Service：表示一个类是一个 Spring 服务；
-9. @Repository：用来表示一个类是 Spring 的存储库；被标注在DAO层；
+9. @Repository：用来表示一个类是 Spring 的存储库；被标注在 DAO 层；
 10. @RequestMapping：用于将 URL 请求映射到控制器方法；
 11. @PathVariable：用于从 URL 路径中提取一个变量；
 12. @RequestParam：用于从查询字符串或表单数据中提取一个变量；
@@ -33,7 +33,7 @@ meta:
 16. @Bean：用于表示一个方法产生一个由 Spring 管理的 Bean；
 17. @Value：用于从属性文件或环境变量中注入值；
 18. @Profile：用来激活一个特定的 Spring 配置文件；
-19. @ComponentScan：开启包扫描，不用再在每个Bean上加注解，Bean即data class上需要加@Component注解；
+19. @ComponentScan：开启包扫描，不用再在每个 Bean 上加注解，Bean 即 data class 上需要加@Component 注解；
 
 ### 项目结构
 
@@ -42,7 +42,7 @@ meta:
 - controller：这个 package 包含处理传入的 HTTP 请求的类，并将它们路由到适当的服务方法。
 - model/bean/dto：这个 package 包含定义应用程序的数据模型的类。这包括实体、数据传输对象（DTO）和其他特定领域的对象。
 - dao/repository(jpa/jdbc)/mapper(mybatis)：这个 package 包含处理应用程序中数据持久性的类。这包括数据库访问、查询和其他与数据相关的操作。
-   - dao的实现一般放在impl包下，即dao一般是些interface，而具体的sql语句则写在impl类中，比如基于myBatis实现DAO。
+  - dao 的实现一般放在 impl 包下，即 dao 一般是些 interface，而具体的 sql 语句则写在 impl 类中，比如基于 myBatis 实现 DAO。
 - service：这个 package 包含实现应用程序的业务逻辑的类。这包括处理数据、应用规则和其他特定于应用程序领域的操作。
 - eg.
 
@@ -126,7 +126,7 @@ meta:
    2. 静态工厂方法：用得少，bean 中增加`factory-method`属性告诉 Spring 调哪个方法获得实例，当然也要自己先实现工厂类
    3. 实例工厂方法：先添加 bean 使用实例工厂实例化 bean，然后再在原来的 bean 中移除 class，增加`factory-method`属性设置为新增 bean 的 id，并修改`factory-method`属性为 class 中的实际方法。
    4. 3 的改进型：不需要增加一个 bean。先在工厂方法类中实现`FactoryBean<要返回的实例的类>`接口，重写两个 get 方法，`getObjectType()->UserDao.class`类似这样。
-   5. Bean的别名，生成的是同一个Bean实例。
+   5. Bean 的别名，生成的是同一个 Bean 实例。
 4. ![实例化Bean的几种方法示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131014585.png)
 5. ![实例化Bean的几种方法的测试示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131019310.png)
 6. 报错从最后几行往前看
@@ -162,18 +162,18 @@ meta:
    2. ![集合注入示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131041519.png)
    3. ![List和Set](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131047492.png)
    4. ![Map和Property](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131048499.png)
-8. 注入null：![注入null示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131043420.png)
-9. 注入的时候创建内部Bean：![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131046711.png)
+8. 注入 null：![注入null示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131043420.png)
+9. 注入的时候创建内部 Bean：![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131046711.png)
 
-### Bean的作用域
+### Bean 的作用域
 
-#### Singleton作用域
+#### Singleton 作用域
 
-在一个ApplicationContext上下文环境中，只创建一个Bean实例，`<bean id="xx" ... scope="singleton" ></bean>`。
+在一个 ApplicationContext 上下文环境中，只创建一个 Bean 实例，`<bean id="xx" ... scope="singleton" ></bean>`。
 
-#### prototype作用域
+#### prototype 作用域
 
-创建多个Bean实例，`<bean id="xx" ... scope="prototype" ></bean>`。
+创建多个 Bean 实例，`<bean id="xx" ... scope="prototype" ></bean>`。
 
 ![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131347903.png)
 
@@ -181,63 +181,63 @@ meta:
 ![方法注入](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131355020.png)
 
 此时需要通过方法注入的方式实现：
-1. 在Bean1中增加抽象方法createBean2()用于生成Bean2的实例，![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131359648.png)
-2. 在spring.xml中：通过`<lookup-method name="createBean2" bean="bean2"></lookup-method>`来实现
+
+1. 在 Bean1 中增加抽象方法 createBean2()用于生成 Bean2 的实例，![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131359648.png)
+2. 在 spring.xml 中：通过`<lookup-method name="createBean2" bean="bean2"></lookup-method>`来实现
 3. ![示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131358771.png)
 
-#### Web环境作用域
-1. request作用域
-2. session作用域
-3. application作用域
-4. websocket作用域
+#### Web 环境作用域
+
+1. request 作用域
+2. session 作用域
+3. application 作用域
+4. websocket 作用域
 
 ![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131406410.png)
 
 #### 自定义作用域
-SimpleThreadScope作用域
+
+SimpleThreadScope 作用域
 
 1. 自定义作用域![自定义作用域](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131518679.png)
 2. ![注册自定义scope](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131519393.png)
 3. SimpleThreadScope![SimpleThreadScope](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131520184.png)
 
+### Bean 的懒加载
 
-### Bean的懒加载
+默认的情况下，Singleton 作用域下，Bean 会在 Context 之前就被创建完成。即 Spring 容器会在创建容器时提前初始化 Singleton 作用域下的 Bean。如果想要在使用时才创建 Bean，可以使用懒加载。但是如果 Bean 被标注了`lazy-init="true"`，则该 Bean 只有在其被需要时才会被初始化
 
-默认的情况下，Singleton作用域下，Bean会在Context之前就被创建完成。即Spring容器会在创建容器时提前初始化Singleton作用域下的Bean。如果想要在使用时才创建Bean，可以使用懒加载。但是如果Bean被标注了`lazy-init="true"`，则该Bean只有在其被需要时才会被初始化
-
-1. 如果把`<beans ... default-lazy-init="true"></beans>`，则该标签下的Bean都开启懒加载
+1. 如果把`<beans ... default-lazy-init="true"></beans>`，则该标签下的 Bean 都开启懒加载
 2. 节省资源，但可能会增加某些资源的的响应时间
 
-### Bean初始化及销毁逻辑处理
+### Bean 初始化及销毁逻辑处理
 
 1. 初始化：
-    1. `<bean ... init-method="onInit"></bean>`
-    2. 实现InitializingBean接口，重写afterPropertiesSet()方法
+   1. `<bean ... init-method="onInit"></bean>`
+   2. 实现 InitializingBean 接口，重写 afterPropertiesSet()方法
 2. 销毁：
-    1.  `<bean ... destroy-method="onDestroy"></bean>`
-    2. 实现DisposableBean接口，重写destroy()方法
-3. 为所有的Bean设定默认的初始化方法和销毁方法：`<beans ... default-init-method="onInit" default-destroy-method="onDestroy"></beans>`
+   1. `<bean ... destroy-method="onDestroy"></bean>`
+   2. 实现 DisposableBean 接口，重写 destroy()方法
+3. 为所有的 Bean 设定默认的初始化方法和销毁方法：`<beans ... default-init-method="onInit" default-destroy-method="onDestroy"></beans>`
 
-### Bean属性继承
+### Bean 属性继承
 
-场景一：Child类继承了Parent类：
-1. 使用`<bean id="parent" class="com.example.Parent" abstract="true"><property name="attr1" value="val1"/></bean>`定义一个抽象的父类，通过`abstract="true"`告诉Spring这个Bean不需要实例化。
+场景一：Child 类继承了 Parent 类：
+
+1. 使用`<bean id="parent" class="com.example.Parent" abstract="true"><property name="attr1" value="val1"/></bean>`定义一个抽象的父类，通过`abstract="true"`告诉 Spring 这个 Bean 不需要实例化。
 2. 使用`<bean id="child1" class="com.example.Child1" parent="parent"><property name="attrC1" value="valC1"/></bean>`定义一个子类，继承父类
 3. 使用`<bean id="childN" class="com.example.ChildN" parent="parent"><property name="attrCN" value="valCN"/></bean>`定义一个子类，继承父类
 4. 子类会继承父类的属性，但不会继承父类的构造方法和初始化方法
 5. 子类可以重写父类的属性，但不能重写父类的构造方法和初始化方法
 
-场景二：Child类没有继承Parent类，但是多个Child类中有相同的属性和值，此时Parent基类Bean上删除`class="com.example.Parent"`即可。
+场景二：Child 类没有继承 Parent 类，但是多个 Child 类中有相同的属性和值，此时 Parent 基类 Bean 上删除`class="com.example.Parent"`即可。
 
-Bean的别名：只能在@Configuration中使用，不能在@Component中使用。![Bean的别名](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131647632.png)
+Bean 的别名：只能在@Configuration 中使用，不能在@Component 中使用。![Bean的别名](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131647632.png)
 
-
-
-
-### Bean的依赖注入
+### Bean 的依赖注入
 
 1. 构造器注入：在构造器中注入依赖，使用`<bean id="xx" class="com.example.Xx" constructor-arg ref="yy"></bean>`
-2. setter注入：在 setter 方法中注入依赖，使用`<bean id="xx" class="com.example.Xx"><property name="yy" ref="yy"></property></bean>`
+2. setter 注入：在 setter 方法中注入依赖，使用`<bean id="xx" class="com.example.Xx"><property name="yy" ref="yy"></property></bean>`
 3. 自动装配：使用`<bean id="xx" class="com.example.Xx" autowire="byType"></bean>`，byName、byType、constructor、no
 4. 使用`@Autowired`注解，可以自动装配，可以标注在构造器、setter 方法、字段上
 5. 使用`@Qualifier`注解，可以指定具体的 bean，可以标注在构造器、setter 方法、字段上
@@ -245,13 +245,13 @@ Bean的别名：只能在@Configuration中使用，不能在@Component中使用�
 7. ![通过属性注入Bean示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131716175.png)
 8. ![实例化和注入时指定Bean的id](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131718520.png)
 9. ![List和Set注入示例1](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131721241.png)
-10. ![List和Set注入示例2](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131723461.png)，通过order指定顺序。
+10. ![List和Set注入示例2](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131723461.png)，通过 order 指定顺序。
 11. ![Map注入示例1](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131725961.png)
 12. ![Map注入示例2](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131726824.png)
 13. ![简单类型注入示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131726595.png)
 14. ![SpringIoC容器内置接口实例注入示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131727344.png)
 
-### Bean的生命周期
+### Bean 的生命周期
 
 1. 实例化：通过构造器或工厂方法创建 bean 实例
 2. 属性赋值：通过 setter 方法或工厂方法设置 bean 属性
@@ -259,17 +259,17 @@ Bean的别名：只能在@Configuration中使用，不能在@Component中使用�
 4. 使用：bean 可以被使用
 5. 销毁：通过 destroy-method 方法或 DisposableBean 接口的 destroy 方法进行销毁
 
-### 通过注解设置Bean的作用域
+### 通过注解设置 Bean 的作用域
 
-1. 通过@Scope注解设置作用域及名称![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131738557.png)
+1. 通过@Scope 注解设置作用域及名称![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131738557.png)
 2. ![自定义作用域](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131739528.png)
 3. ![方法注入](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131740488.png)
 
-### 通过注解设置Bean的懒加载
+### 通过注解设置 Bean 的懒加载
 
-@Lazy注解，通过@Lazy注解设置懒加载，可以标注在类上，也可以标注在方法上。![对比示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131744600.png)
+@Lazy 注解，通过@Lazy 注解设置懒加载，可以标注在类上，也可以标注在方法上。![对比示例](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411131744600.png)
 
-### 通过注解实现Bean的初始化及销毁
+### 通过注解实现 Bean 的初始化及销毁
 
 1. 使用@PostConstruct 注解，方法在依赖注入完成后执行，可以标注在方法上。
 2. 使用@PreDestroy 注解，方法在 bean 销毁前执行，可以标注在方法上。
@@ -277,7 +277,7 @@ Bean的别名：只能在@Configuration中使用，不能在@Component中使用�
 3. 使用 InitializingBean 接口的 afterPropertiesSet 方法进行初始化，可以实现 InitializingBean 接口。
 4. 使用 DisposableBean 接口的 destroy 方法进行销毁，可以实现 DisposableBean 接口。
 
-5. 在Bean实例上使用`@Bean(initMethod="onInit", destroyMethod="onDestroy")`注解，可以指定初始化和销毁方法。
+5. 在 Bean 实例上使用`@Bean(initMethod="onInit", destroyMethod="onDestroy")`注解，可以指定初始化和销毁方法。
 
 ### 加载 properties 配置文件
 
@@ -454,9 +454,10 @@ public class BookDaoImpl implements BookDao{
    1. 如果某个接口或方法需要单独开启事务，需在`@Transactional(propagation=Propagation.REQUIRE_NEW)`这样配置
    2. ![事务传播行为](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20221021155835.png)
 
-### Spring中有哪些方法可以实现异步流式接口防止接口超时？
+### Spring 中有哪些方法可以实现异步流式接口防止接口超时？
 
 1. 使用 DeferredResult，异步处理，通过延迟返回结果，避免线程阻塞。当后台任务完成时，通过 DeferredResult 设置结果并返回给客户端。常用于需要等待后台任务完成再返回结果的场景。非阻塞：主线程不需要等待任务完成。超时可控：可以设置超时时间，避免客户端长时间等待。有局限性，处理结果仅返回单个值。
+
 ```java
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -523,7 +524,7 @@ public class AsyncStreamController {
 }
 ```
 
-3. 使用 SseEmitter (Server-Sent Events)，是 ResponseBodyEmitter 的一个子类，它同样能够实现动态内容生成，不过主要将它用在服务器向客户端推送实时数据，如实时消息推送、状态更新等场景。基于 HTTP 的单向事件流（Server-Sent Events 协议）。适用于实时数据推送场景，比如通知系统、日志流或进度更新。SSE有一点比较好，客户端与服务端一旦建立连接，即便服务端发生重启，也可以做到自动重连。轻量级协议：基于 HTTP 协议的简单实现，无需使用 WebSocket。适合前端支持 SSE 的场景。
+3. 使用 SseEmitter (Server-Sent Events)，是 ResponseBodyEmitter 的一个子类，它同样能够实现动态内容生成，不过主要将它用在服务器向客户端推送实时数据，如实时消息推送、状态更新等场景。基于 HTTP 的单向事件流（Server-Sent Events 协议）。适用于实时数据推送场景，比如通知系统、日志流或进度更新。SSE 有一点比较好，客户端与服务端一旦建立连接，即便服务端发生重启，也可以做到自动重连。轻量级协议：基于 HTTP 协议的简单实现，无需使用 WebSocket。适合前端支持 SSE 的场景。
 
 ```java
 import org.springframework.web.bind.annotation.*;
@@ -572,46 +573,52 @@ public class SseController {
 
 ```html
 <body>
-  <div id="content" style="text-align: center;">
-      <h1>SSE 接收服务端事件消息数据</h1>
-      <div id="message">等待连接...</div>
+  <div id="content" style="text-align: center;">
+        
+    <h1>SSE 接收服务端事件消息数据</h1>
+        
+    <div id="message">等待连接...</div>
   </div>
   <script>
-      let source = null;
-      let userId = 7777
+    let source = null;
+    let userId = 7777;
 
-      function setMessageInnerHTML(message) {
-          const messageDiv = document.getElementById("message");
-          const newParagraph = document.createElement("p");
-          newParagraph.textContent = message;
-          messageDiv.appendChild(newParagraph);
-      }
+    function setMessageInnerHTML(message) {
+      const messageDiv = document.getElementById("message");
+      const newParagraph = document.createElement("p");
+      newParagraph.textContent = message;
+      messageDiv.appendChild(newParagraph);
+    }
 
-      if (window.EventSource) {
-          // 建立连接
-          source = new EventSource('http://127.0.0.1:9033/subSseEmitter/'+userId);
-          setMessageInnerHTML("连接用户=" + userId);
-          /**
-           * 连接一旦建立，就会触发open事件
-           * 另一种写法：source.onopen = function (event) {}
-           */
-          source.addEventListener('open', function (e) {
-              setMessageInnerHTML("建立连接。。。");
-          }, false);
-          /**
-           * 客户端收到服务器发来的数据
-           * 另一种写法：source.onmessage = function (event) {}
-           */
-          source.addEventListener('message', function (e) {
-              setMessageInnerHTML(e.data);
-          });
-          // onerror
-          source.onerror = (err) => {
-              console.error("连接出错:", err);
-          };
-      } else {
-          setMessageInnerHTML("你的浏览器不支持SSE");
-      }
+    if (window.EventSource) {
+      // 建立连接
+      source = new EventSource("http://127.0.0.1:9033/subSseEmitter/" + userId);
+      setMessageInnerHTML("连接用户=" + userId);
+      /**
+       * 连接一旦建立，就会触发open事件
+       * 另一种写法：source.onopen = function (event) {}
+       */
+      source.addEventListener(
+        "open",
+        function (e) {
+          setMessageInnerHTML("建立连接。。。");
+        },
+        false
+      );
+      /**
+       * 客户端收到服务器发来的数据
+       * 另一种写法：source.onmessage = function (event) {}
+       */
+      source.addEventListener("message", function (e) {
+        setMessageInnerHTML(e.data);
+      });
+      // onerror
+      source.onerror = (err) => {
+        console.error("连接出错:", err);
+      };
+    } else {
+      setMessageInnerHTML("你的浏览器不支持SSE");
+    }
   </script>
 </body>
 ```
@@ -680,7 +687,7 @@ public class WebFluxController {
 }
 ```
 
-6. StreamingResponseBody 与其他响应处理方式略有不同，主要用于处理大数据量或持续数据流的传输，支持将数据直接写入OutputStream。例如，当我们需要下载一个超大文件时，使用 StreamingResponseBody 可以避免将文件数据一次性加载到内存中，而是持续不断的把文件流发送给客户端，从而解决下载大文件时常见的内存溢出问题。接口实现直接返回 StreamingResponseBody 对象，将数据写入输出流并刷新，调用一次flush就会向客户端写入一次数据。
+6. StreamingResponseBody 与其他响应处理方式略有不同，主要用于处理大数据量或持续数据流的传输，支持将数据直接写入 OutputStream。例如，当我们需要下载一个超大文件时，使用 StreamingResponseBody 可以避免将文件数据一次性加载到内存中，而是持续不断的把文件流发送给客户端，从而解决下载大文件时常见的内存溢出问题。接口实现直接返回 StreamingResponseBody 对象，将数据写入输出流并刷新，调用一次 flush 就会向客户端写入一次数据。
 
 ```java
 // ...
@@ -711,12 +718,12 @@ public class StreamingResponseBodyController {
 ```
 
 7. 总结：
-    - DeferredResult：适合异步处理任务后一次性返回结果。
-    - ResponseBodyEmitter：适合分批或流式返回数据。
-    - SseEmitter：适合实时推送消息（支持 SSE 协议的场景）。
-    - Flux（WebFlux）：高性能响应式流式接口，适合高并发场景。
-    - @Async + CompletableFuture：适合后台异步任务执行，快速返回结果。
-    - StreamingResponseBody：适合大数据量或持续数据流传输，避免内存溢出。
+   - DeferredResult：适合异步处理任务后一次性返回结果。
+   - ResponseBodyEmitter：适合分批或流式返回数据。
+   - SseEmitter：适合实时推送消息（支持 SSE 协议的场景）。
+   - Flux（WebFlux）：高性能响应式流式接口，适合高并发场景。
+   - @Async + CompletableFuture：适合后台异步任务执行，快速返回结果。
+   - StreamingResponseBody：适合大数据量或持续数据流传输，避免内存溢出。
 
 ## SpringMVC
 
@@ -830,50 +837,54 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
 
 ### 快速新建一个 SpringBoot 项目
 
-0. 一个web开发框架
+0. 一个 web 开发框架
 1. 在这个[网站](https://start.spring.io/)选择配置，作用可以理解为前端的 vue-cli、create-react-app 等脚手架，选好配置依赖之后下载；
 2. idea 中打开刚才下载的项目
 3. 项目结构：
-    1. `src/main/java/com/example/demo/DemoApplication.java`：主类，启动类
-    2. `src/main/java/com/example/demo/controller/HelloController.java`：控制器类
-    3. `src/main/resources/application.properties`：配置文件
-    4. `src/main/resources/static`：静态资源目录
-    5. `src/main/resources/templates`：模板目录
+   1. `src/main/java/com/example/demo/DemoApplication.java`：主类，启动类
+   2. `src/main/java/com/example/demo/controller/HelloController.java`：控制器类
+   3. `src/main/resources/application.properties`：配置文件
+   4. `src/main/resources/static`：静态资源目录
+   5. `src/main/resources/templates`：模板目录
 4. `DemoApplication.java`：
-    ```java
-    package com.example.demo;
 
-    import org.springframework.boot.SpringApplication;
-    import org.springframework.boot.autoconfigure.SpringBootApplication;
+   ```java
+   package com.example.demo;
 
-    @SpringBootApplication
-    public class DemoApplication {
-        public static void main(String[] args) {
-            SpringApplication.run(DemoApplication.class, args);
-        }
-    }
-    ```
+   import org.springframework.boot.SpringApplication;
+   import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+   @SpringBootApplication
+   public class DemoApplication {
+       public static void main(String[] args) {
+           SpringApplication.run(DemoApplication.class, args);
+       }
+   }
+   ```
+
 5. `HelloController.java`：
-    ```java
-    package com.example.demo.controller;
 
-    import org.springframework.web.bind.annotation.GetMapping;
-    import org.springframework.web.bind.annotation.RequestMapping;
-    import org.springframework.web.bind.annotation.RestController;
+   ```java
+   package com.example.demo.controller;
 
-    @RestController
-    @RequestMapping("/hello")
-    public class HelloController {
-        @GetMapping
-        public String sayHello() {
-            return "Hello, World!";
-        }
-    }
-    ```
+   import org.springframework.web.bind.annotation.GetMapping;
+   import org.springframework.web.bind.annotation.RequestMapping;
+   import org.springframework.web.bind.annotation.RestController;
+
+   @RestController
+   @RequestMapping("/hello")
+   public class HelloController {
+       @GetMapping
+       public String sayHello() {
+           return "Hello, World!";
+       }
+   }
+   ```
+
 6. `application.properties`：
-    ```properties
-    server.port=8080
-    ```
+   ```properties
+   server.port=8080
+   ```
 7. 运行项目，访问`http://localhost:8080/hello`，会看到`Hello, World!`
 
 ### SpringBoot 常用注解
@@ -893,40 +904,40 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
 ### 依赖管理
 
 1. 在`pom.xml`中添加依赖：
-    ```xml
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-    </dependencies>
-    ```
+   ```xml
+   <dependencies>
+       <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-web</artifactId>
+       </dependency>
+   </dependencies>
+   ```
 2. 在`pom.xml`中添加插件：
-    ```xml
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-    ```
+   ```xml
+   <build>
+       <plugins>
+           <plugin>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-maven-plugin</artifactId>
+           </plugin>
+       </plugins>
+   </build>
+   ```
 3. 在`pom.xml`中添加仓库：
-    ```xml
-    <repositories>
-        <repository>
-            <id>aliyun</id>
-            <url>https://maven.aliyun.com/repository/public</url>
-        </repository>
-    </repositories>
-    ```
+   ```xml
+   <repositories>
+       <repository>
+           <id>aliyun</id>
+           <url>https://maven.aliyun.com/repository/public</url>
+       </repository>
+   </repositories>
+   ```
 4. 在`pom.xml`中添加属性：
-    ```xml
-    <properties>
-        <java.version>11</java.version>
-    </properties>
-    ```
+   ```xml
+   <properties>
+       <java.version>11</java.version>
+   </properties>
+   ```
 
 ### SpringBoot 配置文件
 
@@ -934,16 +945,17 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport{
 2. `application.yml`：用于配置 SpringBoot 应用程序的属性，使用 YAML 格式
 3. 配置文件的优先级：`application.properties` > `application.yml` > `application-{profile}.properties` > `application-{profile}.yml`
 4. application.yml 示例：
+
 ```yml
 spring:
   profiles:
     # 默认激活 dev 环境
     active: dev
-#  jackson:
-#    # 设置后台返参，若字段值为 null, 则不返回
-#    default-property-inclusion: non_null
-#    # 设置日期字段格式
-#    date-format: yyyy-MM-dd HH:mm:ss
+  #  jackson:
+  #    # 设置后台返参，若字段值为 null, 则不返回
+  #    default-property-inclusion: non_null
+  #    # 设置日期字段格式
+  #    date-format: yyyy-MM-dd HH:mm:ss
   datasource: # 配置数据库连接
   #    p6spy组件的数据库驱动
   driver-class-name: com.p6spy.engine.spy.P6SpyDriver
@@ -981,7 +993,7 @@ logging:
     root: info
     com.example.demo: debug # trace级别更低，比debug输出的信息更多？
   pattern:
-    console: '%p%m%n'
+    console: "%p%m%n"
 # springboot默认使用Tomcat，配置最大连接数等可以控制程序同时处理的请求数：max-connections + accept-count
 server:
   tomcat:
@@ -1004,15 +1016,15 @@ server:
 ### SpringBoot 测试
 
 1. 在`pom.xml`中添加测试依赖：
-    ```xml
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-    ```
+   ```xml
+   <dependencies>
+       <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-test</artifactId>
+           <scope>test</scope>
+       </dependency>
+   </dependencies>
+   ```
 2. 使用`@SpringBootTest`注解来启动测试应用程序
 3. 使用`@Autowired`注解来注入测试所需的依赖
 4. 使用`@Test`注解来定义测试方法

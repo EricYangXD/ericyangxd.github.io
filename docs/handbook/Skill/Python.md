@@ -186,18 +186,18 @@ if __name__ == "__main__":
 
 21. `if __name__ == "__main__": xxx`: 用于判断当前的模块是被直接运行还是被导入到其他模块中。如果模块被直接运行，则`__name__`变量的值会被设置为`"__main__"`。如果模块是被导入的，`__name__`的值将是模块的名字。使得模块既可以被执行也可以被导入而不触发主执行代码，增加了代码的可重用性。
 22. 类型提示：`number: int = input("Number: ")`，`def meow(n: int) -> None: xxx`
-23. 多行注释：`"""   xxx    """`单双不限
+23. 多行注释：`""" xxx """`单双不限
 24. `argparse`库：在命令行直接执行`.py`文件时，可以通过`argparse`库来传递参数，`parser = argparse.ArgumentParser(description=xxx)`，`parser.add_argument("xxx", default=xx, type=int, help="xxx")`，`args = parser.parse_args()`，`args.xxx`获取参数值
-25. `unpacking`即把list或dict解包成一个个元素：`test(*my_list)`，`test(**my_dict)`
-26. `*args`：可变参数，接收任意多个参数，返回一个tuple；`**kwargs`：关键字参数，接收任意多个参数，返回一个dict
+25. `unpacking`即把 list 或 dict 解包成一个个元素：`test(*my_list)`，`test(**my_dict)`
+26. `*args`：可变参数，接收任意多个参数，返回一个 tuple；`**kwargs`：关键字参数，接收任意多个参数，返回一个 dict
 27. `lambda`：匿名函数，`lambda x: x+1`，`lambda x,y: x+y`
-28. `print(*my_list)`：打印list中的每个元素，不用遍历
-29. `map(func, list)`：对list中的每个元素执行func函数，返回一个新的list
+28. `print(*my_list)`：打印 list 中的每个元素，不用遍历
+29. `map(func, list)`：对 list 中的每个元素执行 func 函数，返回一个新的 list
 30. `list comprehension`：列表生成式，`[x for x in range(10)]`，`[x for x in range(10) if x % 2 == 0]`，`[x+y for x in range(10) for y in range(10)]`
 31. `dictionary comprehension`：字典生成式，`{x: x+1 for x in range(10)}`
 32. `set comprehension`：集合生成式，`{x for x in range(10)}`
-33. `enumerate(list)`：遍历list，返回一个tuple，第一个元素是index，第二个元素是list中的元素
-34. `generators`：生成器，`[x for x in range(10)]`是一个list，`(x for x in range(10))`是一个生成器，可以通过`next()`方法来获取下一个元素，也可以通过`for`循环来遍历，`yield`关键字用于生成器函数中，用于返回一个值，但是不会终止函数的执行，而是暂停函数的执行，下次调用`next()`方法时，会从上次暂停的位置继续执行
+33. `enumerate(list)`：遍历 list，返回一个 tuple，第一个元素是 index，第二个元素是 list 中的元素
+34. `generators`：生成器，`[x for x in range(10)]`是一个 list，`(x for x in range(10))`是一个生成器，可以通过`next()`方法来获取下一个元素，也可以通过`for`循环来遍历，`yield`关键字用于生成器函数中，用于返回一个值，但是不会终止函数的执行，而是暂停函数的执行，下次调用`next()`方法时，会从上次暂停的位置继续执行
 35. `iterators`：迭代器，`iter(list)`可以获取到一个迭代器，通过`next()`方法获取下一个元素，也可以通过`for`循环来遍历，`yield`关键字用于生成器函数中，用于返回一个值，但是不会终止函数的执行，而是暂停函数的执行，下次调用`next()`方法时，会从上次暂停的位置继续执行，`itertools`可以帮助我们快速生成迭代器。
 36. `itertools`：迭代工具库，`from itertools import count, cycle, repeat, accumulate, chain, compress, dropwhile, filterfalse, groupby, islice, permutations, product, takewhile, tee, zip_longest`
 37.
@@ -211,6 +211,7 @@ Python2 默认使用 ASCII 编码读取文件，所以如果是中文会有可�
 3. 为了处理各国字符，产生了 Unicode。
 4. 为了提高 Unicode 存储和传输性能，产生了 UTF-8，它是 Unicode 的一种实现形式。
 5. with：修改文件时，可以自动关闭文件
+6. 通过 with 以自定义 class 的形式访问文件时，自定义 class 中需要有`__enter__()`和`__exit__()`方法，`__enter__()`方法在 with 语句开始时执行，`__exit__()`方法在 with 语句结束时执行。
 
 ```python
 #!/usr/bin/python
@@ -221,6 +222,11 @@ lists = open('./lists.txt', mode='w', econding='utf8').read().split()
 
 lists.write('123543\n')
 lists.close()
+
+# or
+with open('./invoice.txt', 'a') as file:
+  data = file.readLines()
+  print(data)
 ```
 
 - Python 为我们提供的两个转换编码的方法 decode()与 encode()。
@@ -399,8 +405,9 @@ def main():
 
 ### selenium
 
-可以执行js代码！-- `driver.execute_script( "window.scrollTo( 0, document.body.scrollHeight);"）`，这样就可以模拟网页滚动，进而可以爬取到一些懒加载的内容。这种适用于整个页面可以滚动的情况。对于页面中有部分区域可以滚动的情况参考下面：iframe或者某个content区域滚动的情况：
+自动化爬虫工具，本质是个浏览器，占用资源多。同类还有 PhantomJs。
 
+可以执行 js 代码！-- `driver.execute_script( "window.scrollTo( 0, document.body.scrollHeight);"）`，这样就可以模拟网页滚动，进而可以爬取到一些懒加载的内容。这种适用于整个页面可以滚动的情况。对于页面中有部分区域可以滚动的情况参考下面：iframe 或者某个 content 区域滚动的情况：
 
 ```python
 from selenium.webdriver import ActionChains
@@ -415,7 +422,6 @@ ActionChains(driver).scroll_from_origin(scroll_origin, 0 , 200).perform()
 from selenium.webdriver import ActionChains, Keys
 ActionChains(driver).send_keys(Keys.PAGE_DOWN).perform()
 ```
-
 
 ```python
 from selenium import webdriver
@@ -454,6 +460,7 @@ from time import sleep
 
 sleep(1)
 ```
+
 ### re
 
 正则匹配字符串。正则的规则基本都是相同的。
@@ -562,6 +569,108 @@ with open('example.pkl', 'rb') as f:
 
 ### BeautifulSoup
 
+### pandas
+
+用法：先构造一个 DataFrame 类型的数据，然后对 DataFrame 进行各种操作，比如筛选、排序、分组、聚合等。然后可以生成 Excel 文件。
+
+```python
+import pandas as pd
+
+info = {
+  'name':["Eric","jack","Lily"], #// 每一列column
+  'gender':["M","M","F"],
+  'age':[32,44,18]
+}
+
+data = pd.DataFrame(info)
+print(data) # 类似excel的表格
+data.to_excel("./users.xlsx", index=False) # 生成Excel文件
+```
+
+爬取完整数据包括详情页电影简介：
+
+```python
+import requests
+from bs4 import BeautifulSoup as bs4
+import pandas as pd
+
+headers = {
+  "Referer":"https://ssr1.scrape.center/",
+  "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+}
+
+movie_info = {
+  "电影名称":[],
+  "电影类型":[],
+  "拍摄国家":[],
+  "上映时间":[],
+  "电影时长":[],
+  "电影评分":[],
+  "电影详情":[],
+}
+
+# 下载电影海报图片
+# url = "https://p1.meituan.net/movie/6bea9af4524dfbd0b668eaa7e187c3df767253.jpg@464w_644h_1e_1c"
+# response = requests.get(url, headers = headers)
+# with open("./bwbj.jpg", "wb") as img:
+#   img.write(response.content)
+
+
+for page in range(1, 11):
+  url = f"https://ssr1.scrape.center/page/{page}"
+  response = requests.get(url, headers= headers)
+  soup = bs4(response.text, "html.parser")
+  results = soup.find_all(name="div", class_="p-h el-col el-col-24 el-col-xs-9 el-col-sm-13 el-col-md-16")
+
+  for i in range(len(results)):
+    name =results[i].h2.text
+    movie_info["电影名称"].append(name)
+
+    # 电影类型
+    btns = results[i].find_all(name = "button", class_="el-button category el-button--primary el-button--mini")
+    movie_type = ""
+    for btn in btns:
+      movie_type+=btn.span.text + ","
+    movie_info["电影类型"].append(movie_type)
+
+    #电影时长和国家
+    infos = results[i].find_all(name="div", class_="m-v-sm info")
+
+    span_list = infos[0].find_all(name="span")
+    movie_info["拍摄国家"].append(span_list[0].text)
+    movie_info["电影时长"].append(span_list[2].text)
+
+    # 处理空值
+    span_list = infos[1].find_all(name="span")
+    if len(span_list)>0:
+      movie_info["上映时间"].append(span_list[0].text)
+    else:
+      movie_info["上映时间"].append('')
+
+    # 电影评分
+    score = soup.find_all(name="p", class_="score m-t-md m-b-n-sm")
+    movie_info["电影评分"].append(score[0].text.strip())
+
+    headers = {
+      "Referer":f"https://ssr1.scrape.center/page/{i}",
+      "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    }
+
+    # 获取detail path，拼接url
+    path = results[i].a['href']
+    url = f"https://ssr1.scrape.center{path}"  # 获取电影的详情简介
+
+    response = requests.get(url, headers= headers)
+    soup = bs4(response.text, "html.parser")
+    detail = soup.find_all(name="div", class_ ="drama")
+    movie_info["电影详情"].append(detail[0].p.text.strip())
+
+
+data = pd.DataFrame(movie_info)
+print(data) # 类似excel的表格
+data.to_excel("./users.xlsx", index=False) # 生成Excel文件：index=False不带序号
+```
+
 ### 下载视频
 
 ```python
@@ -656,6 +765,117 @@ logging.debug(form_data)
 3. `pytest my_funs.py`: 直接写测试用例，不需要额外单独执行
 4. `with pytest.raises(TypeError): xxx`: 输入参数类型错误的测试用例
 5. 直接创建`test`目录并在下面创建`__init__.py`空文件即可，可以一次性执行该目录下的所有测试文件
+
+## 爬虫
+
+### 基本概念
+
+访问网站获取网页数据，解析网页数据，提取有用信息，存储数据，为消费者提供数据接口。
+
+### Scrape
+
+[免费爬虫练习网站](https://scrape.center/)
+
+### 源
+
+`pip install abc -i https://pypi.org/simple`
+
+### 练习示例
+
+#### 爬取 Scrape 的电影信息页
+
+`url = "https:// ssr1.scrape.center/"`
+
+1. 首先要打开这个网址
+2. 查看网页的接口请求，找到具体的接口请求，找到具体的接口地址，例如：`https://ssr1.scrape.center/api/movie?start=0&limit=10`
+3. 使用 `requests` 库发送请求，获取网页数据
+4. 发送请求时可以模拟真实的请求头，比如添加 User-Agent 信息等
+5. 解析网页数据，提取有用信息
+6. 存储数据
+
+```python
+# 爬取10个电影信息
+import requests
+from bs4 import BeautifulSoup as bs4
+
+headers = {
+  "Referer":"https://ssr1.scrape.center/",
+  "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+}
+
+url1 = "https://p1.meituan.net/movie/6bea9af4524dfbd0b668eaa7e187c3df767253.jpg@464w_644h_1e_1c"
+
+# response = requests.get(url1, headers = headers)
+# with open("./bwbj.jpg", "wb") as img:
+#   img.write(response.content)
+
+url = "https://ssr1.scrape.center/"
+
+response = requests.get(url, headers= headers)
+
+soup = bs4(response.text, "html.parser")
+
+results = soup.find_all(name="div", class_="p-h el-col el-col-24 el-col-xs-9 el-col-sm-13 el-col-md-16")
+
+for result in results:
+  name =result.h2.text
+  print(f"电影名：{result.h2.text}") # 获取第一个电影的名称
+
+  btns = result.find_all(name = "button", class_="el-button category el-button--primary el-button--mini")
+  for btn in btns:
+    print(btn.span.text)
+
+  infos = result.find_all(name="div", class_="m-v-sm info")
+
+  for info in infos:
+    spans = info.find_all(name="span")
+    for span in spans:
+      if(span.text != ' / ' ):
+        print(span.text)
+
+  score = soup.find_all(name="p", class_="score m-t-md m-b-n-sm")
+  print(score[0].text.strip())
+  print("++++++++++++++分割线++++++++++++++")
+
+```
+
+分页：
+
+```python
+# ...
+for page in range(1,11):
+  url = f"https://ssr1.scrape.center/page/{page}"
+  response = requests.get(url, headers= headers)
+  soup = bs4(response.text, "html.parser")
+  results = soup.find_all(name="div", class_="p-h el-col el-col-24 el-col-xs-9 el-col-sm-13 el-col-md-16")
+
+  for result in results:
+    name =result.h2.text
+    print(f"电影名：{result.h2.text}") # 获取第一个电影的名称
+
+    btns = result.find_all(name = "button", class_="el-button category el-button--primary el-button--mini")
+    for btn in btns:
+      print(btn.span.text)
+
+    infos = result.find_all(name="div", class_="m-v-sm info")
+
+    for info in infos:
+      spans = info.find_all(name="span")
+      for span in spans:
+        if(span.text != ' / ' ):
+          print(span.text)
+
+    score = soup.find_all(name="p", class_="score m-t-md m-b-n-sm")
+    print(score[0].text.strip())
+    print("++++++++++++++分割线++++++++++++++")
+```
+
+请求详情页面：
+
+```python
+
+
+```
 
 ## 面向对象编程
 
