@@ -214,6 +214,62 @@ f`Hello ${a}!`;
 | 优点            | 简单易用                    | 检测引用类型                      | 基本能检测所有的类型（除 null 和 undefined） | 可以检测出所有类型                    |
 | 缺点            | 只能检测基本类型（除 null） | 只能检测引用类型，且不能跨 iframe | constructor 易被修改，也不能跨 iframe        | IE6 下，undefined 和 null 均为 Object |
 
+typeof 在判断 new 出来的类型时要特别注意：new Function()返回的不是 object 而是 function。
+
+```js
+// 原始类型
+typeof "hello"; // "string"
+typeof 123; // "number"
+typeof true; // "boolean"
+typeof undefined; // "undefined"
+typeof Symbol("id"); // "symbol"
+typeof 123n; // "bigint"
+
+// 包装类 -> 基本类型
+typeof Number("1"); // 'number'
+typeof String("world"); // "string"
+typeof Boolean(true); // "boolean"
+
+typeof Object(); // "object"
+typeof Array.from({ length: 1 }); // "object"
+
+// new
+typeof new Number("1"); // "object"
+typeof new String("world"); // "object"
+typeof new Boolean(true); // "object"
+typeof new Array(); // "object"
+typeof new Object(); // "object"
+typeof new RegExp(); // "object"
+typeof new Error(); // "object"
+typeof new Date(); // "object"
+
+// 容器类
+typeof new Set(); // "object"
+typeof new WeakSet(); // "object"
+typeof new Map(); // "object"
+typeof new WeakMap(); // "object"
+
+// 引用类型判断的局限性
+typeof []; // "object"
+typeof {}; // "object"
+typeof null; // "object" (这是一个历史遗留的bug)
+typeof /regex/; // "object"
+
+typeof function () {}; // "function"
+typeof new Function(); // "function"
+const a = () => {};
+typeof a; // "function"
+
+// 未定义的变量，typeof 不会抛出错误，而会返回 "undefined"
+typeof missingVar; // "undefined"
+
+typeof NaN; // "number"
+
+class MyClass {}
+const instance = new MyClass();
+typeof instance; // "object"
+```
+
 ### 模块化发展历程
 
 模块化主要是用来抽离公共代码，隔离作用域，避免变量冲突等。

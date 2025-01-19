@@ -308,20 +308,20 @@ const onChange = useCallback((id, value) => {
 
 ## setState()是异步还是同步？
 
-- 0. **setState 只在合成事件和钩子函数中是“异步”的，在原生事件、自定义 DOM 事件、setInterval、 setTimeout、promise.then 中都是同步的。**
-- 1. 不在 React 上线文中触发的 setState，都是同步更新的。
+- 0. **setState 只在合成事件和钩子函数中是“异步”的，在原生事件、自定义 DOM 事件、setInterval、setTimeout、promise.then 中都是同步的。**
+- 1. 不在 React 上下文中触发的 setState，都是同步更新的。
 - 2. setState 的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形成了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的 callback 拿到更新后的结果。
 - 3. setState 的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和 setTimeout 中因为是同步执行的，所以不会批量更新，在“异步”中如果对同一个值进行多次 setState，setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。**当 setState 传入的参数是函数的时候，就不会合并了**。
 - 4. useEffect hooks 中，useState 都是异步的。
 
-- 所以严格说是同步的代码, 毕竟都在一个 eventloop 里, 只不过 setstate 里的参数/回调被延迟执行到下面代码执行完才执行。
+- 所以严格说是同步的代码, 毕竟都在一个 eventloop 里, 只不过 setState 里的参数/回调被延迟执行到后面代码执行完才执行。
 
 - 在 setState 中, 会根据一个 isBatchingUpdates 判断是直接更新还是稍后更新, 它的默认值是 false. 但是 React 在调用事件处理函数之前会先调用 batchedUpdates 这个函数, batchedUpdates 函数 会将 isBatchingUpdates 设置为 true. 因此, 由 react 控制的事件处理过程, 就变成了异步(批量更新).
 
 ## 3 ways to cause an infinite loop in React
 
 - Updating the state inside the render. 比如：在 class 的 render()函数 或 函数组件的 return 之外。Fix: 使用 useEffect 包裹。
-- Infinite loop in useEffect. 比如：更新的 state 被放到依赖数组里。Fix: 使用 setSate(prev=>prev+1),即使用一个函数接收 prevState，然后进行更新。
+- Infinite loop in useEffect. 比如：更新的 state 被放到依赖数组里。Fix: 使用 setSate(prev=>prev+1)，即使用一个函数接收 prevState，然后进行更新。
 - Incorrectly set event handlers. 比如：新手常犯错误：onClick 事件应该接收一个闭包函数，而不是直接传入函数执行后的结果。
 
 ## 合成事件
@@ -396,9 +396,361 @@ function App() {
 }
 ```
 
+## keep-alive
+
+`keep-alive` 组件可以保留组件状态或避免重新渲染，在某些场景下可以提高组件的渲染性能。
+
+- 使用 React Router 和自定义缓存组件
+- 使用第三方库，如 react-keep-alive
+- 使用 Redux 或 Context API 来管理组件状态
+- 使用 display 或 visibility 实现组件显示和隐藏（最简单不推荐）
+
+0. 通过父组件实现状态管理和条件渲染
+
+```jsx
+import React, { useState } from "react";
+
+function ParentComponent() {
+  const [activeComponent, setActiveComponent] = useState("ComponentA");
+  // 缓存组件
+  const [cachedComponents, setCachedComponents] = useState({});
+
+  const renderComponent = (componentName) => {
+    if (!cachedComponents[componentName]) {
+      const NewComponent = componentName === "ComponentA" ? ComponentA : ComponentB;
+      setCachedComponents((prev) => ({ ...prev, [componentName]: <NewComponent /> }));
+    }
+    return cachedComponents[componentName];
+  };
+
+  return (
+    <div>
+      <button onClick={() => setActiveComponent("ComponentA")}>Show Component A</button>
+      <button onClick={() => setActiveComponent("ComponentB")}>Show Component B</button>
+      {renderComponent(activeComponent)}
+    </div>
+  );
+}
+
+const ComponentA = () => {
+  return <div>Component A</div>;
+};
+
+const ComponentB = () => {
+  return <div>Component B</div>;
+};
+```
+
+或创建一个自定义的缓存组件来保存组件的状态：
+
+```jsx
+import React, { useState } from "react";
+
+function KeepAlive({ children, componentName }) {
+  const [cache, setCache] = useState({});
+
+  if (!cache[componentName]) {
+    setCache((prev) => ({ ...prev, [componentName]: children }));
+  }
+
+  return cache[componentName];
+}
+
+function ParentComponent() {
+  const [activeComponent, setActiveComponent] = useState("ComponentA");
+
+  return (
+    <div>
+      <button onClick={() => setActiveComponent("ComponentA")}>Show Component A</button>
+      <button onClick={() => setActiveComponent("ComponentB")}>Show Component B</button>
+      <KeepAlive componentName={activeComponent}>
+        {activeComponent === "ComponentA" ? <ComponentA /> : <ComponentB />}
+      </KeepAlive>
+    </div>
+  );
+}
+
+const ComponentA = () => {
+  return <div>Component A</div>;
+};
+
+const ComponentB = () => {
+  return <div>Component B</div>;
+};
+```
+
+1. 高阶组件 HOC：
+
+```jsx
+import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+
+const withKeepAlive = (WrappedComponent) => {
+  return function KeepAliveComponent(props) {
+    const [isActive, setIsActive] = useState(true);
+    const containerRef = useRef(document.createElement('div'));
+    const rootRef = useRef(null); // 用于存储 React 18 的 createRoot
+    const componentRef = useRef(null); // 缓存组件的虚拟 DOM
+
+    // 初始化 DOM 容器
+    useEffect(() => {
+      document.body.appendChild(containerRef.current);
+      rootRef.current = ReactDOM.createRoot(containerRef.current);
+
+      // 初次渲染子组件，缓存实例
+      if (!componentRef.current) {
+        componentRef.current = <WrappedComponent {...props} />;
+        rootRef.current.render(componentRef.current);
+      }
+
+      return () => {
+        rootRef.current.unmount();
+        document.body.removeChild(containerRef.current);
+      };
+    }, []);
+
+    useEffect(() => {
+      if (isActive) {
+        // 激活组件时，显示容器
+        containerRef.current.style.display = 'block';
+      } else {
+        // 隐藏组件时，仅隐藏容器，但不卸载组件
+        containerRef.current.style.display = 'none';
+      }
+    }, [isActive]);
+
+    const toggleActive = () => {
+      setIsActive(!isActive);
+    };
+
+    return (
+      <div>
+        <button onClick={toggleActive}>
+          {isActive ? 'Deactivate' : 'Activate'}
+        </button>
+      </div>
+    );
+  };
+};
+
+export default withKeepAlive;
+
+// 使用
+import React from 'react';
+import withKeepAlive from './withKeepAlive';
+
+function ExampleComponent() {
+  const [count, setCount] = React.useState(0);
+
+  return (
+    <div>
+      <h1>计数器：{count}</h1>
+      <button onClick={() => setCount(count + 1)}>增加</button>
+    </div>
+  );
+}
+
+const KeepAliveExampleComponent = withKeepAlive(ExampleComponent);
+
+function App() {
+  return (
+    <div>
+      <KeepAliveExampleComponent />
+    </div>
+  );
+}
+
+export default App;
+```
+
+1. 自定义缓存组件
+
+```jsx
+import React, { useState, useEffect, useRef } from 'react';
+import { Route } from 'react-router-dom';
+
+const CacheRoute = ({ component: Component, ...rest }) => {
+  const [cached, setCached] = useState({});
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      setCached((prev) => ({
+        ...prev,
+        [rest.path]: ref.current.innerHTML,
+      }));
+    }
+  }, [rest.path]);
+
+  return (
+    <Route
+      {...rest}
+      render={(props) => (
+        <div ref={ref}>
+          {cached[rest.path] ? (
+            <div dangerouslySetInnerHTML={{ __html: cached[rest.path] }} />
+          ) : (
+            <Component {...props} />
+          )}
+        </div>
+      )}
+    />
+  );
+};
+
+export default CacheRoute;
+
+// 使用
+import React from 'react';
+import { BrowserRouter as Router, Switch } from 'react-router-dom';
+import CacheRoute from './CacheRoute';
+import Home from './Home';
+import About from './About';
+import Contact from './Contact';
+
+const App = () => {
+  return (
+    <Router>
+      <Switch>
+        <CacheRoute exact path="/" component={Home} />
+        <CacheRoute path="/about" component={About} />
+        <CacheRoute path="/contact" component={Contact} />
+      </Switch>
+    </Router>
+  );
+};
+
+export default App;
+```
+
+3. 使用第三方库 react-keep-alive
+
+```jsx
+import React from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { AliveScope, KeepAlive } from "react-keep-alive";
+import Home from "./Home";
+import About from "./About";
+import Contact from "./Contact";
+
+const App = () => {
+  return (
+    <Router>
+      <AliveScope>
+        <Switch>
+          <Route exact path="/">
+            <KeepAlive>
+              <Home />
+            </KeepAlive>
+          </Route>
+          <Route path="/about">
+            <KeepAlive>
+              <About />
+            </KeepAlive>
+          </Route>
+          <Route path="/contact">
+            <KeepAlive>
+              <Contact />
+            </KeepAlive>
+          </Route>
+        </Switch>
+      </AliveScope>
+    </Router>
+  );
+};
+
+export default App;
+```
+
+4. 使用 Redux 或 Context API 来管理组件状态
+
+```jsx
+import React, { createContext, useState, useContext } from 'react';
+
+const CacheContext = createContext();
+
+export const CacheProvider = ({ children }) => {
+  const [cache, setCache] = useState({});
+
+  const saveCache = (key, value) => {
+    setCache((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const getCache = (key) => cache[key];
+
+  return (
+    <CacheContext.Provider value={{ saveCache, getCache }}>
+      {children}
+    </CacheContext.Provider>
+  );
+};
+
+export const useCache = () => useContext(CacheContext);
+
+import React, { useEffect, useRef } from 'react';
+import { Route } from 'react-router-dom';
+import { useCache } from './CacheContext';
+
+const CacheRoute = ({ component: Component, ...rest }) => {
+  const { saveCache, getCache } = useCache();
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      saveCache(rest.path, ref.current.innerHTML);
+    }
+  }, [rest.path, saveCache]);
+
+  return (
+    <Route
+      {...rest}
+      render={(props) => (
+        <div ref={ref}>
+          {getCache(rest.path) ? (
+            <div dangerouslySetInnerHTML={{ __html: getCache(rest.path) }} />
+          ) : (
+            <Component {...props} />
+          )}
+        </div>
+      )}
+    />
+  );
+};
+
+export default CacheRoute;
+
+import React from 'react';
+import { BrowserRouter as Router, Switch } from 'react-router-dom';
+import { CacheProvider } from './CacheContext';
+import CacheRoute from './CacheRoute';
+import Home from './Home';
+import About from './About';
+import Contact from './Contact';
+
+const App = () => {
+  return (
+    <Router>
+      <CacheProvider>
+        <Switch>
+          <CacheRoute exact path="/" component={Home} />
+          <CacheRoute path="/about" component={About} />
+          <CacheRoute path="/contact" component={Contact} />
+        </Switch>
+      </CacheProvider>
+    </Router>
+  );
+};
+
+export default App;
+```
+
 ## React 常用方法及周边
 
 ![React 总结](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/react-zj.jpg)
+
+## ReactDOM.createPortal
+
+`ReactDOM.createPortal` 可以将子节点渲染到指定的 DOM 节点中。Portal 提供了一种将子节点渲染到存在于父组件以外的 DOM 节点的优秀的方案。
 
 ## React.createRef
 
@@ -703,7 +1055,7 @@ export default function Form() {
 
 1. 为了最大程度利用缓存，将页面入口(HTML)设置为协商缓存，将 JavaScript、CSS 等静态资源设置为永久强缓存。
 2. 为了解决强缓存更新问题，将文件摘要（hash）作为资源路径(URL)构成的一部分。
-3. 为了解决覆盖式发布引发的问题，采用 name-hash 而非 query-hash 的组织方式，具体需要配置 Wbpack 的 output.filename 为 contenthash 。
+3. 为了解决覆盖式发布引发的问题，采用 name-hash 而非 query-hash 的组织方式，具体需要配置 Webpack 的 output.filename 为 contenthash 。
 4. 为了解决 Nginx 目录存储过大 + 结合 CDN 提升访问速度，采用了 Nginx 反向代理+ 将静态资源上传到 CDN。
 5. 为了上传 CDN，我们需要按环境动态构造 publicPath + 按环境构造 CDN 上传目录并上传。
 6. 为了动态构造 publicPath 并且随构建过程插入到 HTML 中，采用 Webpack-HTML-Plugin 等插件，将编译好的带 hash + publicPath 的静态资源插入到 HTML 中。
@@ -723,7 +1075,7 @@ A：HTML 使用协商缓存，静态资源使用强缓存，使用 name-hash（�
 
 Q：配套的，前端静态资源应该如何组织？
 
-A：搭配 Webpack 的 Webpack_HTML-Plugin & 配置 output publicPath 等。
+A：搭配 Webpack 的 Webpack-HTML-Plugin & 配置 output publicPath 等。
 
 Q：配套的，自动化构建 & 部署过程如何与 CDN 结合？
 

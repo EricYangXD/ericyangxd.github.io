@@ -308,28 +308,160 @@ console.log(Object.values(myObject)); // ["John", 30]
 
 使用场景：在某些情况下，可能需要获取对象的可枚举属性或属性值。使用 Object.entries()和 Object.values()可以方便地实现这些功能。
 
-#### demo示例
+#### demo 示例
 
 1. TODO
 
 ### IntersectionObserver
 
-IntersectionObserver 可以用于检测元素是否进入视口，可以用于实现无限滚动、懒加载等功能。
+IntersectionObserver 是一种浏览器原生提供的 API，用于监听目标元素与其祖先元素（或视口）之间的交集变化。换句话说，它可以检测目标元素是否进入、离开或在特定区域中（如视口）可见，以及交集的比例。是异步的，不会阻塞主线程，性能远高于基于 scroll 事件的监听。可以精准控制监听的元素和范围，减少不必要的 DOM 操作。原本需要复杂逻辑的滚动监听，现在通过简单配置即可实现。
+
+相比以往使用 scroll 事件监听滚动位置的方式，IntersectionObserver 不仅性能更高，而且更加易用，能够显著减少 DOM 操作和性能瓶颈。
+
+可以用于实现无限滚动、懒加载图片、元素曝光统计、动画触发等功能。
+
+回调参数：IntersectionObserverEntry 对象包含目标元素的交集信息：
+
+- isIntersecting：布尔值，表示目标元素是否与根元素交叉。
+- intersectionRatio：目标元素的交集比例（0~1）。
+- target：被观察的目标元素。
+- intersectionRect：交集区域的矩形信息。
+- boundingClientRect：目标元素的边界矩形。
+- rootBounds：根元素的矩形边界。
 
 ```js
-const myObserver = new IntersectionObserver((entries, observer) => {
+const myObserver = new IntersectionObserver(
+  (entries, observer) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        console.log(`${entry.target.id} is now visible`);
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  {
+    root: null, // 默认是视口
+    rootMargin: "0px", // 根元素的外边距
+    threshold: 0.5, // 目标元素可见比例达到 50% 时触发回调
+  }
+);
+const myElement = document.getElementById("myElement");
+// 开始观察
+myObserver.observe(myElement);
+// 停止观察
+myObserver.unobserve(target);
+// 断开所有监听
+myObserver.disconnect();
+```
+
+使用场景：在 Web 应用中，可能需要实现无限滚动、懒加载等功能，使用 IntersectionObserver 可以方便地实现这些功能。![demo](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501150934430.png)
+
+#### 图片懒加载
+
+```js
+// <img data-src="example.jpg" class="lazyload" alt="Lazy Load Example" />
+// <img data-src="example2.jpg" class="lazyload" alt="Lazy Load Example 2" />
+
+// 获取所有需要懒加载的图片
+const images = document.querySelectorAll(".lazyload");
+
+// 创建观察器实例
+const observer = new IntersectionObserver((entries, observer) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
-      console.log(`${entry.target.id} is now visible`);
-      observer.unobserve(entry.target);
+      const img = entry.target;
+      img.src = img.dataset.src; // 将 data-src 替换为 src
+      observer.unobserve(img); // 停止观察已加载的图片
     }
   });
 });
-const myElement = document.getElementById("myElement");
-myObserver.observe(myElement);
+
+// 开始观察每张图片
+images.forEach((img) => observer.observe(img));
 ```
 
-使用场景：在 Web 应用中，可能需要实现无限滚动、懒加载等功能，使用 IntersectionObserver 可以方便地实现这些功能。
+#### 无限滚动
+
+```js
+// <div id="container">
+//   <div class="item">Item 1</div>
+//   <div class="item">Item 2</div>
+//   <div class="item">Item 3</div>
+//   <div id="sentinel">Loading...</div>
+// </div>
+
+const sentinel = document.getElementById("sentinel");
+const container = document.getElementById("container");
+let itemCount = 3;
+
+// 创建观察器
+const observer = new IntersectionObserver((entries, observer) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      loadMore();
+    }
+  });
+});
+
+observer.observe(sentinel);
+
+// 模拟加载更多数据
+function loadMore() {
+  observer.unobserve(sentinel); // 暂时停止观察，避免重复触发
+  for (let i = 0; i < 5; i++) {
+    const newItem = document.createElement("div");
+    newItem.className = "item";
+    newItem.textContent = `Item ${++itemCount}`;
+    container.insertBefore(newItem, sentinel);
+  }
+  observer.observe(sentinel); // 重新开始观察
+}
+```
+
+### MutationObserver
+
+一种高级的浏览器 API，用于监听 DOM 的变化。它可以检测 DOM 结构中的以下变化：
+
+- 节点的添加和移除。
+- 节点属性的更改。
+- 文本内容的更改。
+
+使用场景：
+
+- 在动态生成的内容中，比如前端框架中有异步加载的内容，MutationObserver 可以用来监听 DOM 的添加或移除。
+- 可以监听某个 DOM 元素属性的变化，比如 class 或 style。
+- 可以监听节点中的文本内容变化，比如输入框中的内容是否被程序动态修改。
+- 监听动态组件加载：在单页面应用（SPA）中，组件通常是动态渲染的，需要在组件被添加到 DOM 中后执行某些操作（比如初始化插件）。
+- 深度监听嵌套结构：如果需要监听目标节点及其所有后代节点的变化，可以使用 subtree: true。
+
+```js
+const observer = new MutationObserver((mutationsList, observer) => {
+  // 遍历所有检测到的变动
+  mutationsList.forEach((mutation) => {
+    console.log(mutation);
+  });
+});
+
+// 目标节点
+const targetNode = document.getElementById("target");
+
+// 配置选项
+const config = {
+  attributes: true, // 监听属性值的变化
+  attributeOldValue: true, // 是否记录属性变化前的值（需要 attributes: true）
+  childList: true, // 监听子节点的添加或删除
+  subtree: true, // 监听后代节点的变化
+  characterData: true, // 是否监听文本节点内容的变化
+  characterDataOldValue: true, // 是否记录文本变化前的值（需要 characterData: true）
+  attributeFilter: [], // 指定需要监听的属性名称列表（如 ['class', 'id']）
+};
+
+// 开始监听
+observer.observe(targetNode, config);
+
+// 停止监听（可选）
+observer.disconnect();
+```
 
 ### Symbol
 
@@ -581,7 +713,7 @@ fileInput.addEventListener("change", (event) => {
 
 ### flatMap
 
-数组方法 `flatMap()` 本质上是 `map()`和 `flat()` 的组合，区别在于 flatMap 只能扁平 1 级，flat 可以指定需要扁平的级数，flatmap 比分别调用这两个方法稍微高效一些。
+数组方法 `flatMap()` 本质上是 `map()`和 `flat()` 的组合，区别在于 flatMap 只能扁平 1 级，flat 可以指定需要扁平的级数，使用 Infinity 可以展开任意深度的嵌套数组。flatmap 比分别调用这两个方法稍微高效一些。
 
 ### console
 
@@ -696,41 +828,44 @@ globalThis 对象提供了一种在不同环境下（包括浏览器和 Node.js�
 console.log(globalThis === window); // 在浏览器场景下: true
 console.log(globalThis === global); // 在 Node.js 中: outputs: true
 ```
+
 ### clipborad
 
 在 JavaScript 中，操作剪贴板的功能主要依赖于 Clipboard API 和一些 DOM 方法。以下是关于如何使用这些 API 进行剪贴板操作的详细介绍，包括复制和粘贴文本的示例。
 
-
 1. 使用 `navigator.clipboard.writeText()` 方法可以将文本复制到剪贴板。
+
 ```js
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text)
-        .then(() => {
-            console.log('文本已复制到剪贴板：', text);
-        })
-        .catch(err => {
-            console.error('复制失败：', err);
-        });
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      console.log("文本已复制到剪贴板：", text);
+    })
+    .catch((err) => {
+      console.error("复制失败：", err);
+    });
 }
 
 // 使用示例
-copyToClipboard('Hello, World!');
+copyToClipboard("Hello, World!");
 ```
 
 2. 从剪贴板粘贴文本
-使用 `navigator.clipboard.readText()` 方法可以从剪贴板读取文本。
+   使用 `navigator.clipboard.readText()` 方法可以从剪贴板读取文本。
 
 ```js
 function pasteFromClipboard() {
-    navigator.clipboard.readText()
-        .then(text => {
-            console.log('从剪贴板中读取到的文本：', text);
-            // 你可以将读取到的文本插入到页面中
-            document.getElementById('output').innerText = text;
-        })
-        .catch(err => {
-            console.error('读取剪贴板内容失败：', err);
-        });
+  navigator.clipboard
+    .readText()
+    .then((text) => {
+      console.log("从剪贴板中读取到的文本：", text);
+      // 你可以将读取到的文本插入到页面中
+      document.getElementById("output").innerText = text;
+    })
+    .catch((err) => {
+      console.error("读取剪贴板内容失败：", err);
+    });
 }
 
 // 使用示例

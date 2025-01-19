@@ -99,3 +99,38 @@ app.get("/sse", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+//==============================================================================
+
+// 使用http创建server
+const http = require("http");
+
+http
+  .createServer((req, res) => {
+    if (req.url === "/events") {
+      // 设置 SSE 响应头
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      });
+
+      // 定时向客户端发送消息
+      const intervalId = setInterval(() => {
+        const message = `data: ${new Date().toISOString()}\n\n`; // 格式: data: <数据内容>\n\n
+        res.write(message); // 发送数据到客户端
+      }, 2000);
+
+      // 在客户端断开连接时清除定时器
+      req.on("close", () => {
+        clearInterval(intervalId);
+        res.end();
+      });
+    } else {
+      res.writeHead(404);
+      res.end("Not Found");
+    }
+  })
+  .listen(5000, () => {
+    console.log("SSE server running at http://localhost:5000/events");
+  });

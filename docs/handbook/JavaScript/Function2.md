@@ -244,13 +244,26 @@ rmb.forEach((value) => {
 
 ### js 替代 eval 方法
 
-项目中遇到需要支持用户输入 js 并加以解析的场景。eval() 本身不太好，所以查找了下其他实现：
+项目中遇到需要支持用户输入 js 并加以解析的场景。eval() 本身不太好，会在当前作用域中运行代码。由于其权限较大，可以访问上下文中的所有变量，这可能会引入安全风险。eval 会对传入的字符串进行解析和执行，是一种直接的语法操作，对性能有一定影响。
+
+new Function 创建的函数是在全局作用域中执行的，无法直接访问当前作用域的变量（除非通过显式传递参数）。这样可以一定程度上避免安全风险。new Function 会创建一个新的全局函数，性能通常比 eval 略好。依然可能执行恶意代码。
+
+所以查找了下其他实现：
 
 ```js
 function new_eval(str) {
   var fn = Function;
   return new fn("return " + str)();
 }
+console.log(new_eval("2 + 5")); // 输出: 7
+
+function new_eval_with_scope(str, context) {
+  return new Function("context", "with(context) { return " + str + " }")(context);
+}
+var a = 10;
+console.log(new_eval_with_scope("a + 5", { a })); // 输出: 15
+
+new_eval("alert('Hacked!')"); // 执行恶意代码
 ```
 
 ### 解析 16 进制序列为 UTF-8 字符

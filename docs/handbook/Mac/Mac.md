@@ -269,7 +269,7 @@ Quit and restart AppStore, then find XCode. The button should now say "Free" or 
 
 - 先`sudo spctl --master-disable`，然后`sudo xattr -r -d com.apple.quarantine ./路径/app名`，如果不好打印可以在仿达里找到拖到命令行里。
 
-### Big Sur打开应用提示，您没有权限来打开应用程序
+### Big Sur 打开应用提示，您没有权限来打开应用程序
 
 1. `codesign --force --deep --sign - /Applications/Sketch.app` -- ok
 2. `brew install upx` + `upx -d /Applications/Sketch.app` -- TBD
@@ -532,3 +532,11 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 1. `compinit:503: no such file or directory: /usr/local/share/zsh/site-functions/_brew_cask`
    - `brew cleanup`:有可能是 brew 缓存记录导致的
    - `brew doctor && brew cleanup && source ~/.zshrc`
+
+### 安装受信任的证书
+
+可以使用以下命令通过 CLI 安装受信任的证书：
+
+`security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain-db your-cert.cer`
+
+或者，通过将其导入 Keychain Access 应用程序并将您的证书的信任更新为“始终信任”。

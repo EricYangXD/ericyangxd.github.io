@@ -1934,10 +1934,35 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
 
 #### setState 是宏任务还是微任务
 
-1. setState 本质是同步执行，state 都是同步更新，只不过让 React 做成了异步的样子。比如在 setTimeout 中时，就是同步，比如在 Promise.then 开始之前，state 已经计算完了。
-2. 因为要考虑性能优化，多次修改 state，只进行一次 DOM 渲染。
-3. 日常说的异步是不严谨的，但沟通成本低。
-4. 所以，既不是宏任务也不是微任务，因为它是同步的。
+1. setState 本质是同步执行，state 都是同步更新，只不过让 React 做成了异步的样子--为了性能优化，会批量处理多次状态更新，合并状态变化，在批量更新结束后，React 会根据最终的状态触发一次重新渲染，React 根据更新后的状态和虚拟 DOM 计算出需要更新的部分，并重新渲染组件。
+2. 比如在 setTimeout 中时，就是同步，比如在 Promise.then 开始之前，state 已经计算完了。
+3. 因为要考虑性能优化，多次修改 state，只进行一次 DOM 渲染。
+4. 日常说的异步是不严谨的，但沟通成本低。
+5. 所以，既不是宏任务也不是微任务，因为它是同步的。
+
+React 的 合成事件 和 生命周期 默认启用了批处理机制。
+在这种情况下，setState 不会立即更新，而是将更新加入到一个队列中，待所有事件回调或生命周期方法执行完后才开始处理。
+这种延迟更新可以理解为 任务被加入到下一轮的任务队列中，但它既不是纯粹的宏任务，也不是纯粹的微任务，而是由 React 内部调度机制控制的。
+
+因此：在 React 内部合成事件和生命周期方法中，setState 的更新并不会立即生效，而是会被批量处理。它的行为更类似于 宏任务，因为它通常会在事件循环的下一阶段触发更新，但由 React 内部控制。
+
+在原生事件或异步回调中，如果在 原生事件 或 Promise.then 中调用 setState，React 的批处理机制不会生效，状态更新可能会立即触发，视具体场景而定。在这种情况下，setState 的行为更接近微任务。
+
+不要依赖 setState 后立即获取更新后的状态值，使用 useEffect 或回调函数（如 setState((prevState) => newState)）。理解 React 的批量更新机制，避免不必要的状态更新。
+
+```js
+// 原生事件中
+document.getElementById("btn").addEventListener("click", () => {
+  setState({ count: count + 1 });
+  console.log(state.count); // 可能会立即更新
+});
+
+// Promise.then 中
+Promise.resolve().then(() => {
+  setState({ count: count + 1 });
+  console.log(state.count); // 可能会更新
+});
+```
 
 #### 闭包的优缺点
 
@@ -2020,23 +2045,218 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
     2. 持续跟进统计结果，再逐步分析性能瓶颈，持续优化；
     3. 可以使用第三方统计服务，如阿里云 ARMS，百度统计等；
 
-#### typeof
+#### 大文件上传
 
+![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171257810.png)
 
-#### 中断for循环
+![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171301880.png)
+
+1. 采用分片上传，将大文件分割成多个小文件，并发上传。
+2. 采用断点续传，记录已上传的分片，下次上传时跳过已上传的分片。
+3. 采用多线程上传，充分利用多核 CPU 资源。
+4. 采用队列管理，控制并发上传数量，避免占用过多带宽。
+5. 采用服务端合并，将分片上传的结果进行合并，实现完整的文件上传。
+
+![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171301005.png)
+
+#### 如何实现一个 Promise
+
+```js
+class MyPromise {
+  constructor(executor) {
+    this.status = "pending";
+    this.value = undefined;
+    this.reason = undefined;
+    this.onFulfilledCallbacks = [];
+    this.onRejectedCallbacks = [];
+
+    const resolve = (value) => {
+      if (this.status === "pending") {
+        this.status = "fulfilled";
+        this.value = value;
+        this.onFulfilledCallbacks.forEach((cb) => cb(value));
+      }
+    };
+
+    const reject = (reason) => {
+      if (this.status === "pending") {
+        this.status = "rejected";
+        this.reason = reason;
+        this.onRejectedCallbacks.forEach((cb) => cb(reason));
+      }
+    };
+
+    try {
+      executor(resolve, reject);
+    } catch (error) {
+      reject(error);
+    }
+  }
+
+  then(onFulfilled, onRejected) {
+    const promise2 = new MyPromise((resolve, reject) => {
+      if (this.status === "fulfilled") {
+        setTimeout(() => {
+          try {
+            const x = onFulfilled(this.value);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        });
+      } else if (this.status === "rejected") {
+        setTimeout(() => {
+          try {
+            const x = onRejected(this.reason);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        });
+      } else if (this.status === "pending") {
+        this.onFulfilledCallbacks.push(() => {
+          setTimeout(() => {
+            try {
+              const x = onFulfilled(this.value);
+              resolvePromise(promise2, x, resolve, reject);
+            } catch (error) {
+              reject(error);
+            }
+          });
+        });
+        this.onRejectedCallbacks.push(() => {
+          setTimeout(() => {
+            try {
+              const x = onRejected(this.reason);
+              resolvePromise(promise2, x, resolve, reject);
+            } catch (error) {
+              reject(error);
+            }
+          });
+        });
+      }
+    });
+    return promise2;
+  }
+
+  catch(onRejected) {
+    return this.then(null, onRejected);
+  }
+}
+
+function resolvePromise(promise2, x, resolve, reject) {
+  if (promise2 === x) {
+    reject(new TypeError("Chaining cycle detected"));
+  } else if (x instanceof MyPromise) {
+    if (x.status === "pending") {
+      x.then(
+        (value) => resolvePromise(promise2, value, resolve, reject),
+        (reason) => reject(reason)
+      );
+    } else {
+      x.then(resolve, reject);
+    }
+  } else {
+    resolve(x);
+  }
+}
+
+const p = new MyPromise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("success");
+  }, 1000);
+});
+
+p.then((value) => {
+  console.log(value);
+}).catch((reason) => {
+  console.log(reason);
+});
+```
+
+#### 中断 for 循环
 
 1. break 是最直接、常规的中断循环的方式。
-2. 在函数中：可以使用 return。注意：return 只能在函数内部使用。直接在浏览器里跑for循环会报错。
+2. 在函数中：可以使用 return。注意：return 只能在函数内部使用。直接在浏览器里跑 for 循环会报错。
 3. 嵌套循环：可以使用 label 和 break。
-4. 替代方式：修改循环条件。比如把i加到最大。
+4. 替代方式：修改循环条件。比如把 i 加到最大。
 5. 不推荐：抛出异常。
 
-拓展：js中常见循环的中断方式：
-1. forEach：
-2. map：
-3. reduce：
-4.
+拓展：js 中常见循环的中断方式：
 
+1. forEach：是数组方法，用于遍历数组的每一项，无法通过 break 或 continue 中断。中断方式：抛出异常；return 不会中断整个循环，只是跳过当前回调函数的执行。
+2. map：是数组方法，适用于对数组的每一项进行转换并生成新的数组。无法中断循环，但可以通过 return 提前返回当前项的处理结果或者抛出异常。
+3. reduce：用于将数组的每一项折叠为单一值，无法中断，但可以通过逻辑控制提前退出计算 - 提前 return。
+4. filter：用于筛选数组项，无法中断循环，但可以通过条件控制跳过某些项的逻辑处理。
+5. for...of：遍历可迭代对象（如数组、Set、Map 等）。可以使用 break、continue 和 return 来中断循环。break：终止整个循环；continue：跳过当前循环，继续下一次迭代；return：如果在函数体内，终止整个函数。
+6. for...in：用于遍历对象的可枚举属性（常用于对象，而非数组）。可以使用 break 和 continue 来控制循环。
+7. while：是标准的循环结构，可以使用 break、continue 和修改循环条件、抛出异常 来中断。
+8. do...while： 类似于 while，但会确保代码至少执行一次。可以使用 break 和 continue、抛出异常 来中断。break：终止整个循环；continue：跳过当前循环并检查条件；注意：在 do...while 中，continue 可能会导致死循环，建议谨慎使用。
+9. for：break、return、label、修改循环条件、抛出异常。
+
+```js
+// 执行如下代码，输出：0 1 2 之后卡死。
+let i = 0;
+do {
+  if (i === 3) continue; // 跳过当前循环
+  console.log(i); // 输出会有问题，注意陷阱
+  i++;
+} while (i < 5);
+```
+
+#### 前端实现截图
+
+两种情况：
+
+- 对浏览器网页页面的截图。
+- 仅对 canvas 画布的截图，比如可视化图表、webGL 等。
+
+实现方式：
+
+1. 第三方库：html2canvas(Canvas)、dom-to-image(SVG) - 两种方案目标相同，即把 DOM 转为图片
+2. 对 canvas 画布截图，因为 canvas 它本身就有保存为图片的功能，它有两个 API 可以用来导出图片，分别是 toDataURL 和 toBlob。toDataURL 方法是将整个画布转换成 base64 格式的 url 地址，toBlob 方法是创造 Blob 对象，默认图片类型是 image/png。
+3. 浏览器原生截图 API：`navigator.mediaDevices.getUserMedia/getDisplayMedia`，可以获取到屏幕的视频流，然后通过视频流生成截图。需要权限。
+
+```js
+const a = async () => {
+  try {
+    // 调用屏幕捕获 API
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { mediaSource: "screen" },
+    });
+
+    const track = stream.getVideoTracks()[0];
+    const imageCapture = new ImageCapture(track);
+
+    // 捕获屏幕截图
+    const bitmap = await imageCapture.grabFrame();
+
+    // 绘制到 Canvas
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
+
+    // 导出为图片
+    const imgData = canvas.toDataURL("image/png");
+    console.log(imgData);
+
+    // 停止捕获屏幕
+    track.stop();
+
+    // 如果需要下载图片
+    const link = document.createElement("a");
+    link.href = imgData;
+    link.download = "screenshot.png";
+    link.click();
+  } catch (err) {
+    console.error("屏幕捕获失败：", err);
+  }
+};
+
+a();
+```
 
 ## 数组和链表
 
@@ -2056,7 +2276,7 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
 | 空间   | 数组的存储空间是栈上分配的，存储密度大，当要求存储的大小变化不大时，且可以事先确定大小，宜采用数组存储数据 | 链表的存储空间是堆上动态申请的，当要求存储的长度变化较大时，且事先无法估量数据规模，宜采用链表存储 |
 | 时间   | 数组访问效率高。当线性表的操作主要是进行查找，很少插入和删除时，宜采用数组结构                             | 链表插入、删除效率高，当线性表要求频繁插入和删除时，宜采用链表结构                                 |
 
-### 操作系统中进程间通信IPC
+### 操作系统中进程间通信 IPC
 
 进程（Process）是计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位，是操作系统结构的基础。第一，进程是一个实体。每一个进程都有它自己的地址空间；第二，进程是一个“执行中的程序”。
 
@@ -2154,7 +2374,8 @@ input_dom.addEventListener("compositionend", onCompositionEnd);
    6. 组件库按需加载
    7. 延迟加载第三方包
    8. 升级 webpack 版本
-   9. 小包替打包，手写替小包
+   9. 小包替大包，手写替小包
+   10. webpack.externals 配置第三方库不参与打包，而是在 html 中通过 script 标签直接引入公共 CDN
 2. 减少网络消耗/合理利用网络请求
    1. 资源合并
    2. 图片做雪碧图/iconfont/base64
@@ -2452,9 +2673,231 @@ function add(num1, num2) {
 }
 ```
 
+## 运算符优先级
+
+![运算符优先级](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501191802077.png)
+
+[MDN-运算符优先级](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Operator_precedence)
+
+## 数组扁平化
+
+即把数组从多维的展成一维的。大概有如下几种方法：
+
+- 使用 `Array.prototype.flat()`：`arr.flat(Infinity)`使用 Infinity 可以展开任意深度的嵌套数组。
+- 递归方法，对于大型数组或深层嵌套，可能导致栈溢出。
+- 使用 reduce 方法
+- 使用扩展运算符
+
+代码示例：
+
+```js
+const arr = [1, [2, [3, 4], 5], 6, [7, 8]];
+console.log(arr.flat(Infinity)); // [1, 2, 3, 4, 5, 6, 7, 8]
+
+function flattenArray(arr) {
+  let result = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (Array.isArray(arr[i])) {
+      result = result.concat(flattenArray(arr[i]));
+    } else {
+      result.push(arr[i]);
+    }
+  }
+  return result;
+}
+const arr = [1, [2, [3, 4], 5], 6, [7, 8]];
+console.log(flattenArray(arr)); // [1, 2, 3, 4, 5, 6, 7, 8]
+
+function flattenArray(arr) {
+  return arr.reduce((acc, val) => (Array.isArray(val) ? acc.concat(flattenArray(val)) : acc.concat(val)), []);
+}
+const arr = [1, [2, [3, 4], 5], 6, [7, 8]];
+console.log(flattenArray(arr)); // [1, 2, 3, 4, 5, 6, 7, 8]
+
+function flattenArray(arr) {
+  while (arr.some((item) => Array.isArray(item))) {
+    arr = [].concat(...arr);
+  }
+  return arr;
+}
+const arr = [1, [2, [3, 4], 5], 6, [7, 8]];
+console.log(flattenArray(arr)); // [1, 2, 3, 4, 5, 6, 7, 8]
+```
+
 ## jsbridge 通信失败怎么处理
 
+1. 错误检测和日志记录:首先，实现一个全面的错误检测和日志记录机制
+2. 重试机制:对于一些非关键操作，可以实现自动重试机制
+3. 降级策略:当 JSBridge 完全不可用时，实现降级策略
+4. 版本检查:确保 Web 端和 App 端的 JSBridge 版本兼容
+5. 超时处理:为 JSBridge 调用添加超时处理
+6. 健康检查/网络检查:定期进行 JSBridge 健康检查
+7. 用户反馈:当遇到持续的 JSBridge 问题时，提供用户反馈机制
+
 ## h5 怎么调用 native 的方法
+
+## v-if 和 v-show 的区别
+
+- v-if：条件判断，当条件为 true 时，渲染组件；当条件为 false 时，组件根节点会被销毁，不再渲染。v-show：条件展示，当条件为 true 时，渲染组件；当条件为 false 时，组件根节点仍然存在，只是 display:none。
+- v-if 的开销较大，因为它涉及到组件的销毁和重建；v-show 的开销较小，因为它只是简单地切换 CSS 属性。
+- v-if 有更高的切换开销，因为它需要同时把旧的组件实例销毁（回收内存）和新的组件实例创建（渲染）；v-show 有更高的初始渲染开销，因为它需要初始渲染时就渲染组件，没有切换过程。
+- v-if 适用于运行时条件，v-show 适用于初始渲染条件。
+- v-if 惰性渲染，性能开销大，适合条件切换较少的场景。v-show 通过样式控制显示，性能开销小，适合频繁切换的场景。
+- v-if：会触发组件的生命周期钩子（如 created、mounted 等）。v-show：不会触发组件的生命周期钩子。
+- v-if：可以和 v-else、v-else-if 配合使用。v-show：不能和 v-else 等指令配合使用。
+- v-show: 条件切换频率较高。页面初次加载时，内容需要渲染出来，但可以通过样式快速切换来控制显示。
+- v-if: 如果涉及敏感信息或需要严格控制渲染。条件切换较少。页面初次加载时，需要根据条件决定是否渲染内容，条件为 true 时才渲染。隐藏的内容较多，或者需要动态销毁和重新创建的场景。
+
+| 特性     | v-if                           | v-show                        |
+| -------- | ------------------------------ | ----------------------------- |
+| 机制     | 添加或移除 DOM 元素            | 修改元素的 display 样式       |
+| 初始渲染 | 条件为 true 时才渲染           | 无论条件如何，都会渲染一次    |
+| 切换性能 | 切换成本高，适合条件变化不频繁 | 切换成本低，适合频繁显示/隐藏 |
+| DOM 占用 | 条件为 false 时，不存在于 DOM  | 始终存在于 DOM 中             |
+
+## 合成事件和原生事件
+
+1. 原生事件是浏览器提供的 DOM 事件，直接绑定在真实的 DOM 节点上。例如，常见的原生事件有 click、mousemove、keydown 等。这些事件是由浏览器引擎直接触发和管理的。
+2. 合成事件是 React 提供的一种跨浏览器的事件封装。React 的合成事件系统是为了提供一致的接口，保证在不同浏览器中具有相同的行为，并且能够更高效地管理事件。React 中的事件处理函数接收到的事件对象是 SyntheticEvent，而不是原生的 DOM 事件对象。
+3. 合成事件：通过事件委托和池化机制提高性能，减少内存分配和垃圾回收。原生事件：直接绑定在 DOM 上，无法享受 React 的优化。
+4. 合成事件：默认绑定在组件的根节点，通过事件委托机制进行处理。原生事件：可以直接绑定在具体的 DOM 节点上。
+
+合成事件的特点：
+
+- 跨浏览器兼容性：合成事件屏蔽了浏览器之间的兼容性问题，提供了一致的 API。
+- 事件池化：React 对合成事件进行了池化，这意味着在事件回调函数中不能异步访问事件对象，因为事件对象会被重用以提高性能。在异步操作中，需要调用事件对象的 persist() 方法来保持事件的引用。
+- 与原生事件的交互：合成事件在事件冒泡阶段被处理，通常绑定在组件的根节点上，而不是直接绑定在 DOM 节点上。
+
+```jsx
+import React from "react";
+
+function Example() {
+  // 合成事件
+  const handleClick = (e) => {
+    console.log("合成事件:", e);
+    console.log("合成事件类型:", e.type);
+
+    // 保留事件对象以供异步使用
+    e.persist();
+    setTimeout(() => {
+      console.log("异步访问事件对象:", e.type);
+    }, 1000);
+  };
+
+  // 原生事件
+  const divRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleNativeClick = (e) => {
+      console.log("原生事件:", e);
+    };
+
+    const currentDiv = divRef.current;
+    currentDiv.addEventListener("click", handleNativeClick);
+
+    // 清除原生事件监听器
+    return () => {
+      currentDiv.removeEventListener("click", handleNativeClick);
+    };
+  }, []);
+
+  return (
+    <div ref={divRef} onClick={handleClick}>
+      点击我
+    </div>
+  );
+}
+
+export default Example;
+```
+
+## React 中定义一个变量，不使用 state 怎么更新它？
+
+在 React 中，如果一个变量的变化不需要触发组件重新渲染，可以使用 useRef 来保持其值。useRef 可以在组件的生命周期内保持不变且不会引起重渲染。
+
+```jsx
+import React, { useRef } from "react";
+
+function ExampleComponent() {
+  const countRef = useRef(0);
+
+  const increment = () => {
+    countRef.current += 1;
+    console.log(countRef.current);
+  };
+
+  return <button onClick={increment}>Increase</button>;
+}
+```
+
+## 前端如何优雅通知用户刷新页面
+
+这里说的是用户不会主动刷新页面的情况，比如代码更新了，需要主动弹窗等方式通知用户刷新页面。
+
+1. 前端起一个定时器 setInterval 轮询后端服务器，对比 etag 是否变化，如果变化，则刷新页面。
+2. 每次上线，后端加一下自定义响应字段`add_header X-App-Version "1.0.0"`，然后前端每次请求都会带上，如果某次带的和返回的不一致就是有更新，提示用户刷新。
+3. websocket 或者 EventSource（SSE），服务端推送版本变化情况，前端监听结果并根据结果刷新页面。
+4. 使用 Service Worker，监听更新事件，当检测到新版本时，提示用户刷新页面。
+
+## 实现一个支持链式调用的函数
+
+1. 利用 Proxy 的特性，拦截函数调用，返回一个新的函数，该函数在调用时会更新变量的值。
+
+```js
+function chain(value) {
+  const handler = {
+    get: function (obj, prop) {
+      if (prop === "end") {
+        return obj.value;
+      }
+      if (typeof window[prop] === "function") {
+        obj.value = window[prop](obj.value);
+        return proxy;
+      }
+      return obj[prop];
+    },
+  };
+
+  const proxy = new Proxy({ value }, handler);
+  return proxy;
+}
+
+function plusOne(a) {
+  return a + 1;
+}
+function double(a) {
+  return a * 2;
+}
+function minusOne(a) {
+  return a - 1;
+}
+
+console.log(chain(1).plusOne.double.minusOne.end); // 3
+```
+
+## 动态执行函数
+
+1. eval(str) -> 同步代码
+2. setTimeout(str, 0) -> 宏任务
+3. (new Function(arg1, arg2, str))() -> 同步代码
+4. `<script>`标签 -> 在浏览器的 JavaScript 环境中，`<script>` 标签中的代码是在宏任务（macro task）中执行的。`script.textContent = str; document.body.appendChils(script);`
+
+## 静态属性与动态属性
+
+1. 静态属性：
+   - 静态属性是定义在类或对象的构造函数上，属性名是硬编码，且在编写时就已知，可以通过类名或对象名直接访问。
+   - 可以直接通过`.`点符号访问
+   - 不能使用数字、变量作为属性名
+2. 动态属性：
+   - 可以通过方括号访问但不能通过`.`点符号访问
+   - 可以在运行时计算得出，可以使用数字、变量、字符串字面量、表达式作为属性名
+
+## 函数的 name 是不可被修改的
+
+## ==/===/Object.is()的区别
+
+1. `==`会进行隐式类型转换。
+2. `===`/`Object.is()`不会进行类型转换，`===` 会比较值和类型，`Object.is()` 也会比较值和类型，但 `NaN === NaN` 为 false，而 `Object.is(NaN, NaN)` 为 true。`+0===-0` 是 true，而 `Object.is(+0, -0)` 为 false。
 
 ## 页面多图片加载优化
 
@@ -2838,4 +3281,3 @@ img.src = "https://fakeimg.pl/100x200";
   // document.body.appendChild(dom);
 </script>
 ```
-

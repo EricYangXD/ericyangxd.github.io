@@ -223,7 +223,7 @@ function corsEnabled(url) {
 
 ## 数组乱序 Fisher–Yates
 
-原理：遍历数组元素，吧当前元素与之后的随机位置的元素交换位置。
+原理：遍历数组元素，把当前元素与之后的随机位置的元素交换位置。
 
 缺陷：理论上会有可能 shuffle 结果和原数组相同的情况。
 
@@ -832,14 +832,16 @@ for (let key in obj) {
 
 ### 深拷贝
 
-1. 「深」拷贝：`JSON.parse(JSON.stringify(arr));`--不能拷贝函数，且会丢失为 undefined 的属性。不能用于复制用户定义的对象方法。
+0. 现代 JavaScript 的结构化克隆（Structured Clone）:从现代浏览器开始，structuredClone 是一种内置的深拷贝工具。它支持拷贝复杂的数据结构。支持 Date、Map、Set、循环引用等。
+
+1. 「深」拷贝：`JSON.parse(JSON.stringify(arr));`--不能拷贝函数，且会丢失为 undefined 的属性。不能用于复制用户定义的对象方法。无法拷贝特殊对象，如 Date、Set、Map、RegExp 等。
 
 2. 手动实现深拷贝：
 
 ```js
 // 极简版
 function deepClone(obj) {
-  if (typeof obj !== "object" && !obj) return;
+  if (typeof obj !== "object" || obj === null) return obj;
   const newObj = obj instanceof Array ? [] : {};
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -889,8 +891,8 @@ function deepClone(obj) {
     res = new obj.constructor(obj);
   } else if (Array.isArray(obj)) {
     res = [];
-    obj.forEach((e, i) => {
-      res[i] = deepClone(e);
+    obj.forEach((o, index) => {
+      res[index] = deepClone(o);
     });
   } else if (typeof obj === "object" && obj !== null) {
     res = {};
@@ -905,34 +907,62 @@ function deepClone(obj) {
   return res;
 }
 
-// 缓存版
+// 缓存版: 如果对象中存在循环引用，可以通过 WeakMap 来记录已拷贝的对象，避免递归陷入死循环。
 function deepClone(obj, hash = new WeakMap()) {
-  if (hash.has(obj)) {
-    return obj;
+  if (obj === null || typeof obj !== "object") {
+    return obj; // 原始值直接返回
   }
-  let res = null;
-  const reference = [Date, RegExp, Set, WeakSet, Map, WeakMap, Error];
 
-  if (reference.includes(obj?.constructor)) {
-    res = new obj.constructor(obj);
-  } else if (Array.isArray(obj)) {
-    res = [];
-    obj.forEach((e, i) => {
-      res[i] = deepClone(e);
-    });
-  } else if (typeof obj === "object" && obj !== null) {
-    res = {};
-    for (const key in obj) {
-      if (Object.hasOwnProperty.call(obj, key)) {
-        res[key] = deepClone(obj[key]);
-      }
-    }
-    hash.set(obj, res);
-  } else {
-    res = obj;
+  // 检查是否已经拷贝过，避免循环引用
+  if (hash.has(obj)) {
+    return hash.get(obj);
   }
+
+  // 处理特殊类型（Date、RegExp、Set、Map 等）
+  const reference = [Date, RegExp, Set, WeakSet, Map, WeakMap, Error];
+  if (reference.includes(obj.constructor)) {
+    return new obj.constructor(obj);
+  }
+
+  // 创建新的对象或数组
+  const res = Array.isArray(obj) ? [] : {};
+  hash.set(obj, res); // 将当前对象存入 WeakMap，避免循环引用
+
+  // 获取对象的所有属性（包括不可枚举属性和 Symbol）
+  const descriptors = Object.getOwnPropertyDescriptors(obj);
+  for (const key of Reflect.ownKeys(descriptors)) {
+    const descriptor = descriptors[key];
+    if (descriptor.value !== undefined) {
+      descriptor.value = deepClone(descriptor.value, hash); // 递归拷贝
+    }
+    Object.defineProperty(res, key, descriptor); // 定义属性
+  }
+
   return res;
 }
+
+// 测试：普通对象
+const obj = {
+  name: "Alice",
+  age: 25,
+  hobbies: ["reading", "gaming"],
+  address: {
+    city: "Shanghai",
+    zipcode: 200000,
+  },
+  birthDate: new Date(),
+  info: new Map([["key", "value"]]),
+  symbolKey: Symbol("id"),
+};
+obj.self = obj; // 循环引用
+
+const clonedObj = deepClone(obj);
+console.log(clonedObj);
+
+// 测试：数组
+const arr = [1, 2, { name: "Alice", address: { city: "Shanghai" } }];
+const clonedArr = deepClone(arr);
+console.log(clonedArr);
 ```
 
 ### React 浅比较

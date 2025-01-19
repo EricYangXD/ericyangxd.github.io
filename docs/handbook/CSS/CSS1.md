@@ -728,14 +728,14 @@ The `:not()` pseudo-class itself adds nothing to the specificity calculation. Ho
 
 触发 BFC 的条件：dpof
 
-1. `<html>`根元素或其它包含它的元素
+1. 文档的根元素（`<html>`）
 2. 浮动元素 (元素的 float 不是 none)`float: left/right;`
 3. 绝对定位元素 (元素具有 position 为 absolute 或 fixed)`position: absolute/fixed`
 4. 内联块 (元素具有 display: inline-block)
 5. 表格 `display: table`
 6. 表格单元格 (元素具有 `display: table-cell/table-row`，HTML 表格单元格默认属性)
 7. 表格标题 (元素具有 `display: table-caption`, HTML 表格标题默认属性)
-8. 具有 overflow 且值不是 visible 的块元素`overflow: auto/scroll/hidden;`
+8. 具有 overflow 且值不是 visible 或 clip 的块级元素`overflow: auto/scroll/hidden;`
 9. 弹性盒（flex 或 inline-flex）
 10. `display: flex/grid;`的直接子元素
 11. `display: flow-root`
@@ -743,9 +743,10 @@ The `:not()` pseudo-class itself adds nothing to the specificity calculation. Ho
 
 BFC 可以解决的问题:
 
-1. 垂直外边距重叠问题
-2. 去除浮动
-3. 自适应两列布局（float + overflow）
+1. 垂直外边距重叠问题：块级元素的垂直外边距（margin）在某些情况下会发生“折叠”现象。例如，两个兄弟元素的上下外边距会合并，取其中较大的一个。但是，如果其中一个元素处于 BFC 中，就不会发生外边距合并。
+2. 清除浮动：当一个元素中包含浮动的子元素时，父元素可能会出现高度塌陷问题。这是因为浮动元素脱离了文档流，不会被父元素包含在布局计算中。让父元素形成 BFC，父元素的高度被修复，能够正常包裹子元素。
+3. 自适应两列布局（float + overflow）、多列布局隔开浮动：当一个元素设置了浮动，且该元素的宽度小于其包含块的宽度时，会出现多列布局的效果。如果该元素也处于 BFC 中，那么其宽度会自动扩展到包含块的宽度，就不会出现隔开浮动的现象。两列之间不会重叠，保持独立布局。
+4. 防止浮动元素与文本重叠：浮动元素脱离文档流后，可能会与后面的块级元素或文本内容重叠。解决办法让后面的块级元素形成 BFC，从而避免浮动重叠
 
 ## href 与 src
 

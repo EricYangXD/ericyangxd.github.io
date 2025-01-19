@@ -275,3 +275,7 @@ mask-image: unset;
 ### CSS 打字机效果
 
 [参考链接](https://css-tricks.com/snippets/css/typewriter-effect/)
+
+### CSS stacking level
+
+![CSS stacking level](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501140944488.png)

@@ -99,10 +99,9 @@ Tomcat 环境变量配置：
 
 ## 项目
 
-
 ### 秒杀系统
 
-使用SpringMVC+Spring+MyBatis框架，原因：
+使用 SpringMVC+Spring+MyBatis 框架，原因：
 
 1. 框架易于使用和轻量级
 2. 低代码侵入性
@@ -114,111 +113,125 @@ Tomcat 环境变量配置：
 2. 难点在于“竞争”
 3. 优化方向：减少事务行级锁的竞争
 
-
 > 创建项目
 
 命令：`mvn archetype:create -DgroupId=org.seckill -DartifactId=seckill -DarchetypeArtifactId=maven-archetype-webapp`
 
-
-
 > MyBatis
-#### MySQL表设计-DAO层设计与开发
-#### MyBatis合理使用
-#### MyBatis与Spring整合
 
-JDBC、Hibernate、MyBatis都是用来简化数据库操作的框架，把Entity（Bean）对象映射成数据库中的对象也能把数据库中的数据映射成Entity对象，从而让开发者可以通过代码实现对数据库的操作，并得到相应的数据。MyBatis是基于Java的持久层框架，它支持定制化SQL、存储过程以及高级映射。MyBatis避免了几乎所有的JDBC代码和手动设置参数以及获取结果集。MyBatis可以使用简单的XML或注解来配置和映射原生信息，将接口和Java的POJOs（Plain Old Java Objects）映射成数据库中的记录。Hibernate、MyBatis都是orm对象关系映射框架。
+#### MySQL 表设计-DAO 层设计与开发
 
-1. MyBatis特点：参数+SQL=Entity/List
-2. SQL写在哪？可以写在xml文件中或者写在注解中@SQL
-3. 如何实现DAO接口？Mapper自动实现DAO接口impl或者API编程方式实现DAO接口
-4. Mapper自动实现DAO接口impl：创建对应的DAO.xml文件，然后设置正确的DOCTYPE，然后在`<mapper></mapper>`标签中编写对应的sql语句，命名正确的namespace。即xml提供SQL，Mapper自动实现DAP接口。
-5. `jdbc.properties`中配置driver、url等数据库信息
+#### MyBatis 合理使用
+
+#### MyBatis 与 Spring 整合
+
+JDBC、Hibernate、MyBatis 都是用来简化数据库操作的框架，把 Entity（Bean）对象映射成数据库中的对象也能把数据库中的数据映射成 Entity 对象，从而让开发者可以通过代码实现对数据库的操作，并得到相应的数据。MyBatis 是基于 Java 的持久层框架，它支持定制化 SQL、存储过程以及高级映射。MyBatis 避免了几乎所有的 JDBC 代码和手动设置参数以及获取结果集。MyBatis 可以使用简单的 XML 或注解来配置和映射原生信息，将接口和 Java 的 POJOs（Plain Old Java Objects）映射成数据库中的记录。Hibernate、MyBatis 都是 orm 对象关系映射框架。
+
+1. MyBatis 特点：参数+SQL=Entity/List
+2. SQL 写在哪？可以写在 xml 文件中或者写在注解中@SQL
+3. 如何实现 DAO 接口？Mapper 自动实现 DAO 接口 impl 或者 API 编程方式实现 DAO 接口
+4. Mapper 自动实现 DAO 接口 impl：创建对应的 DAO.xml 文件，然后设置正确的 DOCTYPE，然后在`<mapper></mapper>`标签中编写对应的 sql 语句，命名正确的 namespace。即 xml 提供 SQL，Mapper 自动实现 DAP 接口。
+5. `jdbc.properties`中配置 driver、url 等数据库信息
+
 ```txt
 driver=com.mysql.jdbc.Driver
 url=jdbc:mysql://127.0.0.1:3307
 username=root
 password=root
 ```
-6. 在xml中，通过bean标签配置c3p0连接池class，在property标签中配置`jdbc.properties`中的属性，比如设置c3p0连接池的私有属性：`<property name="maxPoolSize" value="30"/><property name="minPoolSize" value="10"/>`这种。还要配置SqlSessionFactory对象，在其下注入数据库连接池，配置MyBatis全局配置文件，对扫描的Entity包、sql配置文件等使用别名配置正确。然后还要配置扫描DAO接口包，动态实现DAO接口注入到Spring容器中--MapperScannerConfigurer，sqlSessionFactoryBeanName。
-7. `classpath`相当于java和resources两个文件夹的路径别名，比如`classpath:jdbc.properties`能直接找到jdbc.properties这个配置文件。
-8. 在MyBatis中，DAO接口方法的参数需要使用`@Param("myId") long id`的形式来在单元测试中识别多个参数，单个参数可以不用。
+
+6. 在 xml 中，通过 bean 标签配置 c3p0 连接池 class，在 property 标签中配置`jdbc.properties`中的属性，比如设置 c3p0 连接池的私有属性：`<property name="maxPoolSize" value="30"/><property name="minPoolSize" value="10"/>`这种。还要配置 SqlSessionFactory 对象，在其下注入数据库连接池，配置 MyBatis 全局配置文件，对扫描的 Entity 包、sql 配置文件等使用别名配置正确。然后还要配置扫描 DAO 接口包，动态实现 DAO 接口注入到 Spring 容器中--MapperScannerConfigurer，sqlSessionFactoryBeanName。
+7. `classpath`相当于 java 和 resources 两个文件夹的路径别名，比如`classpath:jdbc.properties`能直接找到 jdbc.properties 这个配置文件。
+8. 在 MyBatis 中，DAO 接口方法的参数需要使用`@Param("myId") long id`的形式来在单元测试中识别多个参数，单个参数可以不用。
 
 > Spring
-#### Spring IOC整合Service
 
-1. dto文件夹下存放service返回的数据类，关注的是web和web service之间的数据传递。Entity下面放的是业务数据的封装。
-    - DTO 用于数据传输，主要用于在不同层之间传递数据，尤其是在 Web 层和服务层之间。关注的是接口层的需求，更多用于表示向客户端提供的数据结构。简化数据传输，解耦和安全，序列化友好。
-    - Entity 则是业务数据的核心表示，通常表示业务数据和数据库表之间的映射。关注的是数据持久化和业务逻辑。与数据库表映射，业务逻辑，持久化。
-2. 站在使用者角度设计Service，而不是站在实现者角度设计Service，方法定义粒度明确，参数要简洁，返回类型要友好
-3. service文件夹下创建impl文件夹实现service
-4. 使用Spring托管service，并提供一致的访问接口，可以通过注解或者applicationContext去拿实例
-5. Spring IOC注入方式和场景：xml、注解、Java配置类。
-    - xml：1:Bean实现类来自第三方类库，如：DataSource等；2：需要命名空间配置如：context，aop，mvc等
-    - 注解：项目中自身开发使用的类，可直接在代码中使用注解如：@Service，@Controller，@Dao，@Component等
-    - Java配置类：需要通过代码控制对象创建逻辑的场景如：自定义修改依赖类库。
-6. xml配置 -> package-scan -> Annotation注解 `<context:component-scan base-package="com.example.xxx" />`
+#### Spring IOC 整合 Service
+
+1. dto 文件夹下存放 service 返回的数据类，关注的是 web 和 web service 之间的数据传递。Entity 下面放的是业务数据的封装。
+   - DTO 用于数据传输，主要用于在不同层之间传递数据，尤其是在 Web 层和服务层之间。关注的是接口层的需求，更多用于表示向客户端提供的数据结构。简化数据传输，解耦和安全，序列化友好。
+   - Entity 则是业务数据的核心表示，通常表示业务数据和数据库表之间的映射。关注的是数据持久化和业务逻辑。与数据库表映射，业务逻辑，持久化。
+2. 站在使用者角度设计 Service，而不是站在实现者角度设计 Service，方法定义粒度明确，参数要简洁，返回类型要友好
+3. service 文件夹下创建 impl 文件夹实现 service
+4. 使用 Spring 托管 service，并提供一致的访问接口，可以通过注解或者 applicationContext 去拿实例
+5. Spring IOC 注入方式和场景：xml、注解、Java 配置类。
+   - xml：1:Bean 实现类来自第三方类库，如：DataSource 等；2：需要命名空间配置如：context，aop，mvc 等
+   - 注解：项目中自身开发使用的类，可直接在代码中使用注解如：@Service，@Controller，@Dao，@Component 等
+   - Java 配置类：需要通过代码控制对象创建逻辑的场景如：自定义修改依赖类库。
+6. xml 配置 -> package-scan -> Annotation 注解 `<context:component-scan base-package="com.example.xxx" />`
 
 #### 声明式事务
 
 1. 使用方式：
-    - ProxyFactoryBean+xml
-    - tx:advice+aop命名空间
-    - 注解@Transactional
+   - ProxyFactoryBean+xml
+   - tx:advice+aop 命名空间
+   - 注解@Transactional
 2. 事务方法嵌套：新的事务会加入到已有的事务中，如果之前没有事务才会新建一个事务
-3. 什么时候回滚事务：抛出运行期异常RuntimeException时。小心不当的try catch，会导致部分事务即使失败了也不会自动回滚。
+3. 什么时候回滚事务：抛出运行期异常 RuntimeException 时。小心不当的 try catch，会导致部分事务即使失败了也不会自动回滚。
 
 > SpringMVC
 
-在xml中配置SpringMVC
+在 xml 中配置 SpringMVC
 
-1. 开启SpringMVC注解模式：`<mvc:annotation-driven/>`
-    - 简化配置：1. 自动注册DefaultAnnotationHandlerMapping，AnnotationMethodHandlerAdapter；2. 提供一系列数据绑定、数字和日期的format-@NumberFormat、@DateTimeFormat，xml、json默认读写支持
-2. 静态资源默认servlet配置：`<mvc:default-servlet-handler/>`
-    - servlet-mapping映射路径："/"
-    - 加入对静态资源的处理：js，jpg，png，css，gif...
-    - 允许使用"/"做整体映射
-3. 配置jsp显示ViewResolver：`<bean class="...InternalResourceViewResolver"><property xxx></property></bean>`
-    - 配置jsp，放置位置，后缀名，prefix，suffix，viewClass等
-    - 通过ViewResolver实现页面跳转
-4. 扫描web相关的bean：`<context:component-scan base-package="com.xx.xx" />`
+1. 开启 SpringMVC 注解模式：`<mvc:annotation-driven/>`
+   - 简化配置：1. 自动注册 DefaultAnnotationHandlerMapping，AnnotationMethodHandlerAdapter；2. 提供一系列数据绑定、数字和日期的 format-@NumberFormat、@DateTimeFormat，xml、json 默认读写支持
+2. 静态资源默认 servlet 配置：`<mvc:default-servlet-handler/>`
+   - servlet-mapping 映射路径："/"
+   - 加入对静态资源的处理：js，jpg，png，css，gif...
+   - 允许使用"/"做整体映射
+3. 配置 jsp 显示 ViewResolver：`<bean class="...InternalResourceViewResolver"><property xxx></property></bean>`
+   - 配置 jsp，放置位置，后缀名，prefix，suffix，viewClass 等
+   - 通过 ViewResolver 实现页面跳转
+4. 扫描 web 相关的 bean：`<context:component-scan base-package="com.xx.xx" />`
 
-#### Restful接口设计和使用
+#### Restful 接口设计和使用
+
 #### 框架运作流程
-#### Controller开发技巧
+
+#### Controller 开发技巧
 
 > 高并发
+
 #### 高并发点和高并发瓶颈分析
 
 1. 数据库操作加解锁，事务竞争，排队，GC
 2. 网络延迟，异地机房，CDN
+
+| 问题     | 触发条件                                                             | 后果                                       | 解决方案                                       |
+| -------- | -------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------------- |
+| 缓存击穿 | 某个热点数据的缓存突然失效，大量请求同时查询该数据。                 | 大量请求打到数据库，数据库压力骤增。       | 缓存预热、加锁、热点数据永不过期。             |
+| 缓存雪崩 | 大量缓存数据在同一时间失效。                                         | 短时间内大量请求直接打到数据库，系统崩溃。 | 随机化过期时间、缓存预热、多级缓存、降级策略。 |
+| 缓存穿透 | 查询一个数据库和缓存中都不存在的值，大量请求绕过缓存直接访问数据库。 | 数据库压力过大，可能被拖垮。               | 缓存空值、参数校验、布隆过滤器、限流。         |
 
 #### 高并发优化思路及实现
 
 1. 减少操作数据库时上锁的时间，减少数据库的压力
 2. 使用缓存，减少数据库的访问
 3. 使用异步处理，减少用户等待时间
-4. 使用CDN，减少网络延迟
+4. 使用 CDN，减少网络延迟
 5. 使用分布式，减少单机压力
 
-#### 如何判断Update更新数据库成功
-1. update没报错+客户端确认update影响记录数
+#### 如何判断 Update 更新数据库成功
 
-优化思路：把客户端逻辑放到MySQL服务端，避免网络延迟和GC的影响
+1. update 没报错+客户端确认 update 影响记录数
+
+优化思路：把客户端逻辑放到 MySQL 服务端，避免网络延迟和 GC 的影响
 
 方案：
-1. 定制SQL方案：`update /* + [auto_commit] */`，需要修改MySQL源码
-2. 使用存储过程：整个事务在MySQL端完成
 
-#### Redis后端缓存优化
+1. 定制 SQL 方案：`update /* + [auto_commit] */`，需要修改 MySQL 源码
+2. 使用存储过程：整个事务在 MySQL 端完成
 
-0. 需要手动在xml中注入RedisDao，因为MyBatis不处理Redis，构造函数需要通过`<constructor-arg index="0" value="localhost" />`传入
-1. 使用protobuf对json数据进行序列化反序列化，性能最强！
-2. 创建RedisPool连接池，缓存优化
+#### Redis 后端缓存优化
+
+0. 需要手动在 xml 中注入 RedisDao，因为 MyBatis 不处理 Redis，构造函数需要通过`<constructor-arg index="0" value="localhost" />`传入
+1. 使用 protobuf 对 json 数据进行序列化反序列化，性能最强！
+2. 创建 RedisPool 连接池，缓存优化
 3. 在超时的基础上维护一致性
 
 #### 并发优化
 
-1. MyBatis调用存储过程，在xml中配置
+1. MyBatis 调用存储过程，在 xml 中配置
 2. ![后端系统部署架构](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202411071613279.png)
 
 ## IDEA
@@ -229,10 +242,11 @@ password=root
 
 ## 工具
 
-### Knife4j和Swagger
+### Knife4j 和 Swagger
+
 Knife4j 是一个为 Java 项目生成和管理 API 文档的工具。实际上，它是 Swagger UI 的一个增强工具集，旨在让 Swagger 生成的 API 文档更优雅、更强大。
 
-### slf4j、logback和log4j
+### slf4j、logback 和 log4j
 
 #### slf4j
 

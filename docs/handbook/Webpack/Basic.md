@@ -90,52 +90,57 @@ chunkhash 和 hash 不一样，它根据不同的入口文件(Entry)进行依赖
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"); // 新增
 
 module.exports = {
-	mode: "production",
-	entry: {
-		index: "./src/index.js",
-		chunk1: "./src/chunk1.js",
-	},
-	output: {
-		filename: "[name].[chunkhash].js",
-	},
-	module: {
-		// 新增
-		rules: [
-			{
-				test: /\.css$/,
-				use: [MiniCssExtractPlugin.loader, "css-loader"], // 单个loader时可以直接 -> loader:'css-loader'
-				// use: ['style-loader', "css-loader"], // 先使用css-loader，再使用style-loader
-				// 更多配置的时候使用对象的形式，简单配置的直接使用字符串即可
-				// use: [
-				// 	"style-loader",
-				// 	{
-				// 		loader: "css-loader",
-				// 		options: {
-				// 			modules: true,
-				// 		},
-				// 	},
-				// ],
-			},
-			{
-				test: /\.png$/,
-				use: ["url-loader"], // webpack4
-				// webpack5
-				// type:'asset/resource', // 取代url-loader
-				// generator: {
-				// 	 filename: "img/[name]-[hash][ext]",// 设置输出的文件名和保存的路径
-				// },
-			},
-		],
-	},
-	plugins: [
-		// 新增
-		// 提取css插件
-		new MiniCssExtractPlugin({
-			// Options similar to the same options in webpackOptions.output
-			// both options are optional
-			filename: "[name].[contenthash].css",
-		}),
-	],
+  mode: "production",
+  entry: {
+    index: "./src/index.js",
+    chunk1: "./src/chunk1.js",
+  },
+  output: {
+    filename: "[name].[chunkhash].js",
+  },
+  module: {
+    // 新增
+    rules: [
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader"], // 单个loader时可以直接 -> loader:'css-loader'
+        // use: ['style-loader', "css-loader"], // 先使用css-loader，再使用style-loader
+        // 更多配置的时候使用对象的形式，简单配置的直接使用字符串即可
+        // use: [
+        // 	"style-loader",
+        // 	{
+        // 		loader: "css-loader",
+        // 		options: {
+        // 			modules: true,
+        // 		},
+        // 	},
+        // ],
+      },
+      {
+        test: /\.png$/,
+        use: ["url-loader"], // webpack4
+        // webpack5
+        // type:'asset/resource', // 取代url-loader
+        // generator: {
+        // 	 filename: "img/[name]-[hash][ext]",// 设置输出的文件名和保存的路径
+        // },
+      },
+    ],
+  },
+  plugins: [
+    // 新增
+    // 提取css插件
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: "[name].[contenthash].css",
+    }),
+  ],
+  externals: {
+    // 通过cdn引入的库，不需要打包
+    jquery: "jQuery",
+    "react-dom": "ReactDOM",
+  },
 };
 ```
 
@@ -166,15 +171,15 @@ hash 所有文件哈希值相同； chunkhash 根据不同的入口文件(Entry)
 
 ```js
 module: {
-	rules: [
-		{
-			test: /\.m?js$/,
-			exclude: /(node_modules)/,
-			use: {
-				loader: "swc-loader",
-			},
-		},
-	];
+  rules: [
+    {
+      test: /\.m?js$/,
+      exclude: /(node_modules)/,
+      use: {
+        loader: "swc-loader",
+      },
+    },
+  ];
 }
 ```
 
@@ -194,9 +199,9 @@ module: {
 
 ```js
 {
-	cache: {
-		type: "filesystem";
-	}
+  cache: {
+    type: "filesystem";
+  }
 }
 ```
 
@@ -204,15 +209,15 @@ module: {
 
 ```js
 module.exports = {
-	module: {
-		rules: [
-			{
-				test: /\.ext$/,
-				use: ["cache-loader", ...loaders],
-				include: path.resolve("src"),
-			},
-		],
-	},
+  module: {
+    rules: [
+      {
+        test: /\.ext$/,
+        use: ["cache-loader", ...loaders],
+        include: path.resolve("src"),
+      },
+    ],
+  },
 };
 ```
 
@@ -225,22 +230,22 @@ module.exports = {
 
 ```js
 module.exports = {
-	module: {
-		rules: [
-			{
-				test: /\.js$/,
-				use: [
-					{
-						loader: "thread-loader",
-						options: {
-							workers: 10,
-						},
-					},
-					"babel-loader",
-				],
-			},
-		],
-	},
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        use: [
+          {
+            loader: "thread-loader",
+            options: {
+              workers: 10,
+            },
+          },
+          "babel-loader",
+        ],
+      },
+    ],
+  },
 };
 ```
 
@@ -265,15 +270,14 @@ compiler.hooks.done.tapAsync("webpack-bundle-analyzer", (stats) => {});
 ```js
 // ANALYZE=true npm run build 设置环境变量
 const webpack = require("webpack");
-const BundleAnalyzerPlugin =
-	require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 function f1() {
-	return webpack({
-		entry: "./index.js",
-		mode: "none",
-		plugins: [process.env.ANALYZE && new BundleAnalyzerPlugin()],
-	});
+  return webpack({
+    entry: "./index.js",
+    mode: "none",
+    plugins: [process.env.ANALYZE && new BundleAnalyzerPlugin()],
+  });
 }
 
 f1().run((err, stat) => {});
@@ -510,19 +514,19 @@ tree-shaking 简单说作用就是：只打包用到的代码，没用到的代�
 
 ```js
 module.exports = [
-	"(none)", // 生产包不配置devtool时，不生成 source map。性能最佳。build和rebuild速度都是最快的。具有最高性能的生产构建的推荐选择。缺点就是生产出了问题没法直接定位调试。
-	"eval", // 具有最高性能的开发构建的推荐选择。
-	"eval-cheap-source-map", // 开发构建的权衡选择。
-	"eval-cheap-module-source-map", // 开发构建的权衡选择。
-	"eval-source-map", // 使用高质量 SourceMap 进行开发构建的推荐选择。
-	"source-map", // 具有高质量 SourceMap 的生产构建的推荐选择。
-	"cheap-source-map", // 没有列映射(column mapping)的 source map，忽略 loader source map。
-	"cheap-module-source-map", // 没有列映射(column mapping)的 source map，将 loader source map 简化为每行一个映射(mapping)。
-	"inline-cheap-source-map", // 类似 cheap-source-map，但是 source map 转换为 DataUrl 后添加到 bundle 中。
-	"inline-cheap-module-source-map", // 类似 cheap-module-source-map，但是 source map 转换为 DataUrl 添加到 bundle 中。
-	"inline-source-map", // 发布单个文件时的可能选择
-	"hidden-source-map", // 没有参考。仅将 SourceMap 用于错误报告目的时的可能选择。用于错误上报。
-	"nosources-source-map", // 不包括源代码
+  "(none)", // 生产包不配置devtool时，不生成 source map。性能最佳。build和rebuild速度都是最快的。具有最高性能的生产构建的推荐选择。缺点就是生产出了问题没法直接定位调试。
+  "eval", // 具有最高性能的开发构建的推荐选择。
+  "eval-cheap-source-map", // 开发构建的权衡选择。
+  "eval-cheap-module-source-map", // 开发构建的权衡选择。
+  "eval-source-map", // 使用高质量 SourceMap 进行开发构建的推荐选择。
+  "source-map", // 具有高质量 SourceMap 的生产构建的推荐选择。
+  "cheap-source-map", // 没有列映射(column mapping)的 source map，忽略 loader source map。
+  "cheap-module-source-map", // 没有列映射(column mapping)的 source map，将 loader source map 简化为每行一个映射(mapping)。
+  "inline-cheap-source-map", // 类似 cheap-source-map，但是 source map 转换为 DataUrl 后添加到 bundle 中。
+  "inline-cheap-module-source-map", // 类似 cheap-module-source-map，但是 source map 转换为 DataUrl 添加到 bundle 中。
+  "inline-source-map", // 发布单个文件时的可能选择
+  "hidden-source-map", // 没有参考。仅将 SourceMap 用于错误报告目的时的可能选择。用于错误上报。
+  "nosources-source-map", // 不包括源代码
 ];
 ```
 
@@ -556,13 +560,13 @@ Gzip 的内核是 Deflate，目前我们压缩文件用得最多的就是 Gzip�
 
 ```js
 plugins: [
-	// ...
-	// gzip
-	new CompressionPlugin({
-		algorithm: "gzip",
-		threshold: 10240,
-		minRatio: 0.8,
-	}),
+  // ...
+  // gzip
+  new CompressionPlugin({
+    algorithm: "gzip",
+    threshold: 10240,
+    minRatio: 0.8,
+  }),
 ];
 ```
 
@@ -626,12 +630,12 @@ gzip_vary on;
 ```js
 const IS_PRO = process.env.NODE_ENV === "production";
 module.exports = {
-	//... 其他基本配置
-	chainWebpack: (config) => {
-		if (IS_PRO) {
-			config.externals({ echarts: "echarts" });
-		}
-	},
+  //... 其他基本配置
+  chainWebpack: (config) => {
+    if (IS_PRO) {
+      config.externals({ echarts: "echarts" });
+    }
+  },
 };
 ```
 
@@ -639,13 +643,13 @@ module.exports = {
 
 ```js
 const cdn = {
-	css: [],
-	js: ["https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"],
+  css: [],
+  js: ["https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"],
 };
 // 通过 html-webpack-plugin 将 cdn 注入到 index.html 之中
 config.plugin("html").tap((args) => {
-	args[0].cdn = cdn;
-	return args;
+  args[0].cdn = cdn;
+  return args;
 });
 ```
 
@@ -762,11 +766,11 @@ apply(compiler) {
 
 ```json
 {
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"watch": "webpack --watch",
-		"build": "webpack"
-	}
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch",
+    "build": "webpack"
+  }
 }
 ```
 
@@ -795,71 +799,71 @@ apply(compiler) {
 ```js
 // webpack.config.js
 module.exports = {
-	mode: "development",
-	entry: {
-		index: "./src/index.js",
-		print: "./src/print.js",
-		index: {
-			import: "./src/index.js",
-			dependOn: "shared", // 配置 dependOn option 选项，这样可以在多个 chunk 之间共享模块
-		},
-		another: {
-			import: "./src/another-module.js",
-			dependOn: "shared",
-		},
-		shared: "lodash",
-	},
-	plugins: [
-		new HtmlWebpackPlugin({
-			title: "Development",
-		}),
-	],
-	output: {
-		filename: "[name].bundle.js",
-		path: path.resolve(__dirname, "dist"),
-		clean: true, // 在每次构建前清理 /dist 文件夹，这样只会生成用到的文件。
-	},
-	devtool: "inline-source-map",
-	//...
-	devServer: {
-		// 4.x版本写法
-		contentBase: path.resolve("./public"),
-		// 5.x版本写法
-		static: path.resolve("./public"),
-		port: 8090,
-		hot: true,
-		open: true,
-		// historyApiFallback: true,
-		historyApiFallback: {
-			rewrites: "./404.html",
-		},
-		host: "0.0.0.0",
-		compress: true,
-		proxy: {
-			"/api/search": {
-				target: "http://127.0.0.1:8081", // target表示代理的服务器url
-				pathRewrite: {
-					// pathRewrite表示路径重写，key表示一个正则，value表示别名
-					"^/api": "/api", // 即用 '/api'表示'http://localhost:8081/api'
-				},
-				changeOrigin: true,
-			},
-		},
-	},
-	optimization: {
-		runtimeChunk: "single", // 单个 HTML 页面有多个入口时，可以防止webpack在运行时创建同一模块的两个实例，同时减少为给定页面加载模块所需的 HTTP 请求数。
-		splitChunks: {
-			chunks: "all", // 将公共的依赖模块提取到已有的入口 chunk 中，或者提取到一个新生成的 chunk。
-			// 将第三方库(library)（例如 lodash 或 react）提取到单独的 vendor chunk 文件中，是比较推荐的做法，这是因为，它们很少像本地的源代码那样频繁修改。因此通过实现以上步骤，利用 client 的长效缓存机制，命中缓存来消除请求，并减少向 server 获取资源，同时还能保证 client 代码和 server 代码版本一致。
-			cacheGroups: {
-				vendor: {
-					test: /[\\/]node_modules[\\/]/,
-					name: "vendors",
-					chunks: "all",
-				},
-			},
-		},
-	},
+  mode: "development",
+  entry: {
+    index: "./src/index.js",
+    print: "./src/print.js",
+    index: {
+      import: "./src/index.js",
+      dependOn: "shared", // 配置 dependOn option 选项，这样可以在多个 chunk 之间共享模块
+    },
+    another: {
+      import: "./src/another-module.js",
+      dependOn: "shared",
+    },
+    shared: "lodash",
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: "Development",
+    }),
+  ],
+  output: {
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "dist"),
+    clean: true, // 在每次构建前清理 /dist 文件夹，这样只会生成用到的文件。
+  },
+  devtool: "inline-source-map",
+  //...
+  devServer: {
+    // 4.x版本写法
+    contentBase: path.resolve("./public"),
+    // 5.x版本写法
+    static: path.resolve("./public"),
+    port: 8090,
+    hot: true,
+    open: true,
+    // historyApiFallback: true,
+    historyApiFallback: {
+      rewrites: "./404.html",
+    },
+    host: "0.0.0.0",
+    compress: true,
+    proxy: {
+      "/api/search": {
+        target: "http://127.0.0.1:8081", // target表示代理的服务器url
+        pathRewrite: {
+          // pathRewrite表示路径重写，key表示一个正则，value表示别名
+          "^/api": "/api", // 即用 '/api'表示'http://localhost:8081/api'
+        },
+        changeOrigin: true,
+      },
+    },
+  },
+  optimization: {
+    runtimeChunk: "single", // 单个 HTML 页面有多个入口时，可以防止webpack在运行时创建同一模块的两个实例，同时减少为给定页面加载模块所需的 HTTP 请求数。
+    splitChunks: {
+      chunks: "all", // 将公共的依赖模块提取到已有的入口 chunk 中，或者提取到一个新生成的 chunk。
+      // 将第三方库(library)（例如 lodash 或 react）提取到单独的 vendor chunk 文件中，是比较推荐的做法，这是因为，它们很少像本地的源代码那样频繁修改。因此通过实现以上步骤，利用 client 的长效缓存机制，命中缓存来消除请求，并减少向 server 获取资源，同时还能保证 client 代码和 server 代码版本一致。
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          chunks: "all",
+        },
+      },
+    },
+  },
 };
 ```
 
@@ -881,14 +885,14 @@ const compiler = webpack(config);
 // 告知 express 使用 webpack-dev-middleware，
 // 以及将 webpack.config.js 配置文件作为基础配置。
 app.use(
-	webpackDevMiddleware(compiler, {
-		publicPath: config.output.publicPath,
-	})
+  webpackDevMiddleware(compiler, {
+    publicPath: config.output.publicPath,
+  })
 );
 
 // 将文件 serve 到 port 3000。
 app.listen(3000, function () {
-	console.log("Example app listening on port 3000!\n");
+  console.log("Example app listening on port 3000!\n");
 });
 ```
 
@@ -899,31 +903,31 @@ app.listen(3000, function () {
 
 ```js
 module.exports = {
-	// 1.此时仅仅是根据这三条配置打成了三个chunk包：pageOne.js/pageTwo.js/pageThree.js
-	entry: {
-		pageOne: "./src/pageOne/index.js",
-		pageTwo: "./src/pageTwo/index.js",
-		pageThree: "./src/pageThree/index.js",
-	},
-	// 2.还要配合htmlWebpackPlugin，把上面的三个chunk分别生成到对应的html文件里，才算是实现多入口。要生成几个html就调几遍。
-	// 缺点是：如果只改动了其中一个chunk，其他chunk也要重新打包。
-	plugins: [
-		new htmlWebpackPlugin({
-			filename: "pageOne.html",
-			chunks: ["pageOne"],
-			template: path.resolve(__dirname, "../public/index.html"),
-		}),
-		new htmlWebpackPlugin({
-			filename: "pageTwo.html",
-			chunks: ["pageTwo"],
-			template: path.resolve(__dirname, "../public/index.html"),
-		}),
-		new htmlWebpackPlugin({
-			filename: "pageThree.html",
-			chunks: ["pageThree"],
-			template: path.resolve(__dirname, "../public/index.html"),
-		}),
-	],
+  // 1.此时仅仅是根据这三条配置打成了三个chunk包：pageOne.js/pageTwo.js/pageThree.js
+  entry: {
+    pageOne: "./src/pageOne/index.js",
+    pageTwo: "./src/pageTwo/index.js",
+    pageThree: "./src/pageThree/index.js",
+  },
+  // 2.还要配合htmlWebpackPlugin，把上面的三个chunk分别生成到对应的html文件里，才算是实现多入口。要生成几个html就调几遍。
+  // 缺点是：如果只改动了其中一个chunk，其他chunk也要重新打包。
+  plugins: [
+    new htmlWebpackPlugin({
+      filename: "pageOne.html",
+      chunks: ["pageOne"],
+      template: path.resolve(__dirname, "../public/index.html"),
+    }),
+    new htmlWebpackPlugin({
+      filename: "pageTwo.html",
+      chunks: ["pageTwo"],
+      template: path.resolve(__dirname, "../public/index.html"),
+    }),
+    new htmlWebpackPlugin({
+      filename: "pageThree.html",
+      chunks: ["pageThree"],
+      template: path.resolve(__dirname, "../public/index.html"),
+    }),
+  ],
 };
 ```
 

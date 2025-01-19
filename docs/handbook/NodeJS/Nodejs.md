@@ -212,6 +212,54 @@ path.join("/a", "b", "/c", "d"); // returns:    '/a/b/c/d'
 
 ![URL](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/20230419113045.png)
 
+## 常见问题
+
+### TCP 数据粘包
+
+1. 粘包问题主要是因为 TCP 是面向流的协议，它不关心数据边界。
+2. 现象是：粘包是指在 TCP 流中，多个数据包被组合在一起，导致接收方无法正确解析数据。
+
+解决方法：
+
+- 预先定义数据包的长度：发送端：在每个数据包前加上一个固定长度的头，头部包含数据包的长度信息。接收端：读取固定长度的头部以确定数据包的长度。根据读取到的长度读取完整的数据包。
+- 使用特殊的分隔符：通过在每个数据包之间使用特定的分隔符（如换行符、特殊字符串等）来划分数据包：发送端：在每个数据包后面加一个特殊的分隔符。接收端：在接收到的数据中寻找分隔符，分隔数据包。
+- 使用更高层次的协议：使用更高层次的协议（如 HTTP、WebSocket、gRPC 等），它们已经为了解决粘包问题进行了优化。
+- 使用第三方库：使用专门解决 TCP 粘包问题的第三方库，如 protobuf、msgpack 等，这些库提供了数据的序列化和反序列化功能，并且能够自动处理粘包问题。
+
+```js
+// 发送端
+const net = require("net");
+
+const client = net.createConnection({ port: 8080 }, () => {
+  console.log("connected to server!");
+
+  const data = "Hello, World!";
+  const buffer = Buffer.from(data);
+  const header = Buffer.alloc(4); // 假设头部长度为4字节
+  header.writeInt32BE(buffer.length, 0);
+
+  client.write(Buffer.concat([header, buffer]));
+});
+
+// 接收端
+const server = net.createServer((socket) => {
+  socket.on("data", (data) => {
+    let offset = 0;
+    while (offset < data.length) {
+      const length = data.readInt32BE(offset);
+      offset += 4;
+      const message = data.slice(offset, offset + length).toString();
+      offset += length;
+      console.log(`Received: ${message}`);
+    }
+  });
+});
+
+server.listen(8080, () => {
+  console.log("server is listening");
+});
+```
+
 ## Trouble Shooting -- Aliyun
 
 ### 处理线上异常
