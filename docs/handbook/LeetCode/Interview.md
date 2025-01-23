@@ -881,7 +881,9 @@ function convert2Tree(arr) {
 
     const parentNode = idToTreeNode.get(parentId);
     if (parentNode) {
-      if (parentNode.children == null) parentNode.children = [];
+      if (parentNode.children == null) {
+        parentNode.children = [];
+      }
       parentNode.children.push(treeNode);
     }
 
@@ -1393,7 +1395,7 @@ Function.prototype.apply 和 Function.prototype.call 的作用是一样的，区
    - 没有 prototype 属性 ，而 new 命令在执行时需要将构造函数的 prototype 赋值给新的对象的 `__proto__`。
    - 箭头函数并没有`[[Construct]]`方法, 所以不能被用作构造函数。
 
-### a.b.c.d 和 a['b']['c']['d']，哪个性能更高
+### `a.b.c.d` 和 `a['b']['c']['d']`，哪个性能更高
 
 1. []是常量时，性能差别很小。dot 稍快；
 2. []是变量时，可能需要计算，性能略差；
@@ -1789,9 +1791,7 @@ Decorator：装饰类或者方法，不会修改原有的功能，只是增加�
 
 ## 面试题
 
-### 2022-04-27
-
-万向区块链
+### 2022-04-27 万向区块链
 
 #### 关于堆和栈、一级缓存和二级缓存的理解
 
@@ -2507,6 +2507,49 @@ es6 中新增了箭头函数，而箭头函数最大的特色就是没有自己�
 
 `history.replaceState();`
 
+## 管道函数
+
+将多个函数按顺序组合起来，使数据依次通过这些函数进行处理。
+
+```js
+// 管道函数实现
+// 从左向右执行
+const pipe =
+  (...functions) =>
+  (input) =>
+    functions.reduce((acc, fn) => fn(acc), input);
+// 或者
+const pipe =
+  (...fns) =>
+  (x) =>
+    fns.reduce((v, f) => f(v), x);
+
+// 示例函数
+const add = (x) => x + 2;
+const multiply = (x) => x * 3;
+const square = (x) => x * x;
+
+// 使用管道
+const process = pipe(add, multiply, square);
+console.log(process(2)); // (((2 + 2) * 3) ^ 2) = 144
+
+// 从右向左之脑执行
+// 从右向左的函数组合
+const compose =
+  (...functions) =>
+  (input) =>
+    functions.reduceRight((acc, fn) => fn(acc), input);
+
+// 示例函数
+const add = (x) => x + 2;
+const multiply = (x) => x * 3;
+const square = (x) => x * x;
+
+// 使用 compose
+const process = compose(square, multiply, add);
+console.log(process(2)); // (((2 + 2) * 3) ^ 2) = 144
+```
+
 ## 作用域链
 
 参考「V8」
@@ -2724,7 +2767,7 @@ const arr = [1, [2, [3, 4], 5], 6, [7, 8]];
 console.log(flattenArray(arr)); // [1, 2, 3, 4, 5, 6, 7, 8]
 ```
 
-## jsbridge 通信失败怎么处理
+## jsBridge 通信失败怎么处理
 
 1. 错误检测和日志记录:首先，实现一个全面的错误检测和日志记录机制
 2. 重试机制:对于一些非关键操作，可以实现自动重试机制
@@ -2932,7 +2975,32 @@ Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSoc
 
 ## vue diff 和 react diff
 
-原理和区别
+| 特性       | React Diff                      | Vue Diff                               |
+| ---------- | ------------------------------- | -------------------------------------- |
+| 基本策略   | 同层比较 + key 优化             | 同层比较 + 双端比较                    |
+| 列表 Diff  | 依赖唯一 key，逐一对比          | 双端比较，按头尾指针寻找最优解         |
+| 跨层级操作 | 不支持，跨层级直接删除新增      | 同样不支持，直接删除新增               |
+| 性能       | 列表更新性能依赖于 key 是否合理 | 列表更新性能较高，适合头尾频繁插入删除 |
+| 复杂度     | O(n)                            | O(n)                                   |
+
+原理和区别：
+
+1. 虚拟 DOM 树同层比较：只比较虚拟 DOM 的同一层级，不会跨层级比较，如果节点类型相同（如`<div>` 对比 `<div>`），则继续对比属性和递归对比子节点。如果类型不同，则直接销毁旧节点，创建新节点。
+2. React 列表的比较：使用 key 进行优化，避免出现全量更新。
+   - 如果所有节点都有唯一的 key，React 可以快速找到对应的节点，按 key 匹配更新。即使节点顺序发生变化，也只更新必要部分。
+   - 如果没有 key 或 key 不唯一，React 会按默认顺序逐一对比，这在插入或删除节点时可能导致性能下降。
+3. Vue 列表的比较：使用了一种高效的 双端比较算法。它通过四个指针，分别指向新旧列表的头尾节点，
+
+   - 从新旧列表的头部开始比较，如果相同则复用，指针向后移动。
+   - 从新旧列表的尾部开始比较，如果相同则复用，指针向前移动。
+   - 如果头尾无法匹配，则尝试查找旧节点中能复用的节点（通过 key）。
+   - 如果无法复用，则新增新节点或删除旧节点。
+
+4. 总结：
+
+   - React 的 diff 算法更侧重于简单规则和 key 的使用，通过假设更新操作是局部的来优化性能。
+   - Vue 的 diff 算法使用了双端比较，更适合频繁插入、删除的场景，进一步提升了列表的更新效率。
+   - 两者的核心思想是相似的，都是为了实现高效的视图更新，但实现细节和场景优化各有侧重。
 
 ## vue 指令
 
@@ -3142,6 +3210,142 @@ fetchUrls(urls, 3).then((results) => {
 });
 ```
 
+## Composition API 有哪些
+
+1. setup 函数：是 Composition API 的入口点，用于定义组件的响应式状态、计算属性、方法等，在组件创建之前执行，可以返回一个对象，对象中的属性和方法可以在模板中直接使用。
+2. ref 和 reactive：用于定义响应式数据，ref 用于定义单个基本数据类型的响应式数据，reactive 用于定义对象或数组的响应式数据。
+3. computed：用于定义计算属性，计算属性会根据依赖的数据自动更新。
+4. watch 和 watchEffect：用于监听数据的变化，watch 用于监听指定的数据，watchEffect 用于监听数据的变化，不需要指定监听的数据。
+5. 生命周期钩子：使用 onMounted、onUpdated、onUnmounted 等函数来定义组件的生命周期钩子。用于在组件的不同生命周期阶段执行代码。
+
+## Vue3 中父子组件通信的方式
+
+1. `props`：父组件通过 props 向子组件传递数据。
+2. `$emit`事件：子组件通过 $emit 触发父组件的事件，可以向父组件传递数据。
+3. `provide`/`inject`：父组件通过 provide 提供数据，子组件通过 inject 注入数据。适用于跨多层的组件之间的通信。
+4. vuex/Pinia：状态管理库，适用于大/中小型应用的状态管理，集中管理应用的状态，使得状态的变化可预测。
+5. EventBus：通过事件总线实现父子组件通信，适用于简单的应用场景。
+6. `$attrs`/`$listeners`：适用于透传属性和事件，将父组件的属性和事件透传给子组件。
+7. `v-model`：用于实现双向绑定，父组件通过 v-model 绑定数据，子组件通过 emit 触发 input 事件。
+8. `$refs`：父组件通过 $refs 获取子组件的实例，从而调用子组件的方法或访问子组件的数据。
+
+## 消除异步的传染性
+
+及如果一个函数调用了另一个异步的函数，那么这个函数也会变成异步的。
+
+比如：fetch 是异步的函数，那么可以把 fetch 改成同步的函数，这样就可以消除异步的传染性。
+
+例如：自定义 myFetch 函数，在执行 fetch 时先查看缓存，如有缓存则返回缓存，否则先抛出一个 Error 中断执行，然后在 fetch 成功后抛出一个 resolve 设置缓存，重新执行 fetch 或者 main 函数。
+
+React 中的 Suspense 组件也是类似的原理，通过抛出一个 Promise 中断渲染，然后在 Promise resolve 后重新渲染。渲染两次组件。
+
+```js
+function run(func) {
+  // 1. 保存旧的fetch函数
+  const oldFetch = window.fetch;
+  // 2. 修改fetch
+  const cache = {
+    status: "pending", // 'pending' | 'fulfilled' | 'rejected'
+    value: null,
+  };
+  function myFetch(...args) {
+    if (cache.status === "fulfilled") {
+      return cache.value;
+    } else if (cache.status === "rejected") {
+      throw cache.value;
+    }
+    const promise = oldFetch(...args)
+      .then((res) => res.json())
+      .then((res) => {
+        cache.status = "fulfilled";
+        cache.value = res;
+      })
+      .catch((err) => {
+        cache.status = "rejected";
+        cache.value = err;
+      });
+    throw promise;
+  }
+  window.fetch = myFetch;
+  // 3. 运行func
+  try {
+    func();
+  } catch (err) {
+    if (err instanceof Promise) {
+      err.finally(() => {
+        window.fetch = myFetch;
+        func();
+        window.fetch = oldFetch;
+      });
+    } else {
+      console.log(err.message);
+    }
+  }
+  // 4. 恢复fetch
+  window.fetch = oldFetch;
+}
+
+run(main);
+
+function myFetch(url) {
+  return new Promise((resolve, reject) => {
+    throw new Error("中断执行");
+    fetch(url);
+    fetch(url).then((res) => {
+      resolve(res);
+    });
+  });
+}
+```
+
+## 判断两个字符串中的数字的大小
+
+<!--
+两个字符串：'1-2-34-567-8-9' 和 '1-2-33-567-88-9'，长度可能很长，从左向右比较判断两个字符串中的数字的大小，如果数字相等，继续比较下一个数字，如果数字不相等，返回数字较大的字符串。
+ -->
+
+通过一个生成器函数来从头迭代这 2 个字符串，如果相等就继续比较下一个数字，如果不相等就返回数字较大的字符串。
+
+```js
+function* walk(str) {
+  let s = "";
+  for (let c of str) {
+    if (c === "-") {
+      yield Number(s);
+      s = "";
+    } else {
+      s += c;
+    }
+  }
+  if (s) {
+    yield Number(s);
+  }
+}
+function compare(str1, str2) {
+  const iter1 = walk(str1);
+  const iter2 = walk(str2);
+  while (true) {
+    const { value: v1, done: d1 } = iter1.next();
+    const { value: v2, done: d2 } = iter2.next();
+    if (d1 && d2) {
+      return 0; // 相等
+    }
+    if (d1) {
+      return -1; // str1 小
+    }
+    if (d2) {
+      return 1; // str2 小
+    }
+    if (v1 < v2) {
+      return -1;
+    }
+    if (v1 > v2) {
+      return 1;
+    }
+  }
+}
+```
+
 ## 前端加载图片
 
 ### CSS 中的 background 属性来实现
@@ -3281,3 +3485,345 @@ img.src = "https://fakeimg.pl/100x200";
   // document.body.appendChild(dom);
 </script>
 ```
+
+## 正则表达式匹配路径
+
+## 浏览器盒模型
+
+## 手写 Promise.all
+
+## js 隔离原理
+
+## CDN 缓存策略
+
+## XSS 和 CSRF
+
+CSRF 原理和解决方案
+
+## websocket 消息质量保证
+
+012 段消息是什么
+
+## websocket 通信机制
+
+## 前端性能优化
+
+## 面向对象编程和面向过程编程的区别和理解
+
+## 大数据渲染造成的页面卡顿怎么优化
+
+## 为什么要使用虚拟 DOM
+
+## 有效括号匹配
+
+## 判断 b 是否是 a 的子集
+
+ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
+
+## 302 怎么确定重定向路径
+
+## 全排列
+
+## 前端路由原理
+
+## 页面白屏检测
+
+## ref 和 reactive 的区别
+
+## props 数据流向
+
+## 发布订阅模式和观察者模式的区别
+
+## input 怎么确定 schema 结构
+
+## nodejs 内存泄漏怎么解决
+
+## 多窗口之间怎么通信
+
+## 捕获这冒泡事件触发顺序
+
+## 数据大屏怎么实现响应式
+
+## 浏览器访问 url 过程
+
+硬件加速方案，优缺点；DNS 解析过程、预解析、耗时指标
+
+## 单点登录和 SSo 鉴权
+
+授权协议
+
+## nodejs 是单线程吗
+
+怎么提高并发量
+
+## 前端监控告警体系
+
+性能监控的指标有哪些？页面加载的瓶颈和优化手段
+
+## 2025.1.20
+
+### 小鹏
+
+1. vue、react、angular 框架的响应式原理
+
+   - Vue2：通过 Object.defineProperty() 方法对数据进行劫持，当数据发生变化时，会触发 setter 方法，通知依赖的视图更新。
+   - Vue3：通过 Proxy 对象代理数据，当数据发生变化时，会触发 Proxy 的 set 方法，通知依赖的视图更新。
+   - React：通过 Virtual DOM 和 Diff 算法，当数据发生变化时，会重新渲染 Virtual DOM，然后通过 Diff 算法对比新旧 Virtual DOM，找出差异，最后更新差异部分。
+   - Angular：通过 Zone.js 拦截异步操作，当数据发生变化时，会触发 Angular 的变更检测机制，检测数据变化并更新视图。
+
+2. react 中 hooks 不能放在 if 判断里的原因
+
+   - React Hooks 依赖于调用顺序来确定每个 Hook 的状态。它们使用一个内部的链表来存储状态，如果 Hooks 的调用顺序在不同的渲染中不一致，React 无法保证为正确的 Hook 分配正确的状态。这会导致状态错位，进而引发难以追踪的错误。
+   - 通过在组件顶层调用 Hooks，React 可以在每次渲染中按照一致的顺序调用它们，确保状态管理和副作用处理的正确性和一致性。以便于对组件的行为进行预测和理解。这种设计模式也促进了代码的可读性和可维护性。
+
+3. Object.defineProperty 和 Proxy 的区别以及 Proxy 的优势:
+
+   - 前者代理对象上的属性，不能监听数组及对象深度变化，后者代理对象本身，可以深度监听数组对象变化。
+   - 兼容性现代浏览器都支持，大部分场景下 Proxy 性能优于 Object.defineProperty，在大规模简单数据的场景下 Proxy 性能可能不如 Object.defineProperty。因为 Proxy 的代理操作会引入一定的性能开销，而 defineProperty 是直接修改对象的属性描述符，开销较小。但是这个性能差距在大多数场景下是可以忽略的，所以在需要实现更复杂的逻辑控制的情况下，推荐使用 Proxy。
+   - Proxy 可以拦截并重写多种操作，如 get、set、deleteProperty 等；Object.defineProperty 只能拦截属性的读取和赋值操作。
+   - Proxy 支持迭代器，可以使用 for...of、Array.from() 等进行迭代；Object.defineProperty 不支持迭代器，无法直接进行迭代操作
+   - Proxy 可以通过添加自定义的 handler 方法进行扩展；Object.defineProperty 不支持扩展，只能使用内置的 get 和 set 方法拦截
+   - Proxy 使用 new Proxy(target, handler) 创建代理对象；Object.defineProperty 直接在对象上使用 Object.defineProperty(obj, prop, descriptor)
+   - Proxy 支持监听整个对象的变化，通过 get 和 set 方法拦截；Object.defineProperty 只能监听单个属性的变化，通过 get 和 set 方法拦截
+   - Proxy 性能相对较低，因为每次操作都需要经过代理；Object.defineProperty 性能相对较高，因为直接在对象上进行操作
+
+4. 看代码说输出，什么是微任务和宏任务，以及它们的执行顺序
+
+   - 在创建 Promise 的时候，构造函数中的代码是同步执行的。这意味着在调用 new Promise() 时，传递给 Promise 的执行器函数（executor function）会立即执行。
+   - Promise 的 then, catch, finally 方法会把它们的回调函数添加到微任务队列中。微任务是在当前事件循环的最后执行，优先级高于宏任务（如 setTimeout、setInterval）。
+
+```js
+const promise = new Promise((resolve, reject) => {
+  console.log(1);
+  setTimeout(() => {
+    console.log("TimerStart");
+    // Promise最初同步代码执行完毕后并未改变状态，仍是pending，直到resolve被调用，Promise状态变为resolved，此时会执行微任务队列中的回调函数，即then中的回调函数。
+    resolve("success");
+    console.log("TimerEnd");
+  }, 0);
+
+  console.log(2);
+});
+
+// promise.then 注册了一个回调函数，该回调函数会在 Promise 状态变为 resolved 后进入微任务队列。
+promise.then((value) => {
+  console.log(value);
+});
+
+console.log(4);
+
+// 1 2 4 TimerStart TimerEnd success
+```
+
+4. 手写代码：扁平数组转成树
+
+```js
+// 如题：
+// input:
+// [
+//   { id: 1, parentId: null },
+//   { id: 2, parentId: null },
+//   { id: 3, parentId: 1 },
+//   { id: 4, parentId: 1 },
+//   { id: 5, parentId: 3 },
+// ]
+// output:
+// [{
+//     id: 1,
+//     parentId: null,
+//     children: [
+//       { id: 3, parentId: null, children: [{ id: 5, parentId: null, children: [] }] },
+//       { id: 4, parentId: null, children: [] },
+//     ],
+//   },
+//   { id: 2, parentId: null, children: [] })
+// ];
+
+const transform = (data) => {
+  const tree = [];
+
+  const map = new Map();
+
+  for (let node of data) {
+    map.set(node.id, { ...node, children: [] });
+  }
+
+  for (let node of data) {
+    const { id, parentId } = node;
+    const treeNode = map.get(id);
+    if (!parentId) {
+      tree.push(treeNode);
+    } else {
+      const parentNode = map.get(parentId);
+      if (parentNode) {
+        parentNode.children.push(treeNode);
+      }
+    }
+  }
+
+  return tree;
+};
+
+const nodes = [
+  { id: 1, parentId: null },
+  { id: 2, parentId: null },
+  { id: 3, parentId: 1 },
+  { id: 4, parentId: 1 },
+  { id: 5, parentId: 3 },
+  { id: 6, parentId: 3 },
+  { id: 7, parentId: 4 },
+];
+transform(nodes);
+console.log(JSON.stringify(transform(nodes), null, 2));
+```
+
+5. 前端技术选型怎么做的?
+
+   - 项目需求分析：功能需求、性能需求、可扩展性
+   - 技术栈评估：社区和生态系统、成熟度和稳定性、学习曲线
+   - 团队能力和经验：现有技能、培训和招聘
+   - 项目时间和预算：开发周期、成本
+   - 未来发展和技术趋势：技术趋势、更新和支持
+   - 实验和原型：原型验证、性能测试
+   - 反馈和调整：用户反馈、持续监测
+
+6. `Promise.then.then.catch`：如果第一个 then 报错了，第二个 then 会执行吗？catch 能捕获到异常吗？throw Error 和 reject 的区别?
+
+   - 如果第一个 then 报错了，第二个 then 不会执行！
+   - resolve 执行之后是可以在后面继续 return value 或者执行其他代码的！
+   - 如果多个 then 链式调用并在最后跟了一个 catch，那么任意一个 then 的报错都会被这个 catch 捕获到。catch 会捕获到所有 then 链中的错误，包括异步的错误。
+   - 如果每个 then 后面都跟一个 catch，那么每个 catch 只会捕获到自己对应的 then 的错误，而不会捕获到其他 then 的错误。
+
+7. `Promise.then.catch.then.catch`：如果第一个 then 报错了，第二个 then 会执行吗？两个 catch 都能捕获到异常吗？
+
+   - 如果第一个 then 抛出错误:
+     - 异常会被紧接着的第一个 catch 捕获。
+     - 捕获异常后，链会继续向下执行，下一个 then 会执行。
+     - 如果后续的 then 中不再抛出错误，那么第二个 catch 将不会被触发。
+   - 第一个 catch 的行为决定了第二个 then 是否执行：
+     - 如果 catch 返回一个值，第二个 then 会执行并接收此值。
+     - 如果 catch 抛出错误，第二个 then 不会执行，而是跳到下一个 catch。
+   - throw Error 和 reject 的区别：throw Error 是抛出一个同步的错误，而 reject 是抛出一个异步的错误，通常用于 Promise 中。
+
+8. 有一个页面加载大量图片，怎么做性能优化？页面多图片加载优化？
+
+   - 懒加载（Lazy Loading）：对于图片来说，可以使用原生的 `loading="lazy"` 属性，或使用懒加载库，如 lazysizes，来实现这一点。这样可以显著减少初始加载时间。
+   - 使用响应式图片：根据设备的不同分辨率，提供不同大小的图片，以减少不必要的带宽消耗。可以使用 srcset 和 sizes 属性来实现。
+   - 图像压缩与格式优化：压缩图片：使用工具（如 TinyPNG、ImageOptim 等）压缩图片文件。选择合适的格式：对于高质量的图像，使用 JPEG；对于透明背景，使用 PNG；使用 WebP 格式可以达到更好的压缩效果。
+   - 使用内容分发网络（CDN）：通过 CDN 分发图片，减少服务器负载，并加快加载速度，因为 CDN 会选择离用户最近的服务器提供资源。
+   - 利用浏览器同个域名最多建立 6 个 http 请求的特性，使用不同的 CDN 域名，可以提高并发请求数量。
+   - HTTP2：多路复用，一个链接就可以并行请求多张图片，减少加载时间。
+   - 预加载关键图像：对于首屏需要立即展示的图片，可以使用 `<link rel="preload">` 标签来提前加载，确保它们在页面加载时立即可见。
+   - 精灵图（CSS Sprites）：将多个小图片合并成一张大图片，通过 CSS 显示不同的部分，减少 HTTP 请求数量。
+   - 延迟加载非关键内容：对于不影响首屏显示的图片，如页面底部的图片，可以延迟加载。用户滚动到图片所在位置时再加载这些图片。
+   - 使用 Intersection Observer：利用浏览器的 Intersection Observer API 可以高效地实现懒加载，监控图片何时进入视口，并在需要时加载它们。
+   - 优化缓存策略：为图片设置合适的缓存头，确保用户在后续访问时可以直接从缓存中加载图片，而不是重新下载。`Cache-Control: max-age=31536000`。
+   - 硬件加速：使用 CSS 的 `transform` 和 `opacity` 属性进行硬件加速，可以提高页面渲染性能。
+
+9. 性能优化看哪些指标？
+
+   - 页面加载时间：
+     - Time to First Byte (TTFB): 从用户请求到接收到第一个字节所需的时间，反映了服务器的响应速度。
+     - First Contentful Paint (FCP): 页面上的第一个文本或图像内容绘制在屏幕上的时间。
+     - Largest Contentful Paint (LCP): 页面主内容加载完成的时间，反映了页面的可用性。
+
+10. CSS 两列布局：左侧固定右侧自适应：float、flex、grid、position 等等
+
+```html
+<div class="container">
+  <div class="left">左侧</div>
+  <div class="right">右侧</div>
+</div>
+```
+
+```css
+/* 1. float */
+.container {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: yellowgreen;
+}
+.left {
+  float: left;
+  width: 200px;
+  background: red;
+}
+.right {
+  width: calc(100% - 200px);
+  margin-left: 200px;
+  background: grey;
+}
+
+/* 2. position */
+.container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: yellowgreen;
+}
+.left {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200px;
+  height: 100%;
+  background: red;
+}
+.right {
+  /* width: calc(100% - 200px); */
+  margin-left: 200px;
+  background: grey;
+}
+
+/* 3. flex */
+.container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background: yellowgreen;
+}
+.left {
+  width: 200px; /* 左侧固定宽度 */
+  background: red;
+}
+.right {
+  flex: 1; /* 右侧自适应 */
+  background: grey;
+}
+
+/* 4. grid */
+.container {
+  display: grid;
+  grid-template-columns: 200px 1fr; /* 左侧固定宽度，右侧自适应 */
+  width: 100vw;
+  height: 100vh;
+  background: yellowgreen;
+}
+.left {
+  background: red;
+}
+.right {
+  background: grey;
+}
+
+/* 5. table */
+.container {
+  display: table;
+  width: 100%; /* 占满父级宽度 */
+}
+.left {
+  display: table-cell;
+  width: 200px; /* 左侧固定宽度 */
+  background: red;
+}
+.right {
+  display: table-cell;
+  background: grey; /* 右侧自适应 */
+}
+```
+
+10. `flex:1` 的含义及默认值：`flex-grow:1;flex-shrink:1;flex-basis:0%;`(Chrome)
+
+    - 同理：`flex:0` ==> `flex-grow:0;flex-shrink:1;flex-basis:0%;`(Chrome)
+    - 同理：`flex:auto` ==> `flex-grow:1;flex-shrink:1;flex-basis:auto;`(Chrome)

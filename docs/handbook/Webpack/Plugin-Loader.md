@@ -33,8 +33,37 @@ module.exports = {
     mainFields: ['browser', 'module', 'main'],
   },
   optimization: {
-    minimize: false,
-    moduleIds: 'deterministic', // 确定的
+    // 开发环境开启tree-shaking 三选一
+    usedExports: true, // true: 开发环境开启tree-shaking - 1
+    minimize: false, // true: 开发环境开启tree-shaking - 2  告知 webpack 使用 TerserPlugin 或其它在 optimization.minimizer定义的插件压缩 bundle。
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+        terserOptions: {
+          // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
+        },
+      }),
+      // 函数形式
+      (compiler) => {
+        const TerserPlugin = require('terser-webpack-plugin');
+        new TerserPlugin({
+          /* 你的配置 */
+        }).apply(compiler);
+      },
+    ], // 开发环境开启tree-shaking - 3
+    moduleIds: 'deterministic', // 告知 webpack 当选择模块 id 时需要使用哪种算法。deterministic-被哈希转化成的小位数值模块名。natural-按使用顺序的数字 id。named-对调试更友好的可读的 id。size-专注于让初始下载包大小更小的数字 id。
+    chunkIds: 'deterministic', // 类似moduleIds，告知 webpack 当选择模块 id 时需要使用哪种算法。多了一项：'total-size'-专注于让总下载包大小更小的数字 id。
+    sideEffects: true, // 告知 webpack 去辨识 package.json 中的副作用标记或规则（默认值为 true，所以这一步也可以不设置）
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
   },
   module: { // loaders
     rules: [
@@ -49,7 +78,7 @@ module.exports = {
           }
         ]
       },
-      ...
+      // ...
       {
         test: /\.(js|ts)x?$/,
         include: [path.resolve('src'), path.resolve('framework'), path.resolve('apps')],
@@ -188,56 +217,49 @@ module.exports = {
 
 ```js
 class HtmlWebpackPlugin {
-	constructor(options) {
-		this.options = options || {};
-	}
+  constructor(options) {
+    this.options = options || {};
+  }
 
-	apply(compiler) {
-		const webpack = compiler.webpack;
+  apply(compiler) {
+    const webpack = compiler.webpack;
 
-		compiler.hooks.thisCompilation.tap("HtmlWebpackPlugin", (compilation) => {
-			// compilation 是 webpack 中最重要的对象，文档见 [compilation-object](https://webpack.js.org/api/compilation-object/#compilation-object-methods)
+    compiler.hooks.thisCompilation.tap("HtmlWebpackPlugin", (compilation) => {
+      // compilation 是 webpack 中最重要的对象，文档见 [compilation-object](https://webpack.js.org/api/compilation-object/#compilation-object-methods)
 
-			compilation.hooks.processAssets.tapAsync(
-				{
-					name: "HtmlWebpackPlugin",
+      compilation.hooks.processAssets.tapAsync(
+        {
+          name: "HtmlWebpackPlugin",
 
-					// processAssets 处理资源的时机，此阶段为资源已优化后，更多阶段见文档
-					// https://webpack.js.org/api/compilation-hooks/#list-of-asset-processing-stages
-					stage: webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
-				},
-				(compilationAssets, callback) => {
-					// compilationAssets 将得到所有生成的资源，如各个 chunk.js、各个 image、css
+          // processAssets 处理资源的时机，此阶段为资源已优化后，更多阶段见文档
+          // https://webpack.js.org/api/compilation-hooks/#list-of-asset-processing-stages
+          stage: webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
+        },
+        (compilationAssets, callback) => {
+          // compilationAssets 将得到所有生成的资源，如各个 chunk.js、各个 image、css
 
-					// 获取 webpac.output.publicPath 选项，(PS: publicPath 选项有可能是通过函数设置)
-					const publicPath = getPublicPath(compilation);
+          // 获取 webpac.output.publicPath 选项，(PS: publicPath 选项有可能是通过函数设置)
+          const publicPath = getPublicPath(compilation);
 
-					// 本示例仅仅考虑单个 entryPoint 的情况
-					// compilation.entrypoints 可获取入口文件信息
-					const entryNames = Array.from(compilation.entrypoints.keys());
+          // 本示例仅仅考虑单个 entryPoint 的情况
+          // compilation.entrypoints 可获取入口文件信息
+          const entryNames = Array.from(compilation.entrypoints.keys());
 
-					// entryPoint.getFiles() 将获取到该入口的所有资源，并能够保证加载顺序！！！如 runtime-chunk -> main-chunk
-					const assets = entryNames
-						.map((entryName) =>
-							compilation.entrypoints.get(entryName).getFiles()
-						)
-						.flat();
-					const scripts = assets.map((src) => publicPath + src);
-					const content = html({
-						title: this.options.title || "Demo",
-						scripts,
-					});
+          // entryPoint.getFiles() 将获取到该入口的所有资源，并能够保证加载顺序！！！如 runtime-chunk -> main-chunk
+          const assets = entryNames.map((entryName) => compilation.entrypoints.get(entryName).getFiles()).flat();
+          const scripts = assets.map((src) => publicPath + src);
+          const content = html({
+            title: this.options.title || "Demo",
+            scripts,
+          });
 
-					// emitAsset 用以生成资源文件，也是最重要的一步
-					compilation.emitAsset(
-						"index.html",
-						new webpack.sources.RawSource(content)
-					);
-					callback();
-				}
-			);
-		});
-	}
+          // emitAsset 用以生成资源文件，也是最重要的一步
+          compilation.emitAsset("index.html", new webpack.sources.RawSource(content));
+          callback();
+        }
+      );
+    });
+  }
 }
 ```
 
@@ -315,11 +337,11 @@ class HtmlWebpackPlugin {
 // extend.global.js
 // 实现首字母大写
 String.prototype.capitalize = function () {
-	return this.split(/\s+/)
-		.map(function (item) {
-			return item[0].toUpperCase() + item.slice(1);
-		})
-		.join(" ");
+  return this.split(/\s+/)
+    .map(function (item) {
+      return item[0].toUpperCase() + item.slice(1);
+    })
+    .join(" ");
 };
 
 // index.js
@@ -340,7 +362,7 @@ Webpack4 默认把所有的代码看作副作用代码，所以会把所有的�
 
 ```js
 {
-	sideEffects: ["*.css", "*.global.js"];
+  sideEffects: ["*.css", "*.global.js"];
 }
 ```
 
@@ -372,33 +394,30 @@ Webpack4 默认把所有的代码看作副作用代码，所以会把所有的�
 ```js
 // 打包时，把HTML中的config修改为对应环境的json。
 class CustomHtmlPlugin {
-	constructor(options = {}) {
-		this.options = options;
-	}
+  constructor(options = {}) {
+    this.options = options;
+  }
 
-	apply(compiler) {
-		const replacements = this.options.replacements || {};
-		compiler.hooks.compilation.tap("CustomHtmlPlugin", (compilation) => {
-			compilation.hooks.htmlWebpackPluginAfterHtmlProcessing.tapPromise(
-				"CustomHtmlPlugin",
-				(data) => {
-					let html = data.html;
-					return new Promise((resolve) => {
-						Object.keys(replacements).forEach((key) => {
-							// key = key.replace(/\s*/g, '');
-							let value = replacements[key];
-							if (typeof value !== "string") {
-								value = JSON.stringify(value);
-							}
-							html = html.replace(new RegExp("{{" + key + "}}", "g"), value);
-						});
-						data.html = html;
-						resolve(data);
-					});
-				}
-			);
-		});
-	}
+  apply(compiler) {
+    const replacements = this.options.replacements || {};
+    compiler.hooks.compilation.tap("CustomHtmlPlugin", (compilation) => {
+      compilation.hooks.htmlWebpackPluginAfterHtmlProcessing.tapPromise("CustomHtmlPlugin", (data) => {
+        let html = data.html;
+        return new Promise((resolve) => {
+          Object.keys(replacements).forEach((key) => {
+            // key = key.replace(/\s*/g, '');
+            let value = replacements[key];
+            if (typeof value !== "string") {
+              value = JSON.stringify(value);
+            }
+            html = html.replace(new RegExp("{{" + key + "}}", "g"), value);
+          });
+          data.html = html;
+          resolve(data);
+        });
+      });
+    });
+  }
 }
 
 module.exports = CustomHtmlPlugin;
@@ -638,26 +657,26 @@ module.exports = () => ({
 ```js
 // babelrc.js
 module.exports = {
-	presets: [
-		[
-			"@babel/env",
-			{
-				useBuiltIns: "entry", // "usage" | "entry" | false, defaults to false.
-				targets: {
-					chrome: "58",
-					ie: "11",
-				},
-				bugfixes: false,
-				spec: false,
-				loose: false,
-				debug: false,
-				include: [],
-				exclude: [],
-				modules: "auto", // "amd" | "umd" | "systemjs" | "commonjs" | "cjs" | "auto" | false,defaults to "auto".
-			},
-		],
-	],
-	plugins: [],
+  presets: [
+    [
+      "@babel/env",
+      {
+        useBuiltIns: "entry", // "usage" | "entry" | false, defaults to false.
+        targets: {
+          chrome: "58",
+          ie: "11",
+        },
+        bugfixes: false,
+        spec: false,
+        loose: false,
+        debug: false,
+        include: [],
+        exclude: [],
+        modules: "auto", // "amd" | "umd" | "systemjs" | "commonjs" | "cjs" | "auto" | false,defaults to "auto".
+      },
+    ],
+  ],
+  plugins: [],
 };
 ```
 
@@ -677,7 +696,7 @@ style-loader 用以将 CSS 注入到 DOM 中，原理为使用 DOM API 手动构
 
 ```js
 module.exports = function (source) {
-	return `
+  return `
     function injectCss(css) {
       const style = document.createElement('style');
       // 把css当成文本节点插入到style标签里
@@ -751,18 +770,19 @@ module.exports = {
   2.  不需要安装独立的插件，就可以把类型检查放在独立进程中。
 
 #### 错误提示不显示具体位置的处理
+
 - 对于某些版本，打包时只提示有 error 但是不显示具体 error 内容，需要手动修改 node_modules 中的代码，步骤如下：
 
   1. go to `node_modules/awesome-typescript-loader/dist/instance.js`
   2. find statement: `console.error(colors.red("\n[" + instanceName + "] Checking finished with " + diags.length + " errors"));`，找到类似的这句，可能不同版本略有不同。(可以搜`chalk_1.default.red`试试先)
-  3. Add right below it (inside the same 'if'):在与上面这句相同的if判断里加上下面这句：
+  3. Add right below it (inside the same 'if'):在与上面这句相同的 if 判断里加上下面这句：
 
 ```js
 // diags.map( function (diag) {
 //      console.error(colors.red(diag.pretty));
 // });
 diags.map(function (diag) {
-	console.error(chalk_1.default.red(diag.pretty)); // 这个打印的方法'chalk_1.default.red'看具体的上下文，根据版本会有所不同
+  console.error(chalk_1.default.red(diag.pretty)); // 这个打印的方法'chalk_1.default.red'看具体的上下文，根据版本会有所不同
 });
 ```
 
