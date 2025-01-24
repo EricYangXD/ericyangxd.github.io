@@ -3227,6 +3227,11 @@ fetchUrls(urls, 3).then((results) => {
 5. EventBus：通过事件总线实现父子组件通信，适用于简单的应用场景。
 6. `$attrs`/`$listeners`：适用于透传属性和事件，将父组件的属性和事件透传给子组件。
 7. `v-model`：用于实现双向绑定，父组件通过 v-model 绑定数据，子组件通过 emit 触发 input 事件。
+   - `v-model` 是语法糖，等价于 `:value` 和 `@input` 两个属性。
+   - 子组件通过 emit 触发 `update:modelValue` 事件，父组件通过 v-model 绑定数据。`modelValue` 是 `v-model` 的默认 prop 名称，`update:modelValue` 是 `v-model` 的默认事件名称。
+   - `<input :value="props.modelValue" @input="emit('update:modelValue', $event.target.value)" />`。
+   - 可以传递多个参数：`<Child v-model:param1="param1" v-model:param2="param2" />`。
+   - 父组件中的监听是通过`v-model`自动实现的，监听的属性名即`v-model`传的参数的名称。
 8. `$refs`：父组件通过 $refs 获取子组件的实例，从而调用子组件的方法或访问子组件的数据。
 
 ## 消除异步的传染性
@@ -3548,7 +3553,7 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 
 硬件加速方案，优缺点；DNS 解析过程、预解析、耗时指标
 
-## 单点登录和 SSo 鉴权
+## 单点登录和 SSO 鉴权
 
 授权协议
 
@@ -3559,6 +3564,28 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 ## 前端监控告警体系
 
 性能监控的指标有哪些？页面加载的瓶颈和优化手段
+
+## Vue 的 watch 有哪些配置项？和 computed 的区别
+
+1. Vue 的 watch 有哪些配置项？
+
+   - immediate：当监听的值第一次被赋值时，会立即执行回调函数。
+   - handler：当监听的值发生变化时，会执行的回调函数。接收 newval 和 oldval。
+   - deep：当监听的对象是嵌套对象时，设置为 true 可以监听对象内部属性的变化。
+   - flush：控制回调函数的执行时机，可选值为 'pre'、'post'、'sync'。默认值为 'pre'，即在微任务队列清空后执行。设置为 'post' 会在宏任务队列清空后执行。设置为 'sync' 会在当前任务执行完毕后立即执行。默认值为 'pre'，即 prop 更新完之后触发回调函数再更新 DOM（此时回调函数里不能通过 DOM 获取到更新后的 prop 的值）。设置为 'post'，则更新完 prop 之后再更新 DOM 然后再触发回调函数（此时回调函数里就能通过 DOM 获取到更新后的 prop 的值）。设置为 'sync'，则回调函数会同步执行，也就是在响应式数据发生变化时立即执行。
+   -
+
+2. Vue 的 watch 和 computed 的区别
+
+## 对象的动态属性和静态属性
+
+## forEach 原理
+
+forEach 在循环开始之前，会先获取数组的初始长度并存下来，所以即使在 forEach 循环中增加数组的长度，循环的次数也不会受影响。但是如果减少了数组的长度，由于在取值时会判断当前属性是否存在（`if(k in o)...`），所以循环次数也会减少。
+
+## 惰性函数
+
+TODO：用于只需要执行一次的地方，后续可以直接用缓存结果或者初次执行完之后就修改这个函数。
 
 ## 2025.1.20
 
