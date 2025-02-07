@@ -704,25 +704,44 @@ function promiseAll(promises) {
     if (!Array.isArray(promises)) {
       return reject(new TypeError("argument must be an array!"));
     }
-    var countNum = 0;
+
     var promiseNum = promises.length;
-    var resolvedvalue = new Array(promiseNum);
-    for (let i = 0; i < promiseNum; i++) {
-      (function (i) {
-        Promise.resolve(promises[i]).then(
-          function (value) {
-            countNum++;
-            resolvedvalue[i] = value;
-            if (countNum === promiseNum) {
-              return resolve(resolvedvalue);
-            }
-          },
-          function (reason) {
-            return reject(reason);
-          }
-        );
-      })(i);
+    if (promiseNum === 0) {
+      return resolve([]);
     }
+
+    var countNum = 0;
+    var resolvedvalue = new Array(promiseNum);
+    // for (let i = 0; i < promiseNum; i++) {
+    //   (function (i) {
+    //     Promise.resolve(promises[i]).then(
+    //       function (value) {
+    //         countNum++;
+    //         resolvedvalue[i] = value;
+    //         if (countNum === promiseNum) {
+    //           return resolve(resolvedvalue);
+    //         }
+    //       },
+    //       function (reason) {
+    //         return reject(reason);
+    //       }
+    //     );
+    //   })(i);
+    // }
+    promises.forEach((promise, index) => {
+      Promise.resolve(promise).then(
+        (value) => {
+          countNum++;
+          resolvedvalue[index] = value;
+          if (countNum === promiseNum) {
+            resolve(resolvedvalue);
+          }
+        },
+        (reason) => {
+          reject(reason);
+        }
+      );
+    });
   });
 }
 var p1 = Promise.resolve(1),
@@ -738,13 +757,25 @@ promiseAll([p1, p2, p3]).then(function (value) {
 `Promise.race` 方法也是将多个 Promise 实例包装成一个新的 Promise 实例。接收参数的规则同 `Promise.all`，但是只要有一个实例率先改变状态（fulfilled 或 rejected），`Promise.race` 实例的状态就跟着改变，采用第一个 Promise 的值作为它的值，从而异步地解析或拒绝（一旦堆栈为空）。
 
 ```js
-const _race = (ps) => {
+const promiseRace = (promises) => {
   return new Promise((resolve, reject) => {
-    ps.forEach((item) => {
-      Promise.resolve(item).then(resolve, reject);
+    if (!promises || typeof promises[Symbol.iterator] !== "function") {
+      return reject(new TypeError("Argument is not iterable"));
+    }
+    promises.forEach((item) => {
+      Promise.resolve(item)
+        .then((value) => resolve(value))
+        .catch((error) => reject(error));
     });
   });
 };
+
+var p1 = Promise.resolve(1),
+  p2 = new Promise((resolve, reject) => setTimeout(reject, 1000, "two")),
+  p3 = Promise.resolve(3);
+promiseRace([p1, p2, p3]).then(function (value) {
+  console.log(value);
+});
 ```
 
 ### Promise.any

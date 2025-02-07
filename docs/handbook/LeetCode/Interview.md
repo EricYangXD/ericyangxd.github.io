@@ -2920,9 +2920,9 @@ console.log(chain(1).plusOne.double.minusOne.end); // 3
 
 ## 动态执行函数
 
-1. eval(str) -> 同步代码
-2. setTimeout(str, 0) -> 宏任务
-3. (new Function(arg1, arg2, str))() -> 同步代码
+1. `eval(str)` -> 同步代码，作用域是局部/函数作用域
+2. `setTimeout(str, 0)` -> 宏任务，需要注意作用域是全局作用域
+3. `(new Function(arg1, arg2, str))()` -> 同步代码
 4. `<script>`标签 -> 在浏览器的 JavaScript 环境中，`<script>` 标签中的代码是在宏任务（macro task）中执行的。`script.textContent = str; document.body.appendChils(script);`
 
 ## 静态属性与动态属性
@@ -2932,7 +2932,7 @@ console.log(chain(1).plusOne.double.minusOne.end); // 3
    - 可以直接通过`.`点符号访问
    - 不能使用数字、变量作为属性名
 2. 动态属性：
-   - 可以通过方括号访问但不能通过`.`点符号访问
+   - 可以通过方括号`[]`访问但不能通过`.`点符号访问
    - 可以在运行时计算得出，可以使用数字、变量、字符串字面量、表达式作为属性名
 
 ## 函数的 name 是不可被修改的
@@ -2941,6 +2941,7 @@ console.log(chain(1).plusOne.double.minusOne.end); // 3
 
 1. `==`会进行隐式类型转换。
 2. `===`/`Object.is()`不会进行类型转换，`===` 会比较值和类型，`Object.is()` 也会比较值和类型，但 `NaN === NaN` 为 false，而 `Object.is(NaN, NaN)` 为 true。`+0===-0` 是 true，而 `Object.is(+0, -0)` 为 false。
+3. ==相等比较：如果一个操作数是对象，另一个操作数是字符串或者数字，会首先调用对象的 valueOf 方法，将对象转化为基本类型，在进行比较。当 valueOf 返回的不是基本类型的时候，才会调用 toString 方法。
 
 ## 页面多图片加载优化
 
@@ -3565,7 +3566,7 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 
 性能监控的指标有哪些？页面加载的瓶颈和优化手段
 
-## Vue 的 watch 有哪些配置项？和 computed 的区别
+## Vue 的 watch 有哪些配置项？和 computed 的区别？和 watchEffect 的区别？
 
 1. Vue 的 watch 有哪些配置项？
 
@@ -3573,19 +3574,201 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
    - handler：当监听的值发生变化时，会执行的回调函数。接收 newval 和 oldval。
    - deep：当监听的对象是嵌套对象时，设置为 true 可以监听对象内部属性的变化。
    - flush：控制回调函数的执行时机，可选值为 'pre'、'post'、'sync'。默认值为 'pre'，即在微任务队列清空后执行。设置为 'post' 会在宏任务队列清空后执行。设置为 'sync' 会在当前任务执行完毕后立即执行。默认值为 'pre'，即 prop 更新完之后触发回调函数再更新 DOM（此时回调函数里不能通过 DOM 获取到更新后的 prop 的值）。设置为 'post'，则更新完 prop 之后再更新 DOM 然后再触发回调函数（此时回调函数里就能通过 DOM 获取到更新后的 prop 的值）。设置为 'sync'，则回调函数会同步执行，也就是在响应式数据发生变化时立即执行。
-   -
 
 2. Vue 的 watch 和 computed 的区别
+
+3. Vue 的 watch 和 watchEffect 的区别
+   - watchEffect 直接接受一个回调函数，会自动追踪函数内部使用的数据变化，数据变化时重新执行该函数
+   - watchEffect 的函数会立即执行一次，并在依赖的数据变化时再次执行
+   - watchEffect 跟适合简单的场景，不需要额外的配置，相当于默认开启了 deep 和 immediate 的 watch
+   - watch 显示的接收一个需要被监听的数据和回调函数，若监听的数据发生变化，重新执行该函数
+   - watch 的回调函数只有在侦听的数据源发生变化时才会执行，不会立即执行
+   - watch 可以更精细的控制监听行为，如 deep、immediate、flush 等
 
 ## 对象的动态属性和静态属性
 
 ## forEach 原理
 
-forEach 在循环开始之前，会先获取数组的初始长度并存下来，所以即使在 forEach 循环中增加数组的长度，循环的次数也不会受影响。但是如果减少了数组的长度，由于在取值时会判断当前属性是否存在（`if(k in o)...`），所以循环次数也会减少。
+forEach 在循环开始之前，会先获取数组的初始长度并存下来，所以即使在 forEach 循环中增加数组的长度，循环的次数也不会受影响。但是如果减少了数组的长度，由于在取值时会判断当前属性是否存在于数组中（`if(k in o)...`），所以循环次数也会减少。不能通过 return、break、continue 来中断循环。
+
+```js
+Array.prototype.myForEach = function (callback, thisArg) {
+  if (this === null || this === undefined) {
+    throw new TypeError("Array.prototype.myForEach called on null or undefined");
+  }
+  let obj = this;
+  let len = obj.length;
+  if (typeof callback !== "function") {
+    throw new TypeError("callback不是函数");
+  }
+  for (let i = 0; i < len; i++) {
+    if (i in obj) {
+      let val = obj[i];
+      callback.call(thisArg, val, i, obj);
+    }
+  }
+  return undefined;
+};
+```
+
+## Promise
+
+1. Promise 中的内部发生的错误在 try/catch 中无法捕获，需要在 Promise 的 catch 中捕获，或者需要 async/await 和 try/catch 配合使用才能捕获错误。
+2. try/catch 捕获的是 try 中报的错或者 throw 的 Error。
+
+## async、await 的原理和优势
+
+1. async/await 是基于 Promise 的语法糖，可以简化异步代码的编写，使得异步代码看起来更像同步代码。
+2. async 用于声明一个异步函数，await 用于等待一个异步方法执行完成。在浏览器控制台环境中，目前这俩关键字是可以分开单独使用的。
+3. 在普通函数前面加上 async 之后，这个函数会**返回一个 Promise 对象**，如果函数中本身就有 return 的内容，那么就相当于返回一个已经解决的 Promise 对象，如果函数中抛出错误，那么就相当于返回一个被拒绝的 Promise 对象。例：`return Promise.resolve(xxx)`，在后续处理的时候就需要在 then 中接收 resolve 的值，如果函数中抛出错误，那么就相当于返回一个被拒绝的 Promise 对象，需要在 catch 中接收 reject 的值。如果函数中本身没有 return 的内容，那么相当于`return Promise.resolve(undefined);`
+4. 如果 resolved 成功了，则 await 可以接收到返回的值，如果是 rejected 失败了，则会抛出错误，需要在 catch 中捕获。
+
+### 优势
+
+1. 用同步代码的方式编码，简化异步编程的代码逻辑，消除回调地狱和层层嵌套判断等
+2. 处理同步异步错误更加方便，便于 debug 定位错误的位置，如果使用 then 链式调用，就不容易发现是哪个 then 里面报的错，除非每个 then 后面都加一个 catch 单独处理，否则单凭 try/catch 很难直接捕获发生在 Promise 内部的错误。
+
+## 生成器函数和迭代器对象
+
+执行生成器函数可以获得一个迭代器对象。
+
+### 生成器
+
+即 Generator 函数： 用`function*`定义函数，可以暂停执行并保存其状态，然后在需要时恢复执行，生成器函数内部使用`yield`语句来产值，暂停执行并返回一个迭代器对象（值是 yield 后面的值）给调用者，通过迭代器对象的 next 方法可以控制生成器函数的执行。
+
+```js
+// 生成器函数
+function* generatorDemo(){
+  yield 1;
+  yield 2;
+  yield 3;
+}
+// 迭代器对象
+// 调用生成器函数，返回迭代器对象
+const iterator = generatorDemo();
+
+console.log(iterator.next()); // {value: 1, done: false}
+console.log(iterator.next()); // {value: 2, done: false}
+console.log(iterator.next()); // {value: 3, done: false}
+console.log(iterator.next()); // {value: undefined, done: true}
+
+// 模拟异步函数
+function* getUserInfo(){
+  console.log("start getUserInfo");
+  yield new Promise((resolve, reject) => {
+    console.log("before setTimeout");
+    setTimeout(() => {
+      console.log("before resolve");
+      resolve({id:1, name: "test"});
+      console.log("after resolve");
+    }, 3000)
+    console.log("after setTimeout");
+  });
+  console.log("after yield");
+}
+
+console.log("start---");
+
+let it = getUserInfo();
+
+it.next().value.then(param=>console.log("get info ==> ", param));
+
+console.log("finished");
+// 输出如下：
+start---
+start getUserInfo
+before setTimeout
+after setTimeout
+finished
+// 过3秒之后再打印如下：
+before resolve
+after resolve
+get info ==>  {id: 1, name: 'test'}
+```
+
+### 迭代器
+
+是一种对象，提供了一种按顺序访问集合元素的方法。有两个核心方法：next()和 return()。next()方法返回一个包含 value 和 done 属性的对象，done 表示迭代是否完成，value 表示当前迭代的值。return()方法用于提前终止迭代。
+
+## 异步编程的实现方式有哪些
+
+1. 回调函数
+2. Promise
+3. async/await
+4. 生成器函数和迭代器对象
+5. 事件监听
+6. 发布/订阅模式
 
 ## 惰性函数
 
 TODO：用于只需要执行一次的地方，后续可以直接用缓存结果或者初次执行完之后就修改这个函数。
+
+## 箭头函数
+
+0. js 中的作用域包括：全局作用域、函数作用域、块级作用域。
+1. 箭头函数的作用域是在定义时确定的，基于词法作用域，不会捕获外部的 this 值，而是使用定义时的 this 值。这个 this 值在箭头函数内部是固定的，不会因为外部作用域的变化而改变。
+2. 箭头函数没有自己的 arguments 对象，它会捕获其所在上下文的 arguments 对象。
+3. 箭头函数没有自己的构造函数，不能用作构造函数。可以通过`Reflect.construct(Object, [], arrowFunc)`来判断是不是箭头函数--箭头函数没有 constructor，不能被 new。
+4. 判断箭头函数的 this 时，可以观察箭头函数定义的位置以及有没有被函数包裹，如果被函数包裹，那么箭头函数的 this 就是包裹函数的 this，否则就是全局对象（在严格模式下是 undefined）。适用于通过`{name:()=>{...}}`这种对象形式定义的属性函数。
+5. 箭头函数不能被用于构造函数，不能使用 new 关键字实例化。
+6. 箭头函数不适用于需要使用 this 的场景，如构造函数、事件处理函数、原型链上的方法等。
+
+## 内部方法`[[construct]]`
+
+1. `[[construct]]`是 JS 引擎的一个内部方法，用于创建和初始化对象的实例。不能直接访问，它在 JavaScript 中用于实现构造函数，通过 new 关键字调用创建新对象。
+2. 通过`Reflect.construct(Object, [], func)`是否报错，来判断一个函数是否有内部方法`[[construct]]`，如果没有`[[construct]]`则不能通过 new 来创建实例对象。
+3. 如果通过 es5 的 function 的形式创建的实例对象的**方法**上有`[[construct]]`，可以继续`new obj.sayName()`来创建对象而不会报错。但是通过 es6 的 class 里面的原型方法上没有`[[construct]]`，不能 new。
+
+```js
+// es5
+function Person5(name) {
+  this.name = name;
+}
+Person.prototype.sayName = function () {
+  console.log(this.name);
+};
+
+// es6
+class Person6 {
+  constructor(name) {
+    this.name = name;
+  }
+  // 原型方法
+  sayName() {
+    console.log(this.name);
+  }
+}
+
+let obj5 = new Person5("test5");
+let obj6 = new Person6("test6");
+
+// test
+console.log(Reflect.construct(Object, [], obj5.sayName)); // 不报错==>true
+console.log(Reflect.construct(Object, [], obj6.sayName)); // 报错==>false
+```
+
+## `++`
+
+1. `++` 是一个前缀自增运算符，用于将变量的值增加 1，并返回增加后的值。
+2. `++` 在数字前面，会先自增再返回增加后的值。
+3. `++` 在数字后面，会先返回当前值，然后再自增。
+
+## function 的 length 属性
+
+1. `function` 的 `length` 属性表示函数的参数个数，不包括默认参数和剩余参数。
+2. `function` 的 `length` 属性实际指的是函数的第一个有默认值的参数之前(左侧)的参数的个数。例`function(a,b,c=3,d,...rest){}`的参数的 length 就是 2。
+
+## const 和 Object.freeze()
+
+1. `Object.freeze()`只能冻结对象当前层级的属性，如果对象的属性也是一个对象，那么这个对象的属性不会被冻结，可以继续修改。
+2. `const`只是内存地址不能改变，如果是对象的话，其属性的值是可以改变的。
+3. 在 Vue 中，对于不需要实现响应式的对象或不会影响页面重新渲染的对象等，可以通过`Object.freeze()`冻结这个对象，可以提高性能，后续可以使用`Object.isFrozen()`来判断对象是否被冻结。
+4. `Object.freeze()`冻结的对象，直接=赋值得到的新对象也是被冻结的，深拷贝的对象才是未被冻结的。
+
+## 假值与真值
+
+1. 假值：` false、null、undefined、0/-0/0n、NaN、""/''/``（空字符串）、document.all（有条件） `。
+2. 除假值外的都是真值。
 
 ## 2025.1.20
 
