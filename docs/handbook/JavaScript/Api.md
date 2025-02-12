@@ -877,3 +877,62 @@ pasteFromClipboard();
    1. 在使用 Clipboard API 之前，需要检查浏览器是否支持该功能。可以使用 `if ('clipboard' in navigator)` 语句来检查浏览器是否支持 Clipboard API。
    2. 浏览器可能会要求用户的许可才能访问剪贴板。某些操作可能会受到限制。
    3. Clipboard API 在安全上下文中（如 HTTPS）才能使用。确保你的应用在安全环境中运行。
+
+### 较新的 APIs
+
+#### Array.prototype.at(index)
+
+允许通过索引访问数组中的元素，支持负数索引，可以从数组末尾开始计数。
+
+#### Array.prototype.with(index, newValue)
+
+返回一个新数组，该数组是原数组的副本，但指定索引处的元素被替换为新的值。可用来快速替换数组中的某个值并返回新数组。可以接收负数索引。
+
+#### Array.prototype.toSorted((a,b)=>a-b)
+
+返回一个新数组，是原数组经过排序后的副本，不会修改原数组。传统的 sort()方法会修改原数组。
+
+#### Array.prototype.toReversed()
+
+返回一个新数组，是原数组经过反转后的副本，不会修改原数组。传统的 reverse()方法会修改原数组。
+
+#### Array.prototype.toSpliced(startIndex, deleteCount, ...items)
+
+返回一个新数组，是原数组经过删除、插入或替换元素后的副本，不会修改原数组。类似于 splice()方法，但返回的是新数组。传统的 splice()方法会修改原数组。
+
+#### Array.prototype.findLast(callback)
+
+返回数组中满足提供的测试函数条件的最后一个`元素的值`，如果没有找到则返回 undefined。类似于 find()方法，但查找方向是从后向前。
+
+- `Array.prototype.find(callback(element, index, array), thisArg)`：返回数组中第一个符合条件的`元素的值`（依据回调函数返回 true 的条件）。如果没有找到符合条件的元素，则返回 undefined。
+- `Array.prototype.findIndex(callback(element, index, array), thisArg)`：返回数组中第一个符合条件的`元素的索引`。若没有找到符合条件的元素，则返回 -1。
+- `Array.prototype.findLast(callback(element, index, array), thisArg)`：返回数组中满条件的最后一个`元素的值`，如果没有找到则返回 undefined。
+- `Array.prototype.findLastIndex(callback(element, index, array), thisArg)`：返回数组中最后一个符合条件的`元素的索引`。若没有找到符合条件的元素，则返回 -1。
+
+类似的数组查找的方法还有：
+
+- `Array.prototype.filter(callback)`：返回由所有符合条件的元素组成的新数组。不会停止遍历，即使找到符合条件的元素。
+- `Array.prototype.some(callback)`：检查数组中是否至少有一个元素符合条件，返回布尔值（true 或 false）。
+- `Array.prototype.every(callback)`：检查数组中是否所有元素都符合条件。返回布尔值（true 或 false）。
+- `Array.prototype.includes(target)`：检查数组中是否包含某个具体值。返回布尔值（true 或 false）。
+- `Array.prototype.indexOf(target)`：返回数组中首次出现某个值的索引，找不到则返回 -1。
+- `Array.prototype.lastIndexOf(target)`：返回数组中最后一次出现某个值的索引，找不到则返回 -1。
+
+#### ES6 之后部分新的 API
+
+1. Array.prototype.includes()
+2. 指数幂运算符 `**`
+3. Object.values()/Object.entries()
+4. String.prototype.padStart() 和 String.prototype.padEnd()
+5. async 和 await
+6. Object.rest 和 Object.spread：扩展运算符（...）可用于对象
+7. Promise.prototype.finally()
+8. Array.prototype.flat()
+9. Array.prototype.flatMap(callback)：先映射每个元素然后将结果展平（深度为 1）。`console.log([1,2,3].flatMap(x => [x, x * 2])); // [1, 2, 2, 4, 3, 6]`
+10. Object.fromEntries()：将键值对数组转换为对象（与 Object.entries() 相反）。`console.log(Object.fromEntries([['a', 1], ['b', 2]])); // { a: 1, b: 2 }`
+11. String.prototype.trimStart() 和 String.prototype.trimEnd()，`trim()`是开头结尾的空白字符都会去除。
+12. 可选链操作符（?.）
+13. 空值合并操作符（??）：提供默认值，只在左侧值为 null 或 undefined 时返回右侧的值。
+14. Promise.allSettled()：等待所有 Promise 都结束（无论是 fulfilled 还是 rejected），并返回每个 Promise 的结果。
+15. 全局 globalThis：提供一个统一本地环境（浏览器、Node.js）下的全局对象。
+16. String.prototype.replaceAll()：替换字符串中 所有匹配的子字符串。

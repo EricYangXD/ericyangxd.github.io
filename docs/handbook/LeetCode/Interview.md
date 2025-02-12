@@ -385,10 +385,12 @@ function merge(l1, l2) {
 }
 ```
 
-### K 个一组翻转链表
+### 25. K 个一组翻转链表
 
 ```js
 var reverseKGroup = function (head, k) {
+  if (!head || !head.next) return head;
+
   let a = head,
     b = head;
   for (let i = 0; i < k; i++) {
@@ -414,6 +416,41 @@ function reverse(a, b) {
   }
   return prev;
 }
+
+// 2.
+var reverseKGroup = function (head, k) {
+  if (!head || !head.next) return head;
+
+  const dummy = new ListNode(-1, head);
+  let p0 = dummy;
+  let cur = head;
+  let len = 0;
+  while (cur) {
+    len++;
+    cur = cur.next;
+  }
+
+  while (len >= k) {
+    len -= k;
+
+    let pre = null;
+    cur = p0.next;
+
+    for (let i = 0; i < k; i++) {
+      const next = cur.next;
+      cur.next = pre;
+      pre = cur;
+      cur = next;
+    }
+
+    const nxt = p0.next;
+    p0.next.next = cur;
+    p0.next = pre;
+    p0 = nxt;
+  }
+
+  return dummy.next;
+};
 ```
 
 ### 环形链表
@@ -613,19 +650,11 @@ var findMedianSortedArrays = function (nums1, nums2) {
 };
 ```
 
-### K 个一组翻转链表
-
-```js
-
-```
-
-### K 个一组翻转链表
+### 寻找关联子串的位置
 
 给定两个字符串 str1 和 str2，如果字符串 str1 中的字符，经过排列组合后的字符串中，只要有一个字符串是 str2 的子串，则认为 str1 是 str2 的关联子串。
 
 若 str1 是 str2 的关联子串，请返回子串在 str2 的起始位置；若 str2 中有多个 str1 的组合子串，请返回最小的起始位置。若不是关联子串，则返回-1。
-
-如果 str1 是 str2 的关联子串，则返回子串在 str2 中的起始位置。如果 str1 不是 str2 的关联子串，则返回-1。
 
 ```js
 function findSubstring(s1, s2) {
@@ -1371,7 +1400,7 @@ exports.b = "修改值-b模块内变量";
 
 ### js 中的 sort 函数
 
-没有默认值函数时，是按照 UTF-16 排序的，对于字母数字 你可以利用 ASCII 进行记忆。（a-b)是从小到大排序。
+没有默认值函数时，是按照 UTF-16 排序的，对于字母数字 你可以利用 ASCII 进行记忆。`(a-b)`是从小到大排序。
 
 ### 非匿名自执行函数，函数名只读
 
@@ -1417,6 +1446,35 @@ Babel 是如何把 ES6 转成 ES5 呢，其大致分为三步：
 - .vue 文件通过 webpack 的 vue-loader 分析出 script style template 再走上面的 ES6 转 ES5 流程
 - jsx 通过 babel 插件转 js 语法再走 ES6 转 ES5
 - ts 通过 tsc 结合 tsconfig.json 直接转 ES5
+
+### vite/esbuild/rollup 的关系
+
+1. Vite 是一个快速的前端构建工具，主要用于开发环境。它的主要特点包括：基于原生 ES 模块（ESM）能实现快速的冷启动，即时的模块热更新（HMR），真正的按需编译按需加载模块，无需像传统工具那样预构建整个项目，开箱即用无需复杂配置。使用 esbuild 作为开发阶段的快速依赖（如 node_modules 中的第三方库）预编译和转译（CommonJS->ESM）工具。使用 Rollup 作为生产构建的打包工具。所以 Vite 并不是简单的替代品，而是一个整合工具，结合了 esbuild 的速度和 Rollup 的灵活性，带来了高效的开发和生产构建体验。
+2. esbuild 是一个超高性能的 JavaScript 和 TypeScript 打包器和压缩器，它的主要特点是：使用 Go 语言编写，性能极高，得益于 Go 的性能和并行化设计，能快速实现代码转译和依赖预构建，支持 JavaScript 和 TypeScript，可以作为库使用，也可以作为独立的构建工具。提供基础的打包、转译和树摇（Tree Shaking）功能，支持现代 JavaScript/TypeScript 特性。注重单一职责，功能相对有限，主要用于快速构建和预编译。
+3. Rollup 是一个专注于现代 JavaScript 应用的模块打包器，专注于生产环境的构建。它的主要特点包括：生成更小、更高效的打包结果，支持 Tree-shaking、代码拆分、变量作用域提升等，有丰富的插件生态系统（如压缩、CSS 处理等）。支持 ES 模块（ESM），为现代 JavaScript 提供模块化的打包支持。Rollup 结合 JavaScript 引擎的死代码消除（依赖 DCE--Dead Code Elimination）优化，进一步减小输出文件的体积。
+
+| 工具    | 适用场景       | 特点                                                               | 插件系统            | 性能                  |
+| ------- | -------------- | ------------------------------------------------------------------ | ------------------- | --------------------- |
+| Vite    | 开发和生产     | 开发阶段基于 ESM，生产阶段基于 Rollup，整合 esbuild 和 Rollup 优势 | 丰富（基于 Rollup） | 开发速度快，构建高效  |
+| esbuild | 开发和快速构建 | 高速转译和打包，但功能简单，适合用作底层工具                       | 简单                | 极快（使用 Go 实现）  |
+| Rollup  | 生产构建       | 功能全面，支持复杂的生产环境优化，适合库开发和大规模项目           | 非常强大            | 高效，但比 esbuild 慢 |
+
+PS：
+
+1. Tree-shaking 对于 动态导入 和 CommonJS 模块 支持有限，因为它们不能被静态分析。动态代码使用时（如动态计算导入路径）可能会导致无法移除未使用的代码。
+2. 代码拆分是一种优化技术，通过将代码分成多个模块（或文件），按需加载，从而减少初始页面加载的体积，并提高页面加载速度。常见应用场景：
+   - 按路由拆分代码（基于路由的懒加载）。
+   - 将共享依赖（如 react、lodash）分离到单独的文件中。
+3. Rollup 如何实现代码拆分？
+   - 动态导入（Dynamic Imports）：Rollup 支持基于 `import()` 的动态导入，将相关代码拆分为单独的 chunk 文件。依赖现代浏览器（需要支持 import()）。
+   - 共享模块的提取：Rollup 使用 `output.manualChunks` 配置，将共享依赖（如 node_modules 中的第三方库）提取为独立的 chunk。
+   - 按需加载：Rollup 将拆分的代码块输出为独立文件，结合现代模块加载器（如浏览器原生模块加载或 Webpack 的懒加载）实现按需加载。
+4. 什么是变量作用域提升？
+   - 变量作用域提升是一种优化技术，主要目标是将模块之间的代码整合到一个更大的作用域中，减少闭包的开销。
+   - 它可以避免不必要的函数包装，从而提高代码执行效率（尤其是对于浏览器中的解析和执行）。
+5. Rollup 如何实现作用域提升？
+   - Rollup 在打包过程中会将多个模块中的代码合并到一个共享作用域中，而不是为每个模块单独创建闭包。
+   - 这种优化得益于 Rollup 对 ESM 的静态分析能力，可以在打包阶段安全地将导入的模块“内联”到主模块中。
 
 ### 为什么普通 for 循环的性能远远高于 forEach 的性能
 
@@ -2781,13 +2839,13 @@ console.log(flattenArray(arr)); // [1, 2, 3, 4, 5, 6, 7, 8]
 
 ## v-if 和 v-show 的区别
 
-- v-if：条件判断，当条件为 true 时，渲染组件；当条件为 false 时，组件根节点会被销毁，不再渲染。v-show：条件展示，当条件为 true 时，渲染组件；当条件为 false 时，组件根节点仍然存在，只是 display:none。
+- v-if：条件判断，当条件为 true 时，渲染组件；当条件为 false 时，组件根节点会被销毁，不再渲染。v-show：条件展示，当条件为 true 时，渲染组件；当条件为 false 时，组件根节点仍然存在，只是 `display:none`。
 - v-if 的开销较大，因为它涉及到组件的销毁和重建；v-show 的开销较小，因为它只是简单地切换 CSS 属性。
 - v-if 有更高的切换开销，因为它需要同时把旧的组件实例销毁（回收内存）和新的组件实例创建（渲染）；v-show 有更高的初始渲染开销，因为它需要初始渲染时就渲染组件，没有切换过程。
 - v-if 适用于运行时条件，v-show 适用于初始渲染条件。
 - v-if 惰性渲染，性能开销大，适合条件切换较少的场景。v-show 通过样式控制显示，性能开销小，适合频繁切换的场景。
 - v-if：会触发组件的生命周期钩子（如 created、mounted 等）。v-show：不会触发组件的生命周期钩子。
-- v-if：可以和 v-else、v-else-if 配合使用。v-show：不能和 v-else 等指令配合使用。
+- v-if：可以和 `v-else`、`v-else-if` 配合使用。v-show：不能和 v-else 等指令配合使用。
 - v-show: 条件切换频率较高。页面初次加载时，内容需要渲染出来，但可以通过样式快速切换来控制显示。
 - v-if: 如果涉及敏感信息或需要严格控制渲染。条件切换较少。页面初次加载时，需要根据条件决定是否渲染内容，条件为 true 时才渲染。隐藏的内容较多，或者需要动态销毁和重新创建的场景。
 
@@ -3215,7 +3273,7 @@ fetchUrls(urls, 3).then((results) => {
 
 1. setup 函数：是 Composition API 的入口点，用于定义组件的响应式状态、计算属性、方法等，在组件创建之前执行，可以返回一个对象，对象中的属性和方法可以在模板中直接使用。
 2. ref 和 reactive：用于定义响应式数据，ref 用于定义单个基本数据类型的响应式数据，reactive 用于定义对象或数组的响应式数据。
-3. computed：用于定义计算属性，计算属性会根据依赖的数据自动更新。
+3. computed：用于定义计算属性，计算属性会根据依赖的数据自动更新，且会缓存计算结果。
 4. watch 和 watchEffect：用于监听数据的变化，watch 用于监听指定的数据，watchEffect 用于监听数据的变化，不需要指定监听的数据。
 5. 生命周期钩子：使用 onMounted、onUpdated、onUnmounted 等函数来定义组件的生命周期钩子。用于在组件的不同生命周期阶段执行代码。
 
@@ -3575,7 +3633,11 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
    - deep：当监听的对象是嵌套对象时，设置为 true 可以监听对象内部属性的变化。
    - flush：控制回调函数的执行时机，可选值为 'pre'、'post'、'sync'。默认值为 'pre'，即在微任务队列清空后执行。设置为 'post' 会在宏任务队列清空后执行。设置为 'sync' 会在当前任务执行完毕后立即执行。默认值为 'pre'，即 prop 更新完之后触发回调函数再更新 DOM（此时回调函数里不能通过 DOM 获取到更新后的 prop 的值）。设置为 'post'，则更新完 prop 之后再更新 DOM 然后再触发回调函数（此时回调函数里就能通过 DOM 获取到更新后的 prop 的值）。设置为 'sync'，则回调函数会同步执行，也就是在响应式数据发生变化时立即执行。
 
-2. Vue 的 watch 和 computed 的区别
+2. Vue 的 watch 和 computed 和 method 的区别
+
+   - 计算属性 computed 在第一次计算完成后，会对结果进行缓存，后续再次调用时直接输出结果而不会重新计算。仅当依赖变化时再重新计算并缓存，计算量较大时使用计算属性会更高效。频繁使用时使用计算属性会更高效。
+   - method 调用几次就会执行几遍，不会缓存结果，每次都会重新计算。
+   - watch 用于监听数据的变化，当数据变化时，会执行回调函数，回调函数接收新值和旧值。
 
 3. Vue 的 watch 和 watchEffect 的区别
    - watchEffect 直接接受一个回调函数，会自动追踪函数内部使用的数据变化，数据变化时重新执行该函数
@@ -3584,6 +3646,12 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
    - watch 显示的接收一个需要被监听的数据和回调函数，若监听的数据发生变化，重新执行该函数
    - watch 的回调函数只有在侦听的数据源发生变化时才会执行，不会立即执行
    - watch 可以更精细的控制监听行为，如 deep、immediate、flush 等
+
+## computed 的 getter 和 setter
+
+1. getter：计算属性的 getter 是一个函数，当访问计算属性时，会执行这个 getter 函数，返回计算属性的值。
+2. setter：计算属性的 setter 是一个函数，当修改计算属性的值时，会执行这个 setter 函数，传入新值和旧值。可以在这里修改计算属性的值，也可以在这里执行一些副作用操作。也就是说可以在 method 中直接对计算属性赋新值，就像处理普通的 data 一样，然后在 setter 中对新值进行处理。
+3. 计算属性的 getter 和 setter 可以用来实现双向数据绑定，即当计算属性的值发生变化时，会自动更新依赖该计算属性的其他数据；当依赖该计算属性的其他数据发生变化时，会自动更新计算属性的值。
 
 ## 对象的动态属性和静态属性
 
@@ -3770,6 +3838,14 @@ console.log(Reflect.construct(Object, [], obj6.sayName)); // 报错==>false
 1. 假值：` false、null、undefined、0/-0/0n、NaN、""/''/``（空字符串）、document.all（有条件） `。
 2. 除假值外的都是真值。
 
+## Vue2 中的数组操作
+
+1. 由于 `Object.defineProperty` 无法监听数组内容的变化，所以 Vue2 重写了一部分数组的方法来实现响应式：`push/pop/shift/unshift/splice/sort/reverse`，我们在 Vue 的数组中调用这几个方法时实际调用的是 Vue2 重写后的方法，而非原生的方法。另外 Vue2 也提供了`Vue.set(array, index, newValue)`、`Vue.delete()`这个方法来对数组进行操作，能够实现数组数据的响应式渲染。
+
+2. 另外对于数组的操作还可以借助`v-if`的特性来实现页面的重新渲染，在操作数组前先把会影响到的数据对应的 dom 视图设置`v-if=false`，这样 dom 会从页面移除，然后修改数组，操作完后再设置`v-if=true`，这样可以实现 dom 视图的重新渲染。可以同时借助`$nextTick()`进行操作处理。
+
+3. 还可以使用强制渲染：`vm.$forceUpdate()`。这个方法会强制组件重新渲染而不考虑数据是否更新，避开了正常的数据流更新的方法，违反了 Vue 响应式更新的规则，但是可以用于一些特殊场景，比如在某些异步操作中，需要强制组件重新渲染。
+
 ## 2025.1.20
 
 ### 小鹏
@@ -3788,7 +3864,7 @@ console.log(Reflect.construct(Object, [], obj6.sayName)); // 报错==>false
 
 3. Object.defineProperty 和 Proxy 的区别以及 Proxy 的优势:
 
-   - 前者代理对象上的属性，不能监听数组及对象深度变化，后者代理对象本身，可以深度监听数组对象变化。
+   - 前者代理对象上的属性，不能监听数组及对象深度变化，后者代理对象本身，可以深度监听数组对象变化，PS：Proxy 也不能自动递归代理嵌套对象。
    - 兼容性现代浏览器都支持，大部分场景下 Proxy 性能优于 Object.defineProperty，在大规模简单数据的场景下 Proxy 性能可能不如 Object.defineProperty。因为 Proxy 的代理操作会引入一定的性能开销，而 defineProperty 是直接修改对象的属性描述符，开销较小。但是这个性能差距在大多数场景下是可以忽略的，所以在需要实现更复杂的逻辑控制的情况下，推荐使用 Proxy。
    - Proxy 可以拦截并重写多种操作，如 get、set、deleteProperty 等；Object.defineProperty 只能拦截属性的读取和赋值操作。
    - Proxy 支持迭代器，可以使用 for...of、Array.from() 等进行迭代；Object.defineProperty 不支持迭代器，无法直接进行迭代操作
@@ -3855,11 +3931,13 @@ const transform = (data) => {
   const map = new Map();
 
   for (let node of data) {
+    // 在map中存储的是对象的引用，而不是对象的值，因此可以修改对象的属性。借助这个特性，我们在外部修改了map中的对象，也会影响到tree中的对象。所以最后从map中拿到的node也是被修改了之后的。这里是为了方便后续操作，将data中的对象转换成map中的对象。同时要注意map中set的是一个新的node，而不是直接set的data中的node，否则会污染data的原始数据。
     map.set(node.id, { ...node, children: [] });
   }
 
   for (let node of data) {
     const { id, parentId } = node;
+    // 在map中存储的是对象的引用，而不是对象的值，因此可以修改对象的属性。借助这个特性，我们在外部修改了map中的对象，也会影响到tree中的对象。所以最后从map中拿到的node也是被修改了之后的。
     const treeNode = map.get(id);
     if (!parentId) {
       tree.push(treeNode);
