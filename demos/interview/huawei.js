@@ -1,12 +1,12 @@
-// let outObj = {
-// 	inObj: { a: 1, b: 2 },
-// };
-// let newObj = Object.assign({}, outObj);
-// newObj.inObj.a = 2;
-// console.log(outObj);
+let outObj = {
+  inObj: { a: 1, b: 2 },
+};
+let newObj = Object.assign({}, outObj);
+newObj.inObj.a = 2;
+console.log(outObj);
 
 // 【求满足条件的最长子串的长度】
-// 给定一个字符串，只包含字母和数字，按要求找出字符串中最长（连续）子串的长度，字符字串本身是其最长子串，子串满足：
+// 给定一个字符串，只包含字母和数字，按要求找出字符串中最长（连续）子串的长度，字符串本身是其最长子串，子串满足：
 // 1. 只包含 n 个字母（a~z,A~Z），其余必须是数字；
 // 2. 字母可以在子串的任意位置
 
@@ -27,36 +27,29 @@
 // n=2
 // 输出：6
 
-// const longestString = (str, n) => {
-// 	let i = 0,
-// 		j = 0,
-// 		max = 0;
-// 	const len = str.length;
+const longestString = (str, n) => {
+  let i = 0,
+    j = 0,
+    max = 0;
+  const len = str.length;
 
-// 	for (i; i < len; i++) {
-// 		let countStr = 0;
-// 		let countNum = 0;
+  for (i; i < len; i++) {
+    let countNum = 0;
 
-// 		for (j = i; j < len; j++) {
-// 			if (Number.isNaN(Number(str[j])) && countNum < n) {
-// 				countNum++;
-// 			}
-// 			if (
-// 				j === len - 1 ||
-// 				(countNum === n && Number.isNaN(Number(str[j + 1])))
-// 			) {
-// 				max = Math.max(max, j - i + 1);
-// 				// console.log(str.slice(i, j + 1));
-
-// 				break;
-// 				// i = j;
-// 				// j--;
-// 			}
-// 		}
-// 	}
-// 	console.log(max);
-// 	return max;
-// };
+    for (j = i; j < len; j++) {
+      if (Number.isNaN(Number(str[j])) && countNum < n) {
+        countNum++;
+      }
+      // 如果已经遍历到最后一个了，或者，数字的个数已经是n了而且下一个字符还是数字，那就终止遍历，计算当前的长度和max取较大值。
+      if (j === len - 1 || (countNum === n && Number.isNaN(Number(str[j + 1])))) {
+        max = Math.max(max, j - i + 1);
+        break;
+      }
+    }
+  }
+  console.log(max);
+  return max;
+};
 
 // longestString("abc124acb", 1);
 // longestString("abc124a2cb", 1);
@@ -114,35 +107,35 @@
 // };
 
 const reverseWords = (str) => {
-	if (!str) return "";
-	const len = str.length;
-	let i = 0,
-		j = 0;
-	for (i, j; j < len; j++) {
-		if (str[j] === " ") {
-			// change(i, j - 1, str);
-			let start = i,
-				end = j - 1;
-			while (start < end) {
-				let tempEnd = str[end];
-				let tempStart = str[start];
-				str.substr(start, 1, tempEnd);
-				str.substr(end, 1, tempStart);
+  if (!str) return "";
+  const len = str.length;
+  let i = 0,
+    j = 0;
+  for (i, j; j < len; j++) {
+    if (str[j] === " ") {
+      // change(i, j - 1, str);
+      let start = i,
+        end = j - 1;
+      while (start < end) {
+        let tempEnd = str[end];
+        let tempStart = str[start];
+        str.substr(start, 1, tempEnd);
+        str.substr(end, 1, tempStart);
 
-				// [(str[start], str[end])] = [
-				// 	str[end],
-				// 	str[start],
-				// ]);
-				start++;
-				end--;
-			}
-			console.log(str);
-			i = j + 1;
-		}
-	}
+        // [(str[start], str[end])] = [
+        // 	str[end],
+        // 	str[start],
+        // ]);
+        start++;
+        end--;
+      }
+      console.log(str);
+      i = j + 1;
+    }
+  }
 
-	// console.log(str);
-	return str;
+  // console.log(str);
+  return str;
 };
 
 // const change = (start, end, str) => {
