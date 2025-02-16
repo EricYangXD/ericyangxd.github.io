@@ -73,7 +73,7 @@ export default useMyDebounce;
 
 1. JSONP: 通过 javascript callback 的形式实现跨域访问，服务器收到请求后，将数据放在一个指定名字的回调函数里传回来;
 2. postMessage / Channel Messaging API;
-3. window.name: window.name + iframe 需要目标服务器响应 window.name，window 对象有一个 name 属性，该属性有个特征：即在一个窗口（window）的生命周期内，窗口载入的所有的页面都是共享一个 window.name 的，每个页面对 window. name 都有读写的权利，window.name 是持久存在一个窗口载入过的所有页面中的;
+3. window.name: window.name + iframe 需要目标服务器响应 window.name，window 对象有一个 name 属性，该属性有个特征：即在一个窗口（window）的生命周期内，窗口载入的所有的页面都是共享一个 window.name 的，每个页面对 window.name 都有读写的权利，window.name 是持久存在一个窗口载入过的所有页面中的;
 4. document.domain: 当两个页面的 document.domain 都设置为 ericyangxd.top 也就是同一个二级域名的时候，浏览器就将两个来源视为同源。这时候主页面就可以和 iframe/子页面 进行通信了。**Chrome 决定在 101 版本禁用掉它**。解决办法：给你的网页增加下面这个 Header 就可以了:`Origin-Agent-Cluster: ?0`.
 5. CORS: Nginx 设置 header: `Access-Control-Allow-Origin: *`;
 6. websocket: 单独的持久连接上提供全双工、双向通信;
@@ -1112,15 +1112,15 @@ meta 是文档级元数据元素，用来表示那些不能由其它 HTML 元相
 
 ```html
 <!-- 根据dpr选择图片 -->
-<img src="image.png" srcset="image.jpg, image_2x.jpg 2x, image_3x.jpg 3x" />
+<img srcset="image.jpg, image_2x.jpg 2x, image_3x.jpg 3x" src="image.png" />
 
 <!-- 根据需要选择图片 -->
-<img src="image.png" srcset="image_S.jpg 600w, image_M.jpg 900w, image_L.jpg 1500w, image_XL.jpg 3000w" />
+<img srcset="image_S.jpg 600w, image_M.jpg 900w, image_L.jpg 1500w, image_XL.jpg 3000w" src="image.png" />
 <!-- 借助sizes实现更精细的控制 -->
 <img
-  src="image.png"
   srcset="image_S.jpg 600w, image_M.jpg 900w, image_L.jpg 1500w, image_XL.jpg 3000w"
-  sizes="(max-width:450px) 100vw,(max-width:900px) 50vw,(max-width:1300px) 33vw, 300px" />
+  sizes="(max-width:450px) 100vw,(max-width:900px) 50vw,(max-width:1300px) 33vw, 300px"
+  src="image.png" />
 ```
 
 ### 适配 iPhone 的齐刘海
@@ -1137,16 +1137,19 @@ meta 是文档级元数据元素，用来表示那些不能由其它 HTML 元相
   1. 不会冒泡，所以无法阻止默认行为；
   2. 如果当前节点是不能滚动的，那么将尝试 document 上的滚动；
 - 解决方案：打开弹窗的时候禁用外层页面滚动
+
   1. 在 body 上设置`overflow: hidden;`缺点：兼容性问题
   2. 在 body 上设置`position:fixed;height:100%;width:100%;`，缺点：外层页面不会停留在原来的位置而是被置顶。需记录下 scrollTop 的位置，然后通过`scrollTop(0,scrollTop)`恢复
   3. 在 body 上设置`position:fixed;height:100%;width:100%;`；在 body 下的 div 上使用自己的`height:100%;overflow:auto/scroll;`
   4. `touch-action`: 默认情况下，平移（滚动）和缩放手势由浏览器专门处理，但是可以通过 CSS 特性 `touch-action` 来改变触摸手势的行为。在 popup 元素上设置该属性，禁用元素（及其不可滚动的后代）上的所有手势就可以解决该问题了。`touch-action: none;`(小程序本身好像就不可以缩放)
-     |值 |描述|
-     |--|--|
-     |auto| 启用浏览器处理所有平移和缩放手势。|
-     |none| 禁用浏览器处理所有平移和缩放手势。|
-     |manipulation |启用平移和缩放手势，但禁用其他非标准手势，例如双击缩放。|
-     |pinch-zoom |启用页面的多指平移和缩放。|
+
+     | 值           | 描述                                                     |
+     | ------------ | -------------------------------------------------------- |
+     | auto         | 启用浏览器处理所有平移和缩放手势。                       |
+     | none         | 禁用浏览器处理所有平移和缩放手势。                       |
+     | manipulation | 启用平移和缩放手势，但禁用其他非标准手势，例如双击缩放。 |
+     | pinch-zoom   | 启用页面的多指平移和缩放。                               |
+
   5. `event.preventDefault`: 在 `touchstart` 和 `touchmove` 事件中调用 `preventDefault` 方法可以阻止任何关联事件的默认行为，包括鼠标事件和滚动。
      - Step 1. 监听弹窗最外层元素（popup）的 touchmove 事件并阻止默认行为来禁用所有滚动（包括弹窗内部的滚动元素）。
      - Step 2. 释放弹窗内的滚动元素，允许其滚动：同样监听 touchmove 事件，但是阻止该滚动元素的冒泡行为（stopPropagation），使得在滚动的时候最外层元素（popup）无法接收到 touchmove 事件。
@@ -1155,14 +1158,16 @@ meta 是文档级元数据元素，用来表示那些不能由其它 HTML 元相
 
 - 表现：弹窗内含有滚动元素，在滚动元素滚到底部或顶部时，再往下或往上滚动，也会触发页面的滚动，这种现象称之为滚动链（scroll chaining）, 但是感觉滚动溢出（overscroll）这个名字更言辞达意。
 - 解决方案：
-- 1. `overscroll-behavior`: 是 CSS 的一个特性，允许控制浏览器滚动到边界的表现。` overscroll-behavior: none;`，缺点是不支持 safari。
-     |值 |描述|
-     |--|--|
-     |auto |默认效果，元素的滚动可以传播到祖先元素。|
-     |contain |阻止滚动链，滚动不会传播到祖先元素，但是会显示节点自身的局部效果。例如 Android 上过度滚动的发光效果或 iOS 上的橡皮筋效果。|
-     |none| 与 contain 相同，但是会阻止自身的过度效果。|
 
-- 2. `event.preventDefault`: 当组件滚动到底部或顶部时，通过调用 `event.preventDefault` 阻止所有滚动，从而页面滚动也不会触发了，而在滚动之间则不做处理。
+  1.  `overscroll-behavior`: 是 CSS 的一个特性，允许控制浏览器滚动到边界的表现。` overscroll-behavior: none;`，缺点是不支持 safari。
+
+  | 值      | 描述                                                                                                                       |
+  | ------- | -------------------------------------------------------------------------------------------------------------------------- |
+  | auto    | 默认效果，元素的滚动可以传播到祖先元素。                                                                                   |
+  | contain | 阻止滚动链，滚动不会传播到祖先元素，但是会显示节点自身的局部效果。例如 Android 上过度滚动的发光效果或 iOS 上的橡皮筋效果。 |
+  | none    | 与 contain 相同，但是会阻止自身的过度效果。                                                                                |
+
+  2.  `event.preventDefault`: 当组件滚动到底部或顶部时，通过调用 `event.preventDefault` 阻止所有滚动，从而页面滚动也不会触发了，而在滚动之间则不做处理。
 
 ```js
 let initialPageY = 0;

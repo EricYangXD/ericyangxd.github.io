@@ -381,6 +381,29 @@ function getUUID(domain) {
 console.log(getUUID("https://www.baidu.com/"));
 ```
 
+## 浏览器指纹
+
+用于广告精准推送，广告防刷，防爬虫等。
+
+0. [根据 IP 获取地理位置](https://ip-api.com/)
+1. [fingerprintjs](https://github.com/fingerprintjs/fingerprintjs)：客户端浏览器指纹库，可查询浏览器属性并从中计算出 Hashed 访问者标识符。与 cookie 和本地存储不同，指纹在隐身/私有模式下保持不变，即使清除浏览器数据也是如此。
+
+有几种方案，原理如下：
+
+0. IP：最明显的指纹，根据 IP 识别用户。识别异常登录行为或者防止欺诈等。
+1. Canvas：通过一段 js 代码在用户浏览器上生成一个特定的 Canvas，然后分析 Canvas 的内容以及在电脑上的渲染结果，由于每台电脑的硬件配置软件设置等的差异，显示的 canvas 也会有些微的不同，可以分析这些不同之处来作为用户特征，生成指纹，来识别和追踪用户。如前所述。
+2. WebGL：WebGL 在浏览器里通过显卡绘制 3D 图形，网站可以收集用户的显卡等信息，来生成指纹。
+3. Audio Context：Audio Context 可以在浏览器里生成和处理音频数据，根据每个设备处理声音的细微差异，来生成声音指纹。反映的是电脑上音频硬件和软件设置的不同。
+4. 浏览器的 User-Agent：操作系统版本，浏览器和内核版本等。
+5. 浏览器语言：Accept-Language 设置的种类优先顺序不同。
+6. 浏览器字体：根据用户浏览器上安装的字体的差异。fingerprintjs 库就可以检测用户浏览器上安装的字体，来生成指纹。通过 js 判断某些字体在浏览器上是否存在，来生成指纹。
+7. 屏幕分辨率：屏幕分辨率、浏览器窗口大小、屏幕尺寸、屏幕 DPI、屏幕颜色深度、屏幕颜色模式、屏幕是否为触控屏、屏幕是否为触控板、屏幕是否为触屏屏等。可以生成指纹。
+8. Client Rects：是一种浏览器的 Api，提供了网页元素的布局信息，包括元素的位置和大小。由于硬件配置、操作系统、浏览器版本、屏幕分辨率、字体设置等因素，不同设备的 Client Rects 也会有所不同，可以用来生成指纹。`document.getElementById("myDiv").getClientRects();`
+9. Speech Voices：大声朗读此页面的语音列表也有差别，可以据此生成指纹。`browserleaks.com`
+10. 线程数与内存：通过 js 获取硬件指标：`navigator.hardwareConcurrency`和`navigator.deviceMemory（最多获取8GB）`。
+
+对抗方法：使用一些特殊的浏览器，这些浏览器会隐藏一些特征，如：Tor 浏览器等。
+
 ## 回车与换行
 
 电传打字机：

@@ -956,7 +956,7 @@ for (let item of "𠮷") {
 
 ```js
 // 现代浏览器的精写版本：
-function sieOfLS() {
+function sizeOfLS() {
   return Object.entries(localStorage)
     .map((v) => v.join(""))
     .join("").length;

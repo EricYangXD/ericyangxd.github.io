@@ -453,7 +453,7 @@ var reverseKGroup = function (head, k) {
 };
 ```
 
-### 环形链表
+### 141. 环形链表
 
 - 快慢指针判断链表有没有环，有环的话两个指针肯定会相遇（套圈），无环的话会退出。
 
@@ -469,6 +469,73 @@ var hasCycle = function (head) {
   }
   return false;
 };
+```
+
+### 142. 环形链表 2
+
+如果有环，则返回环的入口节点。如果没有则返回 null。
+
+- 快慢指针判断链表有没有环，有环的话两个指针肯定会相遇（套圈），无环的话会退出。
+- 当快慢指针相遇时，将快指针重新指向头节点，然后快慢指针每次移动一步，当再次相遇时，就是环的入口节点。(数学计算出来的)
+
+```js
+var detectCycle = function (head) {
+  if (!head || !head.next) return null;
+
+  let fast = head;
+  let slow = head;
+
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (fast === slow) {
+      while (slow !== head) {
+        slow = slow.next;
+        head = head.next;
+      }
+      return slow;
+    }
+  }
+  return null;
+};
+```
+
+### 143. 重排链表
+
+```js
+function findCenter(head) {
+  let slower = head,
+    faster = head;
+  while (faster && faster.next) {
+    slower = slower.next;
+    faster = faster.next.next;
+  }
+  return slower;
+}
+function reverse(head) {
+  let prev = null,
+    cur = head,
+  while (cur != null) {
+   let nxt = cur.next;
+    cur.next = prev;
+    prev = cur;
+    cur = nxt;
+  }
+  return prev;
+}
+function reorderList(head) {
+  if (!head || !head.next) return head;
+  let mid = findCenter(head);
+  let head2 = reverse(mid);
+  while (head2.next) {
+    let nxt = head.next;
+    let nxt2 = head2.next;
+    head.next = head2;
+    head2.next = nxt;
+    head = nxt;
+    head2 = nxt2;
+  }
+}
 ```
 
 ### 排序链表
@@ -523,7 +590,7 @@ function merge(left, right) {
 function getCenter(head) {
   let slower = head,
     faster = head.next;
-  while (faster != null && faster.next != null) {
+  while (faster && faster.next) {
     slower = slower.next;
     faster = faster.next.next;
   }
@@ -566,6 +633,69 @@ var getIntersectionNode = function (headA, headB) {
   }
   return null;
 };
+```
+
+### 98. 验证二叉搜索树
+
+二叉搜索树的定义：左子节点小于父节点，右子节点大于父节点。
+
+可以根据深度优先遍历的三种方式：前中后序遍历来验证：
+
+- 前序遍历：根节点，左子树，右子树；先判断再递归，
+- 中序遍历：左子树，根节点，右子树；中序遍历是递增序列，所以可以判断当前节点是不是大于上一个节点
+- 后序遍历：左子树，右子树，根节点；先递归再判断，把边界带上去
+
+```js
+// 后续
+var isValidBST = function (root) {
+  function dfs(node) {
+    if (node == null) {
+      return [Infinity, -Infinity];
+    }
+    const [lMin, lMax] = dfs(node.left);
+    const [rMin, rMax] = dfs(node.right);
+    const x = node.val;
+    // 也可以在递归完左子树之后立刻判断，如果发现不是二叉搜索树，就不用递归右子树了
+    if (x <= lMax || x >= rMin) {
+      return [-Infinity, Infinity];
+    }
+    return [Math.min(lMin, x), Math.max(rMax, x)];
+  }
+  return dfs(root)[1] !== Infinity;
+};
+// 中序
+var isValidBST = function (root) {
+  if (!root) return true;
+  let pre = -Infinity;
+
+  function dfs(node) {
+    if (!node) return true;
+    if (!dfs(node.left) || node.val <= pre) return false;
+    pre = node.val;
+    return dfs(node.right);
+  }
+
+  return dfs(root);
+};
+// 前序
+var isValidBST = function (root, left = -Infinity, right = Infinity) {
+  if (!root) return true;
+
+  const val = root.val;
+  return left < val && val < right && isValidBST(root.left, left, val) && isValidBST(root.right, val, right);
+};
+```
+
+### 235. 二叉搜索树的最近公共祖先
+
+```js
+
+```
+
+### 236. 二叉树的最近公共祖先
+
+```js
+
 ```
 
 ### 寻找 2 个升序数组的中位数
@@ -3529,7 +3659,7 @@ img.src = "https://fakeimg.pl/100x200";
 3. 创建了一个 div 元素，然后将存放 img 标签元素的变量添加到 div 元素内，而 div 元素此时并不在 dom 文档中，页面不会展示该 div 元素，那么浏览器会发送请求吗？-- 会！
 4. 通过设置 css 属性能否做到禁止发送图片请求资源？-- 不一定
    - 给 img 标签设置样式`display: none`或者`visibility: hidden`，隐藏 img 标签，无法做到禁止发送请求。
-   - 将图片设置为元素的背景图片`background-image`，但此元素不存在，可以做到禁止发送请求。dom 文档中不存在 test 元素时，即使设置了背景图片，也不会发送请求，只有 test 元素存在时才会发送请求。
+   - 将图片设置为元素的背景图片`background-image`，但此元素不存在，可以做到禁止发送请求。dom 文档中不存在 class 为 test 的元素时，即使给 test 这个 class 设置了背景图片，也不会发送请求，只有有使用到 test 这个 class 的元素存在时才会发送请求。
 
 ```html
 <style>
@@ -3549,6 +3679,10 @@ img.src = "https://fakeimg.pl/100x200";
   // document.body.appendChild(dom);
 </script>
 ```
+
+## iframe 相关
+
+1.
 
 ## 正则表达式匹配路径
 
