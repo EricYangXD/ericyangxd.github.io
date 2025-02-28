@@ -265,7 +265,7 @@ function limitRequest(urls = [], limit = 3) {
             // todo
           })
           .finally(() => {
-            if (count == len - 1) {
+            if (count === len - 1) {
               // 最后一个任务完成
               resolve();
             } else {
@@ -281,6 +281,39 @@ function limitRequest(urls = [], limit = 3) {
 
 // 测试
 limitRequest(["http://xxa", "http://xxb", "http://xxc", "http://xxd", "http://xxe"]);
+```
+
+### 写一个执行函数串行执行请求
+
+tasks 等于 [task1, task2, task3]，写一个 excute 函数，入参是 tasks 和 retries， excute(tasks, retries)，要求每个任务执行成功则返回一个 promise 对象，执行失败则重新执行，执行最大次数为 retries，超过最大次数仍未执行成功，则抛出异常报错。额外要求，任务必须串行执行。
+
+```js
+async function execute(tasks, retries) {
+  const results = []; // 存储任务执行结果
+  for (let i = 0; i < tasks.length; i++) {
+    let attempts = 0;
+    let success = false;
+    while (attempts < retries) {
+      attempts++;
+      try {
+        console.log(`Executing task ${i + 1}, attempt ${attempts}...`);
+        const result = await tasks[i](); // 保存成功的结果
+        console.log(`Task ${i + 1} succeeded.`);
+        results.push(result); // 存储结果
+        success = true;
+        break;
+      } catch (error) {
+        console.error(`Task ${i + 1} failed on attempt ${attempts}: ${error.message || error}`);
+      }
+    }
+    if (!success) {
+      // 任务失败，抛出异常，后续任务不再执行。如果还想继续执行，则可以只是console.error。
+      throw new Error(`Task ${i + 1} failed after ${retries} attempts.`);
+    }
+  }
+  console.log("All tasks executed successfully.");
+  return results; // 返回结果数组
+}
 ```
 
 ### ES5 继承（寄生组合继承）

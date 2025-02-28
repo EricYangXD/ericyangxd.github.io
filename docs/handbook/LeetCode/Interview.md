@@ -1582,6 +1582,7 @@ Babel 是如何把 ES6 转成 ES5 呢，其大致分为三步：
 1. Vite 是一个快速的前端构建工具，主要用于开发环境。它的主要特点包括：基于原生 ES 模块（ESM）能实现快速的冷启动，即时的模块热更新（HMR），真正的按需编译按需加载模块，无需像传统工具那样预构建整个项目，开箱即用无需复杂配置。使用 esbuild 作为开发阶段的快速依赖（如 node_modules 中的第三方库）预编译和转译（CommonJS->ESM）工具。使用 Rollup 作为生产构建的打包工具。所以 Vite 并不是简单的替代品，而是一个整合工具，结合了 esbuild 的速度和 Rollup 的灵活性，带来了高效的开发和生产构建体验。
 2. esbuild 是一个超高性能的 JavaScript 和 TypeScript 打包器和压缩器，它的主要特点是：使用 Go 语言编写，性能极高，得益于 Go 的性能和并行化设计，能快速实现代码转译和依赖预构建，支持 JavaScript 和 TypeScript，可以作为库使用，也可以作为独立的构建工具。提供基础的打包、转译和树摇（Tree Shaking）功能，支持现代 JavaScript/TypeScript 特性。注重单一职责，功能相对有限，主要用于快速构建和预编译。
 3. Rollup 是一个专注于现代 JavaScript 应用的模块打包器，专注于生产环境的构建。它的主要特点包括：生成更小、更高效的打包结果，支持 Tree-shaking、代码拆分、变量作用域提升等，有丰富的插件生态系统（如压缩、CSS 处理等）。支持 ES 模块（ESM），为现代 JavaScript 提供模块化的打包支持。Rollup 结合 JavaScript 引擎的死代码消除（依赖 DCE--Dead Code Elimination）优化，进一步减小输出文件的体积。
+4. 总结：vite 是基于 rollup 来实现的，包括开发服务器的 transform（会调用 rollup 插件的 transform 方法来做转换），以及生产环境的打包（也是用同样的 rollup 插件）。但是为了性能考虑，又用了 esbuild 做依赖预构建，比如把 cjs 转换成 esm、把小模块打包成一个大的模块。现在 vite 团队在开发 rust 版 rollup 也就是 rolldown 了，有了它之后，就可以完全替代掉 rollup + esbuild 了。
 
 | 工具    | 适用场景       | 特点                                                               | 插件系统            | 性能                  |
 | ------- | -------------- | ------------------------------------------------------------------ | ------------------- | --------------------- |
@@ -1613,14 +1614,47 @@ PS：
 
 ### 首屏优化
 
-1. 减少入口文件体积：webpack 代码分割，`React.lazy+import()+Suspense`，代码压缩，css 压缩去重，tree-shaking
-2. 静态资源本地缓存或 cdn：cache-control：max-age=36000
-3. UI 框架、第三方库等按需加载：antd/es/xx、lodash-es 等
-4. 避免组件重复打包：提取公共组件
-5. 图片资源压缩：tinyPNG 压缩图片、`url-loader` 转 icon 为 base64、雪碧图减少 http 请求，
+#### 原因
+
+1. 硬件渲染能力有限，渲染时间长，首屏加载时间长，用户体验差；
+2. 网络延迟，加载速度慢
+3. 资源体积过大，导致加载慢
+
+#### 方法
+
+1. 减少入口文件体积：webpack 代码分割，`React.lazy+import()+Suspense`，代码压缩，css 压缩去重，关键 CSS 提取直接内联插入到 html 中，tree-shaking（需要 ESM 标准代码）
+2. 静态资源本地缓存或 cdn：OSS+CDN，强缓存 Expire、Cache-Control：Max-Age=36000，协商缓存：Last-Modified/If-Modified-Since、Etag/If-None-Match，策略缓存：service-worker
+3. UI 框架、第三方库等按需加载：antd/es/xx、lodash-es 等，精简三方库，库内容按需导入使用`babel-plugin-import`等插件，或者 shadcn 新型 UI 库，移除不必要的国际化文件
+4. 避免组件重复打包：提取公共组件，公共资源 vender 抽离，使用`webpack-bundle-analyzer`分析打包情况
+5. 图片资源压缩：tinyPNG 压缩图片、`url-loader` 转 icon 为 base64、雪碧图减少 http 请求，使用 webp 格式等，
 6. 开启 gzip 压缩：webpack 使用：`compression-webpack-plugin`插件配置相应的压缩算法、压缩文件类型、压缩后的文件名、文件体积临界值、压缩率等，Nginx 开启 gzip，通过`Response Headers` 中可以看到 `Content-Encoding: gzip`验证是否开启
-7. 使用 defer、async、importance 等关键字控制相应资源的加载优先级，首屏无关资源延迟加载或者用 preload、prefetch 进行预加载
-8. SSR 服务端渲染，首屏直出。
+7. 使用 defer、async、importance 等关键字控制相应资源的加载优先级，首屏无关资源延迟加载或者用 preload、prefetch 进行预加载，prrender 预渲染，减少首屏白屏，滚动加载、可视区域局部渲染、
+8. 字体压缩：font-spider 移除无用字体，webfont 处理字体加载，fontmin 压缩字体等
+9. SSR 服务端渲染，首屏直出。局部 SSR。
+10. 后端优化接口响应速度，合并接口，减少请求次数，使用 http/2 服务端推送等技术。
+
+##### 预加载
+
+```html
+<link rel="preload" href="./font/iconfont.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="xxx.js" as="script" />
+```
+
+##### 预渲染
+
+Prerender 是前端工程化中一个概念，它指的是在服务器上渲染出完整的 HTML 页面，并返回给客户端，客户端收到页面后，再进行页面渲染。
+
+比如：`@prerender/webpack-plugin`
+
+##### 打包体积分析
+
+1. webpack-bundle-analyzer
+2. vite-bundle-analyzer
+
+##### SSR
+
+1. React：Next.js
+2. Vue：Nuxt.js
 
 ### 白屏常见的优化方案有
 
@@ -1635,7 +1669,12 @@ PS：
 
 ### 如何计算首屏时间
 
-可以用最新 API PerformanceObserver 获取首帧 fp、首屏 fcp、首次有意义的绘制 fmp 和 LCP、TTI：Time To Interactive，可交互时间，整个内容渲染完成等
+1. 可以用最新 Performance API 获取首帧 FP、首屏 FCP
+2. 首次有意义的绘制 FMP 和 LCP、TTI：Time To Interactive，可交互时间，整个内容渲染完成等
+   - FMP：首次有意义绘制，指页面首次渲染完成，用户可以感知到的时间。可以用 MutationObserver 监听 DOM 变化，当 DOM 变化后，获取当前时间，作为 FMP 的时间戳。
+   - TTI： Time To Interactive，可交互时间，整个内容渲染完成等
+   - LCP：Largest Contentful Paint，页面中最大的内容绘制时间，指页面中最大的内容渲染完成，用户可以感知到的时间。可以用 IntersectionObserver 监听页面中的元素，当元素进入视口时，获取当前时间，作为 LCP 的时间戳。
+   - TBT：Total Blocking Time，总阻塞时间，指页面渲染过程中，阻塞用户交互的时间。可以用 Performance API 获取渲染开始时间，和用户交互时间，作为 TBT 的时间戳。
 
 #### SSR
 
@@ -2215,6 +2254,42 @@ Promise.resolve().then(() => {
 26. mixin，vue router 的原理
 27. vue 双向绑定原理
 28. es6 的新特性
+29. 如何在 vite 工程的 ts 项目中配置路径别名？
+
+```ts
+// 1. 打开 vite.config.ts 文件，并导入 resolve 方法和 defineConfig 函数。
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { resolve } from 'path';
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'), // 配置路径别名
+    },
+  },
+});
+
+// 2. 在 tsconfig.json 文件中添加如下配置：
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"] // 添加路径别名
+    }
+  },
+  "include": ["src/**/*"]
+}
+```
 
 #### 一个页面打开比较慢，怎么处理？
 
@@ -2721,7 +2796,7 @@ const square = (x) => x * x;
 const process = pipe(add, multiply, square);
 console.log(process(2)); // (((2 + 2) * 3) ^ 2) = 144
 
-// 从右向左之脑执行
+// 从右向左执行
 // 从右向左的函数组合
 const compose =
   (...functions) =>
@@ -2736,6 +2811,55 @@ const square = (x) => x * x;
 // 使用 compose
 const process = compose(square, multiply, add);
 console.log(process(2)); // (((2 + 2) * 3) ^ 2) = 144
+```
+
+## 如何不指定特定的文件来创建 webworker
+
+用途：打包的时候不希望打出一堆 worker 文件，而希望和主线程代码放在一起的时候，可以把这些 worker 的代码写成字符串，然后通过如下两种方法来生成 worker。
+
+不用特定 js 文件的话，那就需要把 js 代码写成字符串，然后：有两种做法
+
+1. Object URL: 是一种特殊的 URL，它表示一个对象，该对象可以作为 URL 的一部分（本地的临时资源）。Object URL 可以用于创建指向 JavaScript 代码的 URL。先用这个字符串创建一个 blob 对象，然后通过 URL.createObjectURL(blob)创建一个 URL，然后通过 new Worker(URL)创建一个 worker 对象。
+2. Data URL: 有固定格式：`data:application/javascript;utf8,${sourceCode}`（直接把资源写到字符串里了），然后通过 new Worker(dataUrl)创建一个 worker 对象。
+
+```js
+// 1. Object URL
+// 定义 Worker 的功能
+const workerCode = `
+self.onmessage = function(e) {
+    const result = e.data * 2; // 例如，将收到的数据乘以 2
+    self.postMessage(result); // 将结果发送回主线程
+};
+`;
+
+// 创建一个 Blob 对象
+const blob = new Blob([workerCode], { type: "application/javascript" });
+
+// 创建对象 URL
+const workerBlobURL = URL.createObjectURL(blob);
+
+// 创建 Worker 实例
+const worker1 = new Worker(workerBlobURL);
+
+// 监听 Worker 发送的消息
+worker1.onmessage = function (e) {
+  console.log("Worker 发送的结果:", e.data);
+};
+
+// 向 Worker 发送数据
+worker1.postMessage(10); // 发送数字 10
+
+// 2. Data URL
+const dataUrl = `data:application/javascript;utf8,${workerCode}`;
+const worker2 = new Worker(dataUrl);
+
+// 监听 Worker 发送的消息
+worker2.onmessage = function (e) {
+  console.log("Worker 发送的结果:", e.data);
+};
+
+// 向 Worker 发送数据
+worker2.postMessage(20); // 发送数字 20
 ```
 
 ## 作用域链
@@ -2886,11 +3010,12 @@ activated(){
 
 3. 理论上用有限的空间来存储无限的小数是不可能保证精确的，但我们可以处理一下得到我们期望的结果。
    - 保留需要的小数位数，`toFixed(保留位数)`:不够精确，有时 5 不会进位;
-   - 字符串模拟。
+   - 字符串模拟：基本原理是将浮点数表示为整数进行计算，然后再转换回浮点数。
    - `bignumber.js`第三方库: 解决大数的问题。原理是把所有数字当作字符串，重新实现了计算逻辑，缺点是性能比原生差很多。
-   - `0.10000000000000000555.toPrecision(16);`// 原生 API，做精度运算，超过的精度会自动做凑整处理，返回字符串。使用 toPrecision 凑整并 parseFloat 转成数字后再显示
-   - `Math.js`、`BigDecimal.js`、`big.js`、`Decimal.js(据说计算基金净值比较快)`
-   - 对于运算类操作，如 `+-*/`，就不能使用 toPrecision 了。正确的做法是把小数转成整数后再运算。以加法为例：
+   - `0.10000000000000000555.toPrecision(16);`// 原生 API，做精度运算，超过的精度会自动做凑整处理，返回字符串。使用 toPrecision 凑整并 parseFloat 转成数字后再显示。
+   - `math.js`、`BigDecimal.js`、`big.js`、`decimal.js(据说计算基金净值比较快)`
+   - 最后，建议所有对运算精度要求极高的业务场景都放到后端去运算，切记。
+   - 对于运算类操作，如 `+-*/`，就不能使用 toPrecision 了。正确的做法是把小数转成整数后再运算，也是有上限的，对于非常大的浮点数，转换为整数可能会超出 JavaScript 的安全整数范围（Number.MAX_SAFE_INTEGER），如果小数位不确定这个方法也可能会有误差。以加法为例：
 
 ```js
 /**
@@ -2902,6 +3027,19 @@ function add(num1, num2) {
   const baseNum = Math.pow(10, Math.max(num1Digits, num2Digits));
   return (num1 * baseNum + num2 * baseNum) / baseNum;
 }
+```
+
+4. `number.toPrecision(precision);`，precision：一个介于 1 到 100 之间的整数，表示**有效数字的位数**。返回一个表示指定精度的数字字符串。可以返回科学计数法表示（如 "1.2e+2"）。
+
+```js
+let num = 123.456;
+
+console.log(num.toPrecision(2)); // "1.2e+2"（科学计数法）
+console.log(num.toPrecision(4)); // "123.5"
+console.log(num.toPrecision(5)); // "123.46"
+console.log((123.455).toPrecision(5)); // "123.45"
+console.log(num.toPrecision(6)); // "123.456"
+console.log(num.toPrecision(1)); // "1e+2"
 ```
 
 ## 运算符优先级
@@ -3180,10 +3318,12 @@ Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSoc
    - 如果没有 key 或 key 不唯一，React 会按默认顺序逐一对比，这在插入或删除节点时可能导致性能下降。
 3. Vue 列表的比较：使用了一种高效的 双端比较算法。它通过四个指针，分别指向新旧列表的头尾节点，
 
-   - 从新旧列表的头部开始比较，如果相同则复用，指针向后移动。
-   - 从新旧列表的尾部开始比较，如果相同则复用，指针向前移动。
-   - 如果头尾无法匹配，则尝试查找旧节点中能复用的节点（通过 key）。
-   - 如果无法复用，则新增新节点或删除旧节点。
+   - 1. 从新旧列表的头部开始比较，如果相同则复用，更新内容，指针向后移动。newStart++，oldStart++。否则，进入下一步。
+   - 2. 从新旧列表的尾部开始比较，如果相同则复用，更新内容，指针向前移动。newEnd--，oldEnd--。否则，进入下一步。
+   - 3. 比较新列表的起始节点与旧列表的结束节点，如果相同则复用，更新内容，将旧节点移动到 newStart 的位置（DOM 操作），移动指针：newStart++，oldEnd--。否则，进入下一步。
+   - 4. 比较新列表的结束节点与旧列表的起始节点，如果相同则复用，更新内容，将旧节点移动到 newEnd 的位置（DOM 操作），移动指针：newEnd--，oldStart++。否则，进入下一步。
+   - 5. 如果头尾无法匹配即以上 4 步均未找到相同节点，则尝试查找旧节点中能复用的节点（通过 key 查找新节点在旧列表中的位置）-遍历旧列表，查找 newStart 节点是否存在。如果找到：复用旧节点，更新内容（如有变化）。将旧节点移动到 newStart 的位置（DOM 操作）。如果未找到：创建新节点并插入到 newStart 的位置（DOM 操作）。移动指针：newStart++。
+   - 6. 处理剩余节点，如果旧列表遍历完毕，但新列表仍有剩余节点：创建新节点并插入到对应位置（DOM 操作）。如果新列表遍历完毕，但旧列表仍有剩余节点：删除旧节点（DOM 操作）。
 
 4. 总结：
 
@@ -3262,10 +3402,10 @@ function arrayToTree(items) {
   }
 
   for (const item of items) {
-    const id = item.id;
-    const pid = item.pid;
+    const { id, pid } = item;
     const treeItem = itemMap[id];
     if (pid === 0) {
+      // root
       result.push(treeItem);
     } else {
       if (!itemMap[pid]) {
@@ -3317,6 +3457,7 @@ function arrayToTree(items, rootId) {
 
 ## JavaScript 中 (0, function)(param) 是什么?
 
+0. 通常用于改变函数调用时的上下文 this 的指向，或者用于间接调用函数。确保函数调用时，this 指向的是全局上下文对象（严格模式下是 undefined），而不是当前作用域。可用于：模块化代码、避免副作用、解绑对象方法。
 1. 逗号操作符: 对它的每个操数求值（从左到右），并返回最后一个操作数的值。
 2. eval 执行的代码环境上下文，通常是局部上下文。直接调用，使用本地作用域。间接调用，使用全局作用域。
 
@@ -3329,6 +3470,21 @@ function test() {
   var geval = eval; // 等价于在全局作用域调用
   console.log(geval("x + y")); // 间接调用，使用全局作用域，throws ReferenceError 因为`x`未定义
 }
+
+// 解绑对象方法
+const obj = {
+  value: "Hello",
+  logValue() {
+    console.log(this.value);
+  },
+};
+
+// 直接调用，this 指向 obj
+obj.logValue(); // 输出: Hello
+
+// 使用 (0, function) 解绑 this
+const logValue = (0, obj.logValue);
+logValue(); // 输出: undefined（严格模式）或 window.value（非严格模式）
 ```
 
 3. `(0,eval)` 属于间接调用，使用的是 全局作用域，this 指向的是全局上下文。
@@ -3682,9 +3838,136 @@ img.src = "https://fakeimg.pl/100x200";
 
 ## iframe 相关
 
-1.
+### 父子页面通信问题
+
+iframe 和父页面是两个独立的上下文环境，这使得父子页面之间的通信变得复杂。父页面想操作 iframe 内的 Vue 子应用数据（或者反过来）。如果 iframe 加载的是跨域内容，直接访问 iframe 的内容会触发 跨域限制。
+
+- 同源情况：使用 window.postMessage 做通信，父子页面同源时，可以通过 postMessage 实现数据通信：
+- 跨域情况：后端接口代理，如果 iframe 加载的是跨域资源，推荐通过后端代理实现同源加载，或者借助中间服务器转发通信。
+
+### iframe 加载速度慢，阻塞父页面性能
+
+iframe 的加载是一个独立的网络请求和渲染过程，如果其加载的内容较多或速度较慢，会影响父页面的性能表现。iframe 加载时间过长，页面白屏。iframe 的加载和渲染阻塞了父页面的交互。
+
+- 懒加载 iframe，仅在需要时加载 iframe，可以使用 Vue 的 v-if 或动态绑定 src 的方式
+- 异步加载机制，在大部分场景中，可以通过设置占位符（如加载动画）来提升用户体验，避免长时间白屏。
+- 优化 iframe 加载速度，使用懒加载、预加载、CDN 等优化技术，减少 iframe 加载时间。
+
+### 样式和滚动条问题
+
+iframe 独立的 CSS 环境可能导致样式问题，尤其是父页面需要控制 iframe 的样式时非常困难。此外，iframe 内部的滚动条可能会影响用户体验。iframe 内样式与父页面不一致。父页面滚动和 iframe 滚动冲突。
+
+- 控制 iframe 的样式：通过注入 CSS。如果你能控制 iframe 加载的内容，可以在父页面通过 contentWindow.document 动态注入样式
+
+```js
+const iframe = document.getElementById("myIframe");
+const style = document.createElement("style");
+style.textContent = "body { margin: 0; overflow: hidden; }";
+iframe.contentWindow.document.head.appendChild(style);
+```
+
+- 隐藏滚动条，为 iframe 添加样式，隐藏滚动条
+
+```js
+iframe {
+  overflow: hidden;
+  scrollbar-width: none; /* Firefox */
+}
+iframe::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+```
+
+- 同步滚动条，如果需要让父页面和 iframe 的滚动同步，可以监听 iframe 的滚动事件，并同步父页面的滚动：
+
+```js
+iframe.contentWindow.onscroll = () => {
+  const scrollTop = iframe.contentWindow.scrollY;
+  document.documentElement.scrollTop = scrollTop;
+};
+```
+
+### 跨域限制问题
+
+当 iframe 加载跨域资源时，JavaScript 不能直接访问 iframe 的内容。这是浏览器的同源策略所决定的，目的是为了安全性。父页面无法操作或获取 iframe 内的内容。无法控制 iframe 内的 DOM 或数据。
+
+- 使用 postMessage 通信：跨域情况下，父页面与 iframe 可以使用 postMessage 的消息机制来通信（如前面提到的方案）。
+
+- 后端代理实现同源：如果你有后端支持，可以通过后端代理 iframe 的内容，使其与父页面同源，从而绕过跨域限制。
+
+- JSONP 或 CORS：如果是请求数据，可以尝试使用 JSONP 或配置服务器支持 CORS。
+
+### SEO 和路由问题
+
+iframe 内容对搜索引擎来说是不可见的，这会对 SEO 产生负面影响。此外，在 Vue 应用中，如果 iframe 是动态路由的一部分，可能会引发路由管理混乱。iframe 的内容不会被搜索引擎索引。Vue 的动态路由和 iframe 的加载冲突（如刷新时丢失状态）
+
+- 避免用 iframe 承载重要内容：如果需要 SEO，尽量避免将核心内容放在 iframe 中，可以用 Vue 的组件化来代替。
+
+- 使用 Vue 的路由守卫管理 iframe：如果 iframe 是动态路由的一部分，可以通过 Vue 的路由守卫动态设置 iframe 的内容：
+
+```js
+// router/index.js
+const routes = [
+  {
+    path: '/iframe/:src',
+    component: () => import('@/views/IframePage.vue')
+  }
+];
+
+// IframePage.vue
+<template>
+  <iframe :src="iframeSrc" frameborder="0"></iframe>
+</template>
+<script>
+export default {
+  computed: {
+    iframeSrc() {
+      return this.$route.params.src;
+    }
+  }
+};
+</script>
+```
+
+### 安全问题（XSS 攻击）
+
+如果 iframe 加载的是第三方页面，可能会引入潜在的安全风险，例如跨站脚本攻击（XSS）。加载的内容中可能存在恶意脚本。父页面受到安全隐患的影响。
+
+- 设置 sandbox 属性：通过设置 iframe 的 sandbox 属性限制其行为：`<iframe src="https://example.com" sandbox="allow-scripts allow-same-origin"></iframe>`
+
+- 内容安全策略（CSP）：在后端或 HTML 中设置 CSP，以限制 iframe 加载的资源：`<meta http-equiv="Content-Security-Policy" content="default-src 'self'; frame-src 'self' https://example.com;">`
 
 ## 正则表达式匹配路径
+
+## React18 与 Vue3 组件通信
+
+Vue 还有一种特殊的方式：attrs/useAttrs，attrs 是一个特殊的对象，在组件中，可以访问并使用未被显式声明为 props 的属性，是有状态的对象，它总是会随着组件自身的更新而更新，主要用于将父组件的非 props 特性传递给子组件，特别适用于创建包装组件或高阶组件。如果关闭了`export default defineComponent({inheritAttrs: false,}); // 关闭自动继承父属性`，那么需要通过`<button v-bind="$attrs" @click="$emit('click')">`v-bind 的形式显式绑定来自父组件的属性，比如：id、class 等。在组件中，默认情况下，attrs 会被自动绑定到组件的根元素。如果不想让它自动绑定，可以设置 `inheritAttrs: false`。这样，你就可以手动控制哪些属性和事件被传递。attrs 适合用于将父组件的多个属性转发给子组件的场景。如果你需要将组件的某些状态或数据与多个子组件共享，你可能更倾向于使用 Vue 3 的其他特性，如 provide/inject、Vuex 或 Composition API。虽然可以使用 attrs 来在某种程度上进行组件间的通信，但对于状态管理和数据流动，使用 props 和事件是更常见和推荐的方式。
+
+### 全局的通信方法
+
+1. React 中使用 Context 或者 Redux 等状态管理库
+2. Vue3 中使用 Pinia 或者 Vuex 等状态管理库
+3. 通过事件总线实现
+
+### 父子组件通信
+
+1. 在 React 中，父子组件通信是通过 props 实现的。父组件向子组件传递数据，子组件通过 props 接收，子组件通过 props 传入的回调函数来修改父组件的状态。
+2. 在 Vue3 中，父子组件通信是通过 props 和 $emit 实现的。父组件向子组件传递数据，子组件通过 defineProps 接收。子组件向父组件传递数据通过 $emit 触发父组件中的函数实现。父组件`<Son @sendMessage="receiveMessage" />`并定义 receiveMessage 方法接收返回的参数，子组件`const emit = defineEmits(['sendMessage']);emit('sendMessage', '我是Son组件');`，可以声明 emit 的事件，以保留对事件的类型检查和编译时验证。
+3. 在 Vue3 中，如何在父组件调用子组件时传递方法，并让父组件获取子组件内部的方法或属性？子组件需要明确地暴露这些方法和属性。这可以通过使用 defineExpose 来实现。随后，父组件可以通过 ref 或 useTemplateRef 来引用子组件实例，从而调用其暴露的方法或访问其属性。
+
+### 兄弟组件通信
+
+1. 通过将「共享的状态提升」到父组件来实现。父组件将该状态和修改状态的函数通过 props 传递给子组件。再借助 emit 进行通信。
+2. 使用 EventBus：创建一个 EventBus 对象，用于在组件之间传递事件。在需要通信的组件中，使用 EventBus 发布事件，然后在另一个组件中监听该事件。
+
+### 跨层级组件通信
+
+1. 层层 props 传下去，麻烦，不好维护。
+2. React 中，使用 Context：在需要通信的组件中，使用 Context.Provider 提供数据，然后在另一个组件中通过 Context.Consumer 订阅数据。
+   - createContext 创建 context 对象，上下文 ctx 对象将包含你希望在组件树中共享的数据。
+   - Provider 提供器，包裹需要跨层通信的组件。将数据通过 value 属性传递给 Provider，任何位于 Provider 内部的组件都可以访问到这些数据。
+   - useContext 钩子来访问上下文中的数据。useContext 接受一个上下文对象（就是通过 createContext 创建的那个对象）作为参数，并返回该上下文的当前值。
+3. Vue3 中，使用 provide/inject：在需要通信的组件中，使用 provide 提供数据`provide('msg', msg);`，然后在另一个组件中使用 inject 获取数据`const msg = inject('msg');`。
 
 ## 浏览器盒模型
 
@@ -3724,9 +4007,17 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 
 ## 前端路由原理
 
+1. hashchange 事件
+2. popstate 事件
+3. history.pushState()
+4. history.replaceState()
+
 ## 页面白屏检测
 
 ## ref 和 reactive 的区别
+
+1. 实现原理
+2. 使用方法
 
 ## props 数据流向
 
@@ -3738,7 +4029,7 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 
 ## 多窗口之间怎么通信
 
-## 捕获这冒泡事件触发顺序
+## 捕获和冒泡事件触发顺序
 
 ## 数据大屏怎么实现响应式
 
@@ -3758,6 +4049,38 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 
 性能监控的指标有哪些？页面加载的瓶颈和优化手段
 
+## Vue3 系列
+
+### 静态图片动态加载
+
+Vite 打包时会自动进行依赖分析，导致有些图片会直接打包到静态资源中，而其他图片则需要通过动态导入的方式加载，因此需要使用动态导入的方式加载静态图片。
+
+1. 通过标签引入静态图片：img、video、audio 等标签的 src 属性，通过动态导入的方式加载静态图片。
+2. 通过 CSS 引入静态图片：在 CSS 文件中通过 background-image 属性引入静态图片。
+3. 把图片放到 public 目录下，通过相对路径引入。打包时会自动将图片复制到 dist 目录下，但会丢失图片的 hash 值。
+4. 通过`import('./assets/${img}.jpg').then(p=>path=p.default)`函数引入静态图片，通过 then()方法获取图片的 URL。但会产生很多 js 文件。而且要 path 中不能完全是变量，否则会导致路径解析错误。
+5. 通过`new URL('./assets/${img}.jpg', import.meta.url)`，然后使用 url 对象来赋值。
+
+### Vue3 setup 中如何获得组件实例
+
+1. Vue3 的 setup 函数是在组件创建之前执行的，这时候组件实例还没有完全生成，所以在 setup 函数内部直接使用 this 是无效的，因为 this 指向的是 undefined 或者不是组件实例。使用 getCurrentInstance 函数，这是 Vue3 提供的一个 API，用于获取当前组件的实例。但是需要注意，getCurrentInstance 返回的是一个内部实例，并不是公共 API 的一部分，因此在使用时需要谨慎，避免依赖内部实现细节。-- 不推荐
+
+```js
+setup() {
+  const instance = getCurrentInstance();
+  // 通过 instance 访问组件上下文
+  console.log(instance.proxy); // 等效于 Vue2 的 this
+  console.log(instance.ctx);    // 上下文对象
+  console.log(instance.parent); // 父组件实例
+  console.log(instance.refs);   // 模板中的 ref 引用
+  return {
+    instance
+  }
+}
+```
+
+2. 如果需要获取组件实例，可以使用 ref 来获取。在 setup 函数中，使用 ref 来获取组件实例或者获取 DOM 元素，使用 ref 函数来创建一个响应式引用，然后在模板中绑定这个 ref，从而在 setup 函数中访问到对应的 DOM 元素或组件实例，然后就可以在模板中使用。在 onMounted 后使用确保组件已挂载。-- 推荐
+
 ## Vue 的 watch 有哪些配置项？和 computed 的区别？和 watchEffect 的区别？
 
 1. Vue 的 watch 有哪些配置项？
@@ -3765,7 +4088,14 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
    - immediate：当监听的值第一次被赋值时，会立即执行回调函数。
    - handler：当监听的值发生变化时，会执行的回调函数。接收 newval 和 oldval。
    - deep：当监听的对象是嵌套对象时，设置为 true 可以监听对象内部属性的变化。
-   - flush：控制回调函数的执行时机，可选值为 'pre'、'post'、'sync'。默认值为 'pre'，即在微任务队列清空后执行。设置为 'post' 会在宏任务队列清空后执行。设置为 'sync' 会在当前任务执行完毕后立即执行。默认值为 'pre'，即 prop 更新完之后触发回调函数再更新 DOM（此时回调函数里不能通过 DOM 获取到更新后的 prop 的值）。设置为 'post'，则更新完 prop 之后再更新 DOM 然后再触发回调函数（此时回调函数里就能通过 DOM 获取到更新后的 prop 的值）。设置为 'sync'，则回调函数会同步执行，也就是在响应式数据发生变化时立即执行。
+   - flush：控制回调函数的执行时机，可选值为 'pre'、'post'、'sync'。
+
+     - 默认值为 'pre'，即在微任务队列清空后执行。即 prop 更新完之后触发回调函数再更新 DOM（此时回调函数里不能通过 DOM 获取到更新后的 prop 的值）。
+     - 设置为 'post' 会在宏任务队列清空后执行。则更新完 prop 之后再更新 DOM 然后再触发回调函数（此时回调函数里就能通过 DOM 获取到更新后的 prop 的值）。`watchPostEffect`
+     - 设置为 'sync' 会在当前任务执行完毕后立即执行。则回调函数会同步执行，也就是在响应式数据发生变化时立即执行，会在 Vue 进行任何更新之前触发。`watchSyncEffect`，同步侦听器不会进行批处理，每当检测到响应式数据发生变化时就会触发。可以使用它来监视简单的布尔值，但应避免在可能多次同步修改的数据源 (如数组) 上使用。
+
+   - onTrack / onTrigger：调试侦听器的依赖。
+   - once：默认为 false，回调函数只会运行一次。侦听器将在回调函数首次运行后自动停止。
 
 2. Vue 的 watch 和 computed 和 method 的区别
 
@@ -3774,18 +4104,39 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
    - watch 用于监听数据的变化，当数据变化时，会执行回调函数，回调函数接收新值和旧值。
 
 3. Vue 的 watch 和 watchEffect 的区别
-   - watchEffect 直接接受一个回调函数，会自动追踪函数内部使用的数据变化，数据变化时重新执行该函数
+
+   - watchEffect 直接接收一个回调函数，会自动追踪函数内部使用到的响应式数据变化，数据变化时重新执行该函数
    - watchEffect 的函数会立即执行一次，并在依赖的数据变化时再次执行
-   - watchEffect 跟适合简单的场景，不需要额外的配置，相当于默认开启了 deep 和 immediate 的 watch
+   - watchEffect 更适合简单的场景，不需要额外的配置，相当于默认开启了 deep 和 immediate 的 watch
+   - watchEffect 也能接收第二个参数，用来配置 flush 和 onTrack / onTrigger
    - watch 显示的接收一个需要被监听的数据和回调函数，若监听的数据发生变化，重新执行该函数
    - watch 的回调函数只有在侦听的数据源发生变化时才会执行，不会立即执行
    - watch 可以更精细的控制监听行为，如 deep、immediate、flush 等
+   - watch 第一个参数可以是一个数组，监听多个数据源，也可以是一个对象，对象中的 key 为数据源，value 为回调函数，还可以是一个函数（最终都会转成函数），如果这个函数返回的值不变，则回调函数也不会执行，即使在函数中依赖的响应式数据发生了变化。
+   - 一个关键点是，侦听器必须用同步语句创建：如果用异步回调（比如 setTimeout）创建一个侦听器，那么它不会绑定到当前组件上，你必须手动停止它，以防内存泄漏。
+
+   - 总结：它们之间的主要区别是追踪响应式依赖的方式：
+
+     1. watch 只追踪明确侦听的数据源。它不会追踪任何在回调中访问到的东西。另外，仅在数据源确实改变时才会触发回调。watch 会避免在发生副作用时追踪依赖，因此，我们能更加精确地控制回调函数的触发时机。
+
+     2. watchEffect，则会在副作用发生期间追踪依赖。它会在同步执行过程中，自动追踪所有能访问到的响应式属性。这更方便，而且代码往往更简洁，但有时其响应性依赖关系会不那么明确。
 
 ## computed 的 getter 和 setter
 
 1. getter：计算属性的 getter 是一个函数，当访问计算属性时，会执行这个 getter 函数，返回计算属性的值。
 2. setter：计算属性的 setter 是一个函数，当修改计算属性的值时，会执行这个 setter 函数，传入新值和旧值。可以在这里修改计算属性的值，也可以在这里执行一些副作用操作。也就是说可以在 method 中直接对计算属性赋新值，就像处理普通的 data 一样，然后在 setter 中对新值进行处理。
 3. 计算属性的 getter 和 setter 可以用来实现双向数据绑定，即当计算属性的值发生变化时，会自动更新依赖该计算属性的其他数据；当依赖该计算属性的其他数据发生变化时，会自动更新计算属性的值。
+
+## provide 和 inject
+
+1. provide 和 inject 是 Vue 中的两个 API，用于实现组件间的数据传递和依赖注入。
+2. provide 是一个 provide 方法，用于提供当前组件的属性和方法，供其他组件使用。`provide('message', message);`或在应用顶层`app.provide(/* 注入名 */ 'message', /* 值 */ 'hello!')`
+3. inject 是一个 inject 方法，用于注入当前组件的属性和方法，供其他组件使用。在组件中`const message = inject('message'[, defaultValue, true]);`，第二个参数表示默认值，可以是一个具体的值也可以是个函数，第三个参数表示默认值应该被当作一个工厂函数。在一些场景中，默认值可能需要通过调用一个函数或初始化一个类来取得。为了避免在用不到默认值的情况下进行不必要的计算或产生副作用，我们可以使用工厂函数来创建默认值
+4. provide 和 inject 的作用是让组件之间可以相互传递数据，而不需要通过父组件传递到子组件，再由子组件传递到孙组件，这样会增加组件的层级，导致组件嵌套过深，维护起来非常麻烦。
+5. provide 注入的值可以是任意类型，包括响应式的状态，比如一个 ref，那么此时 inject 接收到的会是该 ref 对象，而不会自动解包为其内部的值。这使得注入方组件能够通过 ref 对象保持了和供给方的响应性链接。这表明：provide+inject 注入的值可能是响应式的也可能是非响应式的。
+6. 使用时，如果没有使用 `<script setup>`，`provide()/inject()` 都需要在 `setup()` 内同步调用。
+7. 当提供 / 注入响应式的数据时，建议尽可能将任何对响应式状态的变更都保持在供给方组件中。这样可以确保所提供状态的声明和变更操作都内聚在同一个组件内，使其更容易维护。
+8. 如果你想确保提供的数据不能被注入方的组件更改，你可以使用 `readonly()` 来包装提供的值。`provide('read-only-count', readonly(count))`。
 
 ## 对象的动态属性和静态属性
 
@@ -3903,7 +4254,11 @@ get info ==>  {id: 1, name: 'test'}
 
 ## 惰性函数
 
-TODO：用于只需要执行一次的地方，后续可以直接用缓存结果或者初次执行完之后就修改这个函数。
+用于只需要执行一次的地方，后续可以直接用缓存结果或者初次执行完之后就修改这个函数。
+
+```js
+// TODO
+```
 
 ## 箭头函数
 
@@ -3993,8 +4348,11 @@ console.log(Reflect.construct(Object, [], obj6.sayName)); // 报错==>false
 
 2. react 中 hooks 不能放在 if 判断里的原因
 
-   - React Hooks 依赖于调用顺序来确定每个 Hook 的状态。它们使用一个内部的链表来存储状态，如果 Hooks 的调用顺序在不同的渲染中不一致，React 无法保证为正确的 Hook 分配正确的状态。这会导致状态错位，进而引发难以追踪的错误。
-   - 通过在组件顶层调用 Hooks，React 可以在每次渲染中按照一致的顺序调用它们，确保状态管理和副作用处理的正确性和一致性。以便于对组件的行为进行预测和理解。这种设计模式也促进了代码的可读性和可维护性。
+   - React 依赖于 Hook 调用顺序来确定每个 Hook 的状态。只要 Hook 的调用顺序在多次渲染之间保持一致，React 就能正确地将内部 state 和对应的 Hook 进行关联。如果 Hooks 的调用顺序在不同的渲染中不一致，React 无法保证为正确的 Hook 分配正确的状态。这会导致状态错位，进而引发难以追踪的错误比如内存泄漏，或者组件的表现与预期不一致。
+   - 通过在组件顶层调用 Hooks，React 可以在每次渲染中按照一致的顺序调用它们，确保状态管理和副作用处理的正确性和一致性。以便于对组件的行为进行预测和理解。这种设计模式也促进了代码的可读性和可维护性，React Hooks 是为了简化组件逻辑和提高代码可读性而设计的。
+   - 从生命周期的角度来看，Hook 的生命周期与组件的生命周期是紧密相关的。如果将 Hook 放在 if/循环/嵌套函数中，可能会造成 Hook 的生命周期与组件生命周期不一致，也就是说 Hook 的执行依赖于函数组件的调用顺序和调用次数。在 if/循环/嵌套函数 中调用 Hook，可能会导致它们的调用顺序和次数不一致，从而引发一些奇怪的问题，比如状态不稳定、内存泄漏等。
+   - 由于 React 的状态更新是异步的，只有当依赖项发生变化时，状态才会被更新。而放在条件或循环中的 Hook，其依赖项可能并不会随着条件的改变而改变，这就可能导致组件无法正确地重新渲染。
+   - 使用 Hook 应该遵守两条规则：只在最顶层使用 Hook，不要在循环，条件或嵌套函数中调用 Hook。只在 React 函数中调用 Hook（比如 React 的函数组件或自定义 Hook 中），不要在普通的 JavaScript 函数中调用 Hook。
 
 3. Object.defineProperty 和 Proxy 的区别以及 Proxy 的优势:
 
@@ -4006,6 +4364,7 @@ console.log(Reflect.construct(Object, [], obj6.sayName)); // 报错==>false
    - Proxy 使用 new Proxy(target, handler) 创建代理对象；Object.defineProperty 直接在对象上使用 Object.defineProperty(obj, prop, descriptor)
    - Proxy 支持监听整个对象的变化，通过 get 和 set 方法拦截；Object.defineProperty 只能监听单个属性的变化，通过 get 和 set 方法拦截
    - Proxy 性能相对较低，因为每次操作都需要经过代理；Object.defineProperty 性能相对较高，因为直接在对象上进行操作
+   - 通过索引去访问或修改已经存在的元素，Object.defineProperty 是可以拦截到的。如果是不存在的元素，或者是通过 push 等方法去修改数组，则无法拦截。vue2 在实现的时候，通过重写了数组原型上的七个方法（push、pop、shift、unshift、splice、sort、reverse）来解决
 
 4. 看代码说输出，什么是微任务和宏任务，以及它们的执行顺序
 
@@ -4077,7 +4436,7 @@ const transform = (data) => {
       tree.push(treeNode);
     } else {
       const parentNode = map.get(parentId);
-      if (parentNode) {
+      if (parentNode?.children) {
         parentNode.children.push(treeNode);
       }
     }
@@ -4111,7 +4470,7 @@ console.log(JSON.stringify(transform(nodes), null, 2));
 
 6. `Promise.then.then.catch`：如果第一个 then 报错了，第二个 then 会执行吗？catch 能捕获到异常吗？throw Error 和 reject 的区别?
 
-   - 如果第一个 then 报错了，第二个 then 不会执行！
+   - 如果第一个 then 报错了，第二个 then 没有第二个参数的话，则不会执行！
    - resolve 执行之后是可以在后面继续 return value 或者执行其他代码的！
    - 如果多个 then 链式调用并在最后跟了一个 catch，那么任意一个 then 的报错都会被这个 catch 捕获到。catch 会捕获到所有 then 链中的错误，包括异步的错误。
    - 如果每个 then 后面都跟一个 catch，那么每个 catch 只会捕获到自己对应的 then 的错误，而不会捕获到其他 then 的错误。
@@ -4126,6 +4485,81 @@ console.log(JSON.stringify(transform(nodes), null, 2));
      - 如果 catch 返回一个值，第二个 then 会执行并接收此值。
      - 如果 catch 抛出错误，第二个 then 不会执行，而是跳到下一个 catch。
    - throw Error 和 reject 的区别：throw Error 是抛出一个同步的错误，而 reject 是抛出一个异步的错误，通常用于 Promise 中。
+   - 拓展：
+     - 错误传播：在 Promise 链中，如果在 .then 回调函数中抛出错误，这个错误会被传递到链中下一个 .catch 或者接下来链中的 .then 的第二个参数（如果提供了）中。
+     - 跳过后续 .then：当错误发生时，Promise 链将跳过所有后续的 .then（前提是后面的 then 都没有定义 reject 函数，才会直到遇到 .catch 为止，否则会被定义了 reject 函数的 then 拦截到这个错误并处理而不会再被 catch 拦截一遍，之后的 then 正常执行），并直接进入 .catch。
+     - .catch 捕获错误：.catch 会捕获链中上游任何一个 .then 抛出的错误或者 Promise 本身的 reject 状态。
+
+```js
+new Promise((resolve, reject) => {
+  resolve("Initial Success");
+  console.log("test1"); // 会最先被打印出来
+})
+  .then((data) => {
+    console.log(data); // 输出: Initial Success
+    throw new Error("Something went wrong in first then");
+    console.log("test2"); // 不会打印
+  })
+  .then(
+    (data) => {
+      // 这个不会被执行，因为前一个 then 抛出了错误
+      console.log("This will not be logged:", data);
+      return "Success in second then";
+    },
+    (err) => {
+      // 如果定义了reject函数，那么会执行这个函数，如果这个函数返回了值，那么这个值会被传递给下一个then的resolve函数。
+      console.log("This is 2nd then reject err:", err);
+      return Promise.resolve("from 2nd then reject");
+    }
+  )
+  .then(
+    (res) => {
+      console.log("this is 3rd then resolve", res);
+    },
+    (err) => {
+      console.log("this is 3rd then reject", err);
+    }
+  )
+  .catch((error) => {
+    // 这里会捕获到第一个 then 中抛出的错误
+    console.error("Caught an error:", error.message); // 输出: Caught an error: Something went wrong in first then
+  });
+
+// 输出如下：
+// Initial Success
+// This is 2nd then reject err: Error: Something went wrong in first then at <anonymous>:6:11
+// this is 3rd then resolve from 2nd then reject
+
+new Promise((resolve, reject) => {
+  resolve("Initial Success");
+})
+  .then((data) => {
+    console.log(data); // 输出: Initial Success
+    throw new Error("Something went wrong in first then");
+  })
+  .then((data) => {
+    // 这个不会被执行，因为前一个 then 抛出了错误
+    console.log("This will not be logged:", data);
+    return "Success in second then";
+  })
+  .then(
+    (res) => {
+      console.log("this is 3rd then resolve", res);
+    },
+    (err) => {
+      // 这里会执行！
+      console.log("this is 3rd then reject", err);
+    }
+  )
+  .catch((error) => {
+    // 这里会捕获到第一个 then 中抛出的错误
+    console.error("Caught an error:", error.message); // 输出: Caught an error: Something went wrong in first then
+  });
+
+// 输出如下：
+// Initial Success
+// this is 3rd then reject Error: Something went wrong in first then at <anonymous>:6:11
+```
 
 8. 有一个页面加载大量图片，怎么做性能优化？页面多图片加载优化？
 
@@ -4140,14 +4574,38 @@ console.log(JSON.stringify(transform(nodes), null, 2));
    - 延迟加载非关键内容：对于不影响首屏显示的图片，如页面底部的图片，可以延迟加载。用户滚动到图片所在位置时再加载这些图片。
    - 使用 Intersection Observer：利用浏览器的 Intersection Observer API 可以高效地实现懒加载，监控图片何时进入视口，并在需要时加载它们。
    - 优化缓存策略：为图片设置合适的缓存头，确保用户在后续访问时可以直接从缓存中加载图片，而不是重新下载。`Cache-Control: max-age=31536000`。
-   - 硬件加速：使用 CSS 的 `transform` 和 `opacity` 属性进行硬件加速，可以提高页面渲染性能。
+   - 硬件加速：使用 CSS 的 `transform: translate3d(0, 0, 0);`、`opacity`、`will-change: transform, opacity;` 属性进行硬件加速，可以提高页面渲染性能。
+   - 前端硬件加速的使用场景：CSS 动画、3D 加载、视频播放、WebGL 渲染、Canvas 绘图、SVG 动画等。使用 `<canvas>` 标签时，可以选择 2D 上下文或 WebGL 上下文。WebGL 是基于 GPU 的绘图 API，可以直接触发硬件加速。`const gl = canvas.getContext('webgl'); // 获取 WebGL 上下文`
+   - Web 动画 API：硬件加速动画
+
+   ```html
+   <div id="box"></div>
+
+   <script>
+     const box = document.getElementById("box");
+     box.animate([{ transform: "translateX(0)" }, { transform: "translateX(300px)" }], {
+       duration: 1000,
+       iterations: Infinity,
+     });
+   </script>
+   ```
+
+   - 使用 `<video>` 标签播放视频时，现代浏览器会自动利用 GPU 加速视频解码。HTML5 视频播放默认支持硬件加速，只需使用 `<video>` 标签即可。
 
 9. 性能优化看哪些指标？
 
-   - 页面加载时间：
-     - Time to First Byte (TTFB): 从用户请求到接收到第一个字节所需的时间，反映了服务器的响应速度。
-     - First Contentful Paint (FCP): 页面上的第一个文本或图像内容绘制在屏幕上的时间。
-     - Largest Contentful Paint (LCP): 页面主内容加载完成的时间，反映了页面的可用性。
+页面加载时间：
+
+- Time to First Byte (TTFB): 从用户请求到接收到第一个字节所需的时间，反映了服务器的响应速度。
+- First Contentful Paint (FCP): 页面上的第一个文本或图像内容绘制在屏幕上的时间。
+- Largest Contentful Paint (LCP): 页面主内容加载完成的时间，反映了页面的可用性。
+- TBT：
+- TTI：首次可交互时间，反映用户与页面的交互响应速度。
+- FP：页面首次绘制的时间，反映用户与页面的交互响应速度。
+- FMP：
+- DOMContentLoaded：DOM 加载完成时间，反映页面的加载速度。
+- 首次可交互时间：用户与页面的交互响应速度。
+- 首次可点击时间：用户与页面的交互响应速度。
 
 10. CSS 两列布局：左侧固定右侧自适应：float、flex、grid、position 等等
 
@@ -4245,7 +4703,7 @@ console.log(JSON.stringify(transform(nodes), null, 2));
 }
 ```
 
-10. `flex:1` 的含义及默认值：`flex-grow:1;flex-shrink:1;flex-basis:0%;`(Chrome)
+11. `flex:1` 的含义及默认值：`flex-grow:1;flex-shrink:1;flex-basis:0%;`(Chrome)
 
     - 同理：`flex:0` ==> `flex-grow:0;flex-shrink:1;flex-basis:0%;`(Chrome)
     - 同理：`flex:auto` ==> `flex-grow:1;flex-shrink:1;flex-basis:auto;`(Chrome)

@@ -383,6 +383,89 @@ function structuralClone(obj) {
 
 `for..in`+`Object.hasOwnProperty()`
 
+#### 获取对象上非原型链上的属性
+
+也就是对象自身的属性（不包括从其原型链继承的属性），可以使用以下几种方法:
+
+1. `Object.keys()`: 返回一个由给定对象的自身可枚举属性键名组成的数组。
+2. `Object.hasOwn()`: 返回一个布尔值，用于判断对象是否具有某个自身属性，包括不可枚举属性。
+3. `obj.hasOwnProperty()`: 返回一个布尔值，表示对象自身属性中是否具有指定的属性（即否有指定的键），包括不可枚举属性。推荐使用`Object.hasOwn()`。
+4. `Object.getOwnPropertyNames()`: 返回一个由给定对象的自身可枚举属性键名组成的数组，包括不可枚举属性，但不包括 Symbol 属性。
+5. `Object.getOwnPropertySymbols()`: 返回一个由给定对象的自身 Symbol 属性键名组成的数组。
+6. `Object.getOwnPropertyDescriptors()`：返回对象自身属性的描述符，包括 Symbol 属性和不可枚举属性。描述符包含属性的值、可枚举性、可配置性等信息。
+7. `Reflect.ownKeys()`: 返回一个由目标对象自身的属性键组成的数组，包括 Symbol 属性和不可枚举属性。
+
+```javascript
+const obj = {
+  name: "John",
+  age: 30,
+  [Symbol("sym")]: "sym",
+};
+
+// 从原型链继承的属性
+Object.prototype.gender = "male";
+
+// 添加一个不可枚举属性
+Object.defineProperty(obj, "hidden", {
+  value: "secret",
+  enumerable: false, // 不可枚举属性
+});
+
+// 添加一个可枚举属性
+Object.defineProperty(obj, "public", {
+  value: "test",
+  enumerable: true, // 可枚举属性
+});
+
+// 1
+console.log(Object.keys(obj)); // ['name', 'age', 'public']
+// 2
+console.log(Object.hasOwn(obj, "name")); // true
+console.log(Object.hasOwn(obj, "gender")); // false
+console.log(Object.hasOwn(obj, "hidden")); // true
+console.log(Object.hasOwn(obj, "public")); // true
+// 3
+console.log(obj.hasOwnProperty("name")); // true
+console.log(obj.hasOwnProperty("gender")); // false
+console.log(obj.hasOwnProperty("hidden")); // true
+console.log(obj.hasOwnProperty("public")); // true
+// 4
+console.log(Object.getOwnPropertyNames(obj)); // ['name', 'age', 'hidden', 'public']
+// 5
+console.log(Object.getOwnPropertySymbols(obj)); // [Symbol(sym)]
+// 6
+console.log(Object.getOwnPropertyDescriptors(obj)); // 如下
+// {
+//   "name": {
+//     "value": "John",
+//     "writable": true,
+//     "enumerable": true,
+//     "configurable": true
+//   },
+//   "age": {
+//     "value": 30,
+//     "writable": true,
+//     "enumerable": true,
+//     "configurable": true
+//   },
+//   "hidden": {
+//     "value": "secret",
+//     "writable": false,
+//     "enumerable": false,
+//     "configurable": false
+//   },
+//   "public": {
+//     "value": "test",
+//     "writable": false,
+//     "enumerable": true,
+//     "configurable": false
+//   }
+// }
+
+// 7
+console.log(Reflect.ownKeys(obj)); //  ['name', 'age', 'hidden', 'public', Symbol(sym)]
+```
+
 #### 总结
 
 - 如果没有循环对象，并且不需要保留内置类型，则可以使用跨浏览器 `JSON.parse(JSON.stringify())` 获得最快的克隆性能。
@@ -839,22 +922,322 @@ window.scroll({ top: document.body.scrollHeight, behavior: "smooth" });
 window.scrollTo(0, document.body.scrollHeight);
 ```
 
-###
+### console 的妙用
 
 ```javascript
+// Basic logging
+console.log("Simple log");
+console.error("This is an error");
+console.warn("This is a warning");
 
+// Logging tabular data
+const users = [
+  { name: "John", age: 30, city: "New York" },
+  { name: "Jane", age: 25, city: "San Francisco" },
+];
+console.table(users);
+
+// Grouping logs
+console.group("User Details");
+console.log("User 1: John");
+console.log("User 2: Jane");
+console.groupEnd();
+
+// Timing code execution
+console.time("Timer");
+for (let i = 0; i < 1000000; i++) {
+  // Some heavy computation
+}
+console.timeEnd("Timer");
 ```
 
-###
+### Currying 的妙用
+
+柯里化是一种将接受多个参数的函数转换为一系列仅接受一个参数的函数的过程。这项技术可以帮助创建更灵活且可重用的函数，尤其是在函数式编程中特别有用。
 
 ```javascript
+const applyDiscount = (discount) => (price) => price - (price * discount) / 100;
+const tenPercentOff = applyDiscount(10);
+const twentyPercentOff = applyDiscount(20);
 
+console.log(tenPercentOff(100)); // 90
+console.log(twentyPercentOff(100)); // 80
+
+const applyTax = (taxRate) => (price) => price + (price * taxRate) / 100;
+const applyTenPercentTax = applyTax(10);
+
+console.log(applyTenPercentTax(100)); // 110
+console.log(applyTenPercentTax(twentyPercentOff(100))); // 88
 ```
 
-###
+### 记忆化函数 memoization
+
+memoization 是一种优化技术，涉及缓存昂贵函数调用的结果，并在相同的输入再次出现时返回缓存的结果。这可以显著提高具有大量计算的函数的性能，特别是那些频繁以相同参数调用的函数。
 
 ```javascript
+const memoize = (fn) => {
+  const cache = {};
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (!cache[key]) {
+      cache[key] = fn(...args);
+    }
+    return cache[key];
+  };
+};
 
+const fibonacci = memoize((n) => {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+});
+
+console.log(fibonacci(40)); // 102334155
+```
+
+### Proxy 代理对象
+
+代理对象允许你为另一个对象创建代理，从而能够拦截并重新定义基本操作，如属性查找、赋值、枚举、函数调用等。这为向对象添加自定义行为提供了一种强大的方式。
+
+```javascript
+const user = {
+  name: "John",
+  age: 30,
+};
+
+const handler = {
+  get: (target, prop, receiver) => {
+    console.log(`Getting ${prop}`);
+    return target[prop];
+  },
+  set: (target, prop, value, receiver) => {
+    if (prop === "age" && typeof value !== "number") {
+      throw new TypeError("Age must be a number");
+    }
+    console.log(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  },
+};
+
+const proxyUser = new Proxy(user, handler);
+console.log(proxyUser.name); // Getting name, John
+proxyUser.age = 35; // Setting age to 35
+// proxyUser.age = '35'; // Throws TypeError
+```
+
+### 7 种在 JavaScript 中分解长任务的技术
+
+1. setTimeout() + 递归：将任务分解为多个小任务，每个任务使用 setTimeout() 延迟执行，然后递归地调用自身，直到所有任务完成。
+2. Async/Await & Timeout：通过 setTimeout 实现 sleep，然后使用 async/await 实现异步任务。
+3. scheduler.postTask(cb, options?)：Scheduler 接口是 Chromium 浏览器相对较新的功能，旨在成为一种一流的工具，用于以更多的控制和更高的效率来安排任务。它基本上是几十年来我们一直依赖的  setTimeout()  的更高级版本。`options:{priority: "user-blocking"}`通过设置 priority 控制优先级，优先级越高，越先执行。由它安排的所有任务都会被置于任务队列的前端，防止其他任务插队并延迟执行。`user-blocking>default>background`
+4. scheduler.yield()
+5. requestAnimationFrame()：旨在根据浏览器的重绘周期安排工作。因此，它在调度回调方面非常精确。它总是会在下一次重绘之前执行。
+6. MessageChannel()：通常被选作零延迟超时的一种更轻量级的替代方案。与其让浏览器排队计时器并安排回调，不如实例化一个通道并立即向其发送消息
+7. Web Workers：将工作从主线程中分离出来
+
+```javascript
+// 1.
+function processItems(items, index) {
+  index = index || 0;
+  var currentItem = items[index];
+
+  console.log("processing item:", currentItem);
+
+  if (index + 1 < items.length) {
+    setTimeout(function () {
+      processItems(items, index + 1);
+    }, 0);
+  }
+}
+
+processItems(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]);
+
+// 2.
+<button id="button">count</button>
+<div>Click count: <span id="clickCount">0</span></div>
+<div>Loop count: <span id="loopCount">0</span></div>
+
+<script>
+  function waitSync(milliseconds) {
+    const start = Date.now();
+    while (Date.now() - start < milliseconds) {}
+  }
+
+  button.addEventListener("click", () => {
+    clickCount.innerText = Number(clickCount.innerText) + 1;
+  });
+
+  (async () => {
+    const items = new Array(100).fill(null);
+
+    for (const i of items) {
+      loopCount.innerText = Number(loopCount.innerText) + 1;
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      waitSync(50);
+    }
+  })();
+ </script>
+
+//  3.
+const items = new Array(100).fill(null);
+
+for (const i of items) {
+  loopCount.innerText = Number(loopCount.innerText) + 1;
+
+  await new Promise((resolve) => scheduler.postTask(resolve));
+
+  waitSync(50);
+}
+scheduler.postTask(() => {
+  console.log("postTask - background");
+}, { priority: "background" });
+
+setTimeout(() => console.log("setTimeout"));
+
+scheduler.postTask(() => console.log("postTask - default"));
+
+// setTimeout
+// postTask - default
+// postTask - background
+
+// 4.
+const items = new Array(100).fill(null);
+
+for (const i of items) {
+  loopCount.innerText = Number(loopCount.innerText) + 1;
+
+  await scheduler.yield();
+
+  waitSync(50);
+}
+// 5.
+
+
+// 6.
+for (const i of items) {
+  loopCount.innerText = Number(loopCount.innerText) + 1;
+
+  await new Promise((resolve) => {
+    const channel = new MessageChannel();
+    channel.port1.onmessage = resolve();
+    channel.port2.postMessage(null);
+  });
+
+  waitSync(50);
+}
+
+// 7.
+const items = new Array(100).fill(null);
+
+const workerScript = `
+  function waitSync(milliseconds) {
+    const start = Date.now();
+    while (Date.now() - start < milliseconds) {}
+  }
+
+  self.onmessage = function(e) {
+    waitSync(50);
+    self.postMessage('Process complete!');
+  }
+`;
+
+const blob = new Blob([workerScript], { type: "text/javascipt" });
+const worker = new Worker(window.URL.createObjectURL(blob));
+
+for (const i of items) {
+  worker.postMessage(items);
+
+  await new Promise((resolve) => {
+    worker.onmessage = function (e) {
+      loopCount.innerText = Number(loopCount.innerText) + 1;
+      resolve();
+    };
+  });
+}
+```
+
+### 重写 Promise 的几个工具函数
+
+首先 Promise 有 A+规范和 Promise ES6 规范，其中 A+规范比较简单，ES6 规范比较复杂。我们常用的是 ES6 规范，但是 thenable 的概念是由 A+ 提出来的，所以 ES6 规范也支持 thenable。
+
+thenable 是一个对象，它拥有 then 方法，then 方法接受两个参数，第一个参数是成功的回调函数，第二个参数是失败的回调函数。
+
+1. resolve 方法
+2. reject 方法
+3. then 方法
+4. catch 方法
+5. finally 方法
+
+```javascript
+// 判断是否是thenable
+function isThenable(obj) {
+  return (typeof obj === "object" || typeof obj === "function") && obj !== null && typeof obj.then === "function";
+}
+
+// 1. resolve 方法
+function resolve(value) {
+  if (value instanceof Promise) {
+    return value;
+  }
+  if (isThenable(value)) {
+    return new Promise((resolve, reject) => {
+      value.then(resolve, reject);
+    });
+  }
+}
+
+// 2. reject 方法
+function reject(reason) {
+  return new Promise((_, reject) => {
+    reject(reason);
+  });
+}
+
+// 4. catch 方法
+Promise.prototype.catch = function (onRejected) {
+  return this.then(null, onRejected);
+};
+
+// 5. finally 方法
+Promise.prototype.finally(onFinally) {
+  return this.then(
+    value => {
+      return Promise.resolve(onFinally()).then(() => value);
+    },
+    reason => {
+      return Promise.resolve(onFinally()).then(() => { throw reason; });
+    }
+  );
+}
+```
+
+### 重写 instanceof
+
+本质就是判断一个对象是否是某个构造函数的实例，不断去比较构造函数的 prototype 和实例的**proto**原型是否相等。
+
+```javascript
+function myInstanceof(instance, constructor) {
+  // 首先检查 constructor 是否是一个函数
+  if (typeof constructor !== "function") {
+    throw new TypeError('Right-hand side of "instanceof" is not callable');
+  }
+
+  // 获取构造函数的 prototype
+  const prototype = constructor.prototype;
+
+  // 遍历原型链
+  while (instance) {
+    // 检查当前对象的 __proto__ 是否等于构造函数的 prototype
+    if (instance.__proto__ === prototype) {
+      return true;
+    }
+    // 向上查找原型链
+    instance = instance.__proto__;
+  }
+  return false;
+}
 ```
 
 ###

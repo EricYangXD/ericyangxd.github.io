@@ -624,3 +624,127 @@ function findPeakElement(nums) {
   return left;
 }
 ```
+
+### 1765. 地图中的最高点
+
+```js
+var highestPeak = function (isWater) {
+  const m = isWater.length;
+  const n = isWater[0].length;
+
+  // const isWater = new Array(m).fill(0).map(() => new Array(n).fill(0));
+  const landsQueue = [];
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      // 记下全部水域的坐标，看清题目
+      if (isWater[i][j] === 1) {
+        isWater[i][j] = 0;
+        landsQueue.push([i, j]);
+      } else {
+        // 没被访问过的陆地起始为-1，水域在答案里要求为0
+        isWater[i][j] = -1;
+      }
+    }
+  }
+
+  // 边界，上下左右
+  const boundrys = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ];
+  // 初始高度（和水域相邻的点最高只能为1）
+  let h = 1;
+  while (landsQueue.length) {
+    // 当前队列的大小，因为遍历中要往队列里添加元素（下一层），这样写是必要的（避免当前层和下一层的遍历混淆）
+    let landsLength = landsQueue.length;
+    while (landsLength--) {
+      const land = landsQueue.shift();
+      const [landX, landY] = land;
+
+      for (let bound of boundrys) {
+        const newLandX = landX + bound[0];
+        const newLandY = landY + bound[1];
+        // 判断相邻格子坐标是否越界
+        if (newLandX < 0 || (newLandX >= m) | (newLandY < 0) || newLandY >= n) {
+          continue;
+        }
+        // 下一个点已经被访问过了
+        if (isWater[newLandX][newLandY] !== -1) {
+          continue;
+        }
+        // 目前是bfs到nx，ny这个点最近的方式了，也就是该点最高的高度
+        isWater[newLandX][newLandY] = h;
+        // 作为下一层遍历的元素入队
+        landsQueue.push([newLandX, newLandY]);
+      }
+    }
+    // 陆地高度逐级累加
+    h++;
+  }
+  return isWater;
+};
+```
+
+### 64. 最小路径和
+
+```js
+// 记忆化搜索：递归 + 缓存
+var minPathSum = function (grid) {
+  const m = grid.length;
+  const n = grid[0].length;
+  // memo[i][j] 表示从 (i, j) 到终点的最小路径和。
+  const memo = new Array(m).fill(0).map(() => new Array(n).fill(-1));
+
+  function dfs(row, col) {
+    // 如果到达终点，返回当前格子的值
+    if (row === m - 1 && col === n - 1) {
+      return grid[row][col];
+    }
+
+    // 如果超出边界，返回一个较大值（无效路径）
+    if (row >= m || col >= n) {
+      return Number.MAX_VALUE;
+    }
+
+    // 如果已经计算过，直接返回缓存值
+    if (memo[row][col] !== -1) {
+      return memo[row][col];
+    }
+
+    // 当前路径和为当前格子的值 + 向右或向下的最小路径和
+    // 遍历时，只需要向下（上）或向右搜索，并将结果存储在缓存中。
+    const right = dfs(row, col + 1);
+    const down = dfs(row + 1, col);
+    memo[row][col] = grid[row][col] + Math.min(right, down);
+
+    return memo[row][col];
+  }
+
+  return dfs(0, 0);
+};
+```
+
+### 236. 二叉树的最近公共祖先
+
+```js
+var lowestCommonAncestor = function (root, p, q) {
+  if (!root || root === p || root === q) {
+    return root;
+  }
+  const left = lowestCommonAncestor(root.left, p, q);
+  const right = lowestCommonAncestor(root.right, p, q);
+
+  if (left && right) {
+    return root;
+  }
+  return left || right;
+};
+```
+
+### 235. 二叉搜索树的最近公共祖先
+
+```
+
+```

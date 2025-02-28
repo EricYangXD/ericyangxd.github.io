@@ -91,6 +91,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin"); // 新增
 
 module.exports = {
   mode: "production",
+  devtool: false,
   entry: {
     index: "./src/index.js",
     chunk1: "./src/chunk1.js",

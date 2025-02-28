@@ -60,8 +60,6 @@ date: "2021-12-28"
 1. 执行生命周期 componentWillUnmount：
    1. 在一次调和更新中，如果发现元素被移除，就会打对应的 Deletion 标签 ，然后在 commit 阶段就会调用 componentWillUnmount 生命周期，接下来统一卸载组件以及 DOM 元素。发生在 commit 阶段，主要做一些收尾工作，比如清除一些可能造成内存泄漏的定时器，延时器，或者是一些事件监听器。跟 Vue 的 beforeDestroy 不一样。
 
-### TODO
-
 ### Fiber 原理
 
 ## 问题
@@ -86,12 +84,12 @@ Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的
 ```js
 // react-reconciler/src/ReactFiberBeginWork.js
 renderWithHooks(
-	null, // current Fiber
-	workInProgress, // workInProgress Fiber
-	Component, // 函数组件本身
-	props, // props
-	context, // 上下文
-	renderExpirationTime // 渲染 ExpirationTime
+  null, // current Fiber
+  workInProgress, // workInProgress Fiber
+  Component, // 函数组件本身
+  props, // props
+  context, // 上下文
+  renderExpirationTime // 渲染 ExpirationTime
 );
 ```
 
@@ -161,25 +159,25 @@ let cursor = 0;
 
 //  使用工厂模式生成一个 createSetter，通过 cursor 指定指向的是哪个 state
 function createSetter(cursor) {
-	return function (newVal) {
-		// 闭包
-		states[cursor] = newVal;
-	};
+  return function (newVal) {
+    // 闭包
+    states[cursor] = newVal;
+  };
 }
 
 function useState(initVal) {
-	// 首次
-	if (firstRun) {
-		states.push(initVal);
-		setters.push(createSetter(cursor));
-		firstRun = false;
-	}
-	let state = states[cursor];
-	let setter = setters[cursor];
-	// 光标移动到下一个位置
-	cursor++;
-	// 返回
-	return [state, setter];
+  // 首次
+  if (firstRun) {
+    states.push(initVal);
+    setters.push(createSetter(cursor));
+    firstRun = false;
+  }
+  let state = states[cursor];
+  let setter = setters[cursor];
+  // 光标移动到下一个位置
+  cursor++;
+  // 返回
+  return [state, setter];
 }
 ```
 
@@ -190,83 +188,83 @@ function useState(initVal) {
 let workInProgressHook = null;
 // workInProgressHook fiber，这里指的是 App 组件
 let fiber = {
-	stateNode: App, // App 组件
-	memoizedState: null, // hooks 链表，初始为 null
+  stateNode: App, // App 组件
+  memoizedState: null, // hooks 链表，初始为 null
 };
 // 是否是首次渲染
 let isMount = true;
 
 // 调度函数，模拟 react scheduler
 function schedule() {
-	workInProgressHook = fiber.memoizedState;
-	const app = fiber.stateNode();
-	isMount = false;
-	return app;
+  workInProgressHook = fiber.memoizedState;
+  const app = fiber.stateNode();
+  isMount = false;
+  return app;
 }
 
 function useState(initVal) {
-	let hook;
-	// 首次会生成 hook 对象，并形成链表结构，绑定在 workInProgress 的 memoizedState 属性上
-	if (isMount) {
-		// 每个 hook 对象，例如 state hook、memo hook、ref hook 等
-		hook = {
-			memoizedState: initVal, // 当前state的值，例如 useState(initVal)
-			action: null, // update 函数
-			next: null, // 因为是采用链表的形式连接起来，next指向下一个 hook
-		};
-		// 绑定在 workInProgress 的 memoizedState 属性上
-		if (!fiber.memoizedState) {
-			// 如果是第一个 hook 对象
-			fiber.memoizedState = hook;
-		} else {
-			// 如果不是, 将 hook 追加到链尾
-			workInProgressHook.next = hook;
-		}
-		// 指针指向当前 hook，链表尾部，最新 hook
-		workInProgressHook = hook;
-	} else {
-		// 拿到当前的 hook
-		hook = workInProgressHook;
-		// workInProgressHook 指向链表的下一个 hook
-		workInProgressHook = workInProgressHook.next;
-	}
-	// 状态更新，拿到 current hook，调用 action 函数，更新到最新 state
-	let baseState = hook.memoizedState;
-	// 执行 update
-	if (hook.action) {
-		// 更新最新值
-		let action = hook.action;
-		// 如果是 setNum(num=>num+1) 形式
-		if (typeof action === "function") {
-			baseState = action(baseState);
-		} else {
-			baseState = action;
-		}
-		// 清空 action
-		hook.action = null;
-	}
-	// 更新最新值
-	hook.memoizedState = baseState;
-	// 返回最新值 baseState、dispatchAction
-	return [baseState, dispatchAction(hook)];
+  let hook;
+  // 首次会生成 hook 对象，并形成链表结构，绑定在 workInProgress 的 memoizedState 属性上
+  if (isMount) {
+    // 每个 hook 对象，例如 state hook、memo hook、ref hook 等
+    hook = {
+      memoizedState: initVal, // 当前state的值，例如 useState(initVal)
+      action: null, // update 函数
+      next: null, // 因为是采用链表的形式连接起来，next指向下一个 hook
+    };
+    // 绑定在 workInProgress 的 memoizedState 属性上
+    if (!fiber.memoizedState) {
+      // 如果是第一个 hook 对象
+      fiber.memoizedState = hook;
+    } else {
+      // 如果不是, 将 hook 追加到链尾
+      workInProgressHook.next = hook;
+    }
+    // 指针指向当前 hook，链表尾部，最新 hook
+    workInProgressHook = hook;
+  } else {
+    // 拿到当前的 hook
+    hook = workInProgressHook;
+    // workInProgressHook 指向链表的下一个 hook
+    workInProgressHook = workInProgressHook.next;
+  }
+  // 状态更新，拿到 current hook，调用 action 函数，更新到最新 state
+  let baseState = hook.memoizedState;
+  // 执行 update
+  if (hook.action) {
+    // 更新最新值
+    let action = hook.action;
+    // 如果是 setNum(num=>num+1) 形式
+    if (typeof action === "function") {
+      baseState = action(baseState);
+    } else {
+      baseState = action;
+    }
+    // 清空 action
+    hook.action = null;
+  }
+  // 更新最新值
+  hook.memoizedState = baseState;
+  // 返回最新值 baseState、dispatchAction
+  return [baseState, dispatchAction(hook)];
 }
 
 // action 函数
 function dispatchAction(hook) {
-	return function (action) {
-		hook.action = action;
-	};
+  return function (action) {
+    hook.action = action;
+  };
 }
 
 // 使用
 function App() {
-	const [num, setNum] = useState(0);
-	return {
-		onClick() {
-			console.log("num: ", num);
-			setNum(num + 1);
-		},
-	};
+  const [num, setNum] = useState(0);
+  return {
+    onClick() {
+      console.log("num: ", num);
+      setNum(num + 1);
+    },
+  };
 }
 
 // 测试结果
@@ -404,7 +402,7 @@ React 提供两种方法创建 Ref 对象，类组件 React.createRef，函数�
 
 ```ts
 interface MutableRefObject<T> {
-	current: T;
+  current: T;
 }
 ```
 
@@ -435,32 +433,30 @@ useRef 会在所有的 render 中保持对返回值的**唯一引用**。因为�
    3. 高阶组件转发：如果通过高阶组件包裹一个原始类组件，就会产生一个问题，如果高阶组件 HOC 没有处理 ref ，那么由于高阶组件本身会返回一个新组件，所以当使用 HOC 包装后组件的时候，标记的 ref 会指向 HOC 返回的组件，而并不是 HOC 包裹的原始类组件，为了解决这个问题，forwardRef 可以对 HOC 做一层处理。经过 forwardRef 处理后的 HOC ，就可以正常访问到 Index 组件实例了。例：
    ```js
    function HOC(Component) {
-   	class Wrap extends React.Component {
-   		render() {
-   			const { forwardedRef, ...otherprops } = this.props;
-   			return <Component ref={forwardedRef} {...otherprops} />;
-   		}
-   	}
-   	return React.forwardRef((props, ref) => (
-   		<Wrap forwardedRef={ref} {...props} />
-   	));
+     class Wrap extends React.Component {
+       render() {
+         const { forwardedRef, ...otherprops } = this.props;
+         return <Component ref={forwardedRef} {...otherprops} />;
+       }
+     }
+     return React.forwardRef((props, ref) => <Wrap forwardedRef={ref} {...props} />);
    }
    class Index extends React.Component {
-   	render() {
-   		return <div>hello,world</div>;
-   	}
+     render() {
+       return <div>hello,world</div>;
+     }
    }
    const HocIndex = HOC(Index);
    export default () => {
-   	const node = useRef(null);
-   	useEffect(() => {
-   		console.log(node.current); /* Index 组件实例  */
-   	}, []);
-   	return (
-   		<div>
-   			<HocIndex ref={node} />
-   		</div>
-   	);
+     const node = useRef(null);
+     useEffect(() => {
+       console.log(node.current); /* Index 组件实例  */
+     }, []);
+     return (
+       <div>
+         <HocIndex ref={node} />
+       </div>
+     );
    };
    ```
 7. ref 还可以实现组件间通信。
@@ -471,49 +467,49 @@ useRef 会在所有的 render 中保持对返回值的**唯一引用**。因为�
    ```js
    // 子组件
    function Son(props, ref) {
-   	const inputRef = useRef(null);
-   	const [inputValue, setInputValue] = useState("");
-   	useImperativeHandle(
-   		ref,
-   		() => {
-   			const handleRefs = {
-   				onFocus() {
-   					/* 声明方法用于聚焦input框 */
-   					inputRef.current.focus();
-   				},
-   				onChangeValue(value) {
-   					/* 声明方法用于改变input的值 */
-   					setInputValue(value);
-   				},
-   			};
-   			return handleRefs;
-   		},
-   		[]
-   	);
-   	return (
-   		<div>
-   			<input placeholder="请输入内容" ref={inputRef} value={inputValue} />
-   		</div>
-   	);
+     const inputRef = useRef(null);
+     const [inputValue, setInputValue] = useState("");
+     useImperativeHandle(
+       ref,
+       () => {
+         const handleRefs = {
+           onFocus() {
+             /* 声明方法用于聚焦input框 */
+             inputRef.current.focus();
+           },
+           onChangeValue(value) {
+             /* 声明方法用于改变input的值 */
+             setInputValue(value);
+           },
+         };
+         return handleRefs;
+       },
+       []
+     );
+     return (
+       <div>
+         <input placeholder="请输入内容" ref={inputRef} value={inputValue} />
+       </div>
+     );
    }
 
    const ForwarSon = forwardRef(Son);
    // 父组件
    class Index extends React.Component {
-   	cur = null;
-   	handerClick() {
-   		const { onFocus, onChangeValue } = this.cur;
-   		onFocus(); // 让子组件的输入框获取焦点
-   		onChangeValue("let us learn React!"); // 让子组件input
-   	}
-   	render() {
-   		return (
-   			<div style={{ marginTop: "50px" }}>
-   				<ForwarSon ref={(cur) => (this.cur = cur)} />
-   				<button onClick={this.handerClick.bind(this)}>操控子组件</button>
-   			</div>
-   		);
-   	}
+     cur = null;
+     handerClick() {
+       const { onFocus, onChangeValue } = this.cur;
+       onFocus(); // 让子组件的输入框获取焦点
+       onChangeValue("let us learn React!"); // 让子组件input
+     }
+     render() {
+       return (
+         <div style={{ marginTop: "50px" }}>
+           <ForwarSon ref={(cur) => (this.cur = cur)} />
+           <button onClick={this.handerClick.bind(this)}>操控子组件</button>
+         </div>
+       );
+     }
    }
    ```
 
@@ -541,14 +537,14 @@ useRef 会在所有的 render 中保持对返回值的**唯一引用**。因为�
 
 ```js
 function Chat() {
-	const [text, setText] = useState("");
-	// onClick 既保持引用不变，又能在每次触发时访问到最新的 text 值。
-	// ✅ Always the same function (even if `text` changes)
-	const onClick = useEvent(() => {
-		sendMessage(text);
-	});
+  const [text, setText] = useState("");
+  // onClick 既保持引用不变，又能在每次触发时访问到最新的 text 值。
+  // ✅ Always the same function (even if `text` changes)
+  const onClick = useEvent(() => {
+    sendMessage(text);
+  });
 
-	return <SendButton onClick={onClick} />;
+  return <SendButton onClick={onClick} />;
 }
 ```
 
@@ -559,21 +555,21 @@ function Chat() {
 ```javascript
 // (!) Approximate behavior
 function useEvent(handler) {
-	// 回调函数handler尽量不要写成异步的
-	const handlerRef = useRef(null);
+  // 回调函数handler尽量不要写成异步的
+  const handlerRef = useRef(null);
 
-	// In a real implementation, this would run before layout effects
-	useLayoutEffect(() => {
-		// DOM更新后，渲染前同步执行，避免函数在一个事件循环中被直接消费时访问到旧的 Ref 值；
-		handlerRef.current = handler;
-	});
+  // In a real implementation, this would run before layout effects
+  useLayoutEffect(() => {
+    // DOM更新后，渲染前同步执行，避免函数在一个事件循环中被直接消费时访问到旧的 Ref 值；
+    handlerRef.current = handler;
+  });
 
-	return useCallback((...args) => {
-		// In a real implementation, this would throw error if called during render
-		// TODO在渲染时若被调用，要抛出异常，这是为了避免 useEvent 函数被渲染时使用，因为这样就无法数据驱动了。
-		const fn = handlerRef.current;
-		return fn(...args);
-	}, []);
+  return useCallback((...args) => {
+    // In a real implementation, this would throw error if called during render
+    // TODO在渲染时若被调用，要抛出异常，这是为了避免 useEvent 函数被渲染时使用，因为这样就无法数据驱动了。
+    const fn = handlerRef.current;
+    return fn(...args);
+  }, []);
 }
 ```
 
@@ -697,18 +693,18 @@ import() 这个语句完全是由 Webpack 进行处理的。例：
 
 ```jsx
 function ProfilePage() {
-	// 定义一个 state 用于存放需要加载的组件
-	const [RealPage, setRealPage] = useState(null);
+  // 定义一个 state 用于存放需要加载的组件
+  const [RealPage, setRealPage] = useState(null);
 
-	// 根据路径动态加载真正的组件实现
-	import("./RealProfilePage").then((comp) => {
-		setRealPage(Comp);
-	});
-	// 如果组件未加载则显示 Loading 状态
-	if (!RealPage) return "Loading....";
+  // 根据路径动态加载真正的组件实现
+  import("./RealProfilePage").then((comp) => {
+    setRealPage(Comp);
+  });
+  // 如果组件未加载则显示 Loading 状态
+  if (!RealPage) return "Loading....";
 
-	// 组件加载成功后则将其渲染到界面
-	return <RealPage />;
+  // 组件加载成功后则将其渲染到界面
+  return <RealPage />;
 }
 ```
 
@@ -940,15 +936,15 @@ function import(url) {
 
 ```javascript
 export function lazy<T, R>(ctor: () => Thenable<T, R>): LazyComponent<T> {
-	let lazyType = {
-		$$typeof: REACT_LAZY_TYPE,
-		_ctor: ctor,
-		// React uses these fields to store the result.
-		_status: -1,
-		_result: null,
-	};
+  let lazyType = {
+    $$typeof: REACT_LAZY_TYPE,
+    _ctor: ctor,
+    // React uses these fields to store the result.
+    _status: -1,
+    _result: null,
+  };
 
-	return lazyType;
+  return lazyType;
 }
 ```
 
@@ -956,32 +952,28 @@ export function lazy<T, R>(ctor: () => Thenable<T, R>): LazyComponent<T> {
 
 ```js
 class Suspense extends React.Component {
-	state = {
-		promise: null,
-	};
+  state = {
+    promise: null,
+  };
 
-	componentDidCatch(err) {
-		// 判断 err 是否是 thenable
-		if (
-			err !== null &&
-			typeof err === "object" &&
-			typeof err.then === "function"
-		) {
-			this.setState({ promise: err }, () => {
-				err.then(() => {
-					this.setState({
-						promise: null,
-					});
-				});
-			});
-		}
-	}
+  componentDidCatch(err) {
+    // 判断 err 是否是 thenable
+    if (err !== null && typeof err === "object" && typeof err.then === "function") {
+      this.setState({ promise: err }, () => {
+        err.then(() => {
+          this.setState({
+            promise: null,
+          });
+        });
+      });
+    }
+  }
 
-	render() {
-		const { fallback, children } = this.props;
-		const { promise } = this.state;
-		return <>{promise ? fallback : children}</>;
-	}
+  render() {
+    const { fallback, children } = this.props;
+    const { promise } = this.state;
+    return <>{promise ? fallback : children}</>;
+  }
 }
 ```
 
@@ -1121,32 +1113,23 @@ React 中如果想要阻止事件向上冒泡，可以用 `e.stopPropagation()`�
 
 ```js
 const registrationNameModules = {
-	onBlur: SimpleEventPlugin,
-	onClick: SimpleEventPlugin,
-	onClickCapture: SimpleEventPlugin,
-	onChange: ChangeEventPlugin,
-	onChangeCapture: ChangeEventPlugin,
-	onMouseEnter: EnterLeaveEventPlugin,
-	onMouseLeave: EnterLeaveEventPlugin,
-	// ...
+  onBlur: SimpleEventPlugin,
+  onClick: SimpleEventPlugin,
+  onClickCapture: SimpleEventPlugin,
+  onChange: ChangeEventPlugin,
+  onChangeCapture: ChangeEventPlugin,
+  onMouseEnter: EnterLeaveEventPlugin,
+  onMouseLeave: EnterLeaveEventPlugin,
+  // ...
 };
 const registrationNameDependencies = {
-	onBlur: ["blur"],
-	onClick: ["click"],
-	onClickCapture: ["click"],
-	onChange: [
-		"blur",
-		"change",
-		"click",
-		"focus",
-		"input",
-		"keydown",
-		"keyup",
-		"selectionchange",
-	],
-	onMouseEnter: ["mouseout", "mouseover"],
-	onMouseLeave: ["mouseout", "mouseover"],
-	// ...
+  onBlur: ["blur"],
+  onClick: ["click"],
+  onClickCapture: ["click"],
+  onChange: ["blur", "change", "click", "focus", "input", "keydown", "keyup", "selectionchange"],
+  onMouseEnter: ["mouseout", "mouseover"],
+  onMouseLeave: ["mouseout", "mouseover"],
+  // ...
 };
 ```
 
@@ -1254,13 +1237,13 @@ React 发生一次更新，会统一走 `ensureRootIsScheduled（调度应用）
 
 ### 什么是 fiber
 
-fiber 诞生在 Reactv16 版本，整个 React 团队花费两年时间重构 fiber 架构，目的就是解决大型 React 应用卡顿；fiber 在 React 中是最小粒度的执行单元，无论 React 还是 Vue ，在遍历更新每一个节点的时候都不是用的真实 DOM ，都是采用虚拟 DOM ，所以可以理解成 fiber 就是 React 的虚拟 DOM 。
+fiber 诞生在 Reactv16 版本，整个 React 团队花费两年时间重构 fiber 架构，目的就是**解决大型 React 应用卡顿**；fiber 在 React 中是最小粒度的执行单元，无论 React 还是 Vue ，在遍历更新每一个节点的时候都不是用的真实 DOM ，都是采用虚拟 DOM ，所以可以理解成 fiber 就是 React 的虚拟 DOM 。
 
 ### 为什么要用 fiber
 
 在 Reactv15 以及之前的版本，React 对于虚拟 DOM 是采用递归方式遍历更新的，比如一次更新，就会从应用根部递归更新，递归一旦开始，中途无法中断，随着项目越来越复杂，层级越来越深，导致更新的时间越来越长，给前端交互上的体验就是卡顿。
 
-Reactv16 为了解决卡顿问题引入了 fiber，为什么它能解决卡顿？更新 fiber 的过程叫做 Reconciler（调和器），每一个 fiber 都可以作为一个执行单元来处理，所以每一个 fiber 可以根据自身的过期时间 expirationTime（ v17 版本叫做优先级 lane ）来判断是否还有空间时间执行更新，如果没有时间更新，就要把主动权交给浏览器去渲染，做一些动画，重排（ reflow ），重绘 repaints 之类的事情，这样就能给用户感觉不是很卡。然后等浏览器空余时间，在通过 scheduler （调度器），再次恢复执行单元上来，这样就能本质上中断了渲染，提高了用户体验。
+Reactv16 为了解决卡顿问题引入了 fiber，为什么它能解决卡顿？更新 fiber 的过程叫做 Reconciler（调和器），每一个 fiber 都可以作为一个执行单元来处理，所以每一个 fiber 可以根据自身的过期时间 expirationTime（ v17 版本叫做优先级 lane ）来判断是否还有空间时间执行更新，如果没有时间更新，就要把主动权交给浏览器去渲染，做一些动画，重排（ reflow ），重绘 repaints 之类的事情，这样就能给用户感觉不是很卡。然后等浏览器空余时间，再通过 scheduler （调度器），再次恢复执行单元上来，这样就能本质上中断了渲染，提高了用户体验。
 
 ### element,fiber,dom 三种什么关系？
 
@@ -1278,7 +1261,7 @@ Reactv16 为了解决卡顿问题引入了 fiber，为什么它能解决卡顿�
 
 1. 第一步：创建 fiberRoot 和 rootFiber。第一次挂载的过程中，会将 fiberRoot 和 rootFiber 建立起关联。
    - fiberRoot：首次构建应用， 创建一个 fiberRoot ，作为整个 React 应用的根基。
-   - rootFiber： 如下通过 ReactDOM.render 渲染出来的，如上 Index 可以作为一个 rootFiber。一个 React 应用可以有多 ReactDOM.render 创建的 rootFiber ，但是只能有一个 fiberRoot（应用根节点）。`ReactDOM.render(<Index/>, document.getElementById('app'));`
+   - rootFiber： 如下通过 ReactDOM.render 渲染出来的，如上 Index 可以作为一个 rootFiber。一个 React 应用可以有多个 ReactDOM.render 创建的 rootFiber ，但是只能有一个 fiberRoot（应用根节点）。`ReactDOM.render(<Index/>, document.getElementById('app'));`
 2. 第二步：workInProgress 和 current。开始到正式渲染阶段，会进入 beginwork 流程。回到 rootFiber 的渲染流程，首先会复用当前 current 树（ rootFiber ）的 alternate 作为 workInProgress ，如果没有 alternate （初始化的 rootFiber 是没有 alternate ），那么会创建一个 fiber 作为 workInProgress 。会用 alternate 将新创建的 workInProgress 与 current 树建立起关联。这个关联过程只有初始化第一次创建 alternate 时候进行。
    - workInProgress 是：正在内存中构建的 Fiber 树称为 workInProgress Fiber 树。在一次更新中，所有的更新都是发生在 workInProgress 树上。在一次更新之后，workInProgress 树上的状态是最新的状态，那么它将变成 current 树用于渲染视图。
    - current：正在视图层渲染的树叫做 current 树。

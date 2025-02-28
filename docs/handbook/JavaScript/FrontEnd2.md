@@ -457,11 +457,47 @@ Cookie 有数量限制，而且只允许每个站点存储一定数量的 Cookie
 
 #### HTML - link 标签
 
-1. `<link rel="preload" href="style.css" as="style">`，as 属性可以指定预加载的类型，除了 style 还支持很多类型，常用的一般是 style 和 script，css 和 js。
+1. `<link rel="preload" href="style.css" as="style">`，as 属性可以指定预加载的类型，除了 style 还支持很多类型，常用的一般是 style 和 script，css 和 js，image 等。
 2. 使用 link 的 preload 属性预加载一个资源。
 3. prefetch 和 preload 差不多，prefetch 是一个低优先级的获取，通常用在这个资源可能会在用户接下来访问的页面中出现的时候。对当前页面的要用 preload，不要用 prefetch，可以用到的一个场景是在用户鼠标移入 a 标签时进行一个 prefetch。
 4. preconnect 和 dns-prefetch 做的事情类似，提前进行 TCP，SSL 握手，省去这一部分时间，基于 HTTP1.1(keep-alive)和 HTTP2(多路复用)的特性，都会在同一个 TCP 链接内完成接下来的传输任务。
 5. `<script src="" crossorigin="anonymous"></script>`，crossorigin 可以使用本属性来使那些将静态资源放在另外一个域名的站点打印错误信息。通过`window.onerror`捕获错误信息。
+
+#### 区分 link 的 rel 属性的几个 pre 值
+
+1. preload：预加载，允许浏览器在页面解析时提前加载特定的资源，不会阻塞页面渲染。浏览器会立即开始下载资源，并且会立即开始解析资源，可用于优先加载重要资源，确保在需要时资源已准备好。有助于减少页面渲染时间，提高用户体验。
+
+```html
+<link rel="preload" href="style.css" as="style" />
+<link rel="preload" href="script.js" as="script" />
+<link rel="preload" href="image.jpg" as="image" />
+```
+
+2. prefetch：预获取，允许浏览器在空闲时间加载可能在未来某个时间点需要的资源。prefetch 通常用于非关键资源，这些资源可能在用户导航到其他页面时使用，改善用户在后续操作中的体验。加载资源的优先级较低，如果当前页面不需要该资源，prefetch 的加载不会影响当前页面的渲染性能。
+
+```html
+<link rel="prefetch" href="next-page.html" /> <link rel="prefetch" href="styles-next.css" />
+```
+
+3. prerender：预渲染，在用户访问某个页面之前，提前渲染整个页面。这样，当用户真的导航到这个页面时，可以立即显示，而不必等待页面加载。完全渲染：prerender 会创建一个完整的页面副本，包括其 DOM、样式和 JavaScript 内容，用户在访问时可以几乎即时呈现。资源消耗高：由于是完整的页面渲染，prerender 会占用更多的资源和带宽，因此应谨慎使用，特别是在资源有限的环境下。适用于用户导航：通常用于预测用户即将访问的页面。
+
+```html
+<link rel="prerender" href="next-page.html" />
+```
+
+4. preconnect：预连接，允许浏览器在请求资源之前，提前建立与目标服务器的连接，包括 DNS 解析、TLS 握手和 TCP 连接。这样在真正请求资源时，连接已经就绪，可以直接传输数据。减少了用户与外部资源交互时的延迟。适合用于加载外部资源的页面，以加速请求。不要滥用：每一个 preconnect 都会占用浏览器的连接资源，提前连接的域名过多可能会浪费资源。现代浏览器支持良好：大多数现代浏览器都支持 preconnect，但可以结合 dns-prefetch 作为回退方案。
+
+```html
+<link rel="preconnect" href="https://example.com" />
+<!-- 如果第三方域名需要携带跨域请求的凭据（如 cookies），则需要指定 crossorigin 属性： -->
+<link rel="preconnect" href="https://example.com" crossorigin="anonymous" />
+```
+
+5. dns-prefetch：是一种预解析域名的技术，允许浏览器提前解析 DNS，以减少后续请求的延迟。减少了访问外部资源时的 DNS 查询时间。适合于引用许多外部资源的页面。页面中会请求的资源来自第三方域名，例如：CDN、第三方广告、分析服务等。只会提前完成域名解析，不会建立连接（即不会完成 TCP 和 TLS 握手）。对于一些页面中静态资源的域名，现代浏览器会自动执行 dns-prefetch，但手动添加可以确保关键域名被优先处理。对于明显依赖的第三方资源域名（如分析服务、广告服务），建议显式使用 dns-prefetch。
+
+```html
+<link rel="dns-prefetch" href="//example.com" />
+```
 
 #### 对 lodash 进行 tree-shaking
 
@@ -859,7 +895,7 @@ if (navigator.serviceWorker.controller !== null) {
 
 ### Proxy 与 Reflect
 
-代理与反射的关系：简单来说，我们可以通过 Proxy 创建对于原始对象的代理对象，从而在代理对象中使用 Reflect 达到对于 JavaScript 原始操作的拦截。
+代理与反射的关系：简单来说，我们可以通过 Proxy 创建对于原始对象的代理对象，从而在代理对象中使用 Reflect 实现对 JavaScript 原始操作的拦截。
 
 - Proxy 代理，它内置了一系列”陷阱“用于创建一个对象的代理，从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）。
 
@@ -873,7 +909,7 @@ const parent = {
 };
 
 const proxy = new Proxy(parent, {
-  // get陷阱中target表示原对象 key表示访问的属性名
+  // get中target表示原对象 key表示访问的属性名
   get(target, key, receiver) {
     console.log(receiver === proxy);
     console.log(receiver === obj);
@@ -900,13 +936,13 @@ obj.value;
 
 receiver: The reference to use as the `this` value in the getter function, if `target[properKey]` is an accessor property.
 
-综上：Proxy 中 getter 的第三个参数 receiver 存在的意义就是为了正确的在陷阱中传递上下文，是为了传递正确的调用者指向。
+综上：Proxy 中 getter 的第三个参数 receiver 存在的意义就是为了正确的在 getter 中传递上下文，是为了传递正确的调用者指向。
 
-PS：不要将 revceiver 和 get 陷阱中的 this 弄混了，陷阱中的 this 关键字表示的是代理的 handler 对象，也就是 Proxy 的第二个参数接收的对象。
+PS：不要将 revceiver 和 getter 中的 this 弄混了，getter 中的 this 关键字表示的是代理的 handler 对象，也就是 Proxy 的第二个参数接收的对象。
 
 你可以简单的将 `Reflect.get(target, key, receiver)` 理解成为 `target[key].call(receiver)`，不过这是一段伪代码，但是这样你可能更好理解。
 
-针对于 getter（当然 setter 其他之类涉及到 receiver 的陷阱同理）：
+针对于 getter（当然 setter 其他之类涉及到 receiver 的同理）：
 
 - Proxy 中接受的 Receiver 形参表示代理对象本身或者继承于代理对象的对象。
 - Reflect 中传递的 Receiver 实参表示修改执行原始操作时的 this 指向。

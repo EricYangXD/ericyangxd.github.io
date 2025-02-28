@@ -652,17 +652,49 @@ async function test() {
 上面的代码，会依次去等待 fetch 执行，如果实际上这三个 fetch 调用的结果不相关的话，可以改为并发模式：
 
 1. 使用 Promise.all 或 Promise.allSettled；
+   - Promise.all：如果其中一个失败，则返回失败的 Promise；如果都成功，则返回成功的 Promise 数组；但是如果某个请求比较耗时，则其他请求也会被阻塞；
+   - Promise.allSettled：不管成功还是失败，都返回一个 Promise 数组；
 2. 改为 for 循环或者如下模式：
 
 ```javascript
+const res = [];
+async function fetchData(url, idx) {
+  const response = await fetch(url);
+  const data = await response.json();
+  console.log(data); // 处理返回的数据
+  res[idx] = data;
+}
+
+async function fetchConcurrently(urls) {
+  for (let i = 0; i < urls.length; i++) {
+    (function (i) {
+      setTimeout(() => {
+        fetchData(urls[i], i);
+      }, 0); // 使用 setTimeout 实现非阻塞调用
+    })(i);
+  }
+}
+
+// 示例 URLs 数组
+const urls = [
+  "https://jsonplaceholder.typicode.com/posts/1",
+  "https://jsonplaceholder.typicode.com/posts/2",
+  "https://jsonplaceholder.typicode.com/posts/3",
+];
+
+// 调用函数并发请求
+fetchConcurrently(urls);
+
+// 如下模式是Promise的并发请求模式
 async function test() {
-  // 这样不会阻塞性能
+  // 发起所有请求并保存 Promise
   let a = fetch("XXX1");
   let b = fetch("XXX2");
   let c = fetch("XXX3");
-  let aa = await a;
-  let bb = await b;
-  let cc = await c;
+
+  // 使用 Promise.all 等待所有请求完成
+  let [aa, bb, cc] = await Promise.all([a, b, c]);
+
   console.log(aa, bb, cc);
 }
 ```

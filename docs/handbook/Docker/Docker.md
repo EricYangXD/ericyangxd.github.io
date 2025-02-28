@@ -54,8 +54,8 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 - [启动 docker daemon](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/docker-brew.jpg)
 
-- Linux上配置Docker源镜像加速：`vi /etc/docker/daemon.json`
-- Docker Desktop上直接在设置的`Docker Engine`里配置Docker源镜像加速
+- Linux 上配置 Docker 源镜像加速：`vi /etc/docker/daemon.json`
+- Docker Desktop 上直接在设置的`Docker Engine`里配置 Docker 源镜像加速
 
 ```json
 // 2024-12-11 更新
@@ -98,12 +98,12 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
     "https://docker.rainbond.cc",
     "https://hub.geekery.cn",
     "https://docker.1panelproxy.com",
-    "https://atomhub.openatom.cn",
+    "https://atomhub.openatom.cn"
   ]
 }
 ```
 
-- 配置镜像源之后需要重启Docker：`sudo systemctl daemon-reload && sudo systemctl restart docker`
+- 配置镜像源之后需要重启 Docker：`sudo systemctl daemon-reload && sudo systemctl restart docker`
 - 查看是否成功：`docker info`
 
 ## Docker 的使用
@@ -142,15 +142,15 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 可选项：
 
-   - --name webserver ：容器名称，用来区分容器
-   - -p 81:80 ：端口进行映射，将本地的 81 端口映射到容器内部的 80 端口
-   - -v ～/nginx/html:/usr/share/nginx/html 数据卷挂载 ro/rw，将主机项目中的目录挂载到容器的目录下，默认 rw 只能在宿主机外改变，容器内部不能改变
-   - -d：设置容器在后台一直运行
-   - -it：使用交互方式运行，进入容器查看内容
-   - -P：随机端口
-   - -e：环境配置设置
-   - 注意：后台启动运行，必须要有一个前台进程，docker 发现没有应用，就会自动停止
-   - 重点：数据卷挂载分为具名/匿名/指定路径挂载，容器数据卷挂载可以实现数据共享，容器的持久化和同步操作，可以使用 `docker volume` 查看卷的情况，可以使用 volumes-from 实现多个容器之间的数据共享。
+- --name webserver ：容器名称，用来区分容器
+- -p 81:80 ：端口进行映射，将本地的 81 端口映射到容器内部的 80 端口
+- -v ～/nginx/html:/usr/share/nginx/html 数据卷挂载 ro/rw，将主机项目中的目录挂载到容器的目录下，默认 rw 只能在宿主机外改变，容器内部不能改变
+- -d：设置容器在后台一直运行
+- -it：使用交互方式运行，进入容器查看内容
+- -P：随机端口
+- -e：环境配置设置
+- 注意：后台启动运行，必须要有一个前台进程，docker 发现没有应用，就会自动停止
+- 重点：数据卷挂载分为具名/匿名/指定路径挂载，容器数据卷挂载可以实现数据共享，容器的持久化和同步操作，可以使用 `docker volume` 查看卷的情况，可以使用 volumes-from 实现多个容器之间的数据共享。
 
 4. 停止 nginx 服务
 
@@ -170,16 +170,16 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 说明：
 
-   - REPOSITORY 镜像的仓库源
-   - TAG 镜像的标签
-   - IMAGE ID 镜像的 id
-   - CREATED 镜像的创建时间
-   - SIZE 镜像的大小
+- REPOSITORY 镜像的仓库源
+- TAG 镜像的标签
+- IMAGE ID 镜像的 id
+- CREATED 镜像的创建时间
+- SIZE 镜像的大小
 
 可选项：
 
-   - -a：列出所有的镜像
-   - -q：只显示镜像的 id
+- -a：列出所有的镜像
+- -q：只显示镜像的 id
 
 注意：镜像 ID 是唯一标识，一个镜像可以对应多个标签
 
@@ -220,10 +220,10 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 可选项：
 
-   - -a：显示所有的容器，包括未运行的
-   - -l：显示最近创建的容器
-   - -n：列出最近创建的 n 个容器
-   - -q：只显示容器的编号
+- -a：显示所有的容器，包括未运行的
+- -l：显示最近创建的容器
+- -n：列出最近创建的 n 个容器
+- -q：只显示容器的编号
 
 2. 进入容器
 
@@ -258,7 +258,7 @@ docker 是一个 Client-Server 结构的系统，docker 的守护进程运行在
 
 `docker logs -f -t --tail 100 容器id`
 
-   - --tail 后面必须加参数条数
+- --tail 后面必须加参数条数
 
 8. 查看容器中的进程信息
 
@@ -283,7 +283,7 @@ Dockerfile 是一个文本文件，里面包含了一系列的指令，用于定
 
 通过编写 Dockerfile，开发者可以按照需求定义一个镜像的环境、依赖、配置和运行方式，从而生成可移植、轻量级、统一的应用程序运行环境。
 
-- FROM指令：指定构建容器镜像时的基础镜像，一切从这里开始
+- FROM 指令：指定构建容器镜像时的基础镜像，一切从这里开始
 - MAINTAINER 镜像的作者 姓名<邮箱>
 - RUN 在镜像构建过程中执行一条命令。
 - ADD <源路径> <目标路径>：将构建上下文中的文件复制到镜像中。ADD 和 COPY 都可以用于复制文件，但 ADD 功能更复杂，可以解压归档文件（如 .tar.gz）和下载 URL。
@@ -291,14 +291,14 @@ Dockerfile 是一个文本文件，里面包含了一系列的指令，用于定
 - VOLUME 挂载的目录
 - EXPOST 端口配置
 - EXPOSE <端口号>：声明容器监听的端口（只是一个文档性指令，不会自动开放端口）。
-- CMD ["可执行文件", "参数1", "参数2"]： 指定容器启动时要运行的命令。如果同时定义了多个 CMD，只有最后一个会生效，可被覆盖 。
-- ENTRYPOINT ["可执行文件", "参数1", "参数2"]：指定这个容器启动要运行的命令，可以追加命令。与 CMD 类似，但不会被用户的命令覆盖，而是将用户的命令作为参数附加到 ENTRYPOINT 后。
+- CMD ["可执行文件", "参数 1", "参数 2"]： 指定容器启动时要运行的命令。如果同时定义了多个 CMD，只有最后一个会生效，可被覆盖 。
+- ENTRYPOINT ["可执行文件", "参数 1", "参数 2"]：指定这个容器启动要运行的命令，可以追加命令。与 CMD 类似，但不会被用户的命令覆盖，而是将用户的命令作为参数附加到 ENTRYPOINT 后。
 - ONBUILD 当构建一个被继承的 Dockerfile 时会运行
-- COPY <源路径> <目标路径>：类似ADD，将文件拷贝到镜像中
+- COPY <源路径> <目标路径>：类似 ADD，将文件拷贝到镜像中
 - ENV <变量名>=<值>：构建的时候设置环境变量
 
-
 Demo1：
+
 ```dockerfile
 # FROM node:latest
 FROM node:alpine # 是一个官方的轻量化 Node.js 基础镜像，它基于 Alpine Linux，体积小，性能高，更适合生产环境，启动快，内存占用低。
@@ -318,7 +318,6 @@ CMD ["npm", "start"]  # 运行 npm start
 
 # CMD node index.js
 ```
-
 
 ## .dockerignore
 
@@ -354,11 +353,13 @@ $ docker build -t fe-app .  # -t fe-app为镜像命名为fe-app，.：表示当�
 
 # 运行容器
 # 1.以交互模式启动，用户可以直接进入容器终端与容器内部环境进行交互。容器停止后会自动删除，不会保留运行记录，也不会生成新的容器 ID。适合运行临时处理的任务，比如在容器内执行某个脚本，任务完成后直接销毁容器。非常适合需要进入容器交互式操作的场景，比如测试某些命令是否正常运行，检查容器环境等。实时输出容器日志到终端。
-$ docker run -it --rm fe-app /bin/bash
+$ docker run -it --rm -p 3000:3000/tcp fe-app /bin/bash
 # 2.以守护进程模式启动，容器会在后台运行，用户无法直接进入容器终端与容器内部环境进行交互。容器停止后不会自动删除，会保留运行记录，会生成新的容器 ID。主机的 3000 端口将转发到容器的 3000 端口，因此可以通过访问主机的 http://localhost:3000 来访问容器中的服务。后台运行的模式适合需要高可用的生产环境服务。适合运行 Web 应用、API 服务等长期运行的服务。不输出日志，需要通过 docker logs 查看。必须指定端口映射
-$ docker run -d -p 3000:3000 my-node-app
-
+$ docker run -d -p 3000:3000/tcp --name my-node-app base-node-app
+$ docker exec -it my-node-app /bin/bash
 ```
+
+上述的 1 和 2 差不多，只是一个是交互式的，一个是后台运行的。
 
 ## MAC 彻底删除 docker
 
@@ -441,7 +442,7 @@ $ docker run -d -p 3000:3000 my-node-app
 1. 基于 Docker Commit 制作镜像
 2. 基于 dockerfile 制作镜像，Dockerfile 方式为主流的制作镜像方式
 
-基于Dockerfile多阶段构建镜像，将构建和运行分开，减少最终镜像中不必要的文件！
+基于 Dockerfile 多阶段构建镜像，将构建和运行分开，减少最终镜像中不必要的文件！
 
 ```dockerfile
 # 第一阶段：构建阶段
@@ -457,6 +458,13 @@ FROM node:16-alpine
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 CMD ["npm", "start"]
+
+# or STAGE 2
+FROM nginx:stable-alpine
+COPY --from=build /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
 ```
 
 ### 4. Commit 构建自定义镜像
@@ -517,12 +525,12 @@ RUN yum install -y net-tools
 
 - 通过`docker exec -it <container_id> sh`无法进入容器进行调试，此时可以：
 
-    1. 检查 Dockerfile 和构建输出中的错误信息
-    2. 使用`docker run -it --entrypoint sh <image_id>`来启动容器
-       - 使用你构建的镜像启动一个容器
-       - 覆盖默认的 ENTRYPOINT,使用 sh 命令作为入口点
-       - -it 参数可以让你进入容器内部的 shell
-    3. 一种方式是使用 Dockerfile 的 RUN 指令，在构建阶段就检查容器内部（示例如下），这样不需要启动容器:这会直接在构建输出中返回命令执行结果，你可以根据输出来检查问题所在。
+  1. 检查 Dockerfile 和构建输出中的错误信息
+  2. 使用`docker run -it --entrypoint sh <image_id>`来启动容器
+     - 使用你构建的镜像启动一个容器
+     - 覆盖默认的 ENTRYPOINT,使用 sh 命令作为入口点
+     - -it 参数可以让你进入容器内部的 shell
+  3. 一种方式是使用 Dockerfile 的 RUN 指令，在构建阶段就检查容器内部（示例如下），这样不需要启动容器:这会直接在构建输出中返回命令执行结果，你可以根据输出来检查问题所在。
 
 ```sh
 # dockerfile
@@ -539,7 +547,6 @@ RUN ["sh", "-c", "/usr/local/bin/jenkins-agent"]
    - 解决方法：`sudo sysctl -w vm.max_map_count=262144`
    - 永久生效：`sudo vim /etc/sysctl.conf`，添加`vm.max_map_count=262144`
    - 官方临时：`https://github.com/rimelek/fix-docker-containers/blob/ce8905e06f3e683e9166fa0cc971eea7251ed49b/docker-for-mac.md`，先`docker run -it --rm --privileged --pid=host justincormack/nsenter1`，然后进入容器`sysctl -w vm.max_map_count=262144`，然后`exit`退出容器，不能重启 docker 服务，否则会失效。
-
 
 ### 总结
 
@@ -596,3 +603,68 @@ TODO
 ## K8S
 
 TODO
+
+## 优化 Docker 镜像体积
+
+### 使用更小的基础镜像
+
+1. alpine 镜像：`FROM alpine:latest`，体积小，适合生产环境，Alpine 是一个轻量级的 Linux 发行版，体积约 5MB。
+2. 指定轻量化版本的官方镜像，通常以 -slim 或 -alpine 结尾。：`FROM golang:1.17-alpine`，`FROM python:3.9-slim`
+3. scratch 镜像：`FROM scratch`，体积小，适合生产环境，使用 scratch 镜像时，只有应用程序和必要的依赖会被包含。
+
+### 减少构建中的无用层
+
+Docker 中每一行指令都会生成一个新的镜像层（Layer）。减少无用层可以优化镜像体积。
+
+1. 合并多条 RUN 指令：在 Dockerfile 中，将多个命令合并到一个 RUN 指令中，减少生成的镜像层数。
+2. 删除构建过程中的临时文件：在同一条指令中清理安装过程中产生的缓存或临时文件。
+
+### 使用多阶段构建（Multi-stage Build）
+
+多阶段构建是 Docker 的一种镜像构建优化技术，允许在多个阶段中构建镜像，并仅保留最终阶段需要的内容。
+
+### 删除不必要的文件
+
+有些文件在镜像运行时并不需要，比如文档、编译器工具链等，可以删除这些文件以减小镜像体积。清理以下文件通常是一个好习惯：
+
+```bash
+/var/lib/apt/lists/*（APT 缓存）
+/tmp/* 或其他临时目录
+构建过程中临时生成的文件
+```
+
+### 避免安装多余的依赖
+
+只安装运行环境所需的最小依赖。如果只需要运行时依赖，可以避免安装编译工具等开发依赖。
+
+- 对于 Node.js，可以使用 `npm install --production`。
+- 对于 Python，可以使用 `pip install --no-dev`。
+
+### 使用 .dockerignore 文件
+
+作用类似于 .gitignore，可以防止不必要的文件被复制到构建上下文中，从而减少镜像体积。
+
+### 压缩和精简运行时文件
+
+1. 压缩二进制文件：对于拥有二进制文件的镜像，可以通过工具（如 upx）对其进行压缩。
+2. 删除调试信息：在构建过程中编译时，可以通过优化选项删除调试信息。
+
+### 使用分层镜像优化工具
+
+1. Docker 自带的 `docker builder prune`：构建过程中会生成缓存，定期清理缓存可以减少镜像占用的空间。
+2. dive 工具：dive 是一个开源工具，可以分析 Docker 镜像的每一层，帮助优化镜像体积。`dive <image-name>`
+
+### 减少镜像中的历史记录（Squash Layers）
+
+每次构建镜像时，镜像的历史记录会保存到镜像层中。如果需要进一步优化，可以通过 "squash" 将多个层压缩为一个层。压缩镜像层可能会影响镜像的构建速度，因为缓存层会减少。
+
+1. squash 命令可以将多个镜像层合并成一个，从而减小镜像体积。启用镜像压缩：`docker build --squash -t my-image .`
+
+### 使用缓存优化构建过程
+
+通过合理利用缓存，可以避免重新安装依赖或重新下载资源，从而加速构建过程。
+
+### 使用容器化的专用工具
+
+1. distroless 镜像： 是 Google 提供的轻量化镜像，完全移除了 Shell、包管理器等，只保留运行应用所需的文件。
+2. Builder 工具链优化：使用 BuildKit 构建镜像，减少镜像层的重复。启用 BuildKit：`DOCKER_BUILDKIT=1 docker build .`

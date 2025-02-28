@@ -8,6 +8,7 @@ meta:
 ---
 
 ## SASS≈SCSS
+
 [文档](https://www.sass.hk/docs/)
 
 ### @-Rules 与指令 (@-Rules and Directives)
@@ -40,7 +41,122 @@ meta:
 @import url(foo);
 ```
 
-4. 分音 (Partials)：如果需要导入 SCSS 或者 Sass 文件，但又不希望将其编译为 CSS，只需要在文件名前添加下划线，这样会告诉 Sass 不要编译这些文件，但导入语句中却不需要添加下划线。例如，将文件命名为 `_colors.scss`，便不会编译 `_colours.css` 文件。`@import "colors";`导入的其实是 _colors.scss 文件。注意，**不可以同时存在添加下划线与未添加下划线的同名文件，添加下划线的文件将会被忽略**。
+4. 分音 (Partials)：如果需要导入 SCSS 或者 Sass 文件，但又不希望将其编译为 CSS，只需要在文件名前添加下划线，这样会告诉 Sass 不要编译这些文件，但导入语句中却不需要添加下划线。例如，将文件命名为 `_colors.scss`，便不会编译 `_colours.css` 文件。`@import "colors";`导入的其实是 \_colors.scss 文件。注意，**不可以同时存在添加下划线与未添加下划线的同名文件，添加下划线的文件将会被忽略**。
 
+#### @mixin
 
+Mixin 允许你定义一组样式，并在需要的地方重复使用这些样式，同时可以传递参数来定制化样式。
 
+```scss
+// 1. 定义一个名为 "button" 的 mixin，它接收4个参数：$width、$height、$color、$bg。
+@mixin button($width: 100px, $height: 40px, $color: blue, $bg: white) {
+  width: $width;
+  height: $height;
+  color: $color;
+  background-color: $bg;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+// 使用默认参数
+.primary-button {
+  @include button;
+}
+
+// 自定义参数
+.secondary-button {
+  @include button(red, yellow);
+}
+
+// 2. 条件语句
+@mixin responsive-font($size) {
+  font-size: $size;
+
+  @if $size > 16px {
+    color: blue;
+  } @else {
+    color: green;
+  }
+}
+
+// 使用
+.large-font {
+  @include responsive-font(20px); // font-size: 20px; color: blue;
+}
+
+.small-font {
+  @include responsive-font(14px); // font-size: 14px; color: green;
+}
+
+// 3. 嵌套 Mixin
+@mixin flex-container($direction: row) {
+  display: flex;
+  flex-direction: $direction;
+
+  & > * {
+    margin: 10px;
+  }
+}
+
+// 使用
+.header {
+  @include flex-container(row);
+}
+
+.footer {
+  @include flex-container(column);
+}
+
+// 4. Mixin 作为 CSS 类，创建特定的 CSS 类，这样可以在多个地方复用相同的样式。
+@mixin clearfix {
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+// 使用
+.container {
+  @include clearfix;
+}
+
+// 5. 使用 Mixin 来创建复用的动画效果
+@mixin fade-in($duration: 0.5s) {
+  animation: fadeIn $duration ease-in;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+// 使用
+.modal {
+  @include fade-in(1s);
+}
+
+// 6. Mixin 还可以组合在一起，使样式更为灵活和可复用。
+@mixin transition($property, $duration) {
+  transition: $property $duration ease;
+}
+
+@mixin button-style {
+  padding: 10px;
+  border-radius: 5px;
+  @include transition(all, 0.3s);
+}
+
+// 使用
+.btn {
+  @include button-style;
+}
+```
+
+#### @include
+
+@include 指令允许你使用 mixin。

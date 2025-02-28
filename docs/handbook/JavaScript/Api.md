@@ -88,7 +88,7 @@ function getMonthCountDay(year, month) {
 
 ### Reflect
 
-Reflect API 可以用于实现元编程，例如动态调用对象的方法或构造函数。
+Reflect API 可以用于实现元编程，例如动态调用对象的方法或构造函数。**可以完成对象的基本操作**：get、set、has、delete、construct、apply 等。Reflect**可以直接调用浏览器的原生 API**，而不需要自己实现。
 
 ```js
 class MyClass {
@@ -106,6 +106,82 @@ console.log(myValue); // "Hello, world!"
 ```
 
 使用场景：在某些情况下，可能需要动态调用对象的方法或构造函数，使用 Reflect API 可以方便地实现这些功能。
+
+#### Vue3 中的 Reflect
+
+Vue3 中的 Reflect 是一个用于处理响应式数据的工具，它提供了一些方法，用于获取和设置响应式数据的属性，以及监听数据的变化。
+
+```js
+const obj = {
+  a: 1,
+  b: 2,
+  get c() {
+    console.log("this", this);
+    return this.a + this.b;
+  },
+};
+
+console.log(Reflect.get(obj, "a"));
+console.log(Reflect.get(obj, "b"));
+console.log(Reflect.get(obj, "c"));
+// 输出：
+// 1 2 this {a:1, b:2} 3
+
+const handler = new Proxy(obj, {
+  // target 是被代理的对象。
+  // prop 是被访问的属性。
+  // receiver 是实际调用对象的引用，确保正确的上下文。
+  get(target, prop, receiver) {
+    console.log("get", prop);
+    // 通过代理获取间接属性c的时候，通过Reflect.get()获取属性值，可以拦截到对this.a和this.b属性的访问。
+    // 使用 Reflect.get 可以确保 this 关键字在访问 getter 时指向正确的上下文。
+    return Reflect.get(target, prop, receiver);
+    // return target[prop]; // 这样其实也可能得到预期的结果，但是，对a和b的访问就不会被拦截到了。也就不会输出get a get b，而是直接输出 3。
+  },
+});
+
+console.log(handler.a);
+console.log(handler.b);
+// 在 handler.c 被访问时，this 将指向 handler代理对象，而不是 obj 对象。这可能导致 this.a 和 this.b 的值是 undefined，并且 c 的计算将不会如预期那样工作。
+// 直接返回 target[prop] 将无法触发 getter 中的逻辑，特别是对于 c 这个属性。
+console.log(handler.c);
+
+// 输出：
+// get a 1 get b 2 get c this Proxy(Object){a:1, b:2} get a get b 3
+```
+
+```js
+const targetObj = {
+  a: 1,
+  b: 2,
+  get sum() {
+    // 在 getter 中，this 默认指向代理对象 (proxy)，而不是 targetObj
+    console.log("this in targetObj", this);
+    console.log(this === targetObj); // 这个应该输出 `false`
+    return this.a + this.b;
+  },
+};
+
+const proxy = new Proxy(targetObj, {
+  get(target, prop, receiver) {
+    console.log("this in proxy get", this);
+    console.log("Accessing property:", prop);
+    return target[prop];
+  },
+});
+
+console.log(proxy.sum); // 访问 `sum` 这个 getter
+// 输出：
+// this in proxy get {get: ƒ}get: ƒ get(target, prop, receiver)[[Prototype]]: Object
+// Accessing property: sum
+// this in targetObj {a: 1, b: 2}
+// true
+// 3
+```
+
+使用 receiver 的好处在于，当属性是由一个 getter 定义时，确保 this 在 getter 中指向正确的对象。例如，在 getter 中调用 this.a 时，this 会指向 receiver，而不是 target。如果你使用 `Reflect.get(target, prop, receiver)`，在访问 proxy.c 时，this 在 getter 中将指向 proxy，这使得可以通过代理访问更多的上下文。
+
+一句话来说，receiver 的作用是确保 getter 中的 this 引用正确的上下文（让 this 指向 receiver，即我们创建的这个代理对象 proxy），从而可以正确地访问属性。这样在访问对象属性的时候都会通过 proxy 拦截的到，即是访问的是 getter 定义的属性。
 
 ### Intl
 
@@ -413,6 +489,8 @@ function loadMore() {
     newItem.className = "item";
     newItem.textContent = `Item ${++itemCount}`;
     container.insertBefore(newItem, sentinel);
+    // 新API，可以避免insertBefore的某些副作用：页面闪烁、滚动位置重置、动画重置等
+    // container.moveBefore(newItem, sentinel);
   }
   observer.observe(sentinel); // 重新开始观察
 }
@@ -878,6 +956,17 @@ pasteFromClipboard();
    2. 浏览器可能会要求用户的许可才能访问剪贴板。某些操作可能会受到限制。
    3. Clipboard API 在安全上下文中（如 HTTPS）才能使用。确保你的应用在安全环境中运行。
 
+### Array.fill()
+
+Array.fill() 方法用于用一个固定值填充一个数组中的所有元素。如果是基础类型，则填充的是该类型的值。**如果是对象，则填充的是该对象的引用**。所以要注意对象引用的复制。
+
+```js
+// 创建一个二维数组，初始值都为0
+const doubleArr = new Array(m).fill(0).map(() => new Array(n).fill(0));
+
+const singleArr = new Array(n).fill(0);
+```
+
 ### 较新的 APIs
 
 #### Array.prototype.at(index)
@@ -936,3 +1025,170 @@ pasteFromClipboard();
 14. Promise.allSettled()：等待所有 Promise 都结束（无论是 fulfilled 还是 rejected），并返回每个 Promise 的结果。
 15. 全局 globalThis：提供一个统一本地环境（浏览器、Node.js）下的全局对象。
 16. String.prototype.replaceAll()：替换字符串中 所有匹配的子字符串。
+
+#### fetch
+
+fetch 是一个用于在浏览器和 Node.js 中进行 HTTP 请求的 API。它提供了一种更简单的方式来发送 HTTP 请求，并返回一个 Promise 对象，该 Promise 对象在请求完成时解析为响应。fetch 不会自动将响应体解析为 JSON 或其他格式，需要手动进行解析。fetch 的基本用法如下：
+
+```javascript
+fetch("https://jsonplaceholder.typicode.com/todos")
+  .then((response) => response.json())
+  .then((data) => console.log(data))
+  .catch((error) => console.error(error));
+
+fetch("https://jsonplaceholder.typicode.com/posts", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    name: "John Doe",
+    age: 30,
+  }),
+})
+  .then((response) => response.json())
+  .then((data) => console.log(data))
+  .catch((error) => console.error(error));
+```
+
+1. fetch() 方法接受一个 URL 作为参数，并返回一个 Promise 对象。
+2. fetch 函数接收两个参数，第一个是请求的 URL，第二个是一个可选的配置对象。以下是一些常见的配置选项：
+   - method: 请求方法（GET, POST, PUT, DELETE 等）。
+   - headers: 请求头，通常是一个对象。
+   - body: 请求体，适用于 POST 和 PUT 请求，通常是字符串格式的数据。
+   - mode: 请求的模式（如 cors, no-cors, same-origin）。
+   - credentials: 跨域请求时是否携带 cookies（如 omit, same-origin, include）。
+   - cache: 缓存策略（如 default, no-cache, reload, force-cache, only-if-cached）。
+3. 使用 fetch 时，网络错误会被 Promise 的 catch 捕获，但是如果 HTTP 响应状态码是 4xx 或 5xx，fetch 仍会成功解析 Promise，但 response.ok 会是 false。通常需要手动检查响应状态。
+4. fetch 的响应是一个 Response 对象，它包含响应头、响应体和响应状态码等属性。
+5. fetch 的响应体是一个 ReadableStream 对象，它提供了一种异步读取响应体的方式。要读取响应体，可以使用 response.text()、response.json()、response.blob()、response.arrayBuffer()、response.formData() 等方法。
+6. 使用 AbortController 可以中止一个正在进行的 fetch 请求：
+
+```javascript
+const controller = new AbortController();
+const signal = controller.signal;
+
+fetch("https://api.example.com/data", { signal })
+  .then((response) => {
+    // 处理响应
+  })
+  .catch((error) => {
+    if (error.name === "AbortError") {
+      console.log("Fetch request was aborted");
+    } else {
+      console.error("Fetch error:", error);
+    }
+  });
+
+// 中止请求
+controller.abort();
+```
+
+7. 如果请求失败，可以实现简单的重试逻辑：
+
+```javascript
+async function fetchWithRetry(url, options, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error("Network response was not ok");
+      return await response.json();
+    } catch (error) {
+      if (i === retries - 1) throw error; // 如果是最后一次重试，抛出错误
+    }
+  }
+}
+
+// 使用示例
+fetchWithRetry("https://api.example.com/data", { method: "GET" })
+  .then((data) => console.log(data))
+  .catch((error) => console.error("Fetch error:", error));
+```
+
+#### AbortSignal 和 AbortController 有啥区别
+
+AbortSignal 和 AbortController 是两个用于取消异步操作的 API。AbortController 是控制中止操作的核心工具，提供了 abort() 方法用于触发中止。AbortSignal 是用于传递中止信息的信号对象，异步任务通过监听该信号的状态来决定是否需要终止。两者是配套使用的，AbortController 创建并控制 AbortSignal，而异步任务（如 fetch）依赖 AbortSignal 来响应中止请求。
+
+1. AbortController 是一个构造函数，它用于创建一个 AbortSignal 对象。
+   - signal 属性返回关联的 AbortSignal。
+   - abort() 方法触发中止。
+2. AbortSignal 是一个接口，它表示一个异步操作的取消信号。它被用于向异步操作发送取消信号，以便取消正在进行的操作。
+   - aborted 属性表示是否已中止。
+   - abort 事件触发时执行回调。
+3. AbortSignal 对象是一个只读属性，它表示一个异步操作的取消信号。当 AbortSignal 对象被设置为 true 时，表示该异步操作已被取消。
+4. AbortSignal 和 AbortController 的主要区别在于它们在 cancel 操作中的使用方式。
+5. abort 的请求属于 promise 内部的错误，只能通过 fetch 的 catch 捕获，不能通过外部的 try-catch 捕获。`signal.addEventListener("abort", () => {})`可以监听到 abort 事件。`signal.abort()方法可以触发 abort 事件。signal.aborted 表示是否已中止。signal.reason 表示中止的原因。`
+
+```javascript
+// 创建一个 AbortController 实例
+const controller = new AbortController();
+const signal = controller.signal;
+
+// 监听 abort 事件
+signal.addEventListener("abort", () => {
+  console.log("The operation was aborted!");
+});
+try {
+  // 发起请求
+  fetch("https://jsonplaceholder.typicode.com/users/3", { signal })
+    .then((response) => response.json())
+    .then((data) => console.log(data))
+    .catch((error) => {
+      if (error.name === "AbortError") {
+        console.log("The fetch request was aborted!");
+      } else {
+        console.error("Fetch error:", error);
+      }
+    });
+} catch (e) {
+  console.log(e);
+}
+// 中止请求
+controller.abort();
+// console: The operation was aborted!
+// console: Fetch error: AbortError: The operation was aborted.
+```
+
+6. 如果开发者想从多个信号中中止，可以使用 AbortSignal.any() 组合成单个信号，比如下面的示例：
+
+```javascript
+try {
+  const controller = new AbortController();
+  const timeoutSignal = AbortSignal.timeout(5000);
+  const res = await fetch(url, {
+    // This will abort the fetch when either signal is aborted
+    signal: AbortSignal.any([controller.signal, timeoutSignal]),
+  });
+  const body = await res.json();
+} catch (e) {
+  if (e.name === "AbortError") {
+    // Notify the user of abort.
+  } else if (e.name === "TimeoutError") {
+    // Notify the user of timeout
+  } else {
+    // A network error, or some other problem.
+    console.log(`Type: ${e.name}, Message: ${e.message}`);
+  }
+}
+```
+
+7. 很多老版本的 DOM API 其实并不支持 AbortSignal，例如：WebSocket，其只有一个 .close() 方法用于在请求完成后关闭连接。此时，开发者可以通过判断`signal.aborted`来判断是否被中断，然后手动关闭`ws.close()`。
+8. 通过`controller.abort();`移除事件处理函数，开发者只需要将 signal 传递给 addEventListener 的第三个参数即可。`window.addEventListener("resize", () => doSomething(), { signal });`，不需要再手动 removeEventListener。
+9. React hooks 中的异步任务：在 React 中，如果 Effect 在再次触发之前没有完成，开发者一般不容易发现，此时 Effect 会并行运行。那么我们可以借助 AbortController，每当下一个 useEffect 调用运行时就中止上一个请求：
+
+```jsx
+function FooComponent({something}) {
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const p = (async () => {      // 真正执行的逻辑
+      const j = await fetch(url, { signal });      // 这里处理返回值
+    })();
+    return () => controller.abort();
+  }, [something]);
+
+  return <>xxx<>;
+}
+```
+
+10. 值得一提的是， TaskController 是 AbortController 的子级，除了可以调用 abort() 取消 task，还可以通过 setPriority() 方法中途修改 task 的优先级，如果不需要控制优先级，则可以直接使用 AbortController。
