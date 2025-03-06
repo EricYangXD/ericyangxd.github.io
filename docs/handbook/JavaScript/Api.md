@@ -646,6 +646,11 @@ crypto.randomUUID();
 0 == 0 // 将等号两边都转换成数字类型
 ```
 
+### Truthy 和 Falsy
+
+1. 在 JavaScript 中，真值是在布尔值上下文中，转换后的值为 true 的值。被定义为假值以外的任何值都为真值。（即所有除`false`、`0`、`-0`、`0n`、`""`、`null`、`undefined` 和`NaN` 以外的皆为真值）。
+2. `Truthy`：除了 `false`、`0`、`+0`、`-0`、`+0n`、`-0n`、`''`、`null`、`undefined`、`NaN` 之外的值都是 `Truthy`，包括`new Boolean(false)`。而对于`Boolean(false)`，由于他返回的是 false，所以`let b = Boolean(false);`==>`b === false`。
+
 ### 浏览器访问读取本地文件夹
 
 1. 使用浏览器的 api：`showDirectoryPicker`，但是目前只有 chrome 支持，且需要在`chrome://flags`中开启`#native-file-system-api`。

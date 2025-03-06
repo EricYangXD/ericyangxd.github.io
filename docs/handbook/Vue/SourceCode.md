@@ -323,7 +323,7 @@ const notification = Instance.$children[0];
 
 ### Vue 响应式原理
 
-本质上是数据（任意在函数运行期间读取到的响应式数据的成员）和函数的关联，Vue 采用数据劫持结合发布者-订阅者模式的方式，通过 Object.defineProperty/Proxy 来劫持各个属性的 setter、getter，访问数据时添加订阅者到依赖收集器里，在数据变动时通过依赖收集器通知订阅者，触发订阅者的监听回调，去完成数据的更新和页面的渲染等工作。
+本质上是数据（任意在函数运行期间读取到的响应式数据的成员）和函数的关联，Vue 采用数据劫持结合发布者-订阅者模式的方式，通过 Object.defineProperty/Proxy 来劫持各个属性的 setter、getter，访问数据时添加订阅者到该数据对应的依赖收集器里，在数据变动时通过该数据对应的依赖收集器通知订阅者，触发订阅者的监听回调，去完成数据的更新和页面的重新渲染等工作。
 
 - Observer 负责将数据转换成 getter/setter 形式；
 - Dep 负责管理数据的依赖列表，是一个发布订阅模式，上游对接 Observer，下游对接 Watcher；
@@ -368,6 +368,10 @@ Vue 接收一个模板和 data 参数。
 input 元素本身有个 input 事件，这是 HTML5 新增加的，类似 onchange ，每当输入框内容发生变化，就会触发 input 事件，把最新的 value 值传给传递给 val ,完成双向数据绑定的效果 。
 
 注意: 不是所有能进行双向绑定的元素都有 input 事件。
+
+### 通过 Object.freeze()优化
+
+在确定某个数据不需要做成响应式时，可以使用 `Object.freeze(data1)`冻结改数据对象，Vue 就不会再去把这个数据对象做成响应式的了，从而实现性能优化。比如请求的数据只需要展示而不会修改，则在赋值时可以：`this.newsData = Object.freeze(this.getNewsData());`，相当于让 newsData 变成了非响应式数据。
 
 ### .sync 修饰符
 
@@ -500,6 +504,18 @@ window.addEventListener("unhandledrejection", function (event) {
 
 1. watch 函数需要指明监视的属性，并在回调函数中执行。默认情况仅在侦听的源数据变更时才执行回调。也可以加上 immediate: true 来使其立即生效
 2. watchEffect 不用指明监视哪个属性，监视的回调中用到哪个属性，就监视哪个属性。
+3. **watchEffect 只能收集同步代码的依赖**，所以在 watchEffect 中使用 async/await 时，如果需要在异步之后收集依赖，那么需要在同步代码那里先运行一下这个依赖。
+
+```js
+const speed = ref(1);
+const url = ref("");
+const videoRef = ref(null);
+watchEffect(async () => {
+  speed.value; // 运行一下收集上依赖！
+  url.value = await fetchVideoUrl();
+  videoRef.value.playbackRate = speed.value; // 这里属于异步代码了，会放到微任务队列，导致无法赋上值。
+});
+```
 
 ### 重写 VDOM
 

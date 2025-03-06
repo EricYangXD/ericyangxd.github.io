@@ -237,6 +237,8 @@ function shuffle(a) {
 }
 ```
 
+还有一种方法：`arr.sort(() => Math.random() - 0.5)`
+
 ## 面试题
 
 ### 异步控制并发数

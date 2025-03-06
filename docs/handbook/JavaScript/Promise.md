@@ -363,6 +363,38 @@ function asyncPool(poolLimit, array, iteratorFn) {
 }
 ```
 
+## Promise 值穿透
+
+Promise then 方法返回值穿透，如果 then 接收的不是函数，那么会把前面的 then 的返回值传递下去。如果一个 then 没有 return 值，那么就会返回 undefined。
+
+```js
+Promise.resolve(1).then(2).then(Promise.resolve(3)).then(console.log); // 1
+Promise.resolve(1).then(2).then(3).then(console.log); // 1
+Promise.resolve(1)
+  .then(() => 2)
+  .then(3)
+  .then(console.log); // 2
+Promise.resolve(1).then().then().then(console.log); // 1
+Promise.reject(1)
+  .catch((e) => {})
+  .then(2)
+  .then()
+  .then(console.log); // undefined
+// Promise一经定义立即执行
+const p = new Promise((resolve) => {
+  console.log(2);
+  resolve(3);
+  Promise.resolve(4).then(6).then(console.log);
+  console.log(5);
+}).then(console.log); // 2 5 3 4
+const p = new Promise((resolve) => {
+  console.log(2);
+  resolve(3);
+  Promise.resolve(4).then(console.log);
+  console.log(5);
+}).then(console.log); // 2 5 4 3
+```
+
 ## 宏任务与微任务
 
 JS 引擎为了让 microtask 尽快的输出，做了一些优化，连续的多个 then（3 个）如果没有 reject 或者 resolve 会交替执行 then 而不至于让 1 个 promise 阻塞太久完成，导致用户的不到响应。不单单 V8 这样，其它引擎也是如此，此时 promise 内部状态实际已经执行结束了。
@@ -636,6 +668,244 @@ b();
 a++; // 同步代码，这时候a还是0
 console.log("1", a); // 同步代码，这时候a变成1
 ```
+
+### async/await 的执行顺序
+
+1. async/await  是用同步的方式，执行异步操作。
+2. thenable: 返回一个对象，包含 then 属性，且 then 属性是个函数接收一个回调函数并在 then 中执行。
+3. await  和  Promise.prototype.then  虽然很多时候可以在时间顺序上能等效，但是它们之间有本质的区别。
+
+#### async
+
+async 函数的返回值是 Promise 对象。根据返回值的类型，引起  js 引擎对返回值处理方式的不同：
+
+结论：async 函数在抛出返回值时，会根据返回值类型开启不同数目的微任务
+
+return 结果值：
+
+1. 非 thenable、非 promise（不等待）
+2. return 结果值：thenable（等待 1 个 then 的时间）
+3. return 结果值：promise（等待 2 个 then 的时间）
+
+#### await
+
+1. await 后面接非  thenable  类型，会立即向微任务队列添加一个微任务 then，但不需等待：Promise.resolve(v)
+2. await  后面接  thenable  类型，需要等待一个  then  的时间之后执行
+3. await  后面接  promise  类型，会立即执行，等待 promise 的 resolve 或 reject(TC 39 对 await  后面是  promise  的情况如何处理进行了一次修改，移除了额外的两个微任务，在早期版本，依然会等待两个  then  的时间)
+4. await 执行完毕后，会把其后的代码立即放到微任务队列中，等待执行。所以完全可以将  await  后面的每行的代码可以看做在  then  里面执行的结果。
+
+```js
+async function test() {
+  console.log(1);
+  await {
+    then(cb) {
+      cb();
+    },
+  };
+  console.log(2);
+}
+
+test();
+console.log(3);
+
+Promise.resolve()
+  .then(() => console.log(4))
+  .then(() => console.log(5))
+  .then(() => console.log(6))
+  .then(() => console.log(7));
+
+// 最终结果👉: 1 3 4 2 5 6 7
+```
+
+综合示例：Promise 状态吸收
+
+```js
+async function async2() {
+  new Promise((resolve, reject) => {
+    resolve();
+  });
+}
+
+// 发生状态吸收：要等两个then 执行完，才会执行 async2
+async function async3() {
+  return new Promise((resolve, reject) => {
+    resolve();
+  });
+}
+
+async function async1() {
+  // 方式一：最终结果：B A C D E
+  // await new Promise((resolve, reject) => {
+  //     resolve()
+  // })
+
+  // 方式二：最终结果：B A C D E
+  // await async2()
+
+  // 方式三：最终结果：B C D A E
+  // await async3();
+
+  console.log("A");
+}
+
+async1();
+
+new Promise((resolve) => {
+  console.log("B");
+  resolve();
+})
+  .then(() => {
+    console.log("C");
+  })
+  .then(() => {
+    console.log("D");
+  })
+  .then(() => {
+    console.log("E");
+  });
+```
+
+下面 👇🏻 例子中，async 函数返回了 promise，所以这个 promise 要等待 2 个（轮）then 的时间再执行
+
+```js
+// demo1
+async function async1() {
+  console.log("1");
+  await async2();
+  console.log("AAA");
+}
+
+async function async2() {
+  console.log("3");
+  return new Promise((resolve, reject) => {
+    resolve(); // 等2轮then再执行
+    console.log("4");
+  }).then(() => {
+    console.log("11");
+  });
+}
+
+console.log("5");
+
+setTimeout(() => {
+  console.log("6");
+}, 0);
+
+async1();
+
+new Promise((resolve) => {
+  console.log("7");
+  resolve();
+})
+  .then(() => {
+    console.log("8");
+  })
+  .then(() => {
+    console.log("9");
+  })
+  .then(() => {
+    console.log("10");
+  });
+
+// 输出：5 1 3 4 7 11 8 9 AAA 10 6
+
+// demo2
+async function async1() {
+  console.log("1");
+  await async2();
+  console.log("AAA");
+}
+
+async function async2() {
+  console.log("3");
+  return new Promise((resolve, reject) => {
+    // setTimeout(() => resolve(), 0); // 等2轮then再执行
+    setTimeout(() => {
+      console.log("setTimeout-->resolved");
+      resolve();
+    }, 0);
+    console.log("4");
+  }).then(() => {
+    console.log("11");
+  });
+}
+
+console.log("5");
+
+setTimeout(() => {
+  console.log("6");
+}, 0);
+
+async1();
+
+new Promise((resolve) => {
+  console.log("7");
+  resolve();
+})
+  .then(() => {
+    console.log("8");
+  })
+  .then(() => {
+    console.log("9");
+  })
+  .then(() => {
+    console.log("10");
+  });
+// 输出：5 1 3 4 7 8 9 10 6 setTimeout-->resolved 11 AAA
+
+// demo3
+function func() {
+  console.log(2);
+  // 方式一：1 2 4  5 3 6 7  // 不return的时候，执行完第一个then函数就相当于执行完成了，await 相当于await undefined，执行完后把await后面的push到微任务队列中
+  // Promise.resolve()
+  //   .then(() => console.log(5))
+  //   .then(() => console.log(6))
+  //   .then(() => console.log(7))
+
+  // 方式二：1 2 4  5 6 7 3  // return的时候，相当于 await Promise.resolve()，按交替顺序执行，执行完才把await后面的push到微任务队列中
+  return Promise.resolve()
+    .then(() => console.log(5))
+    .then(() => console.log(6))
+    .then(() => console.log(7));
+}
+
+async function test() {
+  console.log(1);
+  await func();
+  console.log(3);
+}
+
+test();
+console.log(4);
+
+// demo4
+function func() {
+  return new Promise((resolve) => {
+    console.log("B");
+    // resolve(); //故意一直保持pending
+  });
+}
+
+async function test() {
+  console.log(1);
+  await func();
+  console.log(3);
+}
+
+test();
+console.log(4);
+// 最终结果👉: 1 B 4 (永远不会打印3)
+```
+
+### 做题技巧
+
+大致思路 👇：
+
+1. 首先，**async 函数的整体返回值永远都是 Promise，无论值本身是什么**
+2. 方式一：await 的是 Promise，无需等待
+3. 方式二：await 的是 async 函数，但是该函数的返回值本身是**非 thenable**，无需等待
+4. 方式三：await 的是 async 函数，且返回值本身是 Promise，需等待两个 then 时间
+5. 综上，await 一定要等到右侧的表达式有确切的值才会放行，否则将一直等待（阻塞当前 async 函数内的后续代码）
 
 ### async 函数改为并发
 

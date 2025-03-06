@@ -1,10 +1,10 @@
 ---
-title: 啥也不是 === Nothing
+title: 木易的OT
 author: EricYangXD
 date: "2021-12-28"
 ---
 
-## 好好搬砖，抓紧摸鱼
+## 好好搬砖，抓紧赚钱
 
 ### Hello there, I am EricYangXD 👋👋👋
 
@@ -13,7 +13,6 @@ date: "2021-12-28"
 [![visitors](https://visitor-badge.laobi.icu/badge?page_id=EricYangXD.EricYangXD)](https://github.com/EricYangXD)
 
 [![visitors](https://komarev.com/ghpvc/?username=EricYangXD&color=green&label=visitors)](https://github.com/EricYangXD)
-
 
 **好好学习，努力搞钱，早日财务自由~~~**
 

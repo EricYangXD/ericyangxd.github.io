@@ -66,6 +66,61 @@ date: "2022-04-10"
 - 另外 DNS 请求有两种方式：递归查询和迭代查询，这方面大家可以网上了解一下。LDNS 往后面查询一般是递归查询，因为公司内网是有防火墙的，全部请求通过 LDNS 来递归查询然后把结果给内网用户。
 - DNS 缓存比较简单，它主要就是在浏览器本地把对应的 IP 和域名关联起来。
 
+## 项目中怎么做 DNS 解析优化
+
+1. 通过 link 标签：`<link rel="dns-prefetch" href="${url}" />`，可以使浏览器提前发起 DNS 解析，这样当用户点击链接时，DNS 解析已经完成，可以加快页面加载速度。
+2. 但是日常开发时一般使用框架开发，不太会手动操作 html，另外一般 url 也会分散写在各个模块函数中，手动去改的时候容易遗漏，所以可以通过插件或者 Nodejs 脚本，在编译打包的时候解析代码，找到各个 url，然后统一插入到 index.html 上。借助几个模块：
+3. nodejs 脚本示例：打包完毕后再执行该脚本。也可以写 vite 或者 webpack 插件。
+
+```js
+// dns-prefetch.js
+const fs = require("fs");
+const path = require("path");
+const { parse } = require("node-html-parser"); // 解析html
+const { glob } = require("glob");
+const urlRegex = require("url-regex"); // 正则解析
+
+const urlPattern = /(https?:\/\/[^/]*)/i;
+const urls = new Set();
+
+// 遍历dist目录中的所有html,js,css文件
+async function searchDomain() {
+  const files = await glob("dist/**/*.{html,css,js}");
+  for (const file of files) {
+    const source = fs.readFileSync(file, "utf-8");
+    const matches = source.match(urlRegex({ strict: true }));
+    if (matches) {
+      matches.forEach((url) => {
+        const match = url.match(urlPattern);
+        if (match && match[1]) {
+          urls.add(match[1]);
+        }
+      });
+    }
+  }
+}
+
+async function insertLinks() {
+  const files = await glob("dist/**/*.html");
+  const links = [...urls].map((url) => `<link rel="dns-prefetch" href="${url}" />`).join("\n");
+
+  for (const file of files) {
+    const html = fs.readFileSync(file, "utf-8");
+    const root = parse(html);
+    const head = root.querySelector("head");
+    head.insertAdjacentHTML("afterbegin", links);
+    fs.writeFileSync(file, root.toString());
+  }
+}
+
+async function main() {
+  await searchDomain();
+  await insertLinks();
+}
+
+main();
+```
+
 ## chrome 打开其他应用的链接样例
 
 `vscode://vscode.github-authentication/did-authenticate?windowid=4&code=54d033a63ff757ffec89&state=2874c601-0a26-4a06-a763-74213002e571`

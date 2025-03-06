@@ -381,19 +381,19 @@ function structuralClone(obj) {
 
 #### 常规的遍历对象并赋值
 
-`for..in`+`Object.hasOwnProperty()`
+`for..in`+`obj.hasOwnProperty()`
 
-#### 获取对象上非原型链上的属性
+#### 获取对象上非原型链上的属性（京东）
 
 也就是对象自身的属性（不包括从其原型链继承的属性），可以使用以下几种方法:
 
-1. `Object.keys()`: 返回一个由给定对象的自身可枚举属性键名组成的数组。
-2. `Object.hasOwn()`: 返回一个布尔值，用于判断对象是否具有某个自身属性，包括不可枚举属性。
-3. `obj.hasOwnProperty()`: 返回一个布尔值，表示对象自身属性中是否具有指定的属性（即否有指定的键），包括不可枚举属性。推荐使用`Object.hasOwn()`。
-4. `Object.getOwnPropertyNames()`: 返回一个由给定对象的自身可枚举属性键名组成的数组，包括不可枚举属性，但不包括 Symbol 属性。
-5. `Object.getOwnPropertySymbols()`: 返回一个由给定对象的自身 Symbol 属性键名组成的数组。
-6. `Object.getOwnPropertyDescriptors()`：返回对象自身属性的描述符，包括 Symbol 属性和不可枚举属性。描述符包含属性的值、可枚举性、可配置性等信息。
-7. `Reflect.ownKeys()`: 返回一个由目标对象自身的属性键组成的数组，包括 Symbol 属性和不可枚举属性。
+1. `Object.keys(obj)`: 返回一个由给定对象的自身可枚举属性键名组成的数组。
+2. `Object.hasOwn(obj, propName)`: 返回一个布尔值，用于判断对象是否具有某个自身属性，包括不可枚举属性。
+3. `obj.hasOwnProperty(propName)`: 返回一个布尔值，表示对象自身属性中是否具有指定的属性（即否有指定的键），包括不可枚举属性。推荐使用`Object.hasOwn()`。
+4. `Object.getOwnPropertyNames(obj)`: 返回一个由给定对象的自身可枚举属性键名组成的数组，包括不可枚举属性，但不包括 Symbol 属性。
+5. `Object.getOwnPropertySymbols(obj)`: 返回一个由给定对象的自身 Symbol 属性键名组成的数组。
+6. `Object.getOwnPropertyDescriptors(obj)`：返回对象自身属性的描述符，包括 Symbol 属性和不可枚举属性。描述符包含属性的值、可枚举性、可配置性等信息。
+7. `Reflect.ownKeys(obj)`: 返回一个由目标对象自身的属性键组成的数组，包括 Symbol 属性和不可枚举属性。
 
 ```javascript
 const obj = {
@@ -718,7 +718,161 @@ getUsers();
     - `forEach`：对于 forEach 来说，它的函数签名中包含了参数和上下文，所以性能会低于 for 循环。
     - `map`：map 最慢的原因是因为 map 会返回一个新的数组，数组的创建和赋值会导致分配内存空间，因此会带来较大的性能开销。
 
+## 页面加载解析渲染时触发的事件
+
+在 HTML 文档加载、解析和渲染到页面的过程中，浏览器会触发一系列事件。这些事件可以用于监测页面的加载状态，并执行相应的操作。
+
+### DOMContentLoaded
+
+- 触发时机：当初始的 HTML 文档被完全加载和解析完成后触发，且在样式表、图片和子框架等外部资源加载完成之前。
+- 代表含义：此事件表示 DOM 树已经构建完成，所有的 DOM 元素都可以被访问和操作。通常在这个事件中执行的 JavaScript 代码不会依赖于外部资源的加载。
+
+### load
+
+- 触发时机：当文档和所有依赖的资源（如图像、样式表、脚本等）都加载完成后触发。
+- 代表含义：此事件表示页面及其所有资源都已完全加载，可以安全地进行任何需要依赖这些资源的操作。
+
+### beforeunload
+
+- 触发时机：当用户尝试离开当前页面（例如，关闭浏览器、重新加载页面或导航到其他页面）时触发。
+- 代表含义：这个事件可以用来提示用户是否真的要离开页面，通常会弹出一个确认对话框。
+
+### unload
+
+- 触发时机：当页面已经被卸载（即用户离开页面）时触发。
+- 代表含义：此事件通常用于清理操作，如关闭连接或保存状态，但不能用于阻止页面的卸载。
+
+### readystatechange
+
+- 触发时机：当文档的 readyState 属性改变时触发。readyState 可以有以下几个值：
+  - loading：文档正在加载。
+  - interactive：文档已就绪，用户可以与其交互，但仍在加载其他资源。
+  - complete：文档和所有资源加载完成。
+- 代表含义：这个事件可以用于在不同的加载阶段执行特定操作。
+
+### error
+
+- 触发时机：当页面或资源（如图像、脚本、样式表等）加载失败时触发。
+- 代表含义：可以用于处理加载失败的情况，例如，显示错误消息或执行备用逻辑。
+
+## 在 input 标签中，我们可以使用哪些事件
+
+1. change：当输入的内容发生改变并且输入框失去焦点时触发。
+2. input：当输入框的内容发生变化时触发，适用于实时获取输入内容。
+3. focus：当输入框获得焦点时触发。
+4. blur：当输入框失去焦点时触发。
+5. keydown：当用户按下键盘时触发，包括按键、删除键等，能拿到具体的键名。
+6. keyup：当用户松开键盘时触发，包括按键、删除键等，能拿到具体的键名。
+7. keypress：：当按下一个可打印字符键时触发（已被弃用，建议使用 keydown 和 keyup），比如按下 backspace 键，shift 键，alt 键等就不会触发。
+8. paste：当用户粘贴内容到输入框时触发。
+9. cut：当用户剪切内容从输入框时触发。
+10. copy：当用户复制内容从输入框时触发。
+11. select：当用户选择输入框中的文本时触发。
+
+PS:
+
+- 对于 type="checkbox" 或 type="radio" 的输入框，可以使用 change 事件来检测状态变化。
+- 对于 type="file" 的输入框，可以使用 change 事件来获取文件选择。
+
+```js
+<input type="text" id="myInput" />
+<script>
+    document.getElementById('myInput').addEventListener('change', function() {
+        console.log('Input changed to:', this.value);
+    });
+    document.getElementById('myInput').addEventListener('input', function() {
+        console.log('Current input:', this.value);
+    });
+    document.getElementById('myInput').addEventListener('focus', function() {
+        console.log('Input focused');
+    });
+    document.getElementById('myInput').addEventListener('blur', function() {
+        console.log('Input blurred');
+    });
+    document.getElementById('myInput').addEventListener('keydown', function(event) {
+        console.log('Key down:', event.key);
+    });
+    document.getElementById('myInput').addEventListener('keyup', function(event) {
+        console.log('Key up:', event.key);
+    });
+    document.getElementById('myInput').addEventListener('keypress', function(event) {
+        console.log('Key pressed:', event.key);
+    });
+    document.getElementById('myInput').addEventListener('paste', function() {
+        console.log('Content pasted:', this.value);
+    });
+    document.getElementById('myInput').addEventListener('cut', function() {
+        console.log('Content cut:', this.value);
+    });
+    document.getElementById('myInput').addEventListener('copy', function() {
+        console.log('Content copied:', this.value);
+    });
+    document.getElementById("myInput").addEventListener("select", function () {
+        console.log("Content selected:", this.value);
+    });
+</script>
+```
+
 ## 有用的 JS 函数片段
+
+### js 数值转换为金融字符串
+
+#### 使用 Intl.NumberFormat
+
+```js
+function formatCurrency(value) {
+  // 创建一个格式化器
+  const formatter = new Intl.NumberFormat("zh-CN", {
+    style: "currency",
+    currency: "CNY", // 货币种类，人民币
+    minimumFractionDigits: 2, // 小数位数
+    maximumFractionDigits: 2,
+  });
+
+  return formatter.format(value);
+}
+
+// 示例
+console.log(formatCurrency(1234567.89)); // 输出: "￥1,234,567.89"
+console.log(formatCurrency(100)); // 输出: "￥100.00"
+```
+
+#### 使用 Number.prototype.toLocaleString
+
+```js
+function formatCurrency(value) {
+  return value.toLocaleString("zh-CN", {
+    style: "currency",
+    currency: "CNY",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+// 示例
+console.log(formatCurrency(1234567.89)); // 输出: "￥1,234,567.89"
+console.log(formatCurrency(100)); // 输出: "￥100.00"
+```
+
+#### 自定义格式化函数
+
+```js
+function formatCurrency(value) {
+  // 确保值是数字
+  if (isNaN(value)) return "";
+
+  // 将数值转换为字符串，并格式化为货币样式
+  const parts = value.toFixed(2).split(".");
+  const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // 每三位添加逗号
+  const decimalPart = parts[1] ? "." + parts[1] : ""; // 获取小数部分
+
+  return "￥" + integerPart + decimalPart; // 拼接符号
+}
+
+// 示例
+console.log(formatCurrency(1234567.89)); // 输出: "￥1,234,567.89"
+console.log(formatCurrency(100)); // 输出: "￥100.00"
+```
 
 ### 如何平滑滚动到元素视图中
 

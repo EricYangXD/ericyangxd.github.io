@@ -1421,6 +1421,20 @@ exports.b = "修改值-b模块内变量";
 
 在 node_modules 下找到对应包后，会以 package.json 文件下的 main 字段为准，找到包的入口，如果没有 main 字段，则查找 index.js/index.json/index.node 做入口。
 
+### export 和 export default 的区别
+
+| 特性         | export                                                                     | export default                    |
+| ------------ | -------------------------------------------------------------------------- | --------------------------------- |
+| 导出数量     | 可以导出多个命名导出                                                       | 只能有一个默认导出                |
+| 导入方式     | 必须使用 {} 括起来指定导入内容，也可以使用\*全部导入并设置一个统一模块名称 | 可以直接导入或者指定别名，无需 {} |
+| 导入时的命名 | 导入名称必须与导出名称一致                                                 | 可以自定义导入名称                |
+| 使用场景     | 用于多个功能、变量、类的导出                                               | 用于模块的数的导出                |
+
+1. `import * as Utils from './utils.js';`可以创建了一个包含 utils.js 中所有命名导出的对象 Utils。然后使用`Utils.xxx`来调用具体的方法属性即可。
+2. `import * as XX`不能与 `export default` 一起使用：如果 utils.js 中有默认导出（`export default`），使用 `import * as` 时，默认导出不会包含在 Utils 对象中。你仍需单独导入默认导出。
+3. 确保在同一作用域中没有命名冲突。如果模块中有多个导出项，确保它们具有唯一的名称或使用别名避免冲突。
+4. 在一个模块中，可以同时使用 export 和 export default
+
 ### const、let 和 var
 
 1. 在 ES5 中，顶层对象的属性和全局变量是等价的，var 命令和 function 命令声明的全局变量，自然也是顶层对象。
@@ -2017,6 +2031,88 @@ Proxy：在对象之间架设一个拦截层，对一些操作进行拦截和处
 Decorator：装饰类或者方法，不会修改原有的功能，只是增加一些新功能（AOP 面向切面编程）。
 
 ## 面试题
+
+### 手写 AST 的 demo
+
+```js
+function add(a, b) {
+  return a + b;
+}
+// 转化为下面的AST代码
+
+const ast = {
+  type: "Program",
+  body: [
+    {
+      type: "FunctionDeclaration",
+      id: {
+        type: "Identifier",
+        name: "add",
+      },
+      params: [
+        {
+          type: "Identifier",
+          name: "a",
+        },
+        {
+          type: "Identifier",
+          name: "b",
+        },
+      ],
+      body: {
+        type: "BlockStatement",
+        body: [
+          {
+            type: "ReturnStatement",
+            argument: {
+              type: "BinaryExpression",
+              operator: "+",
+              left: {
+                type: "Identifier",
+                name: "a",
+              },
+              right: {
+                type: "Identifier",
+                name: "b",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ],
+  sourceType: "script",
+};
+```
+
+### 手写 VDOM 的 demo
+
+```js
+const vdom = {
+  tag: "div",
+  attrs: { id: "app" },
+  children: [
+    {
+      tag: "h1",
+      attrs: null,
+      children: ["Hello, Virtual DOM!"],
+    },
+    {
+      tag: "p",
+      attrs: null,
+      children: ["This is a simple implementation."],
+    },
+  ],
+};
+```
+
+### 前端重新加载/刷新页面
+
+1. `location.reload()`
+2. `location.reload(true)`：强制从服务器重新加载页面而不是从缓存中加载
+3. `location.href = location.href`
+4. `history.go(0)`
+5. `<meta http-equiv="refresh" content="30">`：用于特定的场景，如当页面需要在一定时间后自动更新
 
 ### 2022-04-27 万向区块链
 
@@ -3661,7 +3757,7 @@ function* walk(str) {
   let s = "";
   for (let c of str) {
     if (c === "-") {
-      yield Number(s);
+      yield Number(s); // Number()===Number('')===Number(false)===Number([])===Number('0')===Number(0)===0
       s = "";
     } else {
       s += c;
@@ -3695,6 +3791,16 @@ function compare(str1, str2) {
   }
 }
 ```
+
+## em 和 rem 的区别
+
+em 和 rem 是 CSS 中用于设置相对单位的两种测量方式，它们的主要区别在于它们的计算基准不同。
+
+1. em 是一个相对单位，其基准是元素自身的字体大小。
+   - 当你在一个元素上使用 em 单位时，它的值是相对于该元素的字体大小来计算的。
+   - 如果在某个元素内嵌套了另一个元素，那么内嵌元素的 em 单位将会继承其父元素的字体大小，从而产生乘法效应。
+2. rem 是根元素的相对单位，其基准是根元素的字体大小（即 html 标签）。 -不管元素的层级如何，使用 rem 单位时，它的值总是相对于 `<html>` 元素的字体大小来计算。
+   - 这意味着 rem 单位不会受到嵌套元素的影响。
 
 ## 前端加载图片
 
@@ -4140,6 +4246,13 @@ setup() {
 
 ## 对象的动态属性和静态属性
 
+## 实现页面自动检测页面是否更新
+
+1. 轮询
+2. websocket
+3. SSE
+4. 可以约定设置一个特定的 js 文件放在 head 中，js 文件要打上指纹（hash）以便于对比版本，然后前端通过轮询的方式去请求这个 js 文件，如果文件的指纹发生变化，说明文件有更新，前端就可以重新加载这个 js 文件，从而实现页面的自动检测更新。
+
 ## forEach 原理
 
 forEach 在循环开始之前，会先获取数组的初始长度并存下来，所以即使在 forEach 循环中增加数组的长度，循环的次数也不会受影响。但是如果减少了数组的长度，由于在取值时会判断当前属性是否存在于数组中（`if(k in o)...`），所以循环次数也会减少。不能通过 return、break、continue 来中断循环。
@@ -4254,10 +4367,27 @@ get info ==>  {id: 1, name: 'test'}
 
 ## 惰性函数
 
-用于只需要执行一次的地方，后续可以直接用缓存结果或者初次执行完之后就修改这个函数。
+1. 惰性函数（Lazy Function）是一种在程序中仅在需要时才执行的函数。这意味着该函数不会立即执行，而是返回一个值（通常是一个函数或一个计算结果）的引用，直到需要这个值时才进行计算。惰性函数的主要目的是优化性能，避免不必要的计算，特别是在处理大型数据集或复杂计算时。
+2. 用于只需要执行一次的地方，后续可以直接用缓存结果或者初次执行完之后就修改这个函数。（跟上面不是同一个东西）
 
 ```js
-// TODO
+// 定义一个惰性函数
+function lazyValue(x) {
+  return function () {
+    console.log("计算中...");
+    return x * 2; // 计算值
+  };
+}
+
+// 使用惰性函数
+const getValue = lazyValue(10);
+
+// 此时并没有进行计算
+console.log("函数已创建，但未计算值。");
+
+// 现在需要计算值时，调用返回的函数
+const result = getValue(); // 输出 '计算中...'，然后返回计算结果
+console.log("计算结果:", result); // 输出: 计算结果: 20
 ```
 
 ## 箭头函数
@@ -4707,3 +4837,22 @@ new Promise((resolve, reject) => {
 
     - 同理：`flex:0` ==> `flex-grow:0;flex-shrink:1;flex-basis:0%;`(Chrome)
     - 同理：`flex:auto` ==> `flex-grow:1;flex-shrink:1;flex-basis:auto;`(Chrome)
+
+## 2025.3.5
+
+### 药明笔试
+
+1. 处理 tweet 时间事件
+   - 没读懂题目
+2. 数组中相同数字出现的最多的次数称为数组的度，要求找出满足和该数组的度相同的子数组的最小长度
+   - 遍历找出数组的度，然后记录相应的数字第一次和最后一次出现的位置，计算出子数组的长度，找出最小的子数组长度
+3. SQL：从部门表和职员表中找出薪资最高的职员并合并成一张新的表
+   - `SELECT e.department_id AS Department, e.name AS Employee, e.salary AS Salary FROM employees e JOIN departments d ON e.department_id = d.department_id ORDER BY e.salary DESC LIMIT 1`
+4. Shell：只输出一个文件的第十行的内容
+   - 用 `sed` 命令：`sed -n '10p' filename`
+   - 用 `awk` 命令：`awk 'NR==10' filename`
+   - 用 `head` 和 `tail` 命令：`head -n 10 filename | tail -n 1`
+   - 用 `cat` 和 `sed` 命令：`cat filename | sed -n '10p'`
+   - 用 `cat` 和 `awk` 命令：`cat filename | awk 'NR==10'`
+   - 用 `cat` 和 `head` 和 `tail` 命令：`cat filename | head -n 10 | tail -n 1`
+   - 用 `cat` 和 `sed` 和 `awk` 命令：`cat filename | sed -n '10p' | awk '{print}'` 或 `cat filename | awk 'NR==10' | sed -n '1p'`

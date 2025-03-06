@@ -745,6 +745,180 @@ var lowestCommonAncestor = function (root, p, q) {
 
 ### 235. 二叉搜索树的最近公共祖先
 
+```js
+var lowestCommonAncestor = function (root, p, q) {
+  if (!root || root === p || root === q) {
+    return root;
+  }
+
+  const val = root.val;
+  if (p.val < val && q.val < val) {
+    // 说明都在左子树
+
+    return lowestCommonAncestor(root.left, p, q);
+  }
+  if (p.val > val && q.val > val) {
+    // 说明都在右子树
+    return lowestCommonAncestor(root.right, p, q);
+  }
+  // 否则，说明p和q分别在root的左子树和右子树，返回root
+  return root;
+};
 ```
 
+### 215. 数组中的第 K 个最大元素
+
+TopK 问题
+
+1. 基础做法：排序，取第 K 个数
+2. 通过构建大顶堆或者小顶堆，然后遍历数组，最后返回堆顶元素。难度在于掌握构建大顶堆或者小顶堆。
+
+- 求第 K 个最小值就构造前 k 个最小元素大顶堆，取堆顶
+- 求第 K 个最大值就构造前 k 个最大元素小顶堆，取堆顶
+
+```js
+// 1.
+let findKthLargest = function (nums, k) {
+  nums.sort((a, b) => b - a).slice(0, k);
+  return nums[k - 1];
+};
+// 2.1 先构建小顶堆
+class MinHeap {
+  constructor() {
+    this.heap = [];
+  }
+
+  getParentNodeIndex(childIdx) {
+    return Math.floor((childIdx - 1) / 2);
+  }
+
+  getLeftNodeIndex(parentIdx) {
+    return parentIdx * 2 + 1;
+  }
+  getRightNodeIndex(parentIdx) {
+    return parentIdx * 2 + 2;
+  }
+
+  peek() {
+    // 如果堆为空，返回 null
+    return this.size() > 0 ? this.heap[0] : null;
+  }
+
+  size() {
+    return this.heap.length;
+  }
+
+  add(val) {
+    this.heap.push(val);
+    this.up(this.heap.length - 1);
+  }
+
+  up(idx) {
+    // 根节点，无需上移
+    if (idx === 0) {
+      return;
+    }
+    const parentIdx = this.getParentNodeIndex(idx);
+    if (this.heap[parentIdx] > this.heap[idx]) {
+      this.swap(parentIdx, idx);
+      // 递归上移，因为这时候值已经交换了，所以用parentIdx，此时heap[parentIdx]的值才是我们刚刚插入的那个值
+      this.up(parentIdx);
+    }
+  }
+
+  pop() {
+    // 如果堆为空，返回 null
+    if (this.size() === 0) {
+      return null;
+    }
+    // 保存根节点
+    const root = this.heap[0];
+    // 将堆的最后一个元素放到根节点
+    const lastElement = this.heap.pop();
+
+    if (this.size() > 0) {
+      // 重新赋值根节点
+      this.heap[0] = lastElement;
+      // 向下调整
+      this.down(0);
+    }
+    // 返回原根节点
+    return root;
+  }
+
+  down(idx) {
+    const leftIdx = this.getLeftNodeIndex(idx);
+    const rightIdx = this.getRightNodeIndex(idx);
+    // 假设当前节点为最小值，要跟左右子节点比较，找到三者中的最小值
+    let smallestIdx = idx;
+
+    // 仅在左子节点存在时比较
+    if (leftIdx < this.size() && this.heap[smallestIdx] > this.heap[leftIdx]) {
+      smallestIdx = leftIdx;
+    }
+    // 仅在右子节点存在时比较，注意如果之前左子节点leftIdx比smallestIdx（idx）小，则smallestIdx（idx）已经被赋值成leftIdx了
+    if (rightIdx < this.size() && this.heap[smallestIdx] > this.heap[rightIdx]) {
+      smallestIdx = rightIdx;
+    }
+    // 如果当前节点不是最小值，进行交换
+    if (smallestIdx !== idx) {
+      this.swap(idx, smallestIdx);
+      // 递归向下调整
+      this.down(smallestIdx);
+    }
+  }
+
+  swap(a, b) {
+    const temp = this.heap[a];
+    this.heap[a] = this.heap[b];
+    this.heap[b] = temp;
+  }
+}
+
+// 2.2 调用小顶堆
+var findKthLargest = function (nums, k) {
+  if (nums.length === 0) return;
+  const heap = new MinHeap();
+  for (let i = 0; i < nums.length; i++) {
+    heap.add(nums[i]);
+    if (heap.size() > k) {
+      heap.pop();
+    }
+  }
+  return heap.peek();
+};
+
+// 3. 快速选择算法，找到第 k 大的元素
+var findKthLargest = function (nums, k) {
+  const n = nums.length;
+  return quickselect(nums, 0, n - 1, n - k); // 调用 quickselect 寻找第 n-k 小的元素
+};
+
+function quickselect(nums, l, r, k) {
+  if (l === r) return nums[k]; // 递归终止条件，找到第 k 大的元素
+
+  const x = nums[l]; // 选择第一个元素作为枢轴
+  let i = l - 1,
+    j = r + 1;
+
+  // 快速排序的划分过程
+  while (i < j) {
+    do i++;
+    while (nums[i] < x); // 找到大于等于枢轴的元素
+    do j--;
+    while (nums[j] > x); // 找到小于等于枢轴的元素
+
+    // 交换 nums[i] 和 nums[j]
+    if (i < j) {
+      [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+  }
+
+  // 递归查找，确定第 k 大元素的位置
+  if (k <= j) {
+    return quickselect(nums, l, j, k); // 第 k 大元素在左边
+  } else {
+    return quickselect(nums, j + 1, r, k); // 第 k 大元素在右边
+  }
+}
 ```

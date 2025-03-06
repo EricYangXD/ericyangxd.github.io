@@ -540,3 +540,11 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 `security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain-db your-cert.cer`
 
 或者，通过将其导入 Keychain Access 应用程序并将您的证书的信任更新为“始终信任”。
+
+### 禁止应用自启动
+
+- 打开路径 `/Library/LaunchAgents` 这里是用户的自启动应用的代理，找到不希望他自动启动的 xxx.plist 文件，删除它就可以了。
+
+- `/Library/Apple/System/Library/LaunchAgents` 这里是 Apple 系统自带的 xx.plist 应用，这里一般不要删除。
+
+- Library 即 资源库
