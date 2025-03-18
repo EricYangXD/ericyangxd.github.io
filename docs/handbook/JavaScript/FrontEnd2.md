@@ -415,9 +415,9 @@ Cookie 有数量限制，而且只允许每个站点存储一定数量的 Cookie
 
 #### SameSite 和 Domain 的区别
 
-1. SameSite：可以设置某个 Cookie 在跨站请求时不会被发送，从而可以阻止跨站请求伪造攻击。默认：LAX；
-2. Domain：指定 cookie 可以送达的主机名。如果设置为“.google.com”，则所有以“google.com”结尾的域名都可以访问该 Cookie。注意第一个字符必须为“.”。为了保证安全性，cookie 无法设置除当前域名或者其父域名之外的其他 domain。domain 默认为当前域名（不包含子域名）。请求这些 domain 下的接口时会自动带上符合条件 cookie。
-3. Domain：对于前端来说，只要请求的目标地址匹配 Domain 规则，那 Cookie 就会被发送过去，即 domain 是接受请求/cookie 的域名。对于后端来说，set-cookie 时，如果指定了 server 服务的域名，那么在服务端生成的 cookie 的 domain 只能指定为相应的 domain 或父 domain，其他 domain 都无法成功设置 cookie。
+1. SameSite：可以设置某个 Cookie 在跨站请求时不会被发送，从而可以阻止跨站请求伪造攻击 CSRF。默认：LAX；
+2. Domain：指定 cookie 可以送达的主机名。如果设置为“.google.com”，则所有以“google.com”结尾的域名都可以访问该 Cookie。注意第一个字符必须为“.”。为了保证安全性，cookie 无法设置除当前域名或者其父域名之外的其他 domain。domain 默认为当前域名（不包含子域名）。请求这些 domain 下的接口时会自动带上符合条件的 cookie。
+3. Domain：对于前端来说，只要请求的目标地址匹配 Domain 规则，那 Cookie 就会被发送过去，即 domain 是接受/请求 cookie 的域名。对于后端来说，set-cookie 时，如果指定了 server 服务的域名，那么在服务端生成的 cookie 的 domain 只能指定为相应的 domain 或父 domain，其他 domain 都无法成功设置 cookie。
 4. Path：对于 domain 相同，path 不同的同名 cookie，请求该 domain 下的接口时同名 cookie 也会都被带上。
 5. cookie 的作用域是 domain 本身以及 domain 下的所有子域名。
 
@@ -497,6 +497,20 @@ Cookie 有数量限制，而且只允许每个站点存储一定数量的 Cookie
 
 ```html
 <link rel="dns-prefetch" href="//example.com" />
+```
+
+#### 预加载的推荐做法
+
+使用 js 在页面加载完成后再动态插入预加载标签，因为目前的浏览器对 prefetch 的实现方式还不太完善，可能会出现预加载资源（往往会过早加载）与关键资源争夺带宽的情况，所以建议使用 js 在 load 事件触发之后，动态插入 link 标签到 head 中的方式。
+
+```js
+window.addEventListener("load", () => {
+  const link = document.createElement("link");
+  link.rel = "prefetch";
+  link.href = "https://example.com/script.js";
+  link.as = "script";
+  document.head.appendChild(link);
+});
 ```
 
 #### 对 lodash 进行 tree-shaking

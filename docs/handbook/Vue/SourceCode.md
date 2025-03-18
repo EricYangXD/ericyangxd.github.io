@@ -488,10 +488,10 @@ window.addEventListener("unhandledrejection", function (event) {
 
 #### 从原理角度对比：
 
-1. ref 用来创建一个包含响应式的数据的引用对象，接收数据可以是：基本数据类型、对象类型，即任意类型数据。Ref 会使它的值具有深层响应性。这意味着即使改变嵌套对象或数组时，变化也会被检测到。可以通过 shallow ref 来放弃深层响应性。
+1. ref 用来创建一个包含响应式的数据的引用对象，接收数据可以是：基本数据类型、对象类型、DOM 的 ref 属性值，即任意类型数据。Ref 会使它的值具有深层响应性。这意味着即使改变嵌套对象或数组时，变化也会被检测到。可以通过 shallowRef 来放弃深层响应性。响应式是通过内部实现的 **RefImpl 类**的 get 与 set 完成的。
 
-- 基本类型的数据：响应式依然是靠 object.defineProperty()的 get 与 set 完成的
-- 对象类型：响应式是内部求助 vue3.0 中一个新函数 reactive 函数通过 proxy 实现
+- 基本类型的数据：响应式 ~~依然是靠 object.defineProperty()~~ 是通过内部实现的 RefImpl 类的 get 与 set 完成的。返回的 value 是一个原始值。
+- 对象类型的数据：响应式是先判断 isObject，再调用 toReactive 方法，通过 vue3 中的 reactive 函数通过 Proxy 转为具有深层次响应式的对象实现的，返回的 value 是一个 Proxy 对象。
 
 2. reactive 用来创建一个响应式对象，接收数据只能是对象类型数据包括数组。通过使用 Proxy 来实现响应式（数据劫持）, 并通过 Reflect 操作源对象内部的数据。
 

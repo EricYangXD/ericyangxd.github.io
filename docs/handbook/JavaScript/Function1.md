@@ -229,7 +229,7 @@ function corsEnabled(url) {
 
 ```js
 function shuffle(a) {
-  for (let i = a.length; i; i--) {
+  for (let i = a.length; i > 0; i--) {
     let j = Math.floor(Math.random() * i);
     [a[i - 1], a[j]] = [a[j], a[i - 1]];
   }
@@ -287,7 +287,7 @@ limitRequest(["http://xxa", "http://xxb", "http://xxc", "http://xxd", "http://xx
 
 ### 写一个执行函数串行执行请求
 
-tasks 等于 [task1, task2, task3]，写一个 excute 函数，入参是 tasks 和 retries， excute(tasks, retries)，要求每个任务执行成功则返回一个 promise 对象，执行失败则重新执行，执行最大次数为 retries，超过最大次数仍未执行成功，则抛出异常报错。额外要求，任务必须串行执行。
+tasks 等于 `[task1, task2, task3]`，写一个 excute 函数，入参是 `tasks 和 retries， excute(tasks, retries)`，要求每个任务执行成功则返回一个 promise 对象，执行失败则重新执行，执行最大次数为 retries，超过最大次数仍未执行成功，则抛出异常报错。额外要求，任务必须串行执行。
 
 ```js
 async function execute(tasks, retries) {
@@ -1077,4 +1077,47 @@ function CreateAxiosFn() {
 
 // 得到最后的全局变量axios
 const axios = CreateAxiosFn();
+```
+
+### 实现任务队列的中断和恢复执行
+
+```js
+function processTasks(...tasks) {
+  if (tasks.length === 0) return [];
+
+  const results = [];
+  let i = 0;
+  let isRunning = false;
+
+  return {
+    start() {
+      return new Promise(async (resolve) => {
+        if (isRunning) {
+          return; // 如果已经在运行中，直接返回
+        }
+        isRunning = true; // 设置为正在运行状态
+        while (i < tasks.length) {
+          const task = tasks[i]; // 修正拼写错误，修改为 tasks
+          const r = await task(); // 执行任务并等待完成
+          results.push(r); // 将结果存储到 results 数组
+          i++;
+          if (!isRunning) {
+            // 检查是否需要暂停
+            return; // 如果需要暂停，退出循环
+          }
+        }
+        isRunning = false; // 任务执行完毕，设置为未运行状态
+        resolve(results); // 解析 Promise，返回结果
+      });
+    },
+    pause() {
+      isRunning = false; // 设置为未运行状态，达到暂停的效果
+    },
+    resume() {
+      if (!isRunning) {
+        this.start(); // 如果没有在运行，调用 start 方法继续执行
+      }
+    },
+  };
+}
 ```

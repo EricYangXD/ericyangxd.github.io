@@ -8,29 +8,31 @@ date: "2021-12-29"
 
 ```js
 module.exports = {
-  mode: 'development',
-  devtool: 'eval-cheap-module-source-map',
-  entry: { // 多入口
-    main: path.join(process.cwd(), 'src/app'),
-    app: path.join(process.cwd(), 'apps/app'),
+  mode: "development",
+  devtool: "eval-cheap-module-source-map",
+  entry: {
+    // 多入口
+    main: path.join(process.cwd(), "src/app"),
+    app: path.join(process.cwd(), "apps/app"),
   },
   output: {
     pathinfo: false,
-    path: path.join(process.cwd(), 'build'),
-    filename: 'static/js/[name].bundle.js',
-    chunkFilename: 'static/js/[name].chunk.js',
-    publicPath: '/',
+    path: path.join(process.cwd(), "build"),
+    filename: "static/js/[name].bundle.js",
+    chunkFilename: "static/js/[name].chunk.js",
+    publicPath: "/",
   },
   resolve: {
     symlinks: false,
-    alias: { // 配置路径别名
-      api: joinRootPath('src/api'),
-      utils: joinRootPath('src/utils'),
-      '@': joinRootPath('src'),
+    alias: {
+      // 配置路径别名
+      api: joinRootPath("src/api"),
+      utils: joinRootPath("src/utils"),
+      "@": joinRootPath("src"),
     },
-    modules: ['node_modules', 'src', 'framework/src', 'apps'],
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
-    mainFields: ['browser', 'module', 'main'],
+    modules: ["node_modules", "src", "framework/src", "apps"],
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    mainFields: ["browser", "module", "main"],
   },
   optimization: {
     // 开发环境开启tree-shaking 三选一
@@ -45,45 +47,46 @@ module.exports = {
       }),
       // 函数形式
       (compiler) => {
-        const TerserPlugin = require('terser-webpack-plugin');
+        const TerserPlugin = require("terser-webpack-plugin");
         new TerserPlugin({
           /* 你的配置 */
         }).apply(compiler);
       },
     ], // 开发环境开启tree-shaking - 3
-    moduleIds: 'deterministic', // 告知 webpack 当选择模块 id 时需要使用哪种算法。deterministic-被哈希转化成的小位数值模块名。natural-按使用顺序的数字 id。named-对调试更友好的可读的 id。size-专注于让初始下载包大小更小的数字 id。
-    chunkIds: 'deterministic', // 类似moduleIds，告知 webpack 当选择模块 id 时需要使用哪种算法。多了一项：'total-size'-专注于让总下载包大小更小的数字 id。
+    moduleIds: "deterministic", // 告知 webpack 当选择模块 id 时需要使用哪种算法。deterministic-被哈希转化成的小位数值模块名。natural-按使用顺序的数字 id。named-对调试更友好的可读的 id。size-专注于让初始下载包大小更小的数字 id。
+    chunkIds: "deterministic", // 类似moduleIds，告知 webpack 当选择模块 id 时需要使用哪种算法。多了一项：'total-size'-专注于让总下载包大小更小的数字 id。
     sideEffects: true, // 告知 webpack 去辨识 package.json 中的副作用标记或规则（默认值为 true，所以这一步也可以不设置）
     splitChunks: {
-      chunks: 'all',
+      chunks: "all",
       cacheGroups: {
         vendors: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
+          name: "vendors",
+          chunks: "all",
         },
       },
     },
   },
-  module: { // loaders
+  module: {
+    // loaders
     rules: [
       {
         test: /\.tsx?$/,
         use: [
           {
-            loader: 'ts-loader',
+            loader: "ts-loader",
             options: {
-              transpileOnly: true
-            }
-          }
-        ]
+              transpileOnly: true,
+            },
+          },
+        ],
       },
       // ...
       {
         test: /\.(js|ts)x?$/,
-        include: [path.resolve('src'), path.resolve('framework'), path.resolve('apps')],
+        include: [path.resolve("src"), path.resolve("framework"), path.resolve("apps")],
         use: {
-          loader: require.resolve('babel-loader'),
+          loader: require.resolve("babel-loader"),
           options: {
             cacheDirectory: true,
           },
@@ -91,15 +94,15 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [require.resolve('style-loader'), require.resolve('css-loader')],
+        use: [require.resolve("style-loader"), require.resolve("css-loader")],
       },
       {
         test: /\.less$/,
         use: [
-          require.resolve('style-loader'),
-          require.resolve('css-loader'),
+          require.resolve("style-loader"),
+          require.resolve("css-loader"),
           {
-            loader: require.resolve('less-loader'),
+            loader: require.resolve("less-loader"),
             options: {
               modifyVars: theme,
               javascriptEnabled: true,
@@ -110,37 +113,37 @@ module.exports = {
       {
         test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/, /\.mov$/, /\.mp4$/],
         use: {
-          loader: require.resolve('url-loader'),
+          loader: require.resolve("url-loader"),
           options: {
             limit: 10 * 1024,
-            name: 'static/images/[name].[hash:8].[ext]',
+            name: "static/images/[name].[hash:8].[ext]",
           },
         },
       },
       {
         test: [/\.mov$/, /\.mp4$/],
         use: {
-          loader: require.resolve('file-loader'),
+          loader: require.resolve("file-loader"),
           options: {
-            name: 'static/videos/[name].[hash:8].[ext]',
+            name: "static/videos/[name].[hash:8].[ext]",
           },
         },
       },
       {
         test: /\.(eot|otf|ttf|woff|woff2)$/,
         use: {
-          loader: 'file-loader',
+          loader: "file-loader",
           options: {
-            name: 'static/fonts/[name].[hash:8].[ext]',
+            name: "static/fonts/[name].[hash:8].[ext]",
           },
         },
       },
       {
         test: /\.svg$/,
         use: {
-          loader: require.resolve('file-loader'),
+          loader: require.resolve("file-loader"),
           options: {
-            name: 'static/svgs/[name].[hash:8].[ext]',
+            name: "static/svgs/[name].[hash:8].[ext]",
           },
         },
       },
@@ -149,45 +152,73 @@ module.exports = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new HtmlWebpackPlugin({ // 有几个入口就配几遍
+    new HtmlWebpackPlugin({
+      // 有几个入口就配几遍
       inject: true,
-      chunks: ['main'], // 配置打包后的chunk名
-      favicon: path.join(process.cwd(), 'public/favicon.png'), // 配置浏览器图标
-      template: joinRootPath('src/index.development.html'), // 配置index.html
-      filename: 'main.html',
+      chunks: ["main"], // 配置打包后的chunk名
+      favicon: path.join(process.cwd(), "public/favicon.png"), // 配置浏览器图标
+      template: joinRootPath("src/index.development.html"), // 配置index.html
+      filename: "main.html",
+      scriptLoading: "blocking", // 脚本加载方式
+      // 对于不参与打包的第三方模块通过CDN在html中引入
+      cdn: {
+        js: [
+          "https://code.jquery.com/jquery-3.6.0.min.js",
+          "https://unpkg.com/react/umd/react.production.min.js",
+          "https://unpkg.com/react-dom/umd/react-dom.production.min.js",
+        ],
+      },
     }),
-    new HtmlWebpackPlugin({ // 有几个入口就配几遍
+    // 这个也可以，对于不参与打包的第三方模块通过CDN在html中引入
+    new HtmlWebpackTagsPlugin({
+      tags: [
+        "https://code.jquery.com/jquery-3.6.0.min.js",
+        "https://unpkg.com/react/umd/react.production.min.js",
+        "https://unpkg.com/react-dom/umd/react-dom.production.min.js",
+      ],
+      append: true, // 将标签添加到末尾
+    }),
+    new HtmlWebpackPlugin({
+      // 有几个入口就配几遍
       inject: true,
-      chunks: ['app'], // 配置打包后的chunk名
-      favicon: path.join(process.cwd(), 'public/favicon.png'), // 配置浏览器图标
-      template: joinRootPath('src/index.development.html'), // 配置index.html
-      filename: 'app.html',
+      chunks: ["app"], // 配置打包后的chunk名
+      favicon: path.join(process.cwd(), "public/favicon.png"), // 配置浏览器图标
+      template: joinRootPath("src/index.development.html"), // 配置index.html
+      filename: "app.html",
     }),
     new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('development'),
+      "process.env": {
+        NODE_ENV: JSON.stringify("development"),
       },
     }),
     new webpack.DllReferencePlugin({
       context: process.cwd(),
-      manifest: require.resolve(
-        path.join(process.cwd(), 'node_modules/robor-vender-dll/manifest.json')
-      ),
+      manifest: require.resolve(path.join(process.cwd(), "node_modules/robor-vender-dll/manifest.json")),
     }),
     new MomentLocalesPlugin({
-      localesToKeep: ['es-us', 'zh-cn'],
+      localesToKeep: ["es-us", "zh-cn"],
     }),
     new ForkTsCheckerWebpackPlugin({
       async: true,
-      reportFiles: ['src/**/*.{ts,tsx}'],
+      reportFiles: ["src/**/*.{ts,tsx}"],
     }),
     new BundleAnalyzerPlugin(),
     // new ProgressBarPlugin(),
     new WebpackBar({
       // profile: true,
-      name: require(path.join(process.cwd(), 'package.json')).name || 'client',
+      name: require(path.join(process.cwd(), "package.json")).name || "client",
     }),
-  }
+  ],
+  // 配置 externals
+  externals: {
+    // { 'moduleName': 'globalVariable' }
+    // 例如：将 jQuery 和 React 从打包中排除，使用 CDN
+    jquery: "jQuery",
+    react: "React",
+    vue: "Vue",
+    "react-dom": "ReactDOM",
+  },
+};
 ```
 
 ## TypeScript

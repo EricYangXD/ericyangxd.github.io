@@ -754,7 +754,6 @@ var lowestCommonAncestor = function (root, p, q) {
   const val = root.val;
   if (p.val < val && q.val < val) {
     // 说明都在左子树
-
     return lowestCommonAncestor(root.left, p, q);
   }
   if (p.val > val && q.val > val) {
@@ -921,4 +920,501 @@ function quickselect(nums, l, r, k) {
     return quickselect(nums, j + 1, r, k); // 第 k 大元素在右边
   }
 }
+```
+
+### 46. 全排列
+
+```js
+// 代码随想录解法模板：性能好
+var permute = function (nums) {
+  const res = [],
+    path = [];
+  backtracking(nums, nums.length, []);
+  return res;
+
+  function backtracking(n, k, used) {
+    // path.length === nums.length，此时说明找到了一组
+    if (path.length === k) {
+      // 浅拷贝path，因为后面会继续使用它，否则会出问题。
+      res.push([...path]);
+      return;
+    }
+    for (let i = 0; i < k; i++) {
+      if (used[i]) continue;
+      path.push(n[i]);
+      used[i] = true; // 同支
+      backtracking(n, k, used);
+      path.pop();
+      used[i] = false; // 找到一个之后，下轮次还可以继续用
+    }
+  }
+};
+
+// deepseek模板：性能差
+function permute(arr) {
+  if (!arr || !arr.length) return arr;
+
+  const res = [];
+  function backtrack(start) {
+    // 说明已经生成了一个完整的排列
+    if (start === arr.length) {
+      // push一个新的数组，浅拷贝
+      res.push([...arr]);
+      return;
+    }
+    // 遍历数组，交换元素，生成所有可能的排列
+    for (let i = start; i < arr.length; i++) {
+      // 先交换元素
+      [arr[start], arr[i]] = [arr[i], arr[start]];
+      // 递归生成下一个位置的排列
+      backtrack(start + 1);
+      // 回溯，回复数组状态
+      [arr[start], arr[i]] = [arr[i], arr[start]];
+    }
+  }
+  backtrack(0);
+  return res;
+}
+```
+
+### 17. 电话号码的字母组合
+
+每个数字按键上都有对应的几个字母，输入几个数字 0-9，可以得到几个字母的组合，输出可能的所有组合。0 和 1 上没有字母。
+
+通过一个数组来记录所有的按键，通过数组下标表示对应的数字。
+
+```js
+const MAPPING = ["", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"];
+function letterCombinations(digits) {
+  if (!digits || digits.length === 0) return [];
+  const len = digits.length;
+  const res = [];
+  const path = [];
+
+  function backtrack(start) {
+    if (start === len) {
+      res.push(path.join(""));
+      return;
+    }
+    const str = MAPPING[digits[start]];
+    for (let i = 0; i < str.length; i++) {
+      path[start] = str[i];
+      backtrack(start + 1);
+    }
+  }
+
+  backtrack(0);
+}
+```
+
+### 300. 最长递增子序列
+
+Vue3 中的 diff 算法就是使用了最长递增子序列的算法。
+
+```js
+var lengthOfLIS = function (nums) {
+  if (!nums || !nums.length) return nums;
+
+  const results = [[nums[0]]];
+
+  for (let i = 1; i < nums.length; i++) {
+    const n = nums[i];
+    update(n);
+  }
+
+  function update(n) {
+    for (let j = results.length - 1; j >= 0; j--) {
+      const line = results[j];
+      const tail = line[line.length - 1];
+      if (n > tail) {
+        results[j + 1] = [...line, n];
+        break;
+      } else if (n < tail && j === 0) {
+        results[j] = [n];
+      }
+    }
+  }
+
+  return results[results.length - 1].length;
+};
+```
+
+### 77. 组合
+
+组合问题就是从数组中选出 n 个元素，然后组成一个数组。
+
+给定两个整数 n 和 k，返回范围`[1, n]`中所有可能的 k 个数的组合。
+
+```js
+var combine = function (n, k) {
+  if (!n || !k) return [];
+  const res = [];
+  const path = [];
+
+  function backtrack(start) {
+    // 剪枝：剩余数字数量不够时，直接返回
+    if (start < k - path.length) {
+      return;
+    }
+    if (path.length === k) {
+      res.push([...path]);
+      return;
+    }
+    // 倒序遍历逻辑更好写
+    for (let i = start; i; i--) {
+      path.push(i);
+      backtrack(i - 1);
+      path.pop();
+    }
+  }
+
+  backtrack(n);
+  return res;
+};
+```
+
+### 216. 组合总和 III
+
+组合总和 III 是一个常见的面试题，题目要求找出所有和为 target 的 k 个数的组合，只使用 0-9 且满足 k 个数互不相同。
+
+```js
+var combine = function (n, k) {
+  if (!n || !k) return [];
+  const res = [];
+  const path = [];
+
+  function backtrack(start, t) {
+    // 剪枝：剩余数字数量不够时，直接返回
+    if (start < k - path.length) {
+      return;
+    }
+    // 剪枝：t<0 时，直接返回
+    if (t < 0) {
+      return;
+    }
+    // 剪枝：t>剩余的数字之和时，直接返回
+    if (t > Math.floor(((start * 2 - k + path.length + 1) * (k - path.length)) / 2)) {
+      return;
+    }
+    if (path.length === k) {
+      res.push([...path]);
+      return;
+    }
+    // 倒序遍历逻辑更好写
+    for (let i = start; i; i--) {
+      path.push(i);
+      backtrack(i - 1, t - i);
+      path.pop();
+    }
+  }
+
+  backtrack(9, n);
+  return res;
+};
+```
+
+### 22. 括号生成
+
+括号生成问题就是给定一个数字 n，返回所有可能的 n 对括号组成的有效组合。
+
+括号生成问题可以使用回溯算法解决，回溯算法的核心思想是尝试所有可能的情况，然后根据情况判断是否满足要求。
+
+```js
+var generateParenthesis = function (n) {
+  if (!n) return [];
+  const res = [];
+  const path = [];
+
+  // open是左括号的个数，i是当前在path中的下标位置，也可用push/pop
+  function backtrack(i, left) {
+    if (i === 2 * n) {
+      res.push(path.join(""));
+      return;
+    }
+    // 左括号个数小于n时，可以添加左括号
+    if (left < n) {
+      path[i] = "(";
+      backtrack(i + 1, left + 1);
+    }
+    // 只有右括号的个数小于左括号的个数时，才可以添加右括号，因为到当前这个位置时已经放了open个左括号，所以右括号的个数是i-open。
+    if (i - left < left) {
+      path[i] = ")";
+      backtrack(i + 1, left);
+    }
+  }
+
+  backtrack(0, 0);
+  return res;
+};
+```
+
+### 51. N 皇后
+
+N 皇后问题是一个经典的问题，要求在 n x n 的棋盘上放置 n 个皇后，使得皇后之间没有冲突。解决这个问题的关键是找到一种合适的放置方式，使得皇后之间没有冲突。
+
+```js
+var solveNQueens = function (n) {
+  if (!n) return [];
+  const res = [];
+  const queens = Array(n).fill(0); // 皇后放在(row, queens[row])
+  const column = Array(n).fill(false);
+  const diag1 = Array(n * 2 - 1).fill(false); // 标记之前放置的皇后的行号加列号
+  const diag2 = Array(n * 2 - 1).fill(false); // 标记之前放置的皇后的行号减列号
+
+  function backtrack(row) {
+    if (row === n) {
+      res.push(queens.map((c) => ".".repeat(c) + "Q" + ".".repeat(n - c - 1)));
+      return;
+    }
+    // 在(row, col)放皇后
+    for (let col = 0; col < n; col++) {
+      // 行号-列号+n-1保证数组下标>=0，最大值就是n-0+n-1 = n * 2 - 1，即diag数组的长度
+      const rc = row - col + n - 1;
+      // 判断能否放皇后
+      if (!column[col] && !diag1[row + col] && !diag2[rc]) {
+        // 直接覆盖，无需恢复现场
+        queens[row] = col;
+        // 皇后占用了col列和两条斜线
+        column[col] = diag1[row + col] = diag2[rc] = true;
+        backtrack(row + 1);
+        // 恢复现场
+        column[col] = diag1[row + col] = diag2[rc] = false;
+      }
+    }
+  }
+
+  backtrack(0);
+  return res;
+};
+```
+
+### 198. 打家劫舍
+
+打家劫舍问题是一个经典的动态规划问题。
+
+```js
+// 递归解法，通过map缓存计算结果，否则会超时
+var rob = function (nums) {
+  if (!nums) return;
+  const len = nums.length;
+  const cache = new Map();
+  function dfs(i) {
+    // 递归终止条件
+    if (i < 0) {
+      return 0;
+    }
+    // 缓存
+    if (cache.has(i)) {
+      return cache.get(i);
+    }
+    // 递归表达式
+    const res = Math.max(dfs(i - 1), dfs(i - 2) + nums[i]);
+    cache.set(i, res);
+    return res;
+  }
+
+  return dfs(len - 1);
+};
+```
+
+### 122. 买卖股票的最佳时机 II
+
+```js
+var maxProfit = function (prices) {
+  // const cache = new Map(); // 每天需要存持有和不持有两个状态，所以用map不行，要二维数组。
+  const n = prices.length;
+  // hold:持有=1，不持有=0；
+  const cache = new Array(n).fill(null).map(() => [-1, -1]);
+  function dfs(i, hold) {
+    if (i < 0) {
+      return hold ? -Infinity : 0;
+    }
+
+    if (cache[i][hold] !== -1) {
+      return cache[i][hold];
+    }
+    let profit;
+    if (hold) {
+      // 昨天一直持有没买没卖或者昨天刚刚买入扣掉股票价格-->最终第i天持有股票
+      profit = Math.max(dfs(i - 1, 1), dfs(i - 1, 0) - prices[i]);
+    } else {
+      // 昨天一直就没有持有股票或者昨天有但是卖掉了则加上股票价格-->最终第i天不持有股票
+      profit = Math.max(dfs(i - 1, 0), dfs(i - 1, 1) + prices[i]);
+    }
+    cache[i][hold] = profit;
+    return profit;
+  }
+  // 最后一天肯定不能持有股票
+  return dfs(prices.length - 1, 0);
+};
+```
+
+### 309. 买卖股票的最佳时机含冷冻期
+
+只能隔天卖出，类似打家劫舍
+
+```js
+var maxProfit = function (prices) {
+  // 类似于打家劫舍，从后往前递归，取i-2
+  const n = prices.length;
+  const cache = new Array(n).fill(null).map(() => [-1, -1]);
+
+  function dfs(i, hold) {
+    if (i < 0) {
+      return hold ? -Infinity : 0;
+    }
+    if (cache[i][hold] !== -1) {
+      return cache[i][hold];
+    }
+    let profit;
+    if (hold) {
+      // 买入必须隔天，所以要计算i-2
+      profit = Math.max(dfs(i - 1, 1), dfs(i - 2, 0) - prices[i]);
+    } else {
+      profit = Math.max(dfs(i - 1, 0), dfs(i - 1, 1) + prices[i]);
+    }
+    cache[i][hold] = profit;
+    return profit;
+  }
+  return dfs(n - 1, 0);
+};
+```
+
+### 188. 买卖股票的最佳时机 IV
+
+有 k 次交易的限制，借助三维数组存储状态，和上一题的思路一样。
+
+```js
+var maxProfit = function (k, prices) {
+  const n = prices.length;
+  // hold:持有=1，不持有=0；
+  const cache = new Array(n).fill(null).map(() =>
+    Array(k + 1)
+      .fill(null)
+      .map(() => [-1, -1])
+  );
+  function dfs(i, j, hold) {
+    if (j < 0) {
+      return -Infinity;
+    }
+    if (i < 0) {
+      return hold ? -Infinity : 0;
+    }
+
+    if (cache[i][j][hold] !== -1) {
+      return cache[i][j][hold];
+    }
+    let profit;
+    if (hold) {
+      // 昨天一直持有没卖或者昨天买入则扣掉股票价格-->最终第i天结束时持有股票
+      profit = Math.max(dfs(i - 1, j, 1), dfs(i - 1, j, 0) - prices[i]);
+    } else {
+      // 昨天一直就没有持有股票或者昨天有但是卖掉了则加上股票价格-->最终第i天结束时不持有股票
+      // 买入一次+卖出一次算一笔交易，只在买入的时候计算次数即可
+      profit = Math.max(dfs(i - 1, j, 0), dfs(i - 1, j - 1, 1) + prices[i]);
+    }
+    cache[i][j][hold] = profit;
+    return profit;
+  }
+  // 最后一天肯定不能持有股票，考虑到当天买卖没有实际意义
+  return dfs(prices.length - 1, k, 0);
+};
+```
+
+### 516. 最长回文子序列
+
+回文子序列问题，就是求最长的回文子序列，即子序列中的字符是回文的。子序列和子串不是一回事！！！
+
+1. 翻转字符串，然后求最长公共子序列。
+2. 动态规划求解。
+
+```js
+// 递推
+const longestPalindromeSubseq = (s) => {
+  const n = s.length;
+  const dp = Array.from(Array(n), () => Array(n).fill(0));
+
+  // 遍历i的时候一定要从下到上遍历，这样才能保证，下一行的数据是经过计算的。
+  for (let i = n - 1; i >= 0; i--) {
+    dp[i][i] = 1;
+    for (let j = i + 1; j < n; j++) {
+      if (s[i] === s[j]) {
+        dp[i][j] = dp[i + 1][j - 1] + 2;
+      } else {
+        dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+      }
+    }
+  }
+  return dp[0][n - 1];
+};
+```
+
+### 1143. 最长公共子序列
+
+```js
+var longestCommonSubsequence = function (text1, text2) {
+  const m = text1.length;
+  const n = text2.length;
+
+  const dp = Array.from(Array(m + 1), () => Array(n + 1).fill(0));
+
+  for (let i = 1; i <= m; i++) {
+    const c1 = text1[i - 1];
+    for (let j = 1; j <= n; j++) {
+      const c2 = text2[j - 1];
+      if (c1 === c2) {
+        // text1与text2字符相同时 最长公共子序列长度+1
+        dp[i][j] = dp[i - 1][j - 1] + 1;
+      } else {
+        // text1与text2字符不同时 返回text1或text2向前减少一位之后的最长公共子序列中的较大者
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+  }
+
+  return dp[m][n];
+};
+```
+
+### 55. 跳跃游戏
+
+```js
+var canJump = function (nums) {
+  let cover = 0;
+  for (let i = 0; i < nums.length; i++) {
+    // 判断：如果cover<i，说明走不到这里，直接返回false
+    if (i <= cover) {
+      // nums[i]+i -- 即当前这个值加上他的下标
+      // 这样就省去了后面对剩余长度的计算，统一比较数组的整体长度
+      cover = Math.max(nums[i] + i, cover);
+      if (cover >= nums.length - 1) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+```
+
+### 455. 分发饼干
+
+```js
+var findContentChildren = function (g, s) {
+  // g: 孩子胃口数组
+  // s: 饼干尺寸数组
+
+  // 先排序，然后遍历饼干尺寸
+  g.sort((a, b) => a - b);
+  s.sort((a, b) => a - b);
+
+  let count = 0;
+  for (let i = 0, j = 0; i < s.length && j < g.length; i++) {
+    if (s[i] >= g[j]) {
+      count++;
+      j++;
+    }
+  }
+  return count;
+};
 ```

@@ -281,6 +281,16 @@ declare enum dir {
 - 或者在 global.d.ts 中全局声明：
 
 ```ts
+// global.d.ts，需要在tsconfig.json的include中引入"global.d.ts"，显式包含 global.d.ts
+export {};
+
+declare global {
+  interface Window {
+    myCustomMethod: (arg: string) => void; // 自定义方法
+    myCustomProperty: string; // 自定义属性
+  }
+}
+
 declare namespace MyPlugin {
   var n: number;
   var s: string;

@@ -4103,20 +4103,106 @@ CSRF 原理和解决方案
 
 ## 有效括号匹配
 
+栈，先入栈左侧，遇到右侧就从栈顶 pop 一个出来，如果不匹配就 false，否则继续 push 入栈，最后看栈是否清空。
+
 ## 判断 b 是否是 a 的子集
 
 ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 
 ## 302 怎么确定重定向路径
 
+## 几种 worker 的对比
+
+| 特性     | Web Worker                       | Service Worker         | Shared Worker                                                        |
+| -------- | -------------------------------- | ---------------------- | -------------------------------------------------------------------- |
+| 目的     | 处理后台任务，专注于防止 UI 阻塞 | 控制网络请求和离线功能 | 共享状态或数据，提供一个共享的上下文以便多个浏览器上下文之间的通信。 |
+| 访问 DOM | 不可访问                         | 不可访问               | 不可访问                                                             |
+| 共享性   | 不共享                           | 不共享                 | 共享多个上下文                                                       |
+| 生命周期 | 由调用者管理                     | 有独立生命周期         | 由调用者管理                                                         |
+| 通信方式 | postMessage                      | 事件驱动               | MessagePort                                                          |
+| 使用场景 | CPU 密集型处理                   | 离线缓存、推送通知     | 多窗口/标签页共享数据                                                |
+
 ## 全排列
+
+回溯算法模板，一种方式是递归，循环遍历各个数字字符，先存到 path 中，然后递归剩下的数字字符，递归结束后 pop 恢复现场，继续循环。终止条件是`path.length===nums.length`。
 
 ## 前端路由原理
 
-1. hashchange 事件
-2. popstate 事件
+1. hashchange 事件：hash 路由
+2. popstate 事件：history 路由
 3. history.pushState()
 4. history.replaceState()
+
+## Vue 动态加载组件
+
+1. 使用异步组件：异步组件允许在需要时动态加载 Vue 组件，通常结合 import() 语法来实现。这样可以将组件分割到不同的文件中，只有在需要时才加载。动态的引入组件。配合`<component :is="currentComponent"></component>`实现。
+2. 使用动态组件：Vue 提供了一种 component 组件，可以根据绑定的值动态切换组件，这对于动态加载组件也十分有用。提前注册组件，动态设置组件名。配合`<component :is="currentComponent"></component>`实现。
+3. 使用 Vue Router 的路由懒加载：如果你使用 Vue Router 管理路由，也可以通过路由懒加载实现组件的动态加载。也是通过 import()动态引入组件。
+4. 结合 Vuex 进行动态管理：如果需要根据某些条件从状态管理中动态加载组件，可以结合 Vuex 实现。在 commit 时动态 import 引入所需组件。
+5. 插槽，传入要展示的组件，配合`<component :is="currentComponent"></component>`实现。
+6. 频繁切换时借助 keep-alive 组件进行缓存
+
+### is 的实现原理是什么？
+
+`<component :is="currentComponent"></component>`
+
+## Hash 路由与 History 路由的对比
+
+| 特性       | Hash 路由                      | History 路由                                    |
+| ---------- | ------------------------------ | ----------------------------------------------- |
+| URL 格式   | http://example.com/#/page1     | http://example.com/page1                        |
+| 兼容性     | 所有浏览器，包括旧版浏览器     | 现代浏览器，旧版浏览器可能不支持                |
+| SEO 友好   | 不友好                         | 友好                                            |
+| 用户体验   | URL 中有 # 符号，视觉上不美观  | 更干净的 URL，没有哈希符号                      |
+| 刷新行为   | 刷新时会根据哈希重新渲染内容   | 刷新时需要服务器支持来处理 URL                  |
+| 实现复杂性 | 实现简单，使用 hashchange 事件 | 需要管理历史记录、状态等                        |
+| 原理       | hashchange 事件                | history.pushState/replaceState 和 popstate 事件 |
+
+## history 路由的 Nginx 配置
+
+假设你的应用构建后的文件存放在 `/usr/share/nginx/html` 目录中，并且你的 index.html 文件位于该目录下。可以参考以下配置：
+
+```sh
+server {
+    listen 80;  # 监听端口
+    server_name example.com;  # 你的域名或 IP
+
+    location / {
+        root /usr/share/nginx/html;  # 应用文件所在目录
+        index index.html;  # 默认首页文件
+
+        try_files $uri $uri/ /index.html;  # 尝试请求文件，如果文件不存在则返回 index.html
+    }
+
+    # 可选：配置 gzip 压缩
+    gzip on;
+    gzip_types text/plain application/javascript application/x-javascript text/css application/json;
+    gzip_min_length 1000;
+
+    # 可选：配置缓存
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;  # 缓存一年
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    # 可选：错误页面处理
+    error_page 404 /index.html;  # 404 错误也返回 index.html
+}
+```
+
+修改 Nginx 配置后检查并重启。
+
+```sh
+sudo nginx -t  # 测试配置是否正确
+sudo systemctl reload nginx  # 重新加载 Nginx
+```
+
+## v-for 和 v-if 执行优先级
+
+**不推荐在一元素上同时使用这两个指令 **
+
+1. Vue2 中：当同时使用时，v-for 比 v-if 优先级更高。
+2. Vue3 中：当同时使用时，v-if 比 v-for 优先级更高。
 
 ## 页面白屏检测
 
@@ -4133,11 +4219,40 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 
 ## nodejs 内存泄漏怎么解决
 
+Node.js 内存泄漏是指程序在执行过程中不再使用的内存没有被及时释放，导致内存的逐渐增加，这可能会导致应用程序性能下降甚至崩溃。解决内存泄漏的问题需要从多个方面着手。
+
+1. 常见的内存泄漏原因
+   - 全局变量：意外地将变量声明为全局变量，导致其在整个应用生命周期中保持活跃。
+   - 事件监听器：未注销的事件监听器会导致内存泄漏。
+   - 闭包：闭包中引用了外部变量，但这些外部变量不再需要，从而无法被垃圾回收。
+   - 长时间运行的定时器：使用 setInterval 或 setTimeout 却没有在适当的时候清除它们。
+   - 缓存的引用：在数据缓存中存储大量对象，但没有适时清除。
+2. 解决内存泄漏的方法
+   - 使用堆分析工具：Node.js 内置的 V8 堆快照：可以使用 Chrome DevTools 的远程调试功能来分析 Node.js 应用的内存使用情况。Heapdump：可以在应用运行时生成堆快照，便于后续分析。在 Chrome DevTools 中打开该堆快照文件进行分析。
+   - 定期清理不再使用的对象：确保及时清理不再使用的对象和数据。例如，使用 WeakMap 和 WeakSet 来创建不会阻止垃圾回收的引用。
+   - 取消事件监听器：在不再需要时，及时取消事件监听器，特别是在使用 EventEmitter 时
+   - 清理定时器和异步任务：确保使用 clearTimeout 和 clearInterval 清理不再需要的定时器。
+   - 避免使用全局变量：尽量减少全局变量的使用，避免不必要的全局引用。可以使用模块导出和封装方法来管理应用状态。
+   - 使用内存监控工具：PM2：一个进程管理工具，提供内存监控功能。Node Clinic：用于性能分析的工具，可以帮助识别内存泄漏。
+
 ## 多窗口之间怎么通信
 
 ## 捕获和冒泡事件触发顺序
 
+捕获阶段：事件从外层元素传播到目标元素。
+目标阶段：目标元素的事件处理程序被调用。
+冒泡阶段：事件从目标元素向外层元素传播。
+
+默认情况下，addEventListener 的第三个参数为 false，表示使用冒泡阶段。如果将其设置为 true，则事件将在捕获阶段被处理。
+
 ## 数据大屏怎么实现响应式
+
+1. 使用响应式框架：Bootstrap：提供了强大的栅格系统和组件，适合快速开发响应式布局。Tailwind CSS：采用实用程序优先的 CSS 方法，可以轻松创建响应式设计。Ant Design 或 Material UI：这两者都是基于 React 的 UI 组件库，具有响应式设计的理念。
+2. 媒体查询：通过 CSS 媒体查询，可以为不同的屏幕尺寸应用不同的样式。
+3. 使用 Flexbox 或 CSS Grid 布局可以更灵活地创建响应式设计。
+4. 响应式图表：如果数据大屏中包含图表，确保使用支持响应式的图表库：Chart.js：可以自动适应容器大小。ECharts：提供了良好的响应式支持，可以通过配置自动调整图表大小。AntV：企业级数据可视化解决方案。
+5. 动态调整布局：可以使用 JavaScript 监听窗口大小变化，动态调整布局，监听 resize 事件，做相应处理。
+6.
 
 ## 浏览器访问 url 过程
 
@@ -4147,13 +4262,73 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 
 授权协议
 
-## nodejs 是单线程吗
+## nodejs 是单线程吗？怎么提高并发量
 
-怎么提高并发量
+1. Node.js 是基于事件驱动的非阻塞 I/O 模型，虽然它本身是单线程的，但可以通过一些方式提高并发量和性能。
+2. 单线程：Node.js 的主事件循环运行在单个线程上，所有 I/O 操作（如文件读取、网络请求等）都是异步的，使用事件和回调来处理。
+3. 事件循环：Node.js 的事件循环机制能够处理大量的连接请求，而不需要为每个请求创建一个线程。它使用事件和回调机制来处理请求，使得在等待 I/O 的同时可以处理其他任务。
+
+提高 Node.js 并发量的方法：
+
+1. 使用 Cluster 模块：Node.js 的 Cluster 模块可以创建多个工作进程，每个进程都有自己的事件循环和内存空间。这允许你充分利用多核 CPU 的优势。
+
+```js
+// 主进程会为每个 CPU 核心创建一个工作进程，能够同时处理多个请求。
+const cluster = require("cluster");
+const http = require("http");
+const numCPUs = require("os").cpus().length;
+
+if (cluster.isMaster) {
+  // Fork workers.
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on("exit", (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died`);
+  });
+} else {
+  // Workers can share any TCP connection
+  http
+    .createServer((req, res) => {
+      res.writeHead(200);
+      res.end("Hello World\n");
+    })
+    .listen(8000);
+}
+```
+
+2. 使用负载均衡器：在生产环境中，可以使用负载均衡器（如 NGINX 或 HAProxy）将请求分发到多个 Node.js 实例。这种方式能够进一步提高并发处理能力。
+3. 异步 I/O 优化：确保使用 Node.js 提供的异步 API 来处理 I/O 操作，避免使用阻塞的代码。使用异步操作可以使事件循环继续处理其他请求。
+4. 使用 Redis 进行消息队列：在某些情况下，使用 Redis 等消息队列来处理长时间运行的任务可以提高并发能力。通过将任务放入队列，可以让 Node.js 继续处理其他请求，而后台 worker 处理这些耗时任务。
+5. 连接池：对于数据库等外部服务，使用连接池可以减少连接的创建和销毁的开销，提高并发性能。确保数据库连接的管理是高效的。
+6. 使用 WebSocket 和长轮询：对于需要处理大量实时数据的应用，可以使用 WebSocket 或长轮询实现高效的实时通信，这样能够更好地处理高并发请求。
+7. 性能监控与调优：使用性能监控工具（如 PM2、New Relic、DataDog 等）来监控应用性能，识别瓶颈并进行优化。
 
 ## 前端监控告警体系
 
 性能监控的指标有哪些？页面加载的瓶颈和优化手段
+
+## 在哪些情况下一个元素绑定的点击事件不会被触发？
+
+1. 元素不可见或被遮挡：
+   - CSS 隐藏：如果元素的 display 属性被设置为 none，则该元素不会在页面上展示，点击事件自然不会被触发。
+   - 透明度：如果元素的 opacity 属性为 0，它仍然可以占据空间，但是用户无法看到它，因此也不会触发点击事件。
+   - 遮挡其它元素：如果一个元素被其他元素遮挡（如使用 z-index 进行层叠），则无法点击该元素。
+2. 事件被阻止
+   - `event.preventDefault()`：如果在事件处理程序中调用了 `event.preventDefault()`，某些默认行为（如链接跳转）将被阻止，但这不会影响点击事件本身的触发。
+   - `event.stopPropagation()`：如果在事件处理程序中调用了 `event.stopPropagation()`，那么事件可能不会向上传递，特别是在嵌套元素中，但这并不会阻止事件本身的触发。
+3. 元素处于失去焦点状态
+   - 表单元素：如果某些表单元素（如 button 或 input）在失去焦点时可能不响应点击事件，尤其是在某些浏览器中。
+4. 错误的事件绑定
+   - 使用了错误的选择器。
+   - 在 DOM 元素未加载时绑定事件（如在 DOMContentLoaded 之前）。
+5. 元素被禁用
+   - disabled 属性：如果元素是一个表单控件（例如 <button> 或 <input>）并且设置了 disabled 属性，点击事件将不会被触发。
+6. JavaScript 错误：在事件处理程序中，如果出现 JavaScript 错误，可能会导致后续代码（包括绑定的事件）不被执行。
+7. 使用了 pointer-events CSS 属性：如果元素的 `pointer-events` CSS 属性被设置为 none，则该元素将不会响应任何鼠标事件，包括点击。
+8. 移动设备的特殊情况：在某些移动设备上，未处理的触摸事件（如 touchstart 或 touchend）可能会影响点击事件的触发。
+9. 使用了框架或库中的事件处理机制：在使用某些 JavaScript 框架（如 React、Vue.js 等）时，事件的管理可能与原生 JavaScript 不同，需遵循框架的事件处理方式。
 
 ## Vue3 系列
 
@@ -4214,10 +4389,10 @@ setup() {
    - watchEffect 直接接收一个回调函数，会自动追踪函数内部使用到的响应式数据变化，数据变化时重新执行该函数
    - watchEffect 的函数会立即执行一次，并在依赖的数据变化时再次执行
    - watchEffect 更适合简单的场景，不需要额外的配置，相当于默认开启了 deep 和 immediate 的 watch
-   - watchEffect 也能接收第二个参数，用来配置 flush 和 onTrack / onTrigger
+   - watchEffect 也能接收第二个参数，用来配置 flush 和 onTrack / onTrigger，拿不到旧值
    - watch 显示的接收一个需要被监听的数据和回调函数，若监听的数据发生变化，重新执行该函数
    - watch 的回调函数只有在侦听的数据源发生变化时才会执行，不会立即执行
-   - watch 可以更精细的控制监听行为，如 deep、immediate、flush 等
+   - watch 可以更精细的控制监听行为，如 deep、immediate、flush 等，可以终止监听，可以拿到旧值
    - watch 第一个参数可以是一个数组，监听多个数据源，也可以是一个对象，对象中的 key 为数据源，value 为回调函数，还可以是一个函数（最终都会转成函数），如果这个函数返回的值不变，则回调函数也不会执行，即使在函数中依赖的响应式数据发生了变化。
    - 一个关键点是，侦听器必须用同步语句创建：如果用异步回调（比如 setTimeout）创建一个侦听器，那么它不会绑定到当前组件上，你必须手动停止它，以防内存泄漏。
 
@@ -4226,6 +4401,32 @@ setup() {
      1. watch 只追踪明确侦听的数据源。它不会追踪任何在回调中访问到的东西。另外，仅在数据源确实改变时才会触发回调。watch 会避免在发生副作用时追踪依赖，因此，我们能更加精确地控制回调函数的触发时机。
 
      2. watchEffect，则会在副作用发生期间追踪依赖。它会在同步执行过程中，自动追踪所有能访问到的响应式属性。这更方便，而且代码往往更简洁，但有时其响应性依赖关系会不那么明确。
+
+## Vue3 中的宏有哪些？
+
+- defineProps: 声明 props
+- defineEmits: 声明 emit
+- defineModel: 用来声明一个双向绑定 prop
+- defineExpose: 指定对外暴露组件的属性
+- defineOptions：在 script setup 中提供组组件属性
+- defineSlots： 声明 slots
+
+## Vue3 声明一个响应式数据的方式？
+
+- ref: 通过.value 访问及修改
+- reactive: 直接访问、只能声明引用数据类型
+- computed: 也是通过.value，声明需要 传 get、set
+- toRef: 类似 ref 的用法，可以把响应式数据的属性变成 ref
+- toRefs: 可以把响应式数据所有属性 转成一个个 ref
+- shallRef: 浅层的 ref,第二层就不会触发响应式
+- shallReactive: 浅层的 reactive,第二层就不会触发响应式
+- customRef: 自定义 ref
+
+## v-memo
+
+缓存一个模板的子树。在元素和组件上都可以使用。为了实现缓存，该指令需要传入一个固定长度的依赖值数组进行比较。如果数组里的每个值都与最后一次的渲染相同，那么整个子树的更新将被跳过。仅用于性能至上场景中的微小优化，有助于渲染海量 v-for 列表 (长度超过 1000 的情况)。
+
+一般与 v-for 配合使用，v-memo 的值是一个数组。当组件重新渲染，如果数组的值不改变的情况，该组件及子组件所有更新都将被跳过，只要 v-memo 绑定的数组的值没改变，即使子组件引用的响应数据变了，也不会更新。甚至虚拟 DOM 的 vnode 创建也将被跳过。直接重用缓存的子树副本。
 
 ## computed 的 getter 和 setter
 
@@ -4464,6 +4665,32 @@ console.log(Reflect.construct(Object, [], obj6.sayName)); // 报错==>false
 2. 另外对于数组的操作还可以借助`v-if`的特性来实现页面的重新渲染，在操作数组前先把会影响到的数据对应的 dom 视图设置`v-if=false`，这样 dom 会从页面移除，然后修改数组，操作完后再设置`v-if=true`，这样可以实现 dom 视图的重新渲染。可以同时借助`$nextTick()`进行操作处理。
 
 3. 还可以使用强制渲染：`vm.$forceUpdate()`。这个方法会强制组件重新渲染而不考虑数据是否更新，避开了正常的数据流更新的方法，违反了 Vue 响应式更新的规则，但是可以用于一些特殊场景，比如在某些异步操作中，需要强制组件重新渲染。
+
+## Vue2 和 Vue3 的响应式实现的区别
+
+1. vue2 的响应式是通过 `Object.defineProperty` 方法，劫持对象的 getter 和 setter，在 getter 中收集依赖，在 setter 中触发依赖，但是这种方式存在一些缺点：
+
+- 由于是遍历递归监听属性，当属性过多或嵌套层级过深时会影响性能
+- 无法监听对象新增的属性和删除属性，只能监听对象本身存在的属性，所以设计了`$set`和`$delete`
+- 如果监听数组的话，无法监听数组元素的增减，只能监听通过下标可以访问到的数组中已有的属性，由于使用 `Object.defineProperty` 遍历监听数组原有元素过于消耗性能，vue 放弃使用 `Object.defineProperty` 监听数组，而采用了重写数组原型方法的方式来监听对数组数据的操作，并用`$set`和`splice` 方法来更新数组，`$set` 和 `splice` 会调用重写后的数组方法。
+
+2. Proxy 对象：
+
+- 用于创建一个对象的代理，主要用于改变对象的某些默认行为，Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。
+
+3. 使用 Proxy 可以解决 Vue2 中的哪些问题，总结一下：
+
+- Proxy 是对整个对象的代理，而 Object.defineProperty 只能代理某个属性。
+- 对象上新增属性，Proxy 可以监听到，Object.defineProperty 不能。
+- 数组新增修改，Proxy 可以监听到，Object.defineProperty 不能。
+- 若对象内部属性要全部递归代理，Proxy 可以只在调用的时候递归，而 Object.definePropery 需要一次完成所有递归，Proxy 相对更灵活，提高性能。
+
+## Reflect 的作用和意义
+
+1. 规范语言内部方法的所属对象，不全都堆放在 Object 对象或 Function 等对象的原型上。
+2. 修改某些 Object 方法的返回结果，让其变得更合理。
+3. 让 Object 操作是命令式的，让他们都变成函数行为。
+4. Reflect 对象的方法与 Proxy 对象的方法一一对应，只要是 Proxy 对象的方法，就能在 Reflect 对象上找到对应的方法。这就让 Proxy 对象可以方便地调用对应的 Reflect 方法，完成默认行为，作为修改行为的基础。也就是说，不管 Proxy 怎么修改默认行为，你总可以在 Reflect 上获取默认行为。
 
 ## 2025.1.20
 
@@ -4856,3 +5083,196 @@ new Promise((resolve, reject) => {
    - 用 `cat` 和 `awk` 命令：`cat filename | awk 'NR==10'`
    - 用 `cat` 和 `head` 和 `tail` 命令：`cat filename | head -n 10 | tail -n 1`
    - 用 `cat` 和 `sed` 和 `awk` 命令：`cat filename | sed -n '10p' | awk '{print}'` 或 `cat filename | awk 'NR==10' | sed -n '1p'`
+
+## 3.8
+
+### 日本
+
+1. 原型和原型链
+2. new 一个对象的时候发生了什么，如果 return 了一些东西会发生什么？
+   1. 创建一个新对象：当你使用 new 关键字时，会创建一个全新的对象。这个对象的原型会被设置为构造函数的原型对象（Constructor.prototype）。
+   2. 执行构造函数：然后 JavaScript 会执行构造函数内的代码。构造函数中的 this 关键字将指向新创建的对象。在这个函数中，通常会初始化对象的属性和方法。
+   3. 返回对象：
+      - 如果构造函数没有显式返回值：JavaScript 默认会返回新创建的对象。
+      - 如果构造函数显式返回一个对象：则会返回该对象，而不是默认返回的新对象。
+      - 如果返回的是基本类型（如字符串、数字、布尔值等）或不返回任何东西：则无论如何，都会返回新创建的对象。
+3. 原型链继承和构造函数继承的区别
+
+   - 原型链继承是通过将子类的原型指向父类的实例来实现的。子类可以访问父类实例的属性和方法。
+   - 构造函数继承是通过在子类构造函数内调用父类构造函数来实现的。这种方式可以将父类的属性复制到子类的实例中。
+
+   | 特性         | 原型链继承                               | 构造函数继承                           |
+   | ------------ | ---------------------------------------- | -------------------------------------- |
+   | 属性继承     | 只继承父类的原型属性                     | 继承父类的实例属性                     |
+   | 方法继承     | 通过原型共享方法，所有实例共享同一个方法 | 每个实例都有自己的方法副本             |
+   | 构造函数参数 | 无法向父类构造函数传递参数               | 可以向父类构造函数传递参数             |
+   | 多重继承     | 不支持多重继承                           | 也不支持多重继承                       |
+   | 实例共享     | 所有子类实例共享父类的属性               | 每个子类实例都拥有自己的属性副本       |
+   | 性能         | 更节省内存，但方法共享可能导致状态不一致 | 占用更多内存，但每个实例都有独立的状态 |
+
+   - 寄生组合继承可以结合二者的优点：使用构造函数继承实例属性，同时使用原型链继承共享方法。在构造函数中调用父类构造函数来继承属性，并使用 `Object.create()` 来建立原型链。这样，结合两者的优点，就能更好地实现 JavaScript 中的继承。
+
+4. setState 是同步的还是异步的，在 16 和 18 版本的区别
+
+   - 一般来说是异步的，但实际上是由于 react 的批处理机制合并多次 setState 为一次更新导致的，在 setTimeout 中就是同步的，多次调用就会导致多次渲染（react16），在 react18 版本中做了修改，在 setTimeout 中多次调用也会合并成一次更新了。也可以使用`useTransition` Hook，用于处理并发状态更新。React 18 引入了并发渲染的能力，新的 startTransition API 允许开发者指定某些状态更新为“过渡”，从而改善用户体验。这个特性对 setState 的使用有直接影响。使用 startTransition 可以标记一些非紧急的更新，这样 React 就可以优先处理用户的输入，确保界面的响应性。通过这种方式，可以让 React 更好地管理状态更新的优先级，提高复杂应用的性能和响应性。
+
+   ```js
+   import { startTransition } from "react";
+
+   startTransition(() => {
+     setState({ count: count + 1 });
+   });
+
+   const [isPending, startTransition] = useTransition();
+
+   const handleClick = () => {
+     startTransition(() => {
+       setState({ count: count + 1 });
+     });
+   };
+   ```
+
+   - 在 React 18 中，批处理的行为得到了进一步增强，支持在异步事件和 Promise 中自动批处理。这意味着即使是在异步操作中（比如在 setTimeout 或 Promise 的回调中），setState 的多次调用也可以被合并。这种增强使得在处理复杂状态更新时更加高效，减少了不必要的渲染。
+   - 在 React 18 中，useState 允许接受一个函数作为初始值，这对某些性能敏感的情况特别有用，确保初始状态只计算一次：
+
+   ```js
+   const [state, setState] = useState(() => {
+     const initialValue = computeInitialValue(); // 只在初始渲染时调用
+     return initialValue;
+   });
+   ```
+
+5. TS 泛型，是怎么做类型守卫的实现的？
+
+   - 泛型是一种允许在定义函数、类或接口时不指定具体类型，而是在使用时再指定的技术。它可以提高代码的灵活性和可复用性。例如，定义一个接受任意类型的数组的函数。
+   - 类型守卫是 TypeScript 中一种用于缩小变量类型范围的机制。它可以在运行时检查变量的类型，并且能够使 TypeScript 编译器更准确地推断变量的类型。
+   - 在 TypeScript 中，泛型守卫（Generic Guards）是一种用于在泛型代码中进行类型检查的技术。泛型守卫可以帮助你在使用泛型时，精确地推断出变量的具体类型，从而确保在编写代码时能够获得更好的类型安全和更准确的类型推断。
+   - 类型守卫是 TypeScript 中的一种机制，用于**在运行时检查某个变量的类型**，从而使 TypeScript 能够推断出该变量的具体类型。类型守卫的常见形式包括：
+     - typeof 检查：用于检查基本数据类型。
+     - instanceof 检查：用于检查对象的类型。
+     - 用户自定义类型守卫：通过返回类型为 arg is Type 的函数来实现。
+   - 在 TypeScript 中，主要的概念是 类型守卫（Type Guards）。而 泛型守卫 并不是一个正式的术语，但可以理解为在泛型上下文中使用类型守卫来进行类型判断和推断的技术。因此，实际上 TypeScript 只有类型守卫这一种机制，而泛型守卫是特指使用泛型时的类型守卫。
+
+   ```js
+   // typeof
+   function log(value: string | number) {
+     if (typeof value === "string") {
+       console.log(value.toUpperCase()); // value 是 string
+     } else {
+       console.log(value.toFixed(2)); // value 是 number
+     }
+   }
+   // instanceof
+   class Dog {
+     bark() {
+       console.log("Woof!");
+     }
+   }
+
+   class Cat {
+     meow() {
+       console.log("Meow!");
+     }
+   }
+
+   function handlePet(pet: Dog | Cat) {
+     if (pet instanceof Dog) {
+       pet.bark(); // pet 是 Dog
+     } else {
+       pet.meow(); // pet 是 Cat
+     }
+   }
+   // 自定义类型守卫
+    interface Dog {
+      bark: () => void;
+    }
+
+    interface Cat {
+        meow: () => void;
+    }
+
+    function isDog(pet: Dog | Cat): pet is Dog {
+        return (pet as Dog).bark !== undefined;
+    }
+
+    function handlePet(pet: Dog | Cat) {
+        if (isDog(pet)) {
+            pet.bark(); // pet 是 Dog
+        } else {
+            pet.meow(); // pet 是 Cat
+        }
+    }
+    // 泛型结合类型守卫
+    function isArray<T>(arg: T): arg is T[] {
+        return Array.isArray(arg);
+    }
+
+    function processValue<T>(value: T) {
+        if (isArray(value)) {
+            console.log(`Array with length: ${value.length}`); // value 是 T[]
+        } else {
+            console.log(`Single value: ${value}`); // value 是 T
+        }
+    }
+
+    processValue([1, 2, 3]); // 输出: Array with length: 3
+    processValue(10); // 输出: Single value: 10
+   ```
+
+6. 看代码说输出：var 和 let 的区别，宏任务微任务，TS 的 interface 和 type 的区别
+7. 用没用过自定义 hooks
+8. 项目中怎么做的权限控制
+
+### ebay 外包
+
+```js
+// 请实现一个异步任务调度器，可以控制同时运行的异步任务数量。
+// 要求
+// * 构造一个 Scheduler 类，并实现 add 方法添加异步任务，每个任务返回一个 Promise。
+// * Scheduler 每次只能执行两个异步任务，当一个任务完成后，下一个任务才能开始执行。
+// * add 方法应返回一个 Promise，任务完成后该 Promise 将被 resolve
+
+class Scheduler {
+  constructor() {
+    this.tasks = [];
+    this.count = 2;
+    this.taskNum = 0;
+  }
+
+  add(task) {
+    this.tasks.push(task);
+
+    const start = () => {
+      return new Promise(async (resolve) => {
+        if (!this.tasks.length) return;
+        if (this.taskNum >= this.count) return;
+
+        const task = this.tasks.shift();
+        try {
+          this.taskNum++;
+          await task();
+          this.taskNum--;
+          resolve();
+        } catch (e) {
+          console.log(e);
+        } finally {
+          start();
+        }
+      });
+    };
+
+    start();
+  }
+}
+
+const timeout = (time) => new Promise((resolve) => setTimeout(resolve, time));
+const scheduler = new Scheduler();
+const addTask = (time, name) => {
+  scheduler.add(() => timeout(time).then(() => console.log(name)));
+};
+
+addTask(1000, "A"); // Output A after 1s
+addTask(500, "B"); // Output B after 0.5s
+addTask(300, "C"); // After task A or B is completed, output C after 0.3s
+addTask(400, "D"); // After task C is completed, output after 0.4s
+```
