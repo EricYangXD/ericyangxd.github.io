@@ -356,16 +356,19 @@ function catchRain(height) {
   if (!height.length) return 0;
   let left = 0;
   let right = height.length - 1;
+  // 记录左右两边的最大值，用于比较
   let leftMax = height[left];
   let rightMax = height[right];
   let res = 0;
-
+  // 双端指针，从两端向中间遍历，求出每个位置能接到的雨水量，然后求出最大值。
   while (left < right) {
+    // 更新左右两边的最大值
     leftMax = Math.max(leftMax, height[left]);
     rightMax = Math.max(rightMax, height[right]);
 
     // 看哪边低，低的那边存水
     if (leftMax < rightMax) {
+      // 此时右侧的最大高度大于等于左侧的最大高度，说明水至多可以存到左侧最大高度，所以当前这个坑对应的存水量为 leftMax - height[left]
       res += Math.max(0, leftMax - height[left]);
       left++;
     } else {
@@ -375,6 +378,27 @@ function catchRain(height) {
   }
   return res;
 }
+
+// 单调栈解法
+var trap = function (height) {
+  if (!height.length) return 0;
+  const stack = [];
+  let res = 0;
+
+  for (let i = 0; i < height.length; i++) {
+    const h = height[i];
+    while (stack.length && h >= height[stack[stack.length - 1]]) {
+      const bottom_h = height[stack.pop()];
+      if (!stack.length) break;
+
+      const left = stack[stack.length - 1];
+      dh = Math.min(height[left], h) - bottom_h;
+      res += dh * (i - left - 1);
+    }
+    stack.push(i);
+  }
+  return res;
+};
 ```
 
 ### 209. 长度最小的子数组
@@ -1351,6 +1375,8 @@ const longestPalindromeSubseq = (s) => {
 
 ### 1143. 最长公共子序列
 
+模板解法，适用于最长公共子序列问题。
+
 ```js
 var longestCommonSubsequence = function (text1, text2) {
   const m = text1.length;
@@ -1416,5 +1442,207 @@ var findContentChildren = function (g, s) {
     }
   }
   return count;
+};
+```
+
+### 1039. 多边形三角剖分的最低得分
+
+```js
+var minScoreTriangulation = function (values) {
+  const n = values.length;
+  const memo = new Map();
+  const dp = (i, j) => {
+    // 相邻的两个点
+    if (i + 2 > j) {
+      return 0;
+    }
+    // 正好形成一个三角形
+    if (i + 2 === j) {
+      return values[i] * values[j] * values[i + 1];
+    }
+    const key = i * n + j;
+
+    if (!memo.has(key)) {
+      let minScore = Number.MAX_VALUE;
+      for (let k = i + 1; k < j; k++) {
+        minScore = Math.min(minScore, values[i] * values[j] * values[k] + dp(i, k) + dp(k, j));
+      }
+      memo.set(key, minScore);
+    }
+    return memo.get(key);
+  };
+
+  return dp(0, n - 1);
+};
+```
+
+### 543. 二叉树的直径
+
+```js
+var diameterOfBinaryTree = function (root) {
+  let res = 0;
+
+  const dfs = (node) => {
+    if (!node) return -1;
+
+    const lMax = dfs(node.left) + 1;
+    const rMax = dfs(node.right) + 1;
+
+    res = Math.max(res, lMax + rMax);
+    return Math.max(lMax, rMax);
+  };
+
+  dfs(root);
+  return res;
+};
+```
+
+### 124. 二叉树中的最大路径和
+
+```js
+var maxPathSum = function (root) {
+  let res = -Infinity;
+
+  const dfs = (node) => {
+    if (!node) {
+      return 0;
+    }
+    const lMax = dfs(node.left);
+    const rMax = dfs(node.right);
+
+    res = Math.max(res, lMax + rMax + node.val);
+    // 链的节点值不能为负数，所以和0取最大值
+    return Math.max(Math.max(lMax, rMax) + node.val, 0);
+  };
+
+  dfs(root);
+  return res;
+};
+```
+
+### 337. 打家劫舍 III
+
+通过选或不选，枚举选哪个等方式来解决。
+
+```js
+var rob = function (root) {
+  if (!root) return 0;
+
+  const dfs = (node) => {
+    if (!node) return [0, 0];
+    const [l_rob, l_not_rob] = dfs(node.left);
+    const [r_rob, r_not_rob] = dfs(node.right);
+
+    const rob = node.val + l_not_rob + r_not_rob;
+    const not_rob = Math.max(l_rob, l_not_rob) + Math.max(r_rob, r_not_rob);
+
+    return [rob, not_rob];
+  };
+
+  return Math.max(...dfs(root));
+};
+```
+
+### 968. 监控二叉树
+
+```js
+var minCameraCover = function (root) {
+  const dfs = (node) => {
+    // 返回三个值：当前节点安装时的最小值，当前节点的父节点安装时的最小值，当前节点的子节点安装时的最小值
+    if (!node) return [Infinity, 0, 0];
+    const [l_choose, l_by_father, l_by_children] = dfs(node.left);
+    const [r_choose, r_by_father, r_by_children] = dfs(node.right);
+    // 当前节点安装的话，就要1加上左子树的最小值再加上右子树的最小值
+    const choose = Math.min(l_choose, l_by_father, l_by_children) + Math.min(r_choose, r_by_father, r_by_children) + 1;
+    // 当前节点的父节点安装的话，当前节点不用安装，只需考虑左子树装或不装的最小值加上右子树装或不装的最小值
+    const by_father = Math.min(l_choose, l_by_children) + Math.min(r_choose, r_by_children);
+    // 当前节点的子节点安装的话，只需考虑左边装右边不装，左边不装右边装，和左右都装的最小值
+    const by_children = Math.min(l_choose + r_by_children, l_by_children + r_choose, l_choose + r_choose);
+    return [choose, by_father, by_children];
+  };
+  // 根节点没有父节点
+  const [choose, by_father, by_children] = dfs(root);
+  return Math.min(choose, by_children);
+};
+```
+
+### 739. 每日温度
+
+1. 单调栈：
+
+```js
+// 逆序遍历
+var dailyTemperatures = function (temperatures) {
+  const len = temperatures.length;
+  const res = new Array(len).fill(0);
+  const stack = [];
+
+  for (let i = len - 1; i >= 0; i--) {
+    const t = temperatures[i];
+    // 栈里存的是对应温度的下标
+    // 使用单调栈，栈内元素要保持有序，从后往前比较，如果当前温度高于栈顶温度，栈顶元素出栈
+    // 出栈的这些元素说明后面没有比他们更大的了，初始化的res已经填上了0，就不用管了。
+    while (stack.length > 0 && t >= temperatures[stack[stack.length - 1]]) {
+      stack.pop();
+    }
+    // 如果当前温度低于栈顶温度，则计算当前的下标和栈顶温度对应的下标之差
+    if (stack.length > 0) {
+      res[i] = stack[stack.length - 1] - i;
+    }
+    stack.push(i);
+  }
+
+  return res;
+};
+
+// 顺序遍历
+var dailyTemperatures = function (temperatures) {
+  const len = temperatures.length;
+  const res = new Array(len).fill(0);
+  const stack = [];
+  // 从左到右遍历
+  for (let i = 0; i < len; i++) {
+    const t = temperatures[i];
+    while (stack.length > 0 && t > temperatures[stack[stack.length - 1]]) {
+      // 保证栈顶元素是最大的，所以如果当前遍历的这个元素t如果小于栈顶元素，则说明它并不满足条件，反之，如果他比栈顶的元素大，那说明他比栈内所有元素都大，所以可以计算出当前下标和栈顶下标的差值，并更新res
+      const j = stack.pop();
+      res[j] = i - j;
+    }
+    stack.push(i);
+  }
+  return res;
+};
+```
+
+### 239. 滑动窗口最大值
+
+1. 暴力解法：根据窗口大小分割子数组，求出每个子数组的最大值并记录
+2. 单调队列：维护一个单调队列，队头元素最大，根据窗口的大小，达到阈值之后每滑动一次就更新队列入队和出队，使其保持单调递减，并记录此时队头最大元素
+
+```js
+var maxSlidingWindow = function (nums, k) {
+  // 单调队列：及时去掉无用数据，保证双端队列有序
+  const res = [];
+  const queue = [];
+  for (let i = 0; i < nums.length; i++) {
+    const num = nums[i];
+
+    // in 入（元素进入队尾，同时维护队列单调性）
+    while (queue.length && num >= nums[queue[queue.length - 1]]) {
+      queue.pop(); // 维护 q 的单调性
+    }
+    queue.push(i); // 入队
+    // out 出（元素离开队首）
+    if (i - queue[0] >= k) {
+      // 队首已经离开窗口了
+      queue.shift();
+    }
+    // record 记录/维护答案（根据队首）
+    if (i >= k - 1) {
+      // 由于队首到队尾单调递减，所以窗口最大值就是队首
+      res.push(nums[queue[0]]);
+    }
+  }
+  return res;
 };
 ```

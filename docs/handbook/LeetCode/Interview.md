@@ -1636,16 +1636,40 @@ PS：
 
 #### 方法
 
-1. 减少入口文件体积：webpack 代码分割，`React.lazy+import()+Suspense`，代码压缩，css 压缩去重，关键 CSS 提取直接内联插入到 html 中，tree-shaking（需要 ESM 标准代码）
-2. 静态资源本地缓存或 cdn：OSS+CDN，强缓存 Expire、Cache-Control：Max-Age=36000，协商缓存：Last-Modified/If-Modified-Since、Etag/If-None-Match，策略缓存：service-worker
-3. UI 框架、第三方库等按需加载：antd/es/xx、lodash-es 等，精简三方库，库内容按需导入使用`babel-plugin-import`等插件，或者 shadcn 新型 UI 库，移除不必要的国际化文件
-4. 避免组件重复打包：提取公共组件，公共资源 vender 抽离，使用`webpack-bundle-analyzer`分析打包情况
+1. 减少入口文件体积：webpack 代码分割-多入口 entry+动态 import()导入+SplitChunksPlugin 插件 optimization.splitChunks+，`React.lazy+import()+Suspense`，代码压缩，css 压缩去重，关键 CSS 提取直接内联插入到 html 中，tree-shaking（需要 ESM 标准代码）
+2. 静态资源本地缓存或 cdn：OSS+CDN-比如 vue.config.js 中配置：configureWebpack.externals 把第三方库排除出打包结果后续在 html 中通过 CDN 引入，强缓存 Expire、Cache-Control：Max-Age=36000，协商缓存：Last-Modified/If-Modified-Since、Etag/If-None-Match，策略缓存：service-worker
+3. UI 框架、第三方库等按需加载：antd/es/xx、lodash-es 等，精简三方库，库内容按需导入使用`babel-plugin-import`等插件，或者 shadcn 新型 UI 库，移除不必要的国际化文件，使用 React.memo 缓存组件渲染结果，使用 React.forwardRef 避免闭包，
+4. 避免组件重复打包：提取公共组件，公共资源 vendors 抽离，使用`webpack-bundle-analyzer`分析打包情况，通过 DllPlugin 将依赖单独打包（当公司没有很好的 CDN 资源或不支持 CDN 时，就可以考虑使用 DllPlugin，替换掉 externals，开发时项目启动也更快）
 5. 图片资源压缩：tinyPNG 压缩图片、`url-loader` 转 icon 为 base64、雪碧图减少 http 请求，使用 webp 格式等，
 6. 开启 gzip 压缩：webpack 使用：`compression-webpack-plugin`插件配置相应的压缩算法、压缩文件类型、压缩后的文件名、文件体积临界值、压缩率等，Nginx 开启 gzip，通过`Response Headers` 中可以看到 `Content-Encoding: gzip`验证是否开启
 7. 使用 defer、async、importance 等关键字控制相应资源的加载优先级，首屏无关资源延迟加载或者用 preload、prefetch 进行预加载，prrender 预渲染，减少首屏白屏，滚动加载、可视区域局部渲染、
 8. 字体压缩：font-spider 移除无用字体，webfont 处理字体加载，fontmin 压缩字体等
 9. SSR 服务端渲染，首屏直出。局部 SSR。
 10. 后端优化接口响应速度，合并接口，减少请求次数，使用 http/2 服务端推送等技术。
+
+> 提高打包速度：
+
+- 由于运行在 Node.js 之上的 webpack 是单线程模型的，我们需要 webpack 能同一时间处理多个任务，发挥多核 CPU 电脑的威力，HappyPack 就能实现多线程打包，它把任务分解给多个子进程去并发的执行，子进程处理完后再把结果发送给主进程，来提升打包速度。
+
+```js
+// vue.config.js
+const HappyPack = require("happypack");
+const os = require("os");
+// 开辟一个线程池，拿到系统CPU的核数，happypack 将编译工作利用所有线程
+const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
+
+module.exports = {
+  configureWebpack: {
+    plugins: [
+      new HappyPack({
+        id: "happybabel",
+        loaders: ["babel-loader"],
+        threadPool: happyThreadPool,
+      }),
+    ],
+  },
+};
+```
 
 ##### 预加载
 
@@ -2137,7 +2161,16 @@ const vdom = {
 
 #### Vue 和 React 的区别
 
+1. 原理实现上的区别
+2. 使用上的区别
+3. 性能上的区别
+4. 周边生态的区别
+
 #### Vue 和 React 的生命周期
+
+1. Vue2 的生命周期：beforeCreate -> created -> beforeMount -> mounted -> beforeUpdate -> updated -> beforeDestroy -> destroyed，activated -> deactivated，errorCaptured。
+2. Vue3 的生命周期：setup -> onBeforeMount -> onMounted -> onBeforeUpdate -> onUpdated -> onBeforeUnmount -> onUnmounted -> onActivated -> onDeactivated -> onErrorCaptured -> onRenderTracked(dev only) -> onRenderTriggered(dev only) -> onServerPrefetch(SSR only)。
+3. React 的生命周期：constructor(props) -> static getDerivedStateFromProps(nextProps, prevState) -> ~~componentWillMount~~ -> render -> componentDidMount -> ~~componentWillReceiveProps~~ -> shouldComponentUpdate(nextProps, nextState) -> render -> ~~componentWillUpdate~~ -> getSnapshotBeforeUpdate(prevProps, prevState) -> componentDidUpdate(prevProps, prevState, snapshot) -> componentWillUnmount。
 
 ##### React
 
@@ -2172,9 +2205,68 @@ const vdom = {
 
 #### Vue 和 React 渲染组件的方式有何区别
 
+> React 渲染机制
+
+- 虚拟 DOM：React 使用虚拟 DOM 来提高性能。组件的状态或属性改变时，React 会先在虚拟 DOM 中计算出差异（diffing），然后再将变化应用于实际的 DOM。
+- 组件生命周期：React 通过生命周期方法（如 `componentDidMount`、`shouldComponentUpdate` 等）来控制组件的渲染和更新。
+- 单向数据流：React 的数据流是单向的，组件通过 props 接收数据，状态变化会触发重新渲染。
+- 组件通常使用 JavaScript 函数或类来定义，采用 JSX 语法书写 UI。
+- 组件的渲染依赖于 `render()` 方法或函数返回 JSX。
+- 使用 `shouldComponentUpdate()` 方法或 `React.memo()` 进行组件更新优化。
+- 在大型应用中，通过 `React.lazy` 和 `React.Suspense` 实现代码分割和懒加载。
+
+> Vue 渲染机制
+
+- 响应式系统：Vue 使用响应式数据绑定，数据变化时，视图会自动更新，而不需要手动处理 DOM 更新。Vue 内部使用了 `Object.defineProperty`/`Proxy` 拦截 属性/对象 的 getter/setter 来实现数据的观察。
+- 虚拟 DOM：Vue 也使用虚拟 DOM，但它的实现方式相对 React 更加简洁。Vue 在渲染过程中会生成一个虚拟 DOM 树并进行 diffing，最终将最小的差异应用于实际的 DOM。
+- 双向数据绑定：Vue 支持双向数据绑定，通过 v-model 等指令，可以在视图和数据之间建立直接的双向绑定。
+- 组件定义通常使用 .vue 文件，包含 `<template>`、`<script>` 和 `<style>` 三个部分。
+- 组件的渲染通过模板语言定义，使用 Vue 的指令（如 `v-if`、`v-for`）来实现。
+- 通过 `v-once`、`v-memo` 等指令进行性能优化，避免不必要的重新渲染。
+- 使用计算属性（computed properties）和侦听器（watchers）来优化数据更新和视图渲染。
+
+#### React.lazy 和 React.Suspense
+
+1. React.lazy 是一个函数，用于定义动态导入的组件。它允许你按需加载组件，而不是在应用启动时一次性加载所有组件，从而减少初始加载时间。React.lazy 只能用于组件，不能用于普通的 JavaScript 函数。
+
+   - 代码分割：React.lazy 使用 Webpack 的动态导入功能，将组件分割成独立的代码块。当组件被需要时，才会加载这个代码块。
+   - 懒加载：它返回一个可以在渲染时使用的 React 组件。这种组件在第一次渲染时不会立即加载，而是等到真正需要显示该组件时才加载。
+
+```js
+const MyComponent = React.lazy(() => import("./MyComponent"));
+```
+
+2. React.Suspense 是一个组件，用于处理懒加载组件时的加载状态。它允许你指定一个 fallback 属性，即在组件加载过程中显示的内容（通常是加载指示器或占位符）。在使用 Suspense 时，建议结合错误边界（Error Boundaries）来处理加载过程中的错误。这样可以保证如果组件加载失败，可以优雅地处理错误情况。在 React 18 中，Suspense 还可以配合新的数据获取 API 使用，更加增强了异步和并发渲染的能力。
+
+   - 加载状态管理：当使用 React.lazy 加载组件时，React 会在组件加载的过程中触发 Suspense 的加载状态。React.Suspense 会捕获这个加载状态，并在组件加载完成之前显示 fallback 内容。
+   - Promise 处理：当 React.lazy 返回的 Promise 被解析时，Suspense 会重新渲染其子组件，以显示加载完成后的内容。
+   - 并发特性：在 React 18 及以后的版本中，Suspense 还与并发特性结合，使得在数据获取和渲染过程中，React 可以更智能地处理 UI 更新。
+
+```js
+<React.Suspense fallback={<div>Loading...</div>}>
+  <MyComponent />
+</React.Suspense>
+```
+
 #### 哪个 React 生命周期可以跳过子组件渲染
 
+1. React 类组件中：`shouldComponentUpdate(nextProps, nextState) {return nextProps.value !== this.props.value;}`，只在特定条件下更新。
+2. 函数组件中：使用 `React.memo()` 来包裹组件，通过传入一个比较函数来决定是否更新。
+
+```js
+const MyComponent = React.memo(
+  ({ value }) => {
+    return <div>{value}</div>;
+  },
+  (prevProps, nextProps) => {
+    return prevProps.value === nextProps.value; // 如果值相等，不更新
+  }
+);
+```
+
 #### React 类组件中的 setState 和函数组件中 setState 的区别
+
+#### React 的 Reconciliation 过程是如何工作的
 
 #### forEach 和 map 的区别
 
@@ -2184,7 +2276,7 @@ const vdom = {
 
 #### Symbol 概念
 
-#### 防抖、节流 概念
+#### 防抖、节流
 
 #### 重绘与重排
 
@@ -3675,6 +3767,13 @@ fetchUrls(urls, 3).then((results) => {
    - 父组件中的监听是通过`v-model`自动实现的，监听的属性名即`v-model`传的参数的名称。
 8. `$refs`：父组件通过 $refs 获取子组件的实例，从而调用子组件的方法或访问子组件的数据。
 
+### Vue 3 Proxy 响应式系统的优化
+
+1. Proxy 使 Vue3 的响应式系统更高效，支持新增属性监听、数组操作拦截等。
+2. 依赖按需收集：Vue2 在初始化时遍历整个对象，而 Vue3 采用 `Lazy Proxy（惰性代理）`只有在访问属性时才进行代理，减少性能消耗。
+3. 自动清理无效依赖：Vue3 采用 `WeakMap + Set` 进行依赖存储，避免内存泄漏，Vue2 需要手动管理依赖删除。
+4. 只更新受影响的组件 Vue3 的 `trigger()` 机制让每个组件只更新它所依赖的部分，避免 Vue2 中全局重新计算的问题。
+
 ## 消除异步的传染性
 
 及如果一个函数调用了另一个异步的函数，那么这个函数也会变成异步的。
@@ -4239,9 +4338,9 @@ Node.js 内存泄漏是指程序在执行过程中不再使用的内存没有被
 
 ## 捕获和冒泡事件触发顺序
 
-捕获阶段：事件从外层元素传播到目标元素。
-目标阶段：目标元素的事件处理程序被调用。
-冒泡阶段：事件从目标元素向外层元素传播。
+- 捕获阶段：事件从外层元素传播到目标元素。
+- 目标阶段：目标元素的事件处理程序被调用。
+- 冒泡阶段：事件从目标元素向外层元素传播。
 
 默认情况下，addEventListener 的第三个参数为 false，表示使用冒泡阶段。如果将其设置为 true，则事件将在捕获阶段被处理。
 
@@ -4252,7 +4351,6 @@ Node.js 内存泄漏是指程序在执行过程中不再使用的内存没有被
 3. 使用 Flexbox 或 CSS Grid 布局可以更灵活地创建响应式设计。
 4. 响应式图表：如果数据大屏中包含图表，确保使用支持响应式的图表库：Chart.js：可以自动适应容器大小。ECharts：提供了良好的响应式支持，可以通过配置自动调整图表大小。AntV：企业级数据可视化解决方案。
 5. 动态调整布局：可以使用 JavaScript 监听窗口大小变化，动态调整布局，监听 resize 事件，做相应处理。
-6.
 
 ## 浏览器访问 url 过程
 

@@ -348,3 +348,28 @@ console.log("Base64 String:", base64Image);
 ```bash
 base64 -i ./image.jpg > image_base64.txt
 ```
+
+### 计算屏幕刷新率 FPS
+
+`window.requestAnimationFrame()` 方法会告诉浏览器你希望执行一个动画并返回一个 requestID，通过`window.cancelAnimationFrame(requestID)`可以取消这个请求。它要求浏览器在下一次重绘之前，调用用户提供的回调函数。回调函数只接收一个参数：上一帧渲染的结束时间，这个时间是基于`performance.timeOrigin`的毫秒数。
+
+在 JavaScript 中，我们可以通过获取当前时间戳来计算屏幕的刷新率。以下是一个简单的示例：
+
+```javascript
+let lastTime = 0;
+let refreshRate = 0;
+
+function measureRefreshRate() {
+  requestAnimationFrame(function (time) {
+    if (lastTime > 0) {
+      refreshRate = 1000 / (time - lastTime);
+      console.log("屏幕刷新率大约是:", refreshRate, "Hz");
+    }
+    lastTime = time;
+    measureRefreshRate();
+  });
+}
+
+// 开始测量
+measureRefreshRate();
+```

@@ -20,6 +20,8 @@ date: "2022-02-10"
 
 ### 无界
 
+### pnpm workspace
+
 ### qiankun
 
 qiankun 是一个基于 single-spa 的微前端实现库，旨在帮助大家能更简单、无痛的构建一个生产可用微前端架构系统。目标直指巨石应用业务难题，旨在解决单体应用在一个相对长的时间跨度下，由于参与的人员、团队的增多、变迁，从一个普通应用演变成一个巨石应用 (Frontend Monolith) 后，随之而来的应用不可维护的问题。这类问题在企业级 Web 应用中尤其常见。
@@ -75,3 +77,47 @@ qiankun 的微应用改造相对比较简单，一般在开启严格沙箱模式
 
 1. 首先是基础页面的 CSS，采用的是成熟的 CSS module 方案，简单来说就是将 CSS 变成局部生效，每个 class 生成一个独一无二的名字。从最早的 Less、SASS，到后来的 PostCSS，再到最近的 CSS in JS，都是为了解决 CSS 全局生效带来的副作用。
 2. [参考这里](https://mp.weixin.qq.com/s/3SogWNKKJvbaQbvPMg7lVg)
+
+### 微前端集成优化
+
+1. 减少子应用体积：让所有子应用体积更小，加载更快，在代码层的优化，比如按需加载、懒加载、静态资源优化、cdn 等的都是大家熟知的方案
+
+   - 打包优化：gzip 压缩和依赖共享
+   - 代码分割：按需加载和动态加载
+   - 静态资源优化：图片压缩、字体压缩、css 压缩、js 压缩（tree-shaking 等）等
+   - cdn 加速：通过 cdn 加速静态资源，减少请求次数，提高性能
+   - 缓存策略：缓存静态资源，减少请求次数，提高性能
+   - 错误处理：错误处理，如 404、500 等，优化用户体验
+   - 监控：监控系统，如监控用户访问量、页面性能、错误日志等，优化用户体验
+   - 优化：如减少请求次数、减少请求体积、减少渲染时间、减少内存占用等，优化用户体验
+
+2. 影响一个前端服务体积、加载速度的主要文件就是第三方依赖`chunk-vendors.js`
+
+#### 依赖共享
+
+未优化时：假设我们有非常多的子应用，每个子应用的 node_modlues 依赖打包也是单独的，在请求这个子应用时，这个依赖文件也是必须请求的。但是很多子应用的第三方依赖都是重复的。比如 vue 的底层依赖、store 的依赖、eslint 的依赖及一些常用的工具依赖。
+
+1. 外部化依赖：最简单的实现方案就是可以将常用的依赖库配置为外部依赖，不打包在每个子应用中，而是通过 CDN 加载。当我们加载主应用时，主应用通过 CDN 的方式请求了 vue 的底层依赖、一些常用的公共库等所有依赖。当我们加载子应用时，和主应用相同的这些依赖因为已经请求过了，浏览器会通过缓存机制直接读取已经缓存的数据，避免了重新请求，子应用的加载速度也得到了进一步的提升！
+   - 使用`vite-plugin-cdn-import`
+
+```js
+// vite.config.js
+import { defineConfig } from "vite";
+import cdnImport from "vite-plugin-cdn-import";
+
+export default defineConfig({
+  plugins: [
+    cdnImport({
+      imports: [
+        {
+          // 库名，比如 `react`
+          libraryName: "react", // 库的CDN地址，比如 `https://cdn.jsdelivr.net/npm/react@17.0.1/umd/react.production.min.js`
+          url: "https://cdn.jsdelivr.net/npm/react@17.0.1/umd/react.production.min.js", // 生产环境是否使用CDN
+          prod: true, // 开发环境是否使用CDN
+          dev: false,
+        }, // 可以继续添加其他库的配置...
+      ],
+    }),
+  ],
+});
+```

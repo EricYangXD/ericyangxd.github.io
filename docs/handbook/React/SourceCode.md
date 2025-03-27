@@ -68,7 +68,7 @@ date: "2021-12-28"
 
 官网：「确保 Hook 在每一次渲染中都按照相同的顺序被调用！让 React 在多次的 useState 和 useEffect 调用之间保持 hook 状态的正确。」
 
-React 用了链表这种数据结构来存储 FunctionComponent 里面的 hooks，在组件第一次渲染的时候，为每个 hooks 都创建了一个对象，最终形成了一个链表。
+React 用了链表这种数据结构来存储函数组件里面的 hooks，在组件第一次渲染的时候，为每个 hooks 都创建了一个对象，最终形成了一个链表。
 
 Hook 对象的 memoizedState 属性就是用来存储组件上一次更新后的 state，next 毫无疑问是指向下一个 hook 对象。在组件更新的过程中，hooks 函数执行的顺序是不变的，就可以根据这个链表拿到当前 hooks 对应的 Hook 对象，函数式组件就是这样拥有了 state 的能力。
 
@@ -96,8 +96,8 @@ renderWithHooks(
 - 对于初始化是没有 current 树的，之后完成一次组件更新后，会把当前 workInProgress 树赋值给 current 树。
 - 所有的函数组件执行，都是在这里方法中，首先我们应该明白几个感念，这对于后续我们理解 useState 是很有帮助的。
 
-  1. current fiber 树: 当完成一次渲染之后，会产生一个 current 树,current 会在 commit 阶段替换成真实的 Dom 树。
-  2. workInProgress fiber 树: 即将调和渲染的 fiber 树。再一次新的组件更新过程中，会从 current 复制一份作为 workInProgress,更新完毕后，将当前的 workInProgress 树赋值给 current 树。
+  1. current fiber 树: 当完成一次渲染之后，会产生一个 current 树，current 会在 commit 阶段替换成真实的 Dom 树。
+  2. workInProgress fiber 树: 即将调和渲染的 fiber 树。在一次新的组件更新过程中，会从 current 复制一份作为 workInProgress，更新完毕后，将当前的 workInProgress 树赋值给 current 树。
   3. workInProgress.memoizedState: 在 class 组件中，memoizedState 存放 state 信息，在 function 组件中，这里可以提前透漏一下，memoizedState 在一次调和渲染过程中，以链表的形式存放 hooks 信息。
   4. workInProgress.expirationTime: react 用不同的 expirationTime，来确定更新的优先级。
   5. currentHook : 可以理解 current 树上的指向的当前调度的 hooks 节点。
@@ -106,28 +106,28 @@ renderWithHooks(
 - renderWithHooks 函数主要作用:
 
   1. 首先先置空即将调和渲染的 workInProgress 树的 memoizedState 和 updateQueue，为什么这么做，因为在接下来的函数组件执行过程中，要把新的 hooks 信息挂载到这两个属性上，然后在组件 commit 阶段，将 workInProgress 树替换成 current 树，替换真实的 DOM 元素节点。并在 current 树保存 hooks 信息。
-  2. 然后根据当前函数组件是否是第一次渲染，赋予 ReactCurrentDispatcher.current 不同的 hooks,终于和上面讲到的 ReactCurrentDispatcher 联系到一起。对于第一次渲染组件，那么用的是 HooksDispatcherOnMount hooks 对象。对于渲染后，需要更新的函数组件，则是 HooksDispatcherOnUpdate 对象，那么两个不同就是通过 current 树上是否 memoizedState（hook 信息）来判断的。如果 current 不存在，证明是第一次渲染函数组件。
+  2. 然后根据当前函数组件是否是第一次渲染，赋予 ReactCurrentDispatcher.current 不同的 hooks，终于和上面讲到的 ReactCurrentDispatcher 联系到一起。对于第一次渲染组件，那么用的是 HooksDispatcherOnMount hooks 对象。对于渲染后，需要更新的函数组件，则是 HooksDispatcherOnUpdate 对象，那么两个不同就是通过 current 树上是否有 memoizedState（hook 信息）来判断的。如果 current 不存在，证明是第一次渲染函数组件。
   3. 接下来，调用`Component(props, secondArg);`执行我们的函数组件，我们的函数组件在这里真正的被执行了，然后我们写的 hooks 被依次执行，把 hooks 信息依次保存到 workInProgress 树上。
   4. 接下来，也很重要，将 ContextOnlyDispatcher 赋值给 ReactCurrentDispatcher.current，由于 js 是单线程的，也就是说我们没有在函数组件中，调用的 hooks，都是 ContextOnlyDispatcher 对象上 hooks，react-hooks 就是通过这种函数组件执行赋值不同的 hooks 对象方式，判断在 hooks 执行是否在函数组件内部，捕获并抛出异常的。
 
 - 初始化阶段 react-hooks 做的事情：在一个函数组件第一次渲染执行上下文过程中，每个 react-hooks 执行，都会调用`mountWorkInProgressHook()`产生一个 hook 对象=>`workInProgressHook`，并形成链表结构，绑定在 workInProgress 的 memoizedState 属性上，然后 react-hooks 上的状态，绑定在当前 hooks 对象的 memoizedState 属性上。对于 effect 副作用钩子，会绑定在 workInProgress.updateQueue 上，等到 commit 阶段，dom 树构建完成，再执行每个 effect 副作用钩子。
 - hook 对象中都保留了哪些信息:
 
-  - memoizedState： useState 中 保存 state 信息 ｜ useEffect 中 保存着 effect 对象 ｜ useMemo 中 保存的是缓存的值和 deps ｜ useRef 中保存的是 ref 对象。
-  - baseState : usestate 和 useReducer 中 保存最新的更新队列。
-  - baseState ： usestate 和 useReducer 中,一次更新中 ，产生的最新 state 值。
-  - queue ：保存待更新队列 pendingQueue ，更新函数 dispatch 等信息。
-  - next: 指向下一个 hooks 对象。
+  - memoizedState：useState 中 保存 state 信息 ｜ useEffect 中 保存着 effect 对象 ｜ useMemo 中 保存的是缓存的值和 deps ｜ useRef 中保存的是 ref 对象。
+  - baseState：usestate 和 useReducer 中 保存最新的更新队列。
+  - baseState：usestate 和 useReducer 中，一次更新中，产生的最新 state 值。
+  - queue：保存待更新队列 pendingQueue，更新函数 dispatch 等信息。
+  - next：指向下一个 hooks 对象。
 
 - 一旦在条件语句中声明 hooks，在下一次函数组件更新，hooks 链表结构，将会被破坏，current 树的 memoizedState 缓存 hooks 信息，和当前 workInProgress 不一致，如果涉及到读取 state 等操作，就会发生异常。
 - hooks 通过什么来证明唯一性的，答案 ，通过 hooks 链表顺序。
-- 在无状态组件中，useState 和 useReducer 触发函数更新的方法都是 dispatchAction,useState，可以看成一个简化版的 useReducer。
-- dispatchAction 第一个参数和第二个参数，已经被 bind 给改成 currentlyRenderingFiber 和 queue,我们传入的参数是第三个参数 action。
-- 无论是类组件调用 setState,还是函数组件的 dispatchAction ，都会产生一个 update 对象，里面记录了此次更新的信息，然后将此 update 放入待更新的 pending 队列中，dispatchAction 第二步就是判断当前函数组件的 fiber 对象是否处于渲染阶段，如果处于渲染阶段，那么不需要我们在更新当前函数组件，只需要更新一下当前 update 的 expirationTime 即可。
-- 如果当前 fiber 没有处于更新阶段。那么通过调用 lastRenderedReducer 获取最新的 state,和上一次的 currentState，进行浅比较，如果相等，那么就退出，这就证实了为什么 useState，两次值相等的时候，组件不渲染的原因了，这个机制和 Component 模式下的 setState 有一定的区别。
+- 在无状态组件中，useState 和 useReducer 触发函数更新的方法都是 dispatchAction、useState，可以看成一个简化版的 useReducer。
+- dispatchAction 第一个参数和第二个参数，已经被 bind 给改成 currentlyRenderingFiber 和 queue，我们传入的参数是第三个参数 action。
+- 无论是类组件调用 setState，还是函数组件的 dispatchAction，都会产生一个 update 对象，里面记录了此次更新的信息，然后将此 update 放入待更新的 pending 队列中，dispatchAction 第二步就是判断当前函数组件的 fiber 对象是否处于渲染阶段，如果处于渲染阶段，那么不需要我们在更新当前函数组件，只需要更新一下当前 update 的 expirationTime 即可。
+- 如果当前 fiber 没有处于更新阶段。那么通过调用 lastRenderedReducer 获取最新的 state，和上一次的 currentState，进行浅比较，如果相等，那么就退出，这就证实了为什么 useState，两次值相等的时候，组件不渲染的原因了，这个机制和 Component 模式下的 setState 有一定的区别。
 - 如果两次 state 不相等，那么调用 scheduleUpdateOnFiber 调度渲染当前 fiber，scheduleUpdateOnFiber 是 react 渲染更新的主要函数。
 - 对于更新阶段，说明上一次 workInProgress 树已经赋值给了 current 树。存放 hooks 信息的 memoizedState，此时已经存在 current 树上，react 对于 hooks 的处理逻辑和 fiber 树逻辑类似。
-- 对于一次函数组件更新，当再次执行 hooks 函数的时候，比如 useState(0) ，首先要从 current 的 hooks 中找到与当前 workInProgressHook 对应的 currentHooks，然后复制一份 currentHooks 给 workInProgressHook，接下来 hooks 函数执行的时候，把最新的状态更新到 workInProgressHook，保证 hooks 状态不丢失。
+- 对于一次函数组件更新，当再次执行 hooks 函数的时候，比如 useState(0)，首先要从 current 的 hooks 中找到与当前 workInProgressHook 对应的 currentHooks，然后复制一份 currentHooks 给 workInProgressHook，接下来 hooks 函数执行的时候，把最新的状态更新到 workInProgressHook，保证 hooks 状态不丢失。
 - 所以函数组件每次更新，每一次 react-hooks 函数执行，都需要有一个函数去做上面的操作，这个函数就是 `updateWorkInProgressHook()`=>`workInProgressHook`。
 - 首先如果是第一次执行 hooks 函数，那么从 current 树上取出 memoizedState ，也就是旧的 hooks。
 - 然后声明变量 nextWorkInProgressHook，这里应该值得注意，正常情况下，一次 renderWithHooks 执行，workInProgress 上的 memoizedState 会被置空，hooks 函数顺序执行，nextWorkInProgressHook 应该一直为 null，那么什么情况下 nextWorkInProgressHook 不为 null，也就是当一次 renderWithHooks 执行过程中，执行了多次函数组件 -- 实际就是判定，如果当前函数组件执行后，当前函数组件的还是处于渲染优先级，说明函数组件又有了新的更新任务，那么循坏执行函数组件。这就造成了上述的，nextWorkInProgressHook 不为 null 的情况。
@@ -398,7 +398,7 @@ useInsertionEffect 是在 React v18 新添加的 hooks ，它的用法和 useEff
 }
 ```
 
-React 提供两种方法创建 Ref 对象，类组件 React.createRef，函数组件 useRef。由于函数组件每次更新都是一次新的开始，所有变量重新声明，所以 useRef 不能像 createRef 把 ref 对象直接暴露出去，如果这样每一次函数组件执行就会重新声明 Ref，此时 ref 就会随着函数组件执行被重置，这就解释了在函数组件中为什么不能用 createRef 的原因。为了解决这个问题，hooks 和函数组件对应的 fiber 对象建立起关联，将 useRef 产生的 ref 对象挂到函数组件对应的 fiber 上，函数组件每次执行，只要组件不被销毁，函数组件对应的 fiber 对象一直存在，所以 ref 等信息就会被保存下来。
+React 提供两种方法创建 Ref 对象，类组件 React.createRef 和函数组件 useRef。由于函数组件每次更新都是一次新的开始，所有变量重新声明，所以 useRef 不能像 createRef 把 ref 对象直接暴露出去，如果这样每一次函数组件执行就会重新声明 Ref，此时 ref 就会随着函数组件执行被重置，这就解释了在函数组件中为什么不能用 createRef 的原因。为了解决这个问题，hooks 和函数组件对应的 fiber 对象建立起关联，将 useRef 产生的 ref 对象挂到函数组件对应的 fiber 上，函数组件每次执行，只要组件不被销毁，函数组件对应的 fiber 对象一直存在，所以 ref 等信息就会被保存下来。
 
 ```ts
 interface MutableRefObject<T> {
@@ -727,9 +727,12 @@ dom diff 的大概逻辑 【核心】
   - 深入组件进行递归 tree diff
 
 - element diff
+
   - 先看标签名一不一致，不一致直接替换
   - 标签名一致比较属性
   - 深入标签进行递归 tree diff
+
+- 对于列表的更新
 
 ## fiber
 
@@ -1247,12 +1250,12 @@ Reactv16 为了解决卡顿问题引入了 fiber，为什么它能解决卡顿�
 
 ### element,fiber,dom 三种什么关系？
 
-- element 是 React 视图层在代码层级上的表象，也就是开发者写的 jsx 语法，写的元素结构，都会被创建成 element 对象的形式。上面保存了 props ， children 等信息。
+- element 是 React 视图层在代码层级上的表象，也就是开发者写的 jsx 语法，写的元素结构，都会被创建成 element 对象的形式。上面保存了 props，children 等信息。
 - DOM 是元素在浏览器上给用户直观的表象。
 - fiber 可以说是是 element 和真实 DOM 之间的交流枢纽站，一方面每一个类型 element 都会有一个与之对应的 fiber 类型，element 变化引起更新流程都是通过 fiber 层面做一次调和改变，然后对于元素，形成新的 DOM 做视图渲染。
-- 每一个 fiber 是通过 return ， child ，sibling 三个属性建立起联系的。
-  - return： 指向父级 Fiber 节点。
-  - child： 指向子 Fiber 节点。
+- 每一个 fiber 是通过 return，child，sibling 三个属性建立起联系的。
+  - return：指向父级 Fiber 节点。
+  - child：指向子 Fiber 节点。
   - sibling：指向兄弟 fiber 节点。
 
 ### Fiber 更新机制
@@ -1260,9 +1263,9 @@ Reactv16 为了解决卡顿问题引入了 fiber，为什么它能解决卡顿�
 #### 初始化
 
 1. 第一步：创建 fiberRoot 和 rootFiber。第一次挂载的过程中，会将 fiberRoot 和 rootFiber 建立起关联。
-   - fiberRoot：首次构建应用， 创建一个 fiberRoot ，作为整个 React 应用的根基。
-   - rootFiber： 如下通过 ReactDOM.render 渲染出来的，如上 Index 可以作为一个 rootFiber。一个 React 应用可以有多个 ReactDOM.render 创建的 rootFiber ，但是只能有一个 fiberRoot（应用根节点）。`ReactDOM.render(<Index/>, document.getElementById('app'));`
-2. 第二步：workInProgress 和 current。开始到正式渲染阶段，会进入 beginwork 流程。回到 rootFiber 的渲染流程，首先会复用当前 current 树（ rootFiber ）的 alternate 作为 workInProgress ，如果没有 alternate （初始化的 rootFiber 是没有 alternate ），那么会创建一个 fiber 作为 workInProgress 。会用 alternate 将新创建的 workInProgress 与 current 树建立起关联。这个关联过程只有初始化第一次创建 alternate 时候进行。
+   - fiberRoot：首次构建应用，创建一个 fiberRoot，作为整个 React 应用的根基。
+   - rootFiber：如下通过 ReactDOM.render 渲染出来的，如上 Index 可以作为一个 rootFiber。一个 React 应用可以有多个 ReactDOM.render 创建的 rootFiber，但是只能有一个 fiberRoot（应用根节点）。`ReactDOM.render(<Index/>, document.getElementById('app'));`
+2. 第二步：workInProgress 和 current。开始到正式渲染阶段，会进入 beginwork 流程。回到 rootFiber 的渲染流程，首先会复用当前 current 树（ rootFiber ）的 alternate 作为 workInProgress，如果没有 alternate（初始化的 rootFiber 是没有 alternate ），那么会创建一个 fiber 作为 workInProgress。会用 alternate 将新创建的 workInProgress 与 current 树建立起关联。这个关联过程只有初始化第一次创建 alternate 时候进行。
    - workInProgress 是：正在内存中构建的 Fiber 树称为 workInProgress Fiber 树。在一次更新中，所有的更新都是发生在 workInProgress 树上。在一次更新之后，workInProgress 树上的状态是最新的状态，那么它将变成 current 树用于渲染视图。
    - current：正在视图层渲染的树叫做 current 树。
 3. 第三步：深度调和子节点，渲染视图。在新创建的 alternate 上，完成整个 fiber 树的遍历，包括 fiber 的创建。最后会以 workInProgress 作为最新的渲染树，fiberRoot 的 current 指针指向 workInProgress 使其变为 current Fiber 树。到此完成初始化流程。

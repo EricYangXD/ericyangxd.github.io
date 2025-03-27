@@ -1700,3 +1700,158 @@ window.addEventListener("load", (event) => {
 // complete
 // load
 ```
+
+## 如何微调和修改前端依赖包
+
+目前实践了 2 种方式作为依赖微调如下:
+
+1. 直接把依赖下载下来，然后修改相关的文件，然后重新打包。或者把这个依赖变成代码里的工具函数或者某个本地模块，然后修改相关的代码。
+2. 通过脚本在`npm`的`postinstall`阶段去替换现有的文件，或者替换字符串;
+3. 通过`patch-package`直接在 node_modules 修改文件，然后`patch-package`生成 patch 文件，在`postinstall`阶段再  patch  回去;
+4. 通过 webpack 打包工具中的`alias`把原本依赖替换成新的依赖包;
+
+## HTML 中新的标签和属性
+
+1. 原生懒加载：`<img src="xxx" loading="lazy">`，`<iframe src="content.html" loading="lazy"></iframe>`
+2. 隐藏的折叠组件：`<details>` & `<summary>`，`details[open]summary {color: #f00;}`
+3. 原生的对话框：`<dialog>`
+4. Meta 标签的隐藏功能:
+
+```html
+<!-- 主题颜色控制 -->
+<meta name="theme-color" content="#2196f3" />
+
+<!-- iOS全屏模式 -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+
+<!-- 缓存控制 -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+```
+
+5. 输入类型：`<input type="color" value="#ff0000">`，`<input type="date" min="2023-01-01" max="2024-12-31">`，还有 range 等
+6. 自定义数据：`<div data-user-info='{"id":123, "name":"John"}'></div>`，CSS 联动：`[data-status="error"] { border-color: red;}`
+7. 图片的进阶处理：
+
+```html
+<!-- srcset与sizes优化 -->
+<img
+  src="small.jpg"
+  srcset="medium.jpg 1000w, large.jpg 2000w"
+  sizes="(max-width: 600px) 100vw, 50vw"
+  alt="响应式图片" />
+
+<!-- decoding异步解码 -->
+<img src="huge-image.jpg" decoding="async" alt="大图" />
+```
+
+8. 模板引擎：`<template>`标签，优势：不立即渲染，可重复利用，保持 DOM 结构完整性。
+
+```html
+<template id="cardTemplate">
+  <div class="card">
+    <h3 class="title"></h3>
+    <p class="content"></p>
+  </div>
+</template>
+
+<script>
+  const template = document.getElementById("cardTemplate");
+  const clone = template.content.cloneNode(true);
+  clone.querySelector(".title").textContent = "新卡片";
+  document.body.appendChild(clone);
+</script>
+```
+
+9. 可访问性隐藏技巧，而不是使用`display:none;`或者`visibility: hidden;`
+
+```css
+/* 视觉隐藏但可被屏幕阅读器识别 */
+.sr-only  {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,  0,  0,  0);
+  white-space: nowrap;
+  border: 0;
+}
+```
+
+10. 进阶操作
+
+```html
+<!-- 1. 内容安全策略（CSP） -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'" />
+<!-- 2. 预加载关键资源 -->
+<link rel="preload" href="font.woff2" as="font" type="font/woff2" crossorigin />
+<!-- 3. 性能优化属性 -->
+<script defer src="app.js"></script>
+<link rel="modulepreload" href="module.js" />
+<!-- 4. 地理定位集成 -->
+<button onclick="navigator.geolocation.getCurrentPosition(showPosition)">获取位置</button>
+<!-- 5. 原生进度条 -->
+<progress value="75" max="100"></progress>
+```
+
+## Web Worker 计算耗时任务
+
+1. 可以单个 worker 也可以多个 worker 并行计算。
+
+```vue
+<template>
+  <div>
+    <button @click="makeWorker">开始线程</button>   
+    <!--在计算时 往input输入值时 没有发生卡顿-->               
+    <p><input type="text" /></p>
+  </div>
+</template>
+
+<script>
+import Worker from "worker-loader!./worker";
+
+export default {
+  methods: {
+    makeWorker() {
+      // 获取计算开始的时间
+      let start = performance.now(); // 新建一个线程
+      let worker = new Worker(); // 线程之间通过postMessage进行通信
+      worker.postMessage(0); // 监听message事件
+      worker.addEventListener("message", (e) => {
+        // 关闭线程
+        worker.terminate(); // 获取计算结束的时间
+        let end = performance.now(); // 得到总的计算时间
+        let durationTime = end - start;
+        console.log("计算结果:", e.data);
+        console.log(`代码执行了 ${durationTime} 毫秒`);
+      });
+    },
+  },
+};
+</script>
+```
+
+2. web worker 除了单纯进行计算外，还可以结合离屏 canvas 进行绘图，提升绘图的渲染性能和使用体验：对于复杂的 canvas 绘图，可以避免阻塞主线程
+
+> Web Worker 的限制
+
+1. 在 Worker 线程的运行环境中没有 window 全局对象，也无法访问 DOM 对象
+2. Worker 中只能获取到部分浏览器提供的 API，如定时器、navigator、location、XMLHttpRequest 等
+3. 由于可以获取 XMLHttpRequest 对象，可以在 Worker 线程中执行 ajax 请求
+4. 每个线程运行在完全独立的环境中，需要通过 postMessage、 message 事件机制来实现的线程之间的通信
+
+> 通信时长
+
+1. Worker 线程与主线程通信时长不超过 50ms，否则会卡顿
+2. 最终标准：`计算的运算时长 - 通信时长 > 50ms`，推荐使用 Web Worker
+
+原则上，运算时间超过 50ms 会造成页面卡顿，属于 Long task，这种情况就可以考虑使用 Web Worker。但还要先考虑通信时长的问题，新建一个 web worker 时, 浏览器会加载对应的`worker.js`资源，假如一个运算执行时长为 100ms，但是通信时长为 300ms，用了 Web Worker 可能会更慢。
+
+Web Worker 的通信机制是异步的，所以 Web Worker 的通信时长不会影响 Web Worker 的执行时长。
+
+> 好处优势
+
+Web Worker 为前端带来了后端的计算能力，扩大了前端的业务边界可以实现主线程与复杂计运算线程的分离，从而减轻了因大量计算而造成 UI 阻塞的情况并且更大程度地利用了终端硬件的性能
