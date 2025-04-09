@@ -540,8 +540,6 @@ function reorderList(head) {
 
 ### 排序链表
 
-- TODO
-
 ```js
 var sortList = function (head) {
   if (head == null) return null;
@@ -600,8 +598,6 @@ function getCenter(head) {
 
 ### 相交链表
 
-- TODO
-
 ```js
 var getIntersectionNode = function (headA, headB) {
   let lastHeadA = null;
@@ -646,7 +642,7 @@ var getIntersectionNode = function (headA, headB) {
 - 后序遍历：左子树，右子树，根节点；先递归再判断，把边界带上去
 
 ```js
-// 后续
+// 后序
 var isValidBST = function (root) {
   function dfs(node) {
     if (node == null) {
@@ -1124,7 +1120,7 @@ class LazyMan {
 ### 求数组某个范围上的最大值
 
 1. 遍历，记录最大值并返回
-2. 递归，一分为二，找每个区间上的最大值，最后返回最大的那个，实例：
+2. 递归，一分为二，找每个区间上的最大值，最后返回最大的那个，示例：
 
 ```js
 function process(arr, l, r) {
@@ -1338,7 +1334,7 @@ ES module 会根据 import 关系构建一棵依赖树，遍历到树的叶子�
 
 ES module 导出的是一个索引——内存地址，没有办法和 CommonJS 一样通过缓存处理。它依赖的是**模块地图**和**模块记录**，模块地图在下面会解释，而模块记录是好比每个模块的“身份证”，记录着一些关键信息——这个模块导出值的的内存地址，加载状态，在其他模块导入时，会做一个“连接”——根据模块记录，把导入的变量指向同一块内存，这样就是实现了动态绑定。
 
-在代码执行前，首先要进行预处理，这一步会根据 import 和 export 来构建模块地图（Module Map），它类似于一颗树，树中的每一个'节点'就是一个模块记录，这个记录上会标注导出变量的内存地址，将导入的变量和导出的变量连接，即把他们指向同一块内存地址。不过此时这些内存都是空的，也就是看到的'uninitialized'。
+在代码执行前，首先要进行预处理，这一步会根据 import 和 export 来构建模块地图（Module Map），它类似于一棵树，树中的每一个'节点'就是一个模块记录，这个记录上会标注导出变量的内存地址，将导入的变量和导出的变量连接，即把他们指向同一块内存地址。不过此时这些内存都是空的，也就是看到的'uninitialized'。
 
 循环引用要解决的无非是两个问题，保证不进入死循环以及输出什么值。ES Module 处理循环使用一张模块间的依赖地图来解决死循环/循环引用问题，标记进入过的模块为'获取中 Fetching'，所以循环引用时不会再次进入；使用模块记录，标注要去哪块内存中取值，将导入导出做链接，解决了要输出什么值。
 
@@ -1364,10 +1360,10 @@ module.exports = { propB: "B" };
 4. 虽然两者指向同一块内存，但最后被导出的是 `module.exports`，所以不能直接赋值给 exports。同样的道理，只要最后直接给 `module.exports` 赋值了，之前绑定的属性都会被覆盖掉。
 
 ```js
-exports.propA = "A";
-module.exports.propB = "B";
-module.exports = { propD: "D" };
-module.exports = { propC: "C" }; // propC会覆盖propD
+exports.propA = "A"; // 此时 == {propA: "A"}
+module.exports.propB = "B"; // 此时 == {propA: "A", propB: "B"}，还是指向同一个对象
+module.exports = { propD: "D" }; // 此时 == {propD: "D"}，因为指向了一个新对象
+module.exports = { propC: "C" }; // propC会覆盖propD，此时 == {propC: "C"}，因为又指向了一个新对象
 ```
 
 用上面的例子所示，先是绑定了两个属性 propA 和 propB，接着给 `module.exports` 赋值，最后能成功导出的只有 propC。
@@ -1428,7 +1424,7 @@ exports.b = "修改值-b模块内变量";
 | 导出数量     | 可以导出多个命名导出                                                       | 只能有一个默认导出                |
 | 导入方式     | 必须使用 {} 括起来指定导入内容，也可以使用\*全部导入并设置一个统一模块名称 | 可以直接导入或者指定别名，无需 {} |
 | 导入时的命名 | 导入名称必须与导出名称一致                                                 | 可以自定义导入名称                |
-| 使用场景     | 用于多个功能、变量、类的导出                                               | 用于模块的数的导出                |
+| 使用场景     | 用于多个函数、变量、类的导出                                               | 用于模块的整体的导出              |
 
 1. `import * as Utils from './utils.js';`可以创建了一个包含 utils.js 中所有命名导出的对象 Utils。然后使用`Utils.xxx`来调用具体的方法属性即可。
 2. `import * as XX`不能与 `export default` 一起使用：如果 utils.js 中有默认导出（`export default`），使用 `import * as` 时，默认导出不会包含在 Utils 对象中。你仍需单独导入默认导出。
@@ -1443,7 +1439,7 @@ exports.b = "修改值-b模块内变量";
 4. var 的话会直接在栈内存里预分配内存空间，然后等到实际语句执行的时候，再存储对应的变量，如果传的是引用类型，那么会在堆内存里开辟一个内存空间存储实际内容，栈内存会存储一个指向堆内存的指针。
 5. let 的话，是不会在栈内存里预分配内存空间，而且在栈内存分配变量时，做一个检查，如果已经有相同变量名存在就会报错。
 6. const 的话，也不会预分配内存空间，在栈内存分配变量时也会做同样的检查。不过 const 存储的变量是不可修改的，对于基本类型来说你无法修改定义的值，对于引用类型来说你无法修改栈内存里分配的指针，但是你可以修改指针指向的对象里面的属性。
-7. let、const 只是创建过程提升，初始化过程并没有提升，所以会产生暂时性死区。var 的创建和初始化过程都提升了，所以在赋值前访问会得到 undefined。function 的创建、初始化、赋值都被提升了。
+7. let、const 只是创建过程提升，初始化过程并没有提升，所以会产生暂时性死区。var 的创建和初始化过程都提升了，所以在赋值前访问会得到 undefined。**function 的创建、初始化、赋值都被提升了**。
 
 ### SEO
 
@@ -1507,7 +1503,7 @@ exports.b = "修改值-b模块内变量";
    - 有自己的服务器可以域名重定向或者 Nginx 重定向(http 重定向到 https，建议使用 301 永久重定向，SEO 友好)，否则使用 js 重定向，手动判断并设置`location.href`。
    - 示例如下：注意 rewrite 这句，我们加了一个 permanent，表示这是一个 301 重定向，如果不加这个，会是 302 重定向，虽然表现上是一样的，但对于搜索引擎来说，却是不一样的，Google 也是更建议使用 301 重定向。重定向时要考虑 cookie 的同源策略，以免出现登录或者鉴权 bug。
 
-```nginx
+```bash
 	server {
 		listen       80 default_server;
 		listen       [::]:80 default_server;
@@ -1530,8 +1526,6 @@ exports.b = "修改值-b模块内变量";
 3. web.dev
 4. Page Speed Insights
 
-### 前端技术选型要考虑什么
-
 ### 协程
 
 协程是一种比线程更加轻量级的存在，是语言层级的构造，可看作一种形式的控制流，在内存间执行，没有像线程间切换的开销。你可以把协程看成是跑在线程上的任务，一个线程上可以存在多个协程，但是在线程上同时只能执行一个协程。
@@ -1544,9 +1538,37 @@ exports.b = "修改值-b模块内变量";
 
 ### js 中的 sort 函数
 
-没有默认值函数时，是按照 UTF-16 排序的，对于字母数字 你可以利用 ASCII 进行记忆。`(a-b)`是从小到大排序。
+没有默认值函数时，是按照 UTF-16 排序的，对于字母数字你可以利用 ASCII 进行记忆。`(a-b)`是从小到大排序。可以比较 charCode，`(b-a)`是从大到小排序。
+
+新的版本中增加了`toSorted()`方法，可以传入一个比较函数，可以自定义排序规则，不改变原数组。
 
 ### 非匿名自执行函数，函数名只读
+
+```js
+var test = "window test";
+// 如果function是匿名函数，则
+(function test() {
+  // test = 'var test'; //这句加在前面，也不会修改window test，因为它实际是在修改function的name，但是这个修改是不会生效的。
+  console.log(test); // 会打印这个test函数
+  // let test = 'let test'; //加上这句则报错ReferenceError
+  // var test = 'var test'; //加上这句则打印undefined
+  // test = 'var test'; //加上这句，不会修改window test，因为它实际是在修改function的name，但是这个修改是不会生效的。正常的情况下，如果变量名和函数名不重复，则会修改外部作用域下的同名变量
+})();
+```
+
+### function 先于变量声明提升
+
+function 的创建、初始化、赋值都被提升了。
+
+```js
+test(); // 在这里test()函数可以正常执行，因为下一句test才会重新赋值
+var test = "window test"; // 声明会提升，赋值不会提升
+// function会先提升到var之前，然后再提升var，所以后面同名的var覆盖了函数。
+function test() {
+  console.log(test);
+}
+test(); // 报错，not a function，原因如上。
+```
 
 ### call 和 apply 的区别是什么，哪个性能更好一些
 
@@ -1587,7 +1609,7 @@ Babel 是如何把 ES6 转成 ES5 呢，其大致分为三步：
 
 4. 补充说明
 
-- .vue 文件通过 webpack 的 vue-loader 分析出 script style template 再走上面的 ES6 转 ES5 流程
+- .vue 文件通过 webpack 的 vue-loader 分析出 script、style、template 再走上面的 ES6 转 ES5 流程
 - jsx 通过 babel 插件转 js 语法再走 ES6 转 ES5
 - ts 通过 tsc 结合 tsconfig.json 直接转 ES5
 
@@ -1636,14 +1658,14 @@ PS：
 
 #### 方法
 
-1. 减少入口文件体积：webpack 代码分割-多入口 entry+动态 import()导入+SplitChunksPlugin 插件 optimization.splitChunks+，`React.lazy+import()+Suspense`，代码压缩，css 压缩去重，关键 CSS 提取直接内联插入到 html 中，tree-shaking（需要 ESM 标准代码）
-2. 静态资源本地缓存或 cdn：OSS+CDN-比如 vue.config.js 中配置：configureWebpack.externals 把第三方库排除出打包结果后续在 html 中通过 CDN 引入，强缓存 Expire、Cache-Control：Max-Age=36000，协商缓存：Last-Modified/If-Modified-Since、Etag/If-None-Match，策略缓存：service-worker
-3. UI 框架、第三方库等按需加载：antd/es/xx、lodash-es 等，精简三方库，库内容按需导入使用`babel-plugin-import`等插件，或者 shadcn 新型 UI 库，移除不必要的国际化文件，使用 React.memo 缓存组件渲染结果，使用 React.forwardRef 避免闭包，
-4. 避免组件重复打包：提取公共组件，公共资源 vendors 抽离，使用`webpack-bundle-analyzer`分析打包情况，通过 DllPlugin 将依赖单独打包（当公司没有很好的 CDN 资源或不支持 CDN 时，就可以考虑使用 DllPlugin，替换掉 externals，开发时项目启动也更快）
-5. 图片资源压缩：tinyPNG 压缩图片、`url-loader` 转 icon 为 base64、雪碧图减少 http 请求，使用 webp 格式等，
-6. 开启 gzip 压缩：webpack 使用：`compression-webpack-plugin`插件配置相应的压缩算法、压缩文件类型、压缩后的文件名、文件体积临界值、压缩率等，Nginx 开启 gzip，通过`Response Headers` 中可以看到 `Content-Encoding: gzip`验证是否开启
-7. 使用 defer、async、importance 等关键字控制相应资源的加载优先级，首屏无关资源延迟加载或者用 preload、prefetch 进行预加载，prrender 预渲染，减少首屏白屏，滚动加载、可视区域局部渲染、
-8. 字体压缩：font-spider 移除无用字体，webfont 处理字体加载，fontmin 压缩字体等
+1. 减少入口文件体积：webpack 代码分割-多入口 entry+动态 import()导入+SplitChunksPlugin 插件 optimization.splitChunks+，`React.lazy+import()+Suspense`，代码压缩，css 压缩去重，关键 CSS 提取直接内联插入到 html 中，tree-shaking（需要 ESM 标准代码）。
+2. 静态资源本地缓存或 cdn：OSS+CDN-比如 vue.config.js 中配置：configureWebpack.externals 把第三方库排除出打包结果后续在 html 中通过 CDN 引入，强缓存 Expire、Cache-Control：Max-Age=36000，协商缓存：Last-Modified/If-Modified-Since、Etag/If-None-Match，策略缓存：service-worker，一个 cdn 链接可以同时请求多个资源文件：`<script crossorigin="anonymous" src="//g.alicdn.com/??mtb/lib-promise/3.1.3/polyfillB.js,mtb/lib-mtop/2.7.3/mtop.js,jstracker/sdk-assests/5.7.7/index.js,mtb/lib-env/3.0.0/index.min.js"></script>`减少请求数。
+3. UI 框架、第三方库等按需加载：antd/es/xx、lodash-es 等，精简三方库，库内容按需导入使用`babel-plugin-import`等插件，或者 shadcn 新型 UI 库，移除不必要的国际化文件，使用 React.memo 缓存组件渲染结果，使用 React.forwardRef 避免闭包。
+4. 避免组件重复打包：提取公共组件，公共资源 vendors 抽离，使用`webpack-bundle-analyzer`分析打包情况，通过 DllPlugin 将依赖单独打包（当公司没有很好的 CDN 资源或不支持 CDN 时，就可以考虑使用 DllPlugin，替换掉 externals，开发时项目启动也更快）。
+5. 图片资源压缩：tinyPNG 压缩图片、`url-loader` 转 icon 为 base64、雪碧图减少 http 请求，使用 webp 格式等。
+6. 开启 gzip 压缩：webpack 使用：`compression-webpack-plugin`插件配置相应的压缩算法、压缩文件类型、压缩后的文件名、文件体积临界值、压缩率等，Nginx 开启 gzip，通过`Response Headers` 中可以看到 `Content-Encoding: gzip`验证是否开启。
+7. 使用 defer、async、importance 等关键字控制相应资源的加载优先级，首屏无关资源延迟加载或者用 preload、prefetch 进行预加载，prrender 预渲染，减少首屏白屏，滚动加载、可视区域局部渲染，dns 预连接`<link rel="dns-prefetch" href="//o.alicdn.com">`放到加载具体文件资源之前。
+8. 字体压缩：font-spider 移除无用字体，webfont 处理字体加载，fontmin 压缩字体等。
 9. SSR 服务端渲染，首屏直出。局部 SSR。
 10. 后端优化接口响应速度，合并接口，减少请求次数，使用 http/2 服务端推送等技术。
 
@@ -1770,7 +1792,7 @@ CDN 的核心点有两个，一个是缓存，一个是回源。“缓存”就�
 
 #### 优势
 
-1.  项目启动快。因为不需要过多的打包，只需要处理修改后的单个文件，所以响应速度是 O(1) 级别，刷新即可即时生效，速度很快。
+1.  项目启动快。因为不需要过多的打包，只需要处理修改后的单个文件，所以响应速度是 `O(1)` 级别，刷新即可即时生效，速度很快。
 2.  浏览器加载块。利用浏览器自主加载的特性，跳过打包的过程。
 3.  本地文件更新，重新请求单个文件。
 
@@ -1786,8 +1808,8 @@ semver，Semantic Versioning 语义化版本的缩写，文档可见 `https://se
 - minor: 当你新增了一个向后兼容的功能时
 - patch: 当你修复了一个向后兼容的 Bug 时
 
-1. 对于 ~1.2.3 而言，它的版本号范围是 [1.2.3, 1.3.0)
-2. 对于 ^1.2.3 而言，它的版本号范围是 [1.2.3, 2.0.0)，可最大限度地在向后兼容与新特性之间做取舍
+1. 对于 `~1.2.3` 而言，它的版本号范围是 `[1.2.3, 1.3.0)`
+2. 对于 `^1.2.3` 而言，它的版本号范围是 `[1.2.3, 2.0.0)`，可最大限度地在向后兼容与新特性之间做取舍
 
 ### 自动发现更新
 
@@ -1802,7 +1824,7 @@ semver，Semantic Versioning 语义化版本的缩写，文档可见 `https://se
 
 使用 patch-package，例如：
 
-```sh
+```bash
 # 修改 lodash 的一个小问题
 vim node_modules/lodash/index.js
 
@@ -1828,10 +1850,10 @@ npx patch-package
 
 ### package.json 中的字段及含义/作用
 
-简单地就不说了
+简单的就不说了
 
 1. main：npm package 的入口文件，当我们对某个 package 进行导入时，实际上导入的是 main 字段所指向的文件。main 是 CommonJS 时代的产物，也是最古老且最常用的入口文件。main 字段作为 commonjs 入口。
-2. module：module 字段作为 es module 入口。使用 import 对该库进行导入，则首次寻找 module 字段引入，否则引入 main 字段。
+2. module：module 字段作为 esmodule 入口。使用 import 对该库进行导入，则首次寻找 module 字段引入，否则引入 main 字段。
 3. exports 可以更容易地控制子目录的访问路径，也被称为 export map。可以根据模块化方案不同选择不同的入口文件，还可以根据环境变量(NODE_ENV)、运行环境(nodejs/browser/electron) 导入不同的入口文件。（相当于设个唯一别名？）
 4. browserslist：设置运行时浏览器版本
 5. sideEffects：false：开启 tree shaking-没有文件有副作用，全都可以 tree-shaking；true：关闭 tree shaking，所有文件都有副作用，全都不可 tree-shaking；[]：列出有副作用的文件不进行 tree-shaking，其他都可以 tree-shaking。
@@ -1863,9 +1885,9 @@ npx patch-package
 
 npm 会把所有下载的包，保存在用户文件夹下面。`~/.npm`或`%AppData%/npm-cache`等。
 
-npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Hash Algorithm))，然后将包与他的 sha1 值关联保存在 package-lock.json 里面，下次 npm install 时，会根据 package-lock.json 里面保存的 sha1 值去文件夹里面寻找包文件，如果找到就不用从新下载安装了。
+npm install 之后会计算每个包的 sha1 值(PS:安全散列算法(Secure Hash Algorithm))，然后将包与他的 sha1 值关联保存在 package-lock.json 里面，下次 npm install 时，会根据 package-lock.json 里面保存的 sha1 值去文件夹里面寻找包文件，如果找到就不用重新下载安装了。
 
-- `npm cache verify`：重新计算，磁盘文件是否与 sha1 值匹配，如果不匹配可能删除。要对现有缓存内容运行脱机验证，请使用 npm cache verify。
+- `npm cache verify`：重新计算，磁盘文件是否与 sha1 值匹配，如果不匹配可能删除。要对现有缓存内容运行脱机验证，请使用 `npm cache verify`。
 - `npm cache clean --force`：删除磁盘所有缓存文件。
 
 #### 一个 npm script 的生命周期
@@ -1952,7 +1974,7 @@ npm cache clean --force
    - 比如 node-modules 下 foo 模块依赖 lodash@^1.0.0，bar 模块依赖 lodash@^1.1.0，则  ^1.1.0  为兼容版本。
    - 而当 foo 依赖 lodash@^2.0.0，bar 依赖 lodash@^1.1.0，则依据 semver 的规则，二者不存在兼容版本。会将一个版本放在 node_modules 中，另一个仍保留在依赖树里。
 
-```
+```bash
 举个例子，假设一个依赖树原本是这样：
 
 node_modules
@@ -2138,7 +2160,7 @@ const vdom = {
 4. `history.go(0)`
 5. `<meta http-equiv="refresh" content="30">`：用于特定的场景，如当页面需要在一定时间后自动更新
 
-### 2022-04-27 万向区块链
+### 万向区块链
 
 #### 关于堆和栈、一级缓存和二级缓存的理解
 
@@ -2412,7 +2434,7 @@ app.use(router);
 app.mount("#app");
 ```
 
-1. history.pushState()、history.replaceState()、history.back()、history.forward()、history.go()、监听 changestate 事件。使用 history 路由需要在 nginx 配置静态资源，否则会 404。如下：
+5. history.pushState()、history.replaceState()、history.back()、history.forward()、history.go()、监听 changestate 事件。使用 history 路由需要在 nginx 配置静态资源，否则会 404。如下：
 
 ```bash
 # ...
@@ -2486,7 +2508,7 @@ const { increment } = counterStore;
 10. 可修改的 state：使用 `mapWritableState()` 作为代替。但注意你不能像 mapState() 那样传递一个函数。
 11. 变更 state：`counterStore.$patch({ count: 1 });`，可以一次修改多个属性。$patch 方法也接受一个函数来组合这种难以用补丁对象实现的变更。
 12. 替换 state：不能完全替换掉 store 的 state，因为那样会破坏其响应性。但是，你可以 patch 它。
-13. 订阅 state：类似于 Vuex 的 subscribe 方法，你可以通过 store 的 $subscribe() 方法侦听 state 及其变化。比起普通的 watch()，使用 `\$subscribe()` 的好处是 subscriptions 在 patch 后只触发一次事件。
+13. 订阅 state：类似于 Vuex 的 subscribe 方法，你可以通过 store 的 `$subscribe()` 方法侦听 state 及其变化。比起普通的 watch()，使用 `$subscribe()` 的好处是 subscriptions 在 patch 后只触发一次事件。
 14. `counterStore.$subscribe((mutation, state) => {...});`
 15. Getter 完全等同于 store 的 state 的计算值。大多数时候，getter 仅依赖 state。不过，有时它们也可能会使用其他 getter。可以通过 this 访问到整个 store 实例。在 ts 中如果在 getter 中用到了 this，需要显式声明返回值类型。
 16. Getter 只是幕后的计算属性，所以不可以向它们传递任何参数。不过，你可以从 getter 返回一个函数，该函数可以接受任意参数。
@@ -2575,6 +2597,7 @@ async 函数在 await 之前的代码都是同步执行的，可以理解为 awa
 3. 因为要考虑性能优化，多次修改 state，只进行一次 DOM 渲染。
 4. 日常说的异步是不严谨的，但沟通成本低。
 5. 所以，既不是宏任务也不是微任务，因为它是同步的。
+6. PS: react18 中已经把它做成统一的异步形式了，包括在原生事件中的表现。
 
 React 的 合成事件 和 生命周期 默认启用了批处理机制。
 在这种情况下，setState 不会立即更新，而是将更新加入到一个队列中，待所有事件回调或生命周期方法执行完后才开始处理。
@@ -2665,7 +2688,7 @@ Promise.resolve().then(() => {
 28. es6 的新特性
 29. 如何在 vite 工程的 ts 项目中配置路径别名？
 
-```ts
+```js
 // 1. 打开 vite.config.ts 文件，并导入 resolve 方法和 defineConfig 函数。
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
@@ -2719,9 +2742,9 @@ export default defineConfig({
 
 #### 大文件上传
 
-![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171257810.png)
+![前置知识](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171257810.png)
 
-![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171301880.png)
+![slice方法](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171301880.png)
 
 1. 采用分片上传，将大文件分割成多个小文件，并发上传。
 2. 采用断点续传，记录已上传的分片，下次上传时跳过已上传的分片。
@@ -2729,7 +2752,7 @@ export default defineConfig({
 4. 采用队列管理，控制并发上传数量，避免占用过多带宽。
 5. 采用服务端合并，将分片上传的结果进行合并，实现完整的文件上传。
 
-![](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171301005.png)
+![示例代码](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171301005.png)
 
 #### 如何实现一个 Promise
 

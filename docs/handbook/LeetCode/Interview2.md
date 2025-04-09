@@ -226,7 +226,7 @@ Vue 的渲染是从 render 阶段开始的，但 keep-alive 的渲染是在 patc
 - Q:keep-alive 包裹的组件是如何使用缓存的？
 - A:在 patch 阶段，会执行 createComponent 函数：
 
-  1. 在首次加载被包裹组件时，由 keep-alive.js 中的 render 函数可知，vnode.componentInstance 的值是 undefined，keepAlive 的值是 true，因为 keep-alive 组件作为父组件，它的 render 函数会先于被包裹组件执行；那么就只执行到 i(vnode, false /_ hydrating _/)，后面的逻辑不再执行；
+  1. 在首次加载被包裹组件时，由 keep-alive.js 中的 render 函数可知，vnode.componentInstance 的值是 undefined，keepAlive 的值是 true，因为 keep-alive 组件作为父组件，它的 render 函数会先于被包裹组件执行；那么就只执行到 `i(vnode, false /_ hydrating _/)`，后面的逻辑不再执行；
   2. 再次访问被包裹组件时，vnode.componentInstance 的值就是已经缓存的组件实例，那么会执行 insert(parentElm, vnode.elm, refElm)逻辑，这样就直接把上一次的 DOM 插入到了父元素中。
 
 - Q:一般的组件，每一次加载都会有完整的生命周期，即生命周期里面对应的钩子函数都会被触发，为什么被 keep-alive 包裹的组件却不是呢？
@@ -451,7 +451,7 @@ console.log(flattenArray(arr)); // [1, 2, 3, 4, 5, 6, 7, 8]
 - 事件池化：React 对合成事件进行了池化，这意味着在事件回调函数中不能异步访问事件对象，因为事件对象会被重用以提高性能。在异步操作中，需要调用事件对象的 persist() 方法来保持事件的引用。
 - 与原生事件的交互：合成事件在事件冒泡阶段被处理，通常绑定在组件的根节点上，而不是直接绑定在 DOM 节点上。
 
-```jsx
+```js
 import React from "react";
 
 function Example() {
@@ -577,11 +577,11 @@ console.log(chain(1).plusOne.double.minusOne.end); // 3
 
 ## 函数的 name 是不可被修改的
 
-## ==/===/Object.is()的区别
+## `==/===/Object.is()`的区别
 
 1. `==`会进行隐式类型转换。
 2. `===`/`Object.is()`不会进行类型转换，`===` 会比较值和类型，`Object.is()` 也会比较值和类型，但 `NaN === NaN` 为 false，而 `Object.is(NaN, NaN)` 为 true。`+0===-0` 是 true，而 `Object.is(+0, -0)` 为 false。
-3. ==相等比较：如果一个操作数是对象，另一个操作数是字符串或者数字，会首先调用对象的 valueOf 方法，将对象转化为基本类型，在进行比较。当 valueOf 返回的不是基本类型的时候，才会调用 toString 方法。
+3. `==`相等比较：如果一个操作数是对象，另一个操作数是字符串或者数字，会首先调用对象的 valueOf 方法，将对象转化为基本类型，在进行比较。当 valueOf 返回的不是基本类型的时候，才会调用 toString 方法。
 
 ## 页面多图片加载优化
 
@@ -646,6 +646,10 @@ Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSoc
    - 两者的核心思想是相似的，都是为了实现高效的视图更新，但实现细节和场景优化各有侧重。
 
 ## vue 指令
+
+### vue2
+
+### vue3
 
 ## 扁平数据结构转 Tree
 
@@ -891,7 +895,7 @@ fetchUrls(urls, 3).then((results) => {
    - `<input :value="props.modelValue" @input="emit('update:modelValue', $event.target.value)" />`。
    - 可以传递多个参数：`<Child v-model:param1="param1" v-model:param2="param2" />`。
    - 父组件中的监听是通过`v-model`自动实现的，监听的属性名即`v-model`传的参数的名称。
-8. `$refs`：父组件通过 $refs 获取子组件的实例，从而调用子组件的方法或访问子组件的数据。
+8. `$refs`：父组件通过 `$refs` 获取子组件的实例，从而调用子组件的方法或访问子组件的数据。
 
 ### Vue 3 Proxy 响应式系统的优化
 
@@ -1478,7 +1482,7 @@ server {
 
 修改 Nginx 配置后检查并重启。
 
-```sh
+```bash
 sudo nginx -t  # 测试配置是否正确
 sudo systemctl reload nginx  # 重新加载 Nginx
 ```
@@ -1609,7 +1613,7 @@ if (cluster.isMaster) {
    - 使用了错误的选择器。
    - 在 DOM 元素未加载时绑定事件（如在 DOMContentLoaded 之前）。
 5. 元素被禁用
-   - disabled 属性：如果元素是一个表单控件（例如 <button> 或 <input>）并且设置了 disabled 属性，点击事件将不会被触发。
+   - disabled 属性：如果元素是一个表单控件（例如 `<button>` 或 `<input>`）并且设置了 disabled 属性，点击事件将不会被触发。
 6. JavaScript 错误：在事件处理程序中，如果出现 JavaScript 错误，可能会导致后续代码（包括绑定的事件）不被执行。
 7. 使用了 pointer-events CSS 属性：如果元素的 `pointer-events` CSS 属性被设置为 none，则该元素将不会响应任何鼠标事件，包括点击。
 8. 移动设备的特殊情况：在某些移动设备上，未处理的触摸事件（如 touchstart 或 touchend）可能会影响点击事件的触发。
@@ -2587,7 +2591,7 @@ addTask(400, "D"); // After task C is completed, output after 0.4s
    - 滚动页面时，fixed 元素会固定在屏幕同一位置。
    - 不受父级元素影响（即使父级有 transform、filter 等属性，也不会改变其定位基准，除非触发层叠上下文的影响）。
    - 与绝对定位的工作方式完全相同，只有一个主要区别：绝对定位将元素固定在相对于其位置最近的祖先。如果没有，则为初始包含它的块。
-   - 某些 CSS 属性会创建新的定位上下文：如果祖先元素设置了 transform、filter、will-change 等属性，可能会意外改变 fixed 的定位基准（表现类似 absolute）。本质：这是浏览器的一个历史行为，而非 CSS 规范要求。现代浏览器已部分修复此问题。
+   - 某些 CSS 属性会创建新的定位上下文：如果祖先元素设置了 `transform、filter、will-change` 等属性，可能会意外改变 fixed 的定位基准（表现类似 absolute）。本质：这是浏览器的一个历史行为，而非 CSS 规范要求。现代浏览器已部分修复此问题。
    - 浏览器渲染机制中的“图层”：fixed 元素会被浏览器提升到一个独立的合成层（Compositing Layer），与普通文档流分离。
 6. 硬件加速：常见的：`transform: translateZ(0); opacity: 0.99; will-change: transform; filter; clip-path; backface-visibility; perspective`等。
 7. 如何校验一段 JSON 是否符合低代码平台的规范？
@@ -2621,24 +2625,89 @@ const data = [
   },
 ];
 
-const checkJSON = (data) => {
-  const isValid = (node, hasForm) => {
-    if (node.type === "form") {
-      return true;
-    } else if (node.type === "input-text" || node.type === "text" || node.type === "button-submit") {
-      // return node.parent && (node.parent.type === "form" || node.parent.type === "div");
-    }
-    return false;
-  };
+function validateData(data) {
+  const validTypes = new Set(["form", "input-text", "text", "button-submit", "div"]);
 
-  for (const node of data) {
-    if (!isValid(node)) {
+  function isValidElement(element, insideForm) {
+    // 检查元素类型是否合法
+    if (!validTypes.has(element.type)) {
       return false;
+    }
+
+    // 处理form元素
+    if (element.type === "form") {
+      // form不能被input-text、text、button-submit等包含
+      if (insideForm) {
+        return false;
+      }
+      // 进入form内部，继续检查其子元素
+      let valid = true;
+      if (element.children) {
+        for (const child of element.children) {
+          valid = valid && isValidElement(child, true); // 进入form内部，insideForm设为true
+        }
+      }
+      return valid;
+    }
+
+    // 如果是input-text、text、button-submit
+    if (["input-text", "text", "button-submit"].includes(element.type)) {
+      // 只能在form内部或form的后代元素中
+      return insideForm;
+    }
+
+    // 对于div元素，直接返回true，继续检查它的子元素
+    if (element.type === "div") {
+      let valid = true;
+      if (element.children) {
+        for (const child of element.children) {
+          valid = valid && isValidElement(child, insideForm); // 继续保持insideForm
+        }
+      }
+      return valid;
+    }
+
+    // 对于其他元素类型，默认返回false
+    return false;
+  }
+
+  // 检查每个顶层元素
+  for (const element of data) {
+    if (!isValidElement(element, false)) {
+      return false; // 如果任何元素不合法，返回false
     }
   }
 
-  return true;
-};
+  return true; // 所有元素都合法，返回true
+}
+
+// 测试示例
+const data = [
+  {
+    type: "form",
+    children: [
+      {
+        type: "input-text",
+      },
+      {
+        type: "div",
+        children: [
+          {
+            type: "text",
+          },
+          {
+            type: "button-submit",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    type: "input-text",
+  },
+];
+
+console.log(validateData(data)); // 输出：false
 ```
 
 8. React.memo 特性和使用场景。
