@@ -292,7 +292,13 @@ const MyComponent = React.memo(
 3. 缓存回调函数：useCallback：防止回调函数因父组件渲染而重建，导致子组件 props 引用变化。
 4. 缓存复杂计算：useMemo：避免每次渲染重复执行高开销计算。
 5. 拆分组件与状态隔离：将高频变动的状态封装到独立组件中，避免扩散渲染影响。
-6. 避免传递内联对象/函数：`<Child config={{ id: 1, type: 'A' }} />`这样是错误的，因为每次渲染会生成新的对象触发子组件重新渲染，可以使用 useMemo 或常量的形式传递。
+6. 避免传递内联对象/函数：
+
+   ```js
+   // 这样是错误的，因为每次渲染会生成新的对象触发子组件重新渲染，可以使用 useMemo 或常量的形式传递。
+   <Child config={{ id: 1, type: "A" }} />
+   ```
+
 7. 优化 context 消费，任何 Context 变化都会触发所有消费者渲染：`const { value } = useContext(MyContext);`，拆分 Context 或使用选择器：`const value = useContextSelector(MyContext, ctx => ctx.value);`。PS：`useContextSelector`是这个库提供的[use-context-selector](https://github.com/dai-shi/use-context-selector?tab=readme-ov-file)。
 8. 列表渲染使用稳定的唯一 key：不要使用索引、随机数或者时间戳等做 key。
 
@@ -316,7 +322,7 @@ const MyComponent = React.memo(
    - beforeResolve：全局解析守卫，和 router.beforeEach 类似，在每次导航时都会触发，不同的是，解析守卫刚好会在导航被确认之前、所有组件内守卫和异步路由组件被解析之后调用。是获取数据或执行任何其他操作的理想位置。
    - afterEach：全局后置钩子，和守卫不同的是，这些钩子不会接受 next 函数也不会改变导航本身。它们对于分析、更改页面标题、声明页面等辅助功能以及许多其他事情都很有用。
    - beforeEnter：路由独享的守卫，直接在路由配置上定义。只在进入路由时触发，不会在 params、query 或 hash 改变时触发。可以将一个函数数组传递给 beforeEnter，这在为不同的路由重用守卫时很有用。当配合嵌套路由使用时，父路由和子路由都可以使用 beforeEnter。如果放在父级路由上，路由在具有相同父级的子路由之间移动时，它不会被触发。
-   - 从 Vue 3.3 开始，可以在导航守卫内使用 inject() 方法。在 app.provide() 中提供的所有内容都可以在 router.beforeEach()、router.beforeResolve()、router.afterEach() 内获取到
+   - 从 Vue 3.3 开始，可以在导航守卫内使用 inject() 方法。在 app.provide() 中提供的所有内容都可以在 `router.beforeEach()、router.beforeResolve()、router.afterEach()` 内获取到
    - beforeRouteEnter：组件内的守卫，不能 访问 this，因为守卫在导航确认前被调用，因此即将登场的新组件还没被创建。可以通过传一个回调给 next 来访问组件实例。在导航被确认的时候执行回调，并且把组件实例作为回调方法的参数
    - beforeRouteUpdate：组件内的守卫，在当前路由改变，但是该组件被复用时调用。
    - beforeRouteLeave：组件内的守卫，离开守卫，通常用来预防用户在还未保存修改前突然离开。该导航可以通过返回 false 来取消。

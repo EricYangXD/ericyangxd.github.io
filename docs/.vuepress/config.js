@@ -3,6 +3,7 @@
  */
 
 let lcSecret;
+// TODO: debug here
 if (process.env.PRODUCTION) {
   lcSecret = {
     LEANCLOUD_MYBLOG_APPID: "",
@@ -651,6 +652,7 @@ module.exports = {
     externalLinks: { target: "_blank", rel: "nofollow noopener noreferrer" },
   },
   plugins: [
+    // TODO: debug here
     [
       "vuepress-plugin-nuggets-style-copy",
       {
