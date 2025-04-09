@@ -178,8 +178,16 @@ module.exports = {
             path: "/handbook/LeetCode/Basic",
           },
           {
-            title: "双越前端面试100题",
-            path: "/handbook/LeetCode/Interview",
+            title: "前端面试题1",
+            path: "/handbook/LeetCode/Interview1",
+          },
+          {
+            title: "前端面试题2",
+            path: "/handbook/LeetCode/Interview2",
+          },
+          {
+            title: "前端面试题3",
+            path: "/handbook/LeetCode/Interview3",
           },
         ],
       },
