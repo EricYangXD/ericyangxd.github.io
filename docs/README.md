@@ -8,7 +8,7 @@ date: "2021-12-28"
 
 ### Hello there, I am EricYangXD 👋👋👋
 
-[![visitors](https://visitor-badge.glitch.me/badge?page_id=EricYangXD.EricYangXD)](https://github.com/EricYangXD)
+<!-- [![visitors](https://visitor-badge.glitch.me/badge?page_id=EricYangXD.EricYangXD)](https://github.com/EricYangXD) -->
 
 [![visitors](https://visitor-badge.laobi.icu/badge?page_id=EricYangXD.EricYangXD)](https://github.com/EricYangXD)
 

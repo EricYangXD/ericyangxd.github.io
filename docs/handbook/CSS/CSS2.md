@@ -401,7 +401,7 @@ place-items: center stretch;
 
 ### 保持宽高比
 
-对于需要保持高宽比的图，应该用 `padding-top` 实现：
+对于需要保持宽高比的图片，应该用 `padding-top` 实现：
 
 ```css
 .mod_banner {
@@ -418,6 +418,16 @@ place-items: center stretch;
     top: 0;
   }
 }
+/* 通过padding-bottom实现保持宽高比，height设为0，设置背景图片background和background-size: cover */
+/* <div class="keep-square"></div> */
+.keep-square {
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%;
+  background: url(http://a.hiphotos.baidu.com/image/pic/item/f2deb48f8c5494ee5080c8142ff5e0fe99257e19.jpg) no-repeat
+    center center;
+  background-size: cover;
+}
 ```
 
 ## 如何覆盖组件库的样式
@@ -426,7 +436,7 @@ place-items: center stretch;
 
 1. 直接修改 node_modules 中的源码：多端难以同步，不可取；
 2. 修改全局样式：容易与别人的样式发生冲突，也可能不允许这么做，视情况；
-3. 样式隔离 CSS Module（React）和 Scoped（Vue)：推荐；
+3. 样式隔离 CSS Module（React）和 Scoped（Vue）：推荐；
 
 ### CSS 中的样式隔离
 
@@ -532,7 +542,7 @@ root.inner = `
 #### React 中 AntDesign 组件样式修改
 
 1. 方法一：借助`styled-components`的 GlobalStyle，创建全局样式；
-2. 方法二：创建单独的 style 文件夹，并对相应的组件的样式进行重写，之后在 app.js 中引入，打包的时候确保自定义的样式在 AntDesign 默认样式之后引入即可；
+2. 方法二：创建单独的 style 文件夹，并对相应的组件的样式进行重写，之后在 App.js 中引入，打包的时候确保自定义的样式在 AntDesign 默认样式之后引入即可；
 
 ## 防御性 CSS 技能
 
@@ -544,7 +554,7 @@ root.inner = `
 
 ### gap
 
-`gap: 1rem;`
+`gap: 1rem;`，适用于 flex 布局时，子元素换行时，子元素之间会有空隙，`gap`属性就是用来控制这个空隙的。这样就避免了使用 margin 时行尾元素对不齐的问题。
 
 ### clamp
 

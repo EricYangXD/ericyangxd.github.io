@@ -299,7 +299,7 @@ Dockerfile 是一个文本文件，里面包含了一系列的指令，用于定
 
 Demo1：
 
-```dockerfile
+```bash
 # FROM node:latest
 FROM node:alpine # 是一个官方的轻量化 Node.js 基础镜像，它基于 Alpine Linux，体积小，性能高，更适合生产环境，启动快，内存占用低。
 
@@ -325,7 +325,7 @@ CMD ["npm", "start"]  # 运行 npm start
 
 ## DockerFile Demo
 
-```dockerfile
+```bash
 FROM node:16-alpine as builder
 LABEL maintainer="developer@example.com" version="1.0"
 
@@ -444,7 +444,7 @@ $ docker exec -it my-node-app /bin/bash
 
 基于 Dockerfile 多阶段构建镜像，将构建和运行分开，减少最终镜像中不必要的文件！
 
-```dockerfile
+```bash
 # 第一阶段：构建阶段
 FROM node:16-alpine AS builder
 WORKDIR /app

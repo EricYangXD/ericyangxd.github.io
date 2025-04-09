@@ -1314,19 +1314,27 @@ JavaScript 语言的作用域链是由词法作用域决定的，而词法作用
 
 总结：![总结](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/layout.jpg "总结")
 
-### 减少重排重绘
+### 如何减少重排重绘
 
 1. 集中修改样式或直接切换 class 操作样式，而不是频繁操作 style
-2. 避免使用 table 布局
+2. 避免使用 table 布局或者 float 等布局，推荐使用 flex 或 grid 等现代布局
 3. 批量 dom 操作，例如 createDocumentFragment，或者使用框架，例如 React
 4. Debounce window resize scroll 事件，频繁触发使用节流和防抖
 5. 对 dom 属性的读写要分离：在一个操作过程中，先完成所有的“读”操作，再完成所有的“写”操作，避免交替进行。读：获取 DOM 的属性值（如 offsetWidth、clientHeight、scrollTop 等）。写：修改 DOM 的属性值（如设置 style.width、innerHTML 等）。如果在代码中，读写 DOM 操作是交替进行的，可能会触发浏览器多次的重排，降低性能。
-6. will-change: transform 做优化
+6. `will-change: transform` 做优化
 7. 修改之前先设置`display:none`，脱离文档流，修改完了再恢复
 8. 使用 BFC 特性，不影响其他元素
-9. 优化动画，使用 css3 的 transform（直接在非主线程上执行合成动画操作） 和 requestAnimationFrame 来实现动画效果
+9. 减少复杂选择器，避免深层嵌套 CSS 选择器，减少样式计算时间
+10. 优化动画，使用 css3 的 transform（直接在非主线程上执行合成动画操作） 和 requestAnimationFrame 来实现动画效果
+11. 使用 opacity 替代 visibility，硬件加速：transform，opacity，filter，will-change，backface-visibility，perspective，clip-path 等
+12. 限制重绘范围，使用 CSS Containment 隔离重绘：`.container {contain: paint; /* 限制重绘区域 */}`
+13. 使用 debounce 或 throttle 控制高频操作
 
 减少重排重绘，相当于少了渲染进程的主线程和非主线程的很多计算和操作，能够加快 web 的展示。
 
 1. 触发 repaint、reflow 的操作尽量放在一起，比如改变 dom 高度和设置 margin 分开写，可能会触发两次重排；
 2. 通过虚拟 dom 层计算出操作总的差异，一起提交给浏览器。之前还用过 document.createDocumentFragment 来汇总 append 的 dom，来减少触发重排重绘次数。
+
+重排一定导致重绘：width、height、margin、font-size
+
+重绘不一定触发重排：color、background、opacity

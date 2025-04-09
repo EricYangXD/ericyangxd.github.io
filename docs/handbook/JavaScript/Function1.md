@@ -1121,3 +1121,60 @@ function processTasks(...tasks) {
   };
 }
 ```
+
+###
+
+根据已有数据，实现一个 find 函数查找当前 id 及所有父级的 id(路径查找)
+
+```js
+const data = [
+  {
+    id: 1,
+    children: [
+      {
+        id: 2,
+        children: [
+          {
+            id: 3,
+            children: [{ id: 5 }],
+          },
+          {
+            id: 4,
+            children: [{ id: 6 }],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const find = (id) => {
+  const map = new Map();
+  map.set(0, []);
+
+  function dfs(node, parentId) {
+    const { id: nodeId, children } = node;
+
+    if (map.has(parentId)) {
+      map.set(nodeId, [...map.get(parentId), nodeId]);
+    } else {
+      map.set(nodeId, [nodeId]);
+    }
+    const found = children?.filter((child) => child.id === id);
+
+    if (found?.[0]?.id === id) {
+      map.set(id, [...map.get(nodeId), id]);
+      return;
+    }
+    children?.forEach((child) => dfs(child, nodeId));
+  }
+
+  data.forEach((d) => dfs(d, 0));
+
+  return map.get(id);
+};
+
+console.log(find(0)); // []
+console.log(find(3)); // [1, 2, 3]
+console.log(find(5)); // [1, 2, 3, 5]
+```

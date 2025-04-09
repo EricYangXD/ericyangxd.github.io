@@ -23,6 +23,8 @@ date: "2021-12-29"
 
 可以
 
+## 「CSDNGreener」🍃CSDN 广告完全过滤|免登录|个性化排版|最强老牌脚本|持续更新
+
 ## Yet Another Weibo Filter
 
 微博，可以
