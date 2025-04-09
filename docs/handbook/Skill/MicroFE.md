@@ -14,6 +14,16 @@ date: "2022-02-10"
 2. 将项目看作页面、组件，能够复用到不同的系统中
 3. 实现页面低成本接入是微前端的重要愿景之一，也是吸引大家持续探索的核心原因。
 
+### 选型要考虑哪些方面
+
+1. 要「快速」且「保证稳定性」？
+2. 要将不同技术栈的系统整合到一起？
+3. 如何选择合适的主应用和子应用？
+4. 如何解决不同框架之间的冲突，比如全局样式、JavaScript 隔离、路由管理等?
+5. CI/CD 怎么集成
+6. 如何解决第三方 SDK、JS 文件加载失败问题
+7. 打包、构建、线上 bug 如何修复等问题
+
 ### single-spa
 
 ### micro-app
@@ -21,6 +31,8 @@ date: "2022-02-10"
 ### 无界
 
 ### pnpm workspace
+
+### webpack5 Module Federation
 
 ### qiankun
 
@@ -33,6 +45,7 @@ qiankun 是一个基于 single-spa 的微前端实现库，旨在帮助大家能
 - 组合式集成，即单独构建组件，按需加载，类似 npm 包的形式
 - EMP，主要基于 Webpack5 Module Federation
 - Web Components
+- pnpm workspace
 
 > 严格来讲，这些方案都不算是完整的微前端解决方案，它们只是用于解决微前端中运行时容器的相关问题。
 
@@ -44,6 +57,36 @@ qiankun 是一个基于 single-spa 的微前端实现库，旨在帮助大家能
 
 这里必然要涉及前端的跨域问题，尤其是当主应用和微应用的域名不一致时，qiankun 客户端如何能够在跨域的限制之下获取到微应用的页面资源？一个解决方案是主应用提供一个鉴权秘钥下发的接口 signUrl，这个接口由微应用提供也可以，将秘钥信息下发到 cookie 中，通过配置 qiankun 自定义 fetch 方法，带上这些鉴权信息。官方也提供了一些通用方案以供参考。
 
+#### 主应用的选择
+
+通常主应用作为基座，负责整体布局、路由导航和子应用的加载。主应用可以使用任何框架，但需要支持微前端框架的要求。比如 qiankun 推荐主应用使用 React 或者 Vue，但也可以纯 JavaScript。
+
+#### 子应用的改造
+
+每个子应用需要暴露生命周期钩子，并配置 webpack。对于 Vue2、Vue3 和 React16，每个子应用都需要调整 webpack 配置，确保正确导出生命周期函数。同时，需要注意不同框架可能存在的全局变量污染，比如 Vue 的全局组件、React 的全局状态等，这时候需要沙箱隔离机制。
+
+#### 路由管理
+
+主应用需要处理一级路由，子应用处理自己的子路由。需要确保路由切换时正确加载和卸载子应用，避免内存泄漏。比如使用 history 模式路由，主应用和子应用的路由前缀需要配置正确。
+
+#### 公共依赖的处理
+
+比如 Vue 或 React 的版本不同，如何避免冲突？可能需要使用 externals 配置，将公共库从子应用中排除，由主应用统一提供，但不同版本的库可能会有问题。或者利用 webpack 的模块联邦（Module Federation）来共享依赖，但需要确认是否兼容不同版本的框架。
+
+#### 构建和部署方面
+
+子应用需要独立部署，主应用只需加载子应用的入口文件。可能需要配置子应用的打包输出为 umd 格式，并设置 publicPath 为动态的，以适应不同环境。
+
+#### 一些优化措施
+
+比如预加载子应用资源，提升性能；统一的状态管理方案，比如使用 redux 或 vuex 在主应用和子应用之间共享状态；以及错误处理机制，比如子应用加载失败时的降级处理。
+
+#### qiankun 优缺点
+
+1. 成熟度高、社区资源丰富、沙箱隔离完善
+2. 需手动配置子应用生命周期、依赖管理较复杂
+3. 适用于多技术栈混合、快速落地的场景
+
 ### 微应用改造
 
 一个业务系统并不是一开始就有被集成的价值的，往往是在业务发展到一定程度，经过市场验证其价值之后，大家才会明确这个业务系统具有微应用改造的价值，这就导致一个窘迫的境地：你需要改造已经成型的项目，使其成为可快速接入的微应用。
@@ -51,7 +94,7 @@ qiankun 是一个基于 single-spa 的微前端实现库，旨在帮助大家能
 qiankun 的微应用改造相对比较简单，一般在开启严格沙箱模式之后，微应用和主应用之间建立比较好的环境隔离，你并不需要太多的工作。
 
 1. 首先样式隔离，参考下面 css 隔离。其核心的麻烦在于 qiankun 启动严格沙箱模式之后，会导致 dialog、Modal 等组件无法找到 body 节点，进而无法挂载到 DOM 中。
-2. 其次 JS 作用域隔离，这里主要是一些第三方库会在 window 上挂在单例实例，导致主应用和微应用之间单例配置相互覆盖，常见于日志上报、微信 SDK、QQ SDK 等第三方应用。解决方案分为两个方向:
+2. 其次 JS 作用域隔离，这里主要是一些第三方库会在 window 上挂载单例实例，导致主应用和微应用之间单例配置相互覆盖，常见于日志上报、微信 SDK、QQ SDK 等第三方应用。解决方案分为两个方向:
    - 假如主应用存在则沿用主应用的配置：这种方式对主应用比较有利。以日志上报的配置为例，微应用的日志会上报到主应用空间下，那么主应用的日志监控会很完整。缺点则是微应用本身失去了这些监控信息。
    - 微应用对自身使用的单例进行隔离：这种方式对微应用比较有利。以 Axios 的配置为例，子应用可以实现类似中台应用的效果，可以探知到微应用在不同的主应用中的实际使用场景和数据统计。
    - 采用第二种方式时，假如主应用需要进行数据共享或者配置共享，可以通过主应用和微应用之间的参数和数据传递的方式来实现共享，微应用提供丰富的监听 hooks。
@@ -70,7 +113,7 @@ qiankun 的微应用改造相对比较简单，一般在开启严格沙箱模式
 
 前两种方案需要在乾坤渲染函数中增加一个对应的参数，这里面有个坑点，则是 prefetchApps 不支持这些参数，因此一旦启用预加载函数，则会导致渲染函数的传入配置失效，因此需要关闭使用预加载函数。
 
-#### 2. css 隔离
+#### 2. CSS 隔离
 
 - 微前端核心理念：解耦 / 技术栈无关，简单来说就是希望微应用之间，基站应用和微应用之间的技术栈可以互相隔离，从而各种定制自己的技术体系来实现开发效率和产品质量的最优化配置，这也是微前端的核心价值体现。
 - 主流的沙箱模式是通过创建一个独立的作用域隔离作用域链，同时克隆全局变量来实现的，但是这种隔离 + 克隆方案并不完美，在复杂运行场景中，无论性能还是安全性都是难以保证的，特别是 CSS 的隔离。
@@ -119,5 +162,230 @@ export default defineConfig({
       ],
     }),
   ],
+});
+```
+
+### demo
+
+#### 搭建主应用基座
+
+```js
+// main-app/src/micro-fe-setup.js
+import { registerMicroApps, start } from "qiankun";
+
+registerMicroApps([
+  {
+    name: "vue2-app",
+    entry: "//localhost:7101",
+    container: "#subapp-container",
+    activeRule: "/vue2",
+    props: { authToken: "xxx" }, // 传递全局参数
+  },
+  {
+    name: "vue3-app",
+    entry: "//localhost:7102",
+    container: "#subapp-container",
+    activeRule: "/vue3",
+  },
+  {
+    name: "react16-app",
+    entry: "//localhost:7103",
+    container: "#subapp-container",
+    activeRule: "/react16",
+  },
+]);
+
+start({
+  prefetch: "all", // 预加载子应用
+  sandbox: {
+    experimentalStyleIsolation: true, // 开启样式沙箱
+  },
+});
+```
+
+#### 子应用改造（Vue2）
+
+```js
+// 关键配置
+// vue2-app/src/public-path.js
+if (window.__POWERED_BY_QIANKUN__) {
+  __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__;
+}
+
+// vue2-app/src/main.js
+let instance = null;
+
+function render(props = {}) {
+  const { container } = props;
+  instance = new Vue({
+    router,
+    store,
+    render: (h) => h(App),
+  }).$mount(container ? container.querySelector("#app") : "#app");
+}
+
+// 独立运行时
+if (!window.__POWERED_BY_QIANKUN__) {
+  render();
+}
+
+// 暴露qiankun生命周期钩子
+export async function bootstrap() {
+  console.log("[vue2] app bootstraped");
+}
+
+export async function mount(props) {
+  console.log("[vue2] props from main framework", props);
+  render(props);
+}
+
+export async function unmount() {
+  instance.$destroy();
+  instance.$el.innerHTML = "";
+  instance = null;
+}
+
+// Webpack配置
+// vue2-app/vue.config.js
+module.exports = {
+  devServer: {
+    headers: {
+      "Access-Control-Allow-Origin": "*", // 允许跨域
+    },
+  },
+  configureWebpack: {
+    output: {
+      library: `vue2App`,
+      libraryTarget: "umd",
+      jsonpFunction: `webpackJsonp_vue2App`,
+    },
+  },
+};
+```
+
+#### 解决多框架冲突
+
+##### 样式隔离方案
+
+1. 启用 qiankun 的  `experimentalStyleIsolation`（添加前缀选择器）
+2. 各子应用使用 CSS Modules，Vue 的话使用 scoped，或者 BEM
+3. 主应用提供基础 Reset CSS
+
+##### JS 沙箱策略
+
+```js
+// 主应用启动配置
+start({
+  sandbox: {
+    strictStyleIsolation: true, // Shadow DOM隔离
+    speedy: false, // 兼容IE
+  },
+});
+```
+
+##### 公共依赖处理
+
+```js
+// 主应用package.json
+{
+"sharedDependencies": {
+    "lodash": "^4.17.21",
+    "axios": "^0.21.1"
+  }
+}
+
+// 子应用webpack配置
+externals: {
+'lodash': 'lodash',
+'axios': 'axios'
+}
+```
+
+#### 路由统一管理
+
+1. 主应用路由配置:
+
+```js
+// main-app/src/router.js
+const routes = [
+  { path: "/vue2/*", name: "vue2", meta: { title: "Vue2子系统" } },
+  { path: "/vue3/*", name: "vue3", meta: { title: "Vue3子系统" } },
+  { path: "/react16/*", name: "react16", meta: { title: "React16子系统" } },
+];
+```
+
+2. 子应用路由改造（以 React16 为例）：
+
+```js
+// react16-app/src/App.js
+<Routerbasename={window.__POWERED_BY_QIANKUN__ ? '/react16' : '/'}>
+  <Switch>
+    <Routepath="/detail"component={DetailPage} />
+  </Switch>
+</Router>
+```
+
+#### 部署优化策略
+
+1. 独立部署：每个子应用单独构建，主应用通过 Nginx 配置反向代理
+
+```bash
+location /vue2 {
+  proxy_pass http://vue2-server;
+}
+location /vue3 {
+  proxy_pass http://vue3-server;
+}
+```
+
+2. 资源预加载
+
+```js
+start({
+  prefetch: (app) => app.name !== "react16-app", // 按需预加载
+});
+```
+
+3. 性能监控
+
+```js
+// 主应用集成监控SDK
+import { performanceMonitor } from "@monitor/sdk";
+
+performanceMonitor.init({
+  apps: ["vue2-app", "vue3-app", "react16-app"],
+});
+```
+
+#### 常见问题解决方案
+
+1. 样式污染
+
+- 使用 scoped 样式（Vue）或 CSS Modules
+- 主应用添加命名空间前缀：`#subapp-container.ant-btn { /* 覆盖Ant Design样式 */ }`
+
+2. 全局变量冲突
+
+- 子应用卸载时清理全局变量
+
+```js
+exportasyncfunctionunmount() {
+  deletewindow.__VUE_APP_SHARED_DATA__;
+}
+```
+
+3. 通信方案
+
+- 使用 qiankun 全局状态
+
+```js
+// 使用qiankun全局状态
+import { initGlobalState } from "qiankun";
+
+const actions = initGlobalState({ user: null });
+
+// 子应用监听变化
+actions.onGlobalStateChange((state, prevState) => {
+  console.log("全局状态变更:", state);
 });
 ```

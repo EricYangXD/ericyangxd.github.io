@@ -2203,6 +2203,27 @@ const vdom = {
 - `componentWillReceiveProps`
 - `componentWillUpdate`
 
+##### React 子组件引入方式
+
+直接通过`<Children />`引入子组件和通过`{props.children}`引入子组件有何不同？这个过程中具体发生了什么？
+
+1. 通过`<Children />`引入子组件：直接引用，适用于在父组件中明确知道并直接引用子组件的场景。父组件在渲染时会直接调用指定的子组件。父组件对其子组件的依赖性增强，不够灵活。
+
+2. 通过`{props.children}`引入子组件：动态渲染，适用于在父组件中不确定子组件的情况，父组件在渲染时会根据子组件的动态变化来渲染。用于创建可重用的组件（如布局组件、容器组件等）。它允许父组件将任意子组件作为内容传递给父组件，从而提供更大的灵活性。
+
+3. 通过`<Children />`引入子组件，React 会立即在渲染父组件时创建该子组件的实例。
+
+   - 组件直接渲染：当您使用 `<Children />` 引用子组件时，React 会立即在渲染父组件时创建该子组件的实例。
+   - 父组件受限：父组件需要显式地知道并编写要渲染哪些子组件。这样会导致父组件对其子组件的依赖性增强，不够灵活。
+
+4. 通过`{props.children}`引入子组件：
+
+   - 内容占位：在使用 {props.children} 时，父组件定义了一个位置，任何在父组件标签内放置的内容将被渲染到这个位置。
+   - 灵活性：传递给父组件的内容可以是任何合法的 React 元素或组件（包括文本、组件、甚至其他 JSX）。这使得父组件能够在不修改其自身代码的情况下接收和渲染不同的子组件。
+   - 支持多样性：父组件可以接收多个子元素，甚至可以是条件渲染的元素，提供了极大的灵活性和可重用性。
+
+5. 总结：`<Children />`：用于直接引用已知的子组件，适用于固定组合。`{props.children}`：用于动态渲染传递给父组件的内容，适用于高度可重用的组件结构。
+
 #### Vue 和 React 渲染组件的方式有何区别
 
 > React 渲染机制
@@ -2252,6 +2273,11 @@ const MyComponent = React.lazy(() => import("./MyComponent"));
 
 1. React 类组件中：`shouldComponentUpdate(nextProps, nextState) {return nextProps.value !== this.props.value;}`，只在特定条件下更新。
 2. 函数组件中：使用 `React.memo()` 来包裹组件，通过传入一个比较函数来决定是否更新。
+   1. `React.memo` 是一个高阶组件（HOC），用于优化函数组件的渲染性能。它通过**浅比较**（Shallow Compare） 组件的 props，避免不必要的重新渲染。类似于类组件中的 **PureComponent**，但专门为函数组件设计。
+   2. 直接包裹函数组件时，自动浅比较 props。即第二个参数为空的时候会自动浅比较 props。
+   3. 自定义比较函数：通过第二个参数指定 props 比较逻辑。如果返回 true，则不更新组件；如果返回 false，则更新组件。
+   4. 示例 1：props 是由`{a:1,b:[1,2,3]}`变为`{a:1,b:[1,2,3,4,5]}`这样时，浅比较，b 是数组，引用地址变化，子组件会重新渲染。
+   5. 示例 2：props 是由`{a:1,b:{a:1,b:2}}`变为`{a:1,b:{a:1,c:3}}`这样时，浅比较，b 是对象，引用地址变化，子组件会重新渲染。
 
 ```js
 const MyComponent = React.memo(
@@ -2264,6 +2290,13 @@ const MyComponent = React.memo(
 );
 ```
 
+3. 缓存回调函数：useCallback：防止回调函数因父组件渲染而重建，导致子组件 props 引用变化。
+4. 缓存复杂计算：useMemo：避免每次渲染重复执行高开销计算。
+5. 拆分组件与状态隔离：将高频变动的状态封装到独立组件中，避免扩散渲染影响。
+6. 避免传递内联对象/函数：`<Child config={{ id: 1, type: 'A' }} />`这样是错误的，因为每次渲染会生成新的对象触发子组件重新渲染，可以使用 useMemo 或常量的形式传递。
+7. 优化 context 消费，任何 Context 变化都会触发所有消费者渲染：`const { value } = useContext(MyContext);`，拆分 Context 或使用选择器：`const value = useContextSelector(MyContext, ctx => ctx.value);`。PS：`useContextSelector`是这个库提供的[use-context-selector](https://github.com/dai-shi/use-context-selector?tab=readme-ov-file)。
+8. 列表渲染使用稳定的唯一 key：不要使用索引、随机数或者时间戳等做 key。
+
 #### React 类组件中的 setState 和函数组件中 setState 的区别
 
 #### React 的 Reconciliation 过程是如何工作的
@@ -2275,6 +2308,194 @@ const MyComponent = React.memo(
 #### Reflect 概念
 
 #### Symbol 概念
+
+#### VueRouter
+
+1. 路由模式：Hash 模式: createWebHashHistory，History HTML5 模式: createWebHistory，Memory 内存模式: createMemoryHistory -- 适合 Node 环境和 SSR。
+2. 路由守卫：
+   - beforeEach：全局前置守卫，当一个导航触发时，全局前置守卫按照创建顺序调用。守卫是异步解析执行，此时导航在所有守卫 resolve 完之前一直处于等待中。
+   - beforeResolve：全局解析守卫，和 router.beforeEach 类似，在每次导航时都会触发，不同的是，解析守卫刚好会在导航被确认之前、所有组件内守卫和异步路由组件被解析之后调用。是获取数据或执行任何其他操作的理想位置。
+   - afterEach：全局后置钩子，和守卫不同的是，这些钩子不会接受 next 函数也不会改变导航本身。它们对于分析、更改页面标题、声明页面等辅助功能以及许多其他事情都很有用。
+   - beforeEnter：路由独享的守卫，直接在路由配置上定义。只在进入路由时触发，不会在 params、query 或 hash 改变时触发。可以将一个函数数组传递给 beforeEnter，这在为不同的路由重用守卫时很有用。当配合嵌套路由使用时，父路由和子路由都可以使用 beforeEnter。如果放在父级路由上，路由在具有相同父级的子路由之间移动时，它不会被触发。
+   - 从 Vue 3.3 开始，可以在导航守卫内使用 inject() 方法。在 app.provide() 中提供的所有内容都可以在 router.beforeEach()、router.beforeResolve()、router.afterEach() 内获取到
+   - beforeRouteEnter：组件内的守卫，不能 访问 this，因为守卫在导航确认前被调用，因此即将登场的新组件还没被创建。可以通过传一个回调给 next 来访问组件实例。在导航被确认的时候执行回调，并且把组件实例作为回调方法的参数
+   - beforeRouteUpdate：组件内的守卫，在当前路由改变，但是该组件被复用时调用。
+   - beforeRouteLeave：组件内的守卫，离开守卫，通常用来预防用户在还未保存修改前突然离开。该导航可以通过返回 false 来取消。
+3. 完整的导航解析流程：
+   1. 导航被触发。
+   2. 在失活的组件里调用 beforeRouteLeave 守卫。
+   3. 调用全局的 beforeEach 守卫。
+   4. 在重用的组件里调用 beforeRouteUpdate 守卫(2.2+)。
+   5. 在路由配置里调用 beforeEnter。
+   6. 解析异步路由组件。
+   7. 在被激活的组件里调用 beforeRouteEnter。
+   8. 调用全局的 beforeResolve 守卫(2.5+)。
+   9. 导航被确认。
+   10. 调用全局的 afterEach 钩子。
+   11. 触发 DOM 更新。
+   12. 调用 beforeRouteEnter 守卫中传给 next 的回调函数，创建好的组件实例会作为回调函数的参数传入。
+4. 传参：params、query、hash
+
+```js
+// router.js
+import { createRouter, createWebHashHistory, createWebHistory, createMemoryHistory } from "vue-router";
+import { h } from "vue";
+
+function removeQueryParams(to) {
+  if (Object.keys(to.query).length) return { path: to.path, query: {}, hash: to.hash };
+}
+
+function removeHash(to, from) {
+  if (to.hash) return { path: to.path, query: to.query, hash: "" };
+}
+
+const router = createRouter({
+  history: createWebHashHistory(), // createWebHistory, createMemoryHistory
+  routes: [
+    {
+      name: "home",
+      path: "/",
+      component: () => import("./views/Home.vue"),
+      beforeEnter: [removeQueryParams, removeHash],
+      // children:[]
+    },
+    {
+      path: "/users/:id",
+      component: () => import("./views/UserDetails.vue"),
+      beforeEnter: [removeQueryParams, removeHash],
+    },
+    {
+      name: "about",
+      path: "/about",
+      // component: () => import('./views/About.vue'),
+      component: () => import("./views/About.vue"),
+      beforeEnter: [removeQueryParams],
+    },
+  ],
+});
+// 路由守卫：全局前置守卫
+router.beforeEach(async (to, from) => {
+  if (
+    // 检查用户是否已登录
+    !isAuthenticated &&
+    // ❗️ 避免无限重定向
+    to.name !== "Login"
+  ) {
+    // 将用户重定向到登录页面
+    return { name: "Login" };
+  }
+  // ...
+  // 返回 false 以取消导航
+  return false;
+  // 或者返回一个path字符串
+  // return '/login';
+});
+
+// 或者
+// GOOD：确保 next 在任何给定的导航守卫中都被严格调用一次。它可以出现多于一次，但是只能在所有的逻辑路径都不重叠的情况下，否则钩子永远都不会被解析或报错。
+router.beforeEach((to, from, next) => {
+  const global = inject("global"); // 'hello injections'
+  if (to.name !== "Login" && !isAuthenticated) next({ name: "Login" });
+  else next();
+});
+
+export default router;
+
+// app.js
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+
+const app = createApp(App);
+app.provide("global", "hello injections");
+app.use(router);
+app.mount("#app");
+```
+
+1. history.pushState()、history.replaceState()、history.back()、history.forward()、history.go()、监听 changestate 事件。使用 history 路由需要在 nginx 配置静态资源，否则会 404。如下：
+
+```bash
+# ...
+location / {
+  try_files $uri $uri/ /index.html;
+}
+# ...
+```
+
+#### pinia
+
+1. 可以任意命名 `defineStore()` 的返回值，但最好使用 store 的名字，同时以 `use` 开头且以 `Store` 结尾。应该在不同的文件中去定义 store。
+2. 第一个参数是你的应用中 Store 的唯一 ID。defineStore() 的第二个参数可接受两类值：Setup 函数或 Option 对象。
+3. Option API 中：可以认为 state 是 store 的数据 (data)，getters 是 store 的计算属性 (computed)，而 actions 则是方法 (methods)。
+4. 在 Setup Store 中：ref() 就是 state 属性，computed() 就是 getters，function() 就是 actions。
+5. 使用 Store：在`<script setup>` 调用 useXXXStore()，store 是一个用 reactive 包装的对象，这意味着不需要在 getters 后面写 .value。就像 setup 中的 props 一样，我们不能对 getters 和 state 进行解构，否则会破坏响应性。可以对 actions 进行解构。
+6. 为了从 store 中提取属性时保持其响应性，你需要使用 storeToRefs()。它将为每一个响应式属性创建引用。当你只使用 store 的状态而不调用任何 action 时，它会非常有用。
+
+```js
+import { defineStore } from "pinia";
+// Option API
+export const useCounterStore = defineStore("counter", {
+  state: () => ({
+    count: 0,
+  }),
+  getters: {
+    doubleCount: (state) => state.count * 2,
+    doubleCountPlusOne: (state) => state.doubleCount + 1,
+  },
+  actions: {
+    plusOne: () => {
+      this.count++;
+    },
+    increment: (num) => {
+      this.count += num;
+    },
+  },
+});
+
+// setup API
+import { ref, computed, inject } from "vue";
+import { useRoute } from "vue-router";
+import { defineStore } from "pinia";
+
+export const useCounterStore = defineStore("counter", () => {
+  const route = useRoute();
+  // 这里假定 `app.provide('appProvided', 'value')` 已经调用过
+  const appProvided = inject("appProvided");
+
+  const count = ref(0);
+  const doubleCount = computed(() => count.value * 2);
+  function increment() {
+    count.value++;
+  }
+
+  return { count, doubleCount, increment };
+});
+
+// 使用时
+import { storeToRefs } from "pinia";
+import { useCounterStore } from "./store/counter";
+
+const counterStore = useCounterStore();
+const { count, doubleCount } = storeToRefs(counterStore);
+const { increment } = counterStore;
+```
+
+7. 访问 state：`const store = useCounterStore(); store.count++;`
+8. 重置 state：`counterStore.$reset();`这个方法会重置所有状态，将所有属性重置为初始值。使用 setup 时可以自定义。
+9. 使用 `mapState()` 辅助函数将 state 属性映射为`只读`的计算属性：`computed: {...mapState(useCounterStore, ['count']), ...mapState(useCounterStore, { myCount: 'count' })}`，可以取个别名。
+10. 可修改的 state：使用 `mapWritableState()` 作为代替。但注意你不能像 mapState() 那样传递一个函数。
+11. 变更 state：`counterStore.$patch({ count: 1 });`，可以一次修改多个属性。$patch 方法也接受一个函数来组合这种难以用补丁对象实现的变更。
+12. 替换 state：不能完全替换掉 store 的 state，因为那样会破坏其响应性。但是，你可以 patch 它。
+13. 订阅 state：类似于 Vuex 的 subscribe 方法，你可以通过 store 的 $subscribe() 方法侦听 state 及其变化。比起普通的 watch()，使用 `\$subscribe()` 的好处是 subscriptions 在 patch 后只触发一次事件。
+14. `counterStore.$subscribe((mutation, state) => {...});`
+15. Getter 完全等同于 store 的 state 的计算值。大多数时候，getter 仅依赖 state。不过，有时它们也可能会使用其他 getter。可以通过 this 访问到整个 store 实例。在 ts 中如果在 getter 中用到了 this，需要显式声明返回值类型。
+16. Getter 只是幕后的计算属性，所以不可以向它们传递任何参数。不过，你可以从 getter 返回一个函数，该函数可以接受任意参数。
+17. 想要使用另一个 store 的 getter 的话，直接在 getter 内使用就好。
+18. action 可以是异步的，你可以在它们里面 await 调用任何 API，以及其他 action。
+19. 想要使用另一个 store 的话，直接在 action 中调用就好。
+20. 可以使用 `mapActions()` 辅助函数将 action 属性映射为组件中的方法。
+21. `methods: {...mapActions(useCounterStore, ['increment']), ...mapActions(useCounterStore, { myOwnName: 'increment' }),}`，可以设置别名。
+22. 订阅 action：可以通过 `store.$onAction()` 来监听 action 和它们的结果。传递给它的回调函数会在 action 本身之前执行。after 表示在 promise 解决之后，允许你在 action 解决后执行一个回调函数。同样地，onError 允许你在 action 抛出错误或 reject 时执行一个回调函数。
 
 #### 防抖、节流
 
@@ -2798,7 +3019,7 @@ input_dom.addEventListener("compositionend", onCompositionEnd);
 - 控制资源文件加载优先级，css 放在 html 头部，js 放在底部或 body 后面；设置 importance 属性；async、defer 关键字异步加载；
 - 静态资源上 cdn，尽量外链 css 和 js，保持代码整洁，利于维护；
 - 利用缓存，浏览器缓存；移动端 app 上的 http 缓存只在当前这次 app 存活期间遵循 http 缓存策略，当你的 app 杀死退出后，缓存就会失效。
-- 减少重排重绘：基本原理：重排是 DOM 的变化影响到了元素的几何属性（宽和高），浏览器会重新计算元素的几何属性，会使渲染树中受到影响的部分失效，浏览器会验证 DOM 树上的所有其它结点的 visibility 属性，这也是 Reflow 低效的原因。如果 Reflow 的过于频繁，CPU 使用率就会急剧上升。减少 Reflow，如果需要在 DOM 操作时添加样式，尽量使用 增加 class 属性，而不是通过 style 操作样式。
+- 减少重排重绘：基本原理：重排是 DOM 的变化影响到了元素的几何属性（宽和高或位置），浏览器会重新计算元素的几何属性，会使渲染树中受到影响的部分失效，浏览器会验证 DOM 树上的所有其它结点的 visibility 属性，这也是 Reflow 低效的原因。如果 Reflow 的过于频繁，CPU 使用率就会急剧上升。减少 Reflow，如果需要在 DOM 操作时添加样式，尽量使用 增加 class 属性，而不是通过 style 操作样式。
 - 减少 dom 操作
 - 图标使用 iconfont 替换
 - 不使用 css 表达式，会影响效率
@@ -3117,8 +3338,8 @@ Vue 的渲染是从 render 阶段开始的，但 keep-alive 的渲染是在 patc
 1. 每一层的`<router-view>`/组件都包裹一层`keep-alive`就好了？
    - 菜单多层级嵌套底下的子组件是不会缓存下来的，这个时候我们就要继续往下给下面的层级继续加上`keep-alive`；
    - 同时在`keep-alive`的 include 中绑定一个数组 cachesViewList，数组里面必须把它父级的 name 都放进去。
-2. 把嵌套的`<router-view>`拍平，也就是在路由守卫`router.afterEach`中添加一个将无用的 layout 布局过消除的方法
-   - 因为`import()`异步懒加载，第一次获取不到 `element.components.default.name`，所以不能再 `beforeEach` 做，不然第一次访问的界面不缓存第二次才会缓存
+2. 把嵌套的`<router-view>`拍平，也就是在路由守卫`router.afterEach`中添加一个将无用的 layout 布局消除的方法
+   - 因为`import()`异步懒加载，第一次获取不到 `element.components.default.name`，所以不能在 `beforeEach` 中处理，不然第一次访问的界面不缓存第二次才会缓存
    - `afterEach` 就不一样了，这时候可以获取到 `element.components.default.name` 了
 
 #### 缓存后如何获取数据
@@ -3773,6 +3994,67 @@ fetchUrls(urls, 3).then((results) => {
 2. 依赖按需收集：Vue2 在初始化时遍历整个对象，而 Vue3 采用 `Lazy Proxy（惰性代理）`只有在访问属性时才进行代理，减少性能消耗。
 3. 自动清理无效依赖：Vue3 采用 `WeakMap + Set` 进行依赖存储，避免内存泄漏，Vue2 需要手动管理依赖删除。
 4. 只更新受影响的组件 Vue3 的 `trigger()` 机制让每个组件只更新它所依赖的部分，避免 Vue2 中全局重新计算的问题。
+
+### vue 的 vm 实例在挂载时发生了什么
+
+当 Vue2 实例 (vm) 挂载时，会发生一系列重要的初始化过程：
+
+1. 初始化生命周期：设置实例的`$parent`、`$root`等属性
+2. 初始化事件系统：建立`$on`、`$emit`等事件方法
+3. 初始化渲染函数：设置`$createElement`等渲染相关方法
+4. 调用`beforeCreate`钩子：此时数据观察和事件配置都还未初始化
+5. 初始化注入(`inject`)：处理父组件提供的依赖注入
+6. 初始化状态：
+   - 初始化 props
+   - 初始化 methods
+   - 初始化 data（响应式处理）
+   - 初始化 computed
+   - 初始化 watch
+7. 初始化提供(`provide`)：设置组件提供的依赖
+8. 调用 `created` 钩子：此时实例已创建完成，数据观察等已完成，但 DOM 还未生成
+9. 挂载阶段开始：
+10. 检查是否有 el 选项，如果没有则等待手动调用`$mount`
+11. 检查是否有`template`选项，有则编译为渲染函数，没有则使用 el 的`outerHTML`作为模板
+12. 调用`beforeMount`钩子
+13. 创建渲染 Watcher：
+    - 创建一个渲染 Watcher 来监听依赖变化
+    - 执行初始渲染，生成虚拟 DOM 并转换为真实 DOM
+14. 调用`mounted`钩子：此时组件已挂载到 DOM 上
+
+Vue3 的过程类似，有些许不同：
+
+1. 应用初始化：`const app = createApp(AppComponent); app.mount('#app');`
+2. 组件实例创建阶段：
+   - 初始化组件选项：合并全局/局部配置
+   - 建立响应式上下文：通过 `reactive()` 创建响应式系统
+   - 执行 `setup()` 函数（替代 Vue 2 的 `beforeCreate/created`）
+     - 接收 `props` 和 `context`
+     - 返回的对象将被合并到渲染上下文
+3. 生命周期流程：
+   1. `beforeCreate`（兼容选项式 API）：组合式 API 中通过 `setup()` 替代
+   2. `setup()` 执行
+   3. `onBeforeMount` 钩子触发
+   4. 编译阶段（如果使用模板）：
+      - 将模板编译为优化后的渲染函数
+      - 应用静态节点提升（Static Node Hoisting），Patch Flags：标记动态内容类型，Block Tree：减少不必要的树遍历
+   5. `render()` 函数执行：
+      - 生成虚拟 DOM（vnode）
+      - 应用 Block Tree 优化
+   6. `onMounted` 钩子触发：
+      - 子组件的 `mounted` 会先于父组件触发
+
+性能优化点：
+
+1. 编译时优化
+   - 动态节点标记（Patch Flags）
+   - 静态树提升（Static Hoisting）
+   - 缓存事件处理程序
+2. 运行时优化
+   - 更快的虚拟 DOM diff 算法
+   - 基于 Proxy 的响应式追踪
+   - 组件实例复用机制改进
+3. Tree-shaking 支持
+   - 未使用的功能不会打包进生产代码
 
 ## 消除异步的传染性
 
@@ -5374,3 +5656,84 @@ addTask(500, "B"); // Output B after 0.5s
 addTask(300, "C"); // After task A or B is completed, output C after 0.3s
 addTask(400, "D"); // After task C is completed, output after 0.4s
 ```
+
+## 4.1
+
+### 数禾科技
+
+1. let、const 与 var 的区别
+
+   - `var`：函数作用域或全局作用域，声明的变量会被提升到函数的顶部并初始化为 undefined，不存在暂时性死区。使用 `var` 声明的变量可以被重新声明或覆盖。全局作用域的 `var` 变量会成为全局对象的属性。
+   - `let/const`：块级作用域，声明的变量会被提升，但不会被初始化。由于暂时性死区，在声明之前访问变量会报错`ReferenceError`。全局作用域的 `let/const` 变量不会成为全局对象的属性。
+   - `let` 声明的变量可以被重新赋值，而 `const` 声明的变量不能被重新赋值（对于基本类型）。
+
+2. 函数中使用未声明的变量会报错：`ReferenceError`。非严格模式下，在（立即执行）函数中直接给未声明的变量赋值会创建一个全局变量，访问时报错`ReferenceError`，即不使用 var、let、const 声明。严格模式下`use strict;`访问和赋值时都会报错`ReferenceError`。
+3. 闭包的定义和作用，常见的闭包应用场景。
+   - 闭包：函数和对其周围状态（词法环境）的引用捆绑在一起形成的一个组合。即使函数在其词法作用域之外执行，闭包仍然可以访问这些变量。闭包是指函数能够记住并访问他的词法作用域，即使这个函数在词法作用域之外执行。
+   - 主要用途：数据隐藏，通过闭包创建私有变量，外部无法直接访问；实现模块和封装，闭包可以模拟 ES6 中的模块，实现代码封装。
+   - react 中的事件的箭头函数，科里化，防抖节流函数，umd 模块，HOC 等
+4. `position:absoulte;`在什么情况下才会生效？具体表现是什么？相对谁来定位的？
+   - 元素设置了 `position: absolute`（或 `position: fixed`）。且存在一个`非 static` 定位的祖先元素（即祖先元素设置了 `position: relative / absolute / fixed / sticky`）。如果没有这样的祖先元素，则相对于 `<html>`（或 `<body>`） 进行定位。
+   - 相对于最近的非 static 定位的祖先元素根据 top、left、bottom、right 来定位，如果没有符合条件的祖先元素，则相对于 `<html>`（或 `<body>`） 进行定位。
+   - 脱离文档流，不再占据原来的空间，其他元素会忽略它的存在；如果没有设置 top、left、bottom、right 这些值，元素会保持在原来的位置（但依然脱离文档流）；默认宽度由内容撑开，可以设置 width: 100% 来占满父容器的宽度；可以使用 z-index 控制堆叠顺序。
+   - absolute 的定位基准是`父级的内容区（content） + padding（不包括 margin 和 border）`。
+5. `position:fixed`是相对于视口 viewport 定位的，为啥有人说是相对于图层定位的？
+   - CSS 规范明确规定，fixed 元素是相对于 浏览器视口（viewport） 定位的，与文档流无关。
+   - 滚动页面时，fixed 元素会固定在屏幕同一位置。
+   - 不受父级元素影响（即使父级有 transform、filter 等属性，也不会改变其定位基准，除非触发层叠上下文的影响）。
+   - 与绝对定位的工作方式完全相同，只有一个主要区别：绝对定位将元素固定在相对于其位置最近的祖先。如果没有，则为初始包含它的块。
+   - 某些 CSS 属性会创建新的定位上下文：如果祖先元素设置了 transform、filter、will-change 等属性，可能会意外改变 fixed 的定位基准（表现类似 absolute）。本质：这是浏览器的一个历史行为，而非 CSS 规范要求。现代浏览器已部分修复此问题。
+   - 浏览器渲染机制中的“图层”：fixed 元素会被浏览器提升到一个独立的合成层（Compositing Layer），与普通文档流分离。
+6. 硬件加速：常见的：`transform: translateZ(0); opacity: 0.99; will-change: transform; filter; clip-path; backface-visibility; perspective`等。
+7. 如何校验一段 JSON 是否符合低代码平台的规范？
+
+```js
+// 如下，我们规定 JSON 数据必须符合以下规范：
+// 1. input-text和button-submit 只能包含在form元素或者form的后代元素
+// 2. form元素可以包含在其他form元素的后代元素中，但不能被input-text、text、button-submit等包含
+const data = [
+  {
+    type: "form",
+    children: [
+      {
+        type: "input-text",
+      },
+      {
+        type: "div",
+        children: [
+          {
+            type: "text",
+          },
+          {
+            type: "button-submit",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    type: "input-text",
+  },
+];
+
+const checkJSON = (data) => {
+  const isValid = (node, hasForm) => {
+    if (node.type === "form") {
+      return true;
+    } else if (node.type === "input-text" || node.type === "text" || node.type === "button-submit") {
+      // return node.parent && (node.parent.type === "form" || node.parent.type === "div");
+    }
+    return false;
+  };
+
+  for (const node of data) {
+    if (!isValid(node)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+```
+
+8. React.memo 特性和使用场景。

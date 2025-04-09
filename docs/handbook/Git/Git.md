@@ -140,7 +140,7 @@ PS: tag 和在哪个分支创建是没有关系的，tag 只是提交的别名�
 
 1. 从远程拉一个本地不存在的新分支并切换到这个新分支上：
 
-```git
+```bash
 git fetch origin
 git checkout -b new-feature origin/new-feature
 ```
@@ -201,27 +201,27 @@ git 本身是分布式版本控制系统，可以同步到另外一个远程库�
 
 使用多个远程库时，要注意 git 给远程库起的默认名称是 origin，如果有多个远程库，我们需要用不同的名称来标识不同的远程库。仍然以 learngit 本地库为例，先删除已关联的名为 origin 的远程库：
 
-```git
+```bash
 git remote rm origin
 ```
 
 然后，先关联 GitHub 的远程库：
 
-```git
+```bash
 git remote add github git@github.com:xxx/LearnGit.git
 ```
 
 注意，远程库的名称叫 github，不叫 origin 了。
 接着，再关联码云的远程库：
 
-```git
+```bash
 git remote add gitee git@gitee.com:xxx/LearnGit.git
 ```
 
 同样注意，远程库的名称叫 gitee，不叫 origin。
 现在，我们用 git remote -v 查看远程库信息，可以看到两个远程库：
 
-```git
+```bash
 gitee git@gitee.com:xxx/LearnGit.git (fetch)
 gitee git@gitee.com:xxx/LearnGit.git (push)
 github git@github.com:xxx/LearnGit.git (fetch)
@@ -231,7 +231,7 @@ git push github master
 
 如果要推送到码云，使用命令：
 
-```git
+```bash
 git push gitee master
 ```
 
@@ -249,7 +249,7 @@ git push gitee master
 
 常用的其实只有下面这四个命令：
 
-```git
+```bash
 # 添加一个worktree
 git worktree add [-f] [--detach] [--checkout] [--lock] [-b <new-branch>] <path> [<commit-ish>]
 # 列出当前的worktree，在任意一个worktree下都可用
@@ -279,8 +279,8 @@ eg.
 
 1. git config --global alias.ps push - 把 push 设为 ps；
 2. 手动编辑全局配置文件：
-   - `nano ~/.gitconfig`
-   - 写入对应的别名对，例：`co = checkout pl = pull`等并保存退出，
+   - `open ~/.gitconfig` / `nano ~/.gitconfig`
+   - 写入对应的别名对，例：`[alias] ck = checkout pl = pull`等并保存退出，
    - 执行`source ~/.gitconfig`使改动生效
 
 ### git hooks 原理
