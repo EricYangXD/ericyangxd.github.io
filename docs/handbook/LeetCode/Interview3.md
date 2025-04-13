@@ -272,11 +272,12 @@ const MyComponent = React.lazy(() => import("./MyComponent"));
 
 1. React 类组件中：`shouldComponentUpdate(nextProps, nextState) {return nextProps.value !== this.props.value;}`，只在特定条件下更新。
 2. 函数组件中：使用 `React.memo()` 来包裹组件，通过传入一个比较函数来决定是否更新。
-   1. `React.memo` 是一个高阶组件（HOC），用于优化函数组件的渲染性能。它通过**浅比较**（Shallow Compare） 组件的 props，避免不必要的重新渲染。类似于类组件中的 **PureComponent**，但专门为函数组件设计。
+   1. `React.memo` 是一个高阶组件（HOC），用于优化**函数组件**的渲染性能。它通过**浅比较**（Shallow Compare） 组件的 props，避免不必要的重新渲染。类似于类组件中的 **PureComponent**，但专门为函数组件设计。
    2. 直接包裹函数组件时，自动浅比较 props。即第二个参数为空的时候会自动浅比较 props。
    3. 自定义比较函数：通过第二个参数指定 props 比较逻辑。如果返回 true，则不更新组件；如果返回 false，则更新组件。
    4. 示例 1：props 是由`{a:1,b:[1,2,3]}`变为`{a:1,b:[1,2,3,4,5]}`这样时，浅比较，b 是数组，引用地址变化，子组件会重新渲染。
    5. 示例 2：props 是由`{a:1,b:{a:1,b:2}}`变为`{a:1,b:{a:1,c:3}}`这样时，浅比较，b 是对象，引用地址变化，子组件会重新渲染。
+3. 参考[React 浅比较](../JavaScript/Function1.md)
 
 ```js
 const MyComponent = React.memo(
@@ -301,6 +302,7 @@ const MyComponent = React.memo(
 
 7. 优化 context 消费，任何 Context 变化都会触发所有消费者渲染：`const { value } = useContext(MyContext);`，拆分 Context 或使用选择器：`const value = useContextSelector(MyContext, ctx => ctx.value);`。PS：`useContextSelector`是这个库提供的[use-context-selector](https://github.com/dai-shi/use-context-selector?tab=readme-ov-file)。
 8. 列表渲染使用稳定的唯一 key：不要使用索引、随机数或者时间戳等做 key。
+9. 使用 PureComponent 仅比较 props 和 state。
 
 #### React 类组件中的 setState 和函数组件中 setState 的区别
 
@@ -537,7 +539,7 @@ function MockNew(Parent, ...args) {
 - 不使用 Object.create
 
 1. 创建一个空对象 obj：`const obj = {};`
-2. 让 obj 继承构造函数的的原型 prototype，即将构造函数的作用域赋给新对象（因此 this 就指向了这个新对象）：`obj.proto = Parent.prototype;`
+2. 让 obj 继承构造函数的的原型 prototype，即将构造函数的作用域赋给新对象（因此 this 就指向了这个新对象）：`obj.__proto__ = Parent.prototype;`
 3. 将 obj 作为 this，并传入参数，执行构造函数：`Parent.apply(obj, args);`
 4. 返回 obj(如果构造器没有手动返回对象，则返回第一步的对象)：`return obj;`
 
@@ -590,7 +592,7 @@ React 的 合成事件 和 生命周期 默认启用了批处理机制。
 
 在原生事件或异步回调中，如果在 原生事件 或 Promise.then 中调用 setState，React 的批处理机制不会生效，状态更新可能会立即触发，视具体场景而定。在这种情况下，setState 的行为更接近微任务。
 
-不要依赖 setState 后立即获取更新后的状态值，使用 useEffect 或回调函数（如 setState((prevState) => newState)）。理解 React 的批量更新机制，避免不必要的状态更新。
+不要依赖 setState 后立即获取更新后的状态值，使用 useEffect 或回调函数（如 `setState((prevState) => newState)`）。理解 React 的批量更新机制，避免不必要的状态更新。
 
 ```js
 // 原生事件中
@@ -736,6 +738,133 @@ export default defineConfig({
 5. 采用服务端合并，将分片上传的结果进行合并，实现完整的文件上传。
 
 ![示例代码](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202501171301005.png)
+
+> React 大文件上传组件代码示例
+
+```js
+import axios from 'axios';
+import SparkMD5 from 'spark-md5';
+import { UploadOutlined } from '@ant-design/icons';
+import { Upload, UploadProps, message } from 'antd';
+
+/**
+ * 定义检查块状态的响应接口
+ */
+interface CheckChunksResponse {
+  uploadStatus: 'uploaded' | 'uploading';
+  chunkSignsArr?: number[];
+}
+
+/**
+ * 获取文件的MD5哈希值
+ * @param file 要计算哈希值的文件
+ * @returns 返回文件的MD5哈希值
+ */
+const getFileHash = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      if (e.target && e.target.result instanceof ArrayBuffer) {
+        resolve(SparkMD5.ArrayBuffer.hash(e.target.result));
+      } else {
+        reject('文件读取结果无效');
+      }
+    };
+    fileReader.onerror = () => reject('文件读取失败');
+    fileReader.readAsArrayBuffer(file);
+  });
+};
+
+/**
+ * 处理文件上传逻辑，包括文件切片、断点续传和秒传功能
+ * @param file 要上传的文件
+ */
+const handleFileUpload = async (file: File) => {
+  try {
+
+    // 计算文件的MD5哈希值，用于唯一标识文件
+    const hash = await getFileHash(file);
+
+    // 将文件按100KB大小进行切片
+    const chunkSize = 100 * 1024;
+    const chunks = [];
+    let startPos = 0;
+    while (startPos < file.size) {
+      chunks.push(file.slice(startPos, startPos + chunkSize));
+      startPos += chunkSize;
+    }
+
+    // 检查文件是否已存在或部分上传
+    const { data } = await axios.get<CheckChunksResponse>(
+      `http://localhost:8080/check-chunks?hash=${hash}&name=${file.name}&chunkTotal=${chunks.length}`
+    );
+
+    // 如果文件已经完全上传，则触发秒传提示
+    if (data.uploadStatus === 'uploaded') {
+          message.success('秒传');
+          return;
+    }
+    // 获取已上传的块信息，用于实现断点续传
+    const chunkSignsArr = data.uploadStatus === 'uploading' && data.chunkSignsArr ? [...data.chunkSignsArr] : new Array(chunks.length).fill(0);
+    // 创建上传任务列表，仅上传未完成的块
+    const tasks = chunks.map(async (chunk, index) => {
+      if (chunkSignsArr[index] !== 0) {
+        return;
+      }
+      const formData = new FormData();
+      formData.set('name', `${hash}_${index}`);
+      formData.set('hash', hash);
+      formData.append('files', chunk);
+      // 上传每个块，并记录上传进度
+      await axios.post('http://localhost:8080/upload', formData, {
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const progress = (progressEvent.loaded / progressEvent.total * 100).toFixed(2);
+            console.log(`${index}上传进度:`, progress + '%');
+          }
+        },
+      });
+    });
+
+    // 并发执行所有上传任务
+    await Promise.all(tasks);
+
+    // 请求服务器合并所有上传的块
+    await axios.get(`http://localhost:8080/merge?name=${file.name}&hash=${hash}`);
+    message.success('文件上传成功');
+  } catch (error) {
+    console.error('文件上传失败:', error);
+    message.error('文件上传失败');
+  }
+};
+
+/**
+ * App组件，提供文件上传界面
+ * @returns 返回上传组件
+ */
+const App = () => {
+  const handleChange: UploadProps['onChange'] = async ({ file }) => {
+    if (!file || !(file as unknown as File).size) {
+      console.error('上传的文件无效');
+      return;
+    }
+    await handleFileUpload(file as unknown as File);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', padding: '20px', width: '100%' }}>
+      <Upload.Dragger multiple={false} beforeUpload={() => false} onChange={handleChange}>
+        <p className="ant-upload-drag-icon">
+          <UploadOutlined />
+        </p>
+        <p className="ant-upload-text">拖拽到这里或者<em>点击上传</em></p>
+      </Upload.Dragger>
+    </div>
+  );
+};
+
+export default App;
+```
 
 #### 如何实现一个 Promise
 
@@ -1104,3 +1233,34 @@ input_dom.addEventListener("compositionend", onCompositionEnd);
 - 按照页面变更频率安排资源
 - 减少 iframe
 - 注意页面大小，特别是 canvas 的大小和占用内存
+
+### React 状态管理
+
+![2025 React 状态管理终极指南](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202504102335834.png)
+
+1.
+
+### Vue、React、Angular 避免不必要渲染的机制详解
+
+- React：[哪个 React 生命周期可以跳过子组件渲染](./Interview3.md)
+- Vue:
+  - `v-once`：只渲染一次，不更新--`<div v-once>{{ value }}</div>`
+  - computed 属性：缓存计算结果，只有当依赖的数据发生变化时才会重新计算
+  - v-memo (Vue 3.2+)：记忆模板片段--`<div v-memo="[value]">{{ value }}</div>`
+  - 函数式组件：无状态组件--`const FunctionalComponent = (props) => h('div', props.value);`
+  - 手动 shouldUpdate：自定义函数比较新旧 props
+  - 列表渲染使用唯一 key
+- Angular:
+  - OnPush 变更检测策略：`@Component({changeDetection: ChangeDetectionStrategy.OnPush})`
+  - 纯管道 (Pure Pipe)：相同输入返回缓存结果 `@Pipe({pure: true})`
+  - trackBy 函数：优化 `*ngFor` 渲染--`<li *ngFor="let item of items; trackBy: trackByFn"></li>`
+  - 手动变更检测控制： 手动触发检测--`changeDetectorRef.detectChanges()`、标记需要检查--`changeDetectorRef.markForCheck()`
+
+| 技术         | React                            | Vue                    | Angular                                |
+| ------------ | -------------------------------- | ---------------------- | -------------------------------------- |
+| 核心机制     | 虚拟 DOM diff                    | 响应式系统             | 变更检测系统                           |
+| 主要优化 API | React.memo/shouldComponentUpdate | computed/v-once/v-memo | ChangeDetectionStrategy.OnPush/trackBy |
+| 函数缓存     | useCallback/useMemo              | computed               | 纯管道                                 |
+| 列表优化     | key 属性                         | key 属性               | 自定义 trackBy 函数                    |
+| 强制更新     | forceUpdate                      | $forceUpdate           | detectChanges                          |
+| 不可变数据   | 重要                             | 推荐                   | OnPush 下必需                          |

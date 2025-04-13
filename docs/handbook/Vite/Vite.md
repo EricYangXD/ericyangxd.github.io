@@ -121,3 +121,331 @@ export default {
 `workspace:*`中的`*`表示使用工作区中匹配的最新版本。这意味着如果 vite 是你的工作区中的一个包，那么这个配置会确保使用工作区中 vite 包的最新版本。
 
 这种配置通常用于 monorepo（单一代码仓库）设置中，其中多个相关的项目被组织在同一个仓库中，并且它们之间可能存在依赖关系。通过使用`workspace:*`，你可以确保依赖项的版本与工作区中的实际版本保持一致，这有助于避免版本冲突和确保依赖项的一致性。
+
+## 使用记录
+
+### vite 配置别名
+
+1. 首先安装为 Node.js 提供类型定义的包，也是解决 "「找不到模块 path 或其相对应的类型声明」" 问题。
+2. 在 vite.config.ts 中配置 resolve.alias ，使用 @ 符号代表 src
+
+```ts
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [vue()],
+  resolve: { alias: { "@": resolve(__dirname, "src") } },
+});
+
+// 也可以是这样的：
+import { defineConfig } from "vite";
+import type { UserConfig, ConfigEnv } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
+
+// https://vitejs.dev/config/
+export default ({ mode }: ConfigEnv): UserConfig => {
+  //获取当前工作目录的路径
+  const root: string = process.cwd();
+  const pathResolve = (dir: string): string => {
+    return resolve(root, ".", dir);
+  };
+  return { plugins: [vue()], resolve: { alias: { "@": pathResolve("src") } } };
+};
+```
+
+3. 如果使用了 TypeScript 的话，需要在 tsconfig.json 中配置：
+
+```ts
+{
+  "compilerOptions": {
+    //使用相对路径，当前根目录
+    "baseUrl": ".",
+    "paths": {
+        "@/*": ["src/*"],
+    }
+  }
+}
+```
+
+### 省略拓展名列表
+
+不建议忽略自定义导入类型的扩展名 .vue ，会影响 IDE 和类型支持。
+
+```js
+import { defineConfig } from "vite";
+export default defineConfig({
+  resolve: {
+    //导入文件时省略的扩展名列表
+    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
+  },
+});
+```
+
+### vite 插件
+
+在 `plugins` 中可以添加你的插件，它是一个数组：
+
+- @vitejs/plugin-vue-jsx JSX、TSX 语法支持
+- vite-plugin-mock Mock 支持
+- vite-plugin-svg-icons svg 图标
+- unplugin-auto-import/vite 按需自动导入 集成按需引入配置
+- unplugin-vue-components/vite 按需组件自动导入 集成按需引入配置
+- unocss/vite 原子化 css
+- vite-plugin-compression gzip 压缩打包
+- rollup-plugin-visualize 打包分析可视化
+- vite-plugin-chunk-split 代码分包
+
+```js
+//vite.config.ts
+import { defineConfig } from "vite";
+import viteCompression from "vite-plugin-compression";
+import { visualizer } from "rollup-plugin-visualizer";
+// 集成按需引入配置
+import Components from "unplugin-vue-components/vite";
+import { AntDesignVueResolver, ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import AutoImport from "unplugin-auto-import/vite";
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    //默认压缩gzip，生产.gz文件
+    viteCompression({
+      //压缩后是否删除源文件
+      deleteOriginFile: false,
+    }),
+    visualizer({
+      open: true, //build后，是否自动打开分析页面，默认false
+      gzipSize: true, //是否分析gzip大小
+      brotliSize: true, //是否分析brotli大小
+      //filename: 'stats.html'//分析文件命名，使用命令 pnpm build 后，分析图 html 文件会在根目录下生成，默认命名为 stats.html。把分析文件加入 .gitignore ，不提交到 git 仓库中。
+    }),
+    // 集成按需引入配置
+    Components({
+      resolvers: [
+        //AntDesignVueResolver({ importStyle: "less" }),
+        ElementPlusResolver({ importStyle: "sass" }),
+      ],
+      dts: "src/typings/components.d.ts", //自定义生成 components.d.ts 路径
+    }),
+    // 集成按需引入配置
+    AutoImport({
+      imports: [
+        "vue",
+        "vue-router",
+        //一些全局注册的hook等，无需局部引入
+        {
+          // "@/hooks/useMessage": ["useMessage"],
+        },
+      ],
+      resolvers: [ElementPlusResolver()], //AntDesignVueResolver()
+      dts: "src/typings/auto-imports.d.ts", //自定义生成 auto-imports.d.ts 路径
+    }),
+  ],
+});
+```
+
+- unplugin-vue-components 会在 src/typings 文件夹下生成 components.d.ts 类型文件
+- unplugin-auto-import 会在 src/typings 文件夹下生成 auto-imports.d.ts 类型文件
+- unplugin-vue-components 插件会自动引入 UI 组件及 src 文件夹下的 components 组件，规则是 src/components/\*.{vue}
+- 请确保你的项目中拥有 src/typings 文件夹，或者更改上述配置项的 dts 路径
+- 使用按需引入的话，不要忘了在 tsconfig.json 中引入组件库的类型声明文件
+- 如果你使用的是 AntDesignVue 组件库，将  "element-plus/global" 替换成 "ant-design-vue/typings/global" 即可
+
+```js
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["node", "vite/client", "element-plus/global", "ant-design-vue/typings/global"]
+  }
+}
+```
+
+### 环境变量
+
+Vite 在一个特殊的  「import.meta.env」  对象上暴露环境变量，这些变量在构建时会被静态地替换掉。这里有一些在所有情况下都可以使用的内建变量：
+
+- 「import.meta.env.MODE」: {string} 应用运行的模式。
+- 「import.meta.env.BASE_URL」: {string} 部署应用时的基本 URL。由 base  配置项决定。
+- 「import.meta.env.PROD」: {boolean} 应用是否运行在生产环境（使用  NODE_ENV='production'  运行开发服务器或构建应用时使用  NODE_ENV='production' ）。
+- 「import.meta.env.DEV」: {boolean} 应用是否运行在开发环境 (永远与  import.meta.env.PROD 相反)。
+- 「import.meta.env.SSR」: {boolean} 应用是否运行在  server   上。
+- 可以打印 import.meta.env 对象查看拥有的属性
+
+- 在 Vite 中，只有以 VITE\_ 为前缀的变量才会交给 Vite 来处理。如果要改前缀的话，在 vite.config.ts 中设置 envPrefix ，它可以是一个字符串或者字符串数组。
+- Vite 也提供了 envDir 用来自定义环境文件存放目录
+  - 新建 .env 文件，表示通用的环境变量，优先级较低，会被其他环境文件覆盖
+  - 新建 .env.development 文件，表示开发环境下的环境变量
+  - 新建 .env.production 文件，表示生产环境下的环境变量
+  - 需要的话，你可以加入更多的环境，比如 预发布环境 .env.staging (它的配置一般与生产环境无异，只是 url 变化) 和 测试环境 .env.testing
+  - 在默认情况下，运行的脚本 dev 命令(pnpm dev)是会加载 .env.development 中的环境变量，而脚本 build 命令是加载 .env.production 中的环境变量
+- 最常见的业务场景就是，前端与后端的接口联调，本地开发环境与线上环境用的接口地址不同，这时只需要定义不同环境文件的相同变量即可。
+- 也可以通过在 package.json 中改写脚本命令来自定义加载你想要的环境文件，关键词是 --mode。`"build:dev": "vue-tsc -b && vite build --mode development"`
+
+### TS 智能提示
+
+在 `src/typings` 目录下新建一个 `env.d.ts`，写入以下内容，即可得到类型提示，鼠标停留在变量上也会显示注释：
+
+```js
+//环境变量-类型提示
+interface ImportMetaEnv {
+  /** 全局标题 */
+  readonly VITE_APP_TITLE: string;
+  /** 本地开发-端口号 */
+  readonly VITE_DEV_PORT: number;
+  //加入更多环境变量...
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+```
+
+记得在 tsconfig 文件中配置 include 引入类型声明文件，typings 代表你的类型文件目录名称：
+
+```js
+{
+  // "compilerOptions": {},
+  "include": ["typings/**/*.d.ts","typings/**/*.ts"]
+}
+```
+
+### 在 vite.config.ts 中使用环境变量
+
+```js
+import { loadEnv } from "vite";
+import type { UserConfig, ConfigEnv } from "vite";
+import vue from "@vitejs/plugin-vue";
+
+export default ({ mode }: ConfigEnv): UserConfig => {
+  const root: string = process.cwd();
+  const env = loadEnv(mode, root);
+  console.log(env);
+  return { plugins: [vue()] };
+};
+```
+
+### CSS 配置
+
+Vite 提供了一个 css.preprocessorOptions 选项，用来指定传递给 CSS 预处理器选项：css-preprocessoroptions：
+
+```js
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: { alias: { "@": resolve(__dirname, "src") } },
+  css: {
+    // 预处理器配置项
+    preprocessorOptions: {
+      //less: {
+      //  additionalData: '@import "@/styles/variable.less";',
+      //  javascriptEnabled: true,
+      //},
+      scss: {
+        api: "modern-compiler",
+        additionalData: `@use "@/styles/variables.scss" as *;`,
+        javascriptEnabled: true,
+      },
+    },
+  },
+});
+```
+
+### 依赖预构建配置
+
+在 Vite 中，依赖预构建是指将第三方依赖预先编译和优化，以便在开发过程中更快地构建和加载这些依赖。这种预构建的方式有助于减少开发服务器在启动和重新加载时的延迟，并且可以利用现代浏览器的 ES 模块支持来更高效地加载模块。
+
+默认情况下，预构建结果会保存到  node_modules  的  .vite  目录下。
+
+一些动态的 import 导入，常常无法进行预构建，而是会触发二次预构建，严重拖慢程序速度。
+
+Vite 提供了 optimizeDeps 配置项允许我们自定义预构建的配置，依赖优化选项。自定义构建行为：
+
+    - optimizeDeps.include：强制预构建链接的包
+    - optimizeDeps.exclude ：在预构建中强制排除的依赖项
+
+```js
+import type { UserConfig, ConfigEnv } from "vite";
+import vue from "@vitejs/plugin-vue";
+export default ({ mode }: ConfigEnv): UserConfig => {
+  return {
+    plugins: [vue()],
+    optimizeDeps: { include: ["qs", "echarts", "@vueuse/core", "nprogress", "lodash-es", "dayjs"], exclude: [] },
+  };
+};
+```
+
+### 打包配置
+
+生产环境去除 console.log、debugger(esbuild 模式)
+
+```js
+//vite.config.ts
+import type { UserConfig, ConfigEnv } from "vite";
+import vue from "@vitejs/plugin-vue";
+export default ({ mode }: ConfigEnv): UserConfig => {
+  return { plugins: [vue()], esbuild: { drop: ["debugger"], pure: ["console.log"] } };
+};
+```
+
+### 分包策略
+
+根据不同的规则和逻辑来分割成大大小小的包，把一些固定，常规不更新的文件，进行分割切包处理。分包是一种优化程序加载速度，性能的策略和操作。
+
+- 「减少代码体积和加载时间」: 当你的项目包含多个模块或者依赖项时，将它们分割成多个包可以减少单个包的体积。并且只重新加载修改的文件，减少加载时间。
+- 「提高缓存利用率」:处理部分包而不是全部，分包可以提高浏览器的缓存命中率，从而减少不必要的网络请求，加快页面加载速度。
+- 「优化资源结构」: 对于大型项目或者复杂的应用程序，通过合理划分功能模块和依赖项，有利于管理项目的整理结构和维护
+
+分包策略根据项目不同，会呈现出不同的策略，这里提供一些通用的思路：
+
+- 按功能或模块分包
+- 按页面或路由分包
+- 按第三方依赖分包
+- 公共代码分包
+- 按环境分包
+
+```js
+//vite.config.ts
+import type { UserConfig, ConfigEnv } from "vite";
+import vue from "@vitejs/plugin-vue";
+
+export default ({ mode }: ConfigEnv): UserConfig => {
+  /**颗粒度更细的分包 */
+  const manualChunks = (id: string) => {
+    if (id.includes("node_modules")) {
+      if (id.includes("lodash-es")) {
+        return "lodash-vendor";
+      }
+      if (id.includes("element-plus")) {
+        return "el-vendor";
+      }
+      if (id.includes("@vue") || id.includes("vue")) {
+        return "vue-vendor";
+      }
+      return "vendor";
+    }
+  };
+
+  return {
+    plugins: [vue()],
+    build: {
+      chunkSizeWarningLimit: 1500, //超出 chunk 大小警告阈值，默认500kb
+      //Rollup 打包配置
+      rollupOptions: {
+        output: {
+          entryFileNames: "assets/js/[name]-[hash:8].js", //入口文件名称
+          chunkFileNames: "assets/js/[name]-[hash:8].js", //引入文件名名称
+          assetFileNames: "assets/[ext]/[name]-[hash:8][extname]", //静态资源名称
+          manualChunks,
+        },
+      },
+    },
+  };
+};
+```

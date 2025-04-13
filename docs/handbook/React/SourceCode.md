@@ -6,7 +6,7 @@ date: "2021-12-28"
 
 ## 为什么要读源码？
 
-- 废话，为了找工作呗。
+- 废话，我爱学习！
 
 ## 怎么读源码？
 
@@ -312,15 +312,43 @@ schedule().onClick(); // 'num: ' 2
 - 在 v16.3.0 之前，React 用 PropTypes 来声明 context 类型，提供者需要在 getChildContext 中返回需要提供的 context ，并且用静态属性 childContextTypes 声明需要提供的 context 数据类型。
 - 在 Provider 里 value 的改变，会使引用 contextType,useContext 消费该 context 的组件重新 render ，同样会使 Consumer 的 children 函数重新执行，与前两种方式不同的是 Consumer 方式，当 context 内容改变的时候，不会让引用 Consumer 的父组件重新更新。
 - Q:如何阻止 Provider value 改变造成的 children （ demo 中的 Son ）不必要的渲染？
-  - A:第一种就是利用 memo，pureComponent 对子组件 props 进行浅比较处理。React.memo()
-  - A:第二种就是 React 本身对 React element 对象的缓存。React 每次执行 render 都会调用 createElement 形成新的 React element 对象，如果把 React element 缓存下来，下一次调和更新时候，就会跳过该 React element 对应 fiber 的更新。React.useMemo()
+  - A:第一种就是利用 memo，pureComponent 对子组件 props 进行浅比较处理。`React.memo()`
+  - A:第二种就是 React 本身对 React element 对象的缓存。React 每次执行 render 都会调用 createElement 形成新的 React element 对象，如果把 React element 缓存下来，下一次调和更新时候，就会跳过该 React element 对应 fiber 的更新。`React.useMemo()`
+  - A:使用第三方库，比如`use-context-selector`--`npm install use-context-selector react scheduler`。
 - Q:context 与 props 和 react-redux 的对比？
   - 解决了 props 需要每一层都手动添加 props 的缺陷。
   - 解决了改变 value ，组件全部重新渲染的缺陷。
   - react-redux 就是通过 Provider 模式把 redux 中的 store 注入到组件中的。
 - Provider 特性总结：
-  1.  Provider 作为提供者传递 context ，provider 中 value 属性改变会使所有消费 context 的组件重新更新。
+
+  1.  Provider 作为提供者传递 context ，Provider 中 value 属性改变会使所有消费 context 的组件重新更新。
   2.  Provider 可以逐层传递 context，下一层 Provider 会覆盖上一层 Provider。
+
+- 使用场景：
+
+  - 主题切换：共享主题（如暗色模式、亮色模式）的状态。
+  - 用户身份验证：共享用户登录状态、权限等信息。
+  - 多语言支持：共享当前语言设置。
+  - 全局状态管理：在小型应用中替代 Redux，共享全局状态。
+
+- demo:
+
+```js
+const ThemeContext = React.createContext();
+
+function App() {
+  return (
+    <ThemeContext.Provider value="dark">
+      <Toolbar />
+    </ThemeContext.Provider>
+  );
+}
+
+function Toolbar() {
+  const theme = useContext(ThemeContext);
+  return <div style={{ background: theme === "dark" ? "#333" : "#fff" }}>Toolbar</div>;
+}
+```
 
 ### 4. useCallback
 
@@ -349,13 +377,13 @@ useMemo 原理：
 useMemo 应用场景：
 
 1. 可以缓存 element 对象，从而达到按条件渲染组件，优化性能的作用。
-2. 如果组件中不期望每次 render 都重新计算一些值,可以利用 useMemo 把它缓存起来。
+2. 如果组件中不期望每次 render 都重新计算一些值，可以利用 useMemo 把它缓存起来。
 3. 可以把函数和属性缓存起来，作为 PureComponent 的绑定方法，或者配合其他 Hooks 一起使用。
 
-- 类似 useEffect，把“创建”函数和依赖项数组作为参数传入  useMemo，它仅会在某个依赖项改变时才重新计算 memoized 值。这种优化有助于避免在每次渲染时都进行高开销的计算。
-- 记住，传入  useMemo  的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于  useEffect  的适用范畴，而不是  useMemo。
+- 类似 useEffect，把“创建”函数和依赖项数组作为参数传入 useMemo，它仅会在某个依赖项改变时才重新计算 memoized 值。这种优化有助于避免在每次渲染时都进行高开销的计算。
+- 记住，传入 useMemo  的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于 useEffect 的适用范畴，而不是 useMemo。
 - 如果没有提供依赖项数组，useMemo  在每次渲染时都会计算新的值。
-- 总结一下，useMemo 帮我们缓存了某个值，比如组件中某个数组/对象需要通过大量计算得到,而这个值依赖于某一个 state,我们希望只在依赖的 state 改变之后计算而不是任意 state 改变之后都会计算,这无疑会造成性能上的问题。
+- 总结一下，useMemo 帮我们缓存了某个值，比如组件中某个数组/对象需要通过大量计算得到,而这个值依赖于某一个 state，我们希望只在依赖的 state 改变之后计算而不是任意 state 改变之后都会计算，这无疑会造成性能上的问题。
 - useMemo 可以缓存某个高开销的计算函数，React.memo 可以缓存一个不需要频繁渲染更新的组件。
 
 简单理解： useCallback 与 useMemo 一个缓存的是函数，一个缓存的是函数的返回值。
@@ -365,6 +393,96 @@ useMemo 应用场景：
 2. useMemo 可以优化当前组件也可以优化子组件，优化当前组件主要是通过 memoize 来将一些复杂计算逻辑的结果进行缓存。
 
 ### 6. useReducer
+
+useReducer 是 useState 的替代方案，用于管理复杂的状态逻辑。它接收一个 reducer 函数和初始状态，返回当前状态和一个 dispatch 函数。
+
+- 功能：
+  - 通过 reducer 函数处理状态更新逻辑，使状态管理更加清晰和可预测。
+  - 适合处理包含多个子值或状态更新逻辑复杂的场景。
+- 使用场景：
+  - 表单管理：处理包含多个字段的表单状态。
+  - 复杂状态逻辑：如购物车、计数器、游戏状态等。
+  - 替代 Redux：在小型或中型应用中实现类似 Redux 的状态管理。
+- demo：
+
+```js
+const initialState = { count: 0 };
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "increment":
+      return { count: state.count + 1 };
+    case "decrement":
+      return { count: state.count - 1 };
+    default:
+      throw new Error();
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  return (
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch({ type: "increment" })}>+</button>
+      <button onClick={() => dispatch({ type: "decrement" })}>-</button>
+    </>
+  );
+}
+```
+
+#### 结合使用 useContext 和 useReducer
+
+| 特性               | useContext                        | useReducer                    |
+| ------------------ | --------------------------------- | ----------------------------- |
+| 功能               | 共享数据                          | 管理复杂状态逻辑              |
+| 返回值             | Context 的当前值                  | 当前状态和 dispatch 函数      |
+| 适用场景           | 全局状态共享、避免 prop drilling  | 复杂状态逻辑、替代 useState   |
+| 性能优化           | 依赖 Context 的值变化触发重新渲染 | 通过 reducer 函数控制状态更新 |
+| 与其他 Hook 的关系 | 通常与 useReducer 结合使用        | 通常与 useContext 结合使用    |
+
+```js
+const StateContext = React.createContext();
+const DispatchContext = React.createContext();
+
+const initialState = { count: 0 };
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "increment":
+      return { count: state.count + 1 };
+    case "decrement":
+      return { count: state.count - 1 };
+    default:
+      throw new Error();
+  }
+}
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <StateContext.Provider value={state}>
+      <DispatchContext.Provider value={dispatch}>
+        <Counter />
+      </DispatchContext.Provider>
+    </StateContext.Provider>
+  );
+}
+
+function Counter() {
+  const state = useContext(StateContext);
+  const dispatch = useContext(DispatchContext);
+
+  return (
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch({ type: "increment" })}>+</button>
+      <button onClick={() => dispatch({ type: "decrement" })}>-</button>
+    </>
+  );
+}
+```
 
 ### 7. useLayoutEffect
 
@@ -734,8 +852,6 @@ dom diff 的大概逻辑 【核心】
 
 - 对于列表的更新
 
-## fiber
-
 ## React 进阶实践指南
 
 1. 不要尝试给函数组件 prototype 绑定属性或方法，即使绑定了也没有任何作用，因为通过源码中 React 对函数组件的调用，是采用直接执行函数的方式，而不是通过 new 的方式。
@@ -853,9 +969,11 @@ shouldComponentUpdate 可以根据传入的新的 props 和 state ，或者 newC
 - memo 可以理解为包了一层的高阶组件，它的阻断更新机制，是通过控制下一级 children ，也就是 memo 包装的组件，是否继续调和渲染，来达到目的的。
 - 主线程被阻塞的另一个原因可能来源于渲染，即上一次重复渲染还没有完成，又触发了新的重复渲染。如果能够把组件的渲染结果缓存，并有效复用，就能够减少主线程的阻塞。这就是 React.memo，React 自带的高阶组件。
 - 何时使用 React.memo：
-  1. 检查组件是否是 Pure 的，即相同输入，相同输出。
-  2. 检查组件是否经常被相同的 props 重复渲染，且导致了性能问题。
-  3. 如果 props 中有回调函数，可以考虑搭配使用 useCallback 使用。
+  1. 检查组件是否是 Pure 的，即相同输入，相同输出。即缓存始终不会变的组件。
+  2. 检查组件是否经常被相同的 props 重复渲染，且导致了性能问题。即当组件在某些情况下接收相同的 props，且这些 props 对组件的渲染没有影响时，可以使用 React.memo。
+  3. 如果 props 中有回调函数，可以考虑搭配使用 useCallback 使用。同理，也可搭配 useMemo 使用。
+  4. 当父组件频繁更新时，子组件可能会因为父组件的重新渲染而无谓地重新渲染。通过使用 React.memo，子组件可以避免在 props 未变化时进行重新渲染。
+  5. 当组件的渲染过程比较昂贵（例如，包含大量计算、复杂的 DOM 结构或较大的数据列表）时，使用 React.memo 可以有效减少不必要的渲染，提高性能。
 
 ### 5 打破渲染限制
 
@@ -980,11 +1098,36 @@ class Suspense extends React.Component {
 }
 ```
 
-### 渲染错误边界
+### 渲染错误边界 ErrorBoundary
+
+使用 ErrorBoundary 包裹可能出错的组件。
 
 1. componentDidCatch：可以捕获异常，上报错误日志；可以再次触发 setState，来降级 UI 渲染，componentDidCatch() 会在 commit 阶段被调用，因此允许执行副作用。
 2. static getDerivedStateFromError()：getDerivedStateFromError 是静态方法，内部不能调用 setState。getDerivedStateFromError 返回的值可以合并到 state，作为渲染使用。
 3. 如果存在 getDerivedStateFromError 生命周期钩子，那么将不需要 componentDidCatch 生命周期再降级 ui。
+
+#### ErrorBoundary 能捕获的错误
+
+1. 渲染期间的错误：
+   - 在组件的 render 方法中抛出的错误。 `throw new Error()`
+   - 在生命周期方法（如 componentDidMount、componentDidUpdate）中抛出的错误。
+   - 在子组件的构造函数 constructor 中抛出的错误。
+2. 事件处理函数中的错误：（严格来说可能不算）
+   - 虽然 Error Boundary 不能直接捕获事件处理函数中的错误，但可以通过 try-catch 捕获并手动调用 setState 触发 Error Boundary。
+
+#### Error Boundary 不能捕获的错误
+
+1. 事件处理函数中的错误：
+   - 例如 onClick、onChange 等事件处理函数中的错误。
+   - 解决方法：在事件处理函数中使用 try-catch。
+2. 异步代码中的错误：
+   - 例如 setTimeout、Promise、async/await 中的错误。
+   - 解决方法：在异步代码中使用 try-catch，或者将错误传递给 Error Boundary。
+3. 服务端渲染（SSR）中的错误：Error Boundary 无法捕获服务端渲染期间发生的错误。
+4. Error Boundary 自身的错误：如果 Error Boundary 自身抛出错误，它无法捕获。
+5. 非 React 代码中的错误：
+   - 例如全局 JavaScript 错误、第三方库错误等。如在主线程或 Web Worker 中抛出的错误。
+   - 解决方法：使用 window.onerror 或 window.addEventListener('error', ...) 捕获全局错误。
 
 ### diff children 流程
 
@@ -1011,7 +1154,7 @@ class Suspense extends React.Component {
 
 ### 虚拟列表
 
-虚拟列表是一种长列表的解决方案，现在滑动加载是 M 端和 PC 端一种常见的数据请求加载场景，这种数据交互有一个问题就是，如果没经过处理，加载完成后数据展示的元素，都显示在页面上，如果伴随着数据量越来越大，会使页面中的 DOM 元素越来越多，即便是像 React 可以良好运用 diff 来复用老节点，但也不能保证大量的 diff 带来的性能开销。所以虚拟列表的出现，就是「解决大量 DOM 存在，带来的性能问题」。
+虚拟列表是一种长列表的解决方案，现在滑动加载是 Mobile 端和 PC 端一种常见的数据请求加载场景，这种数据交互有一个问题就是，如果没经过处理，加载完成后数据展示的元素，都显示在页面上，如果伴随着数据量越来越大，会使页面中的 DOM 元素越来越多，即便是像 React 可以良好运用 diff 来复用老节点，但也不能保证大量的 diff 带来的性能开销。所以虚拟列表的出现，就是「解决大量 DOM 存在，带来的性能问题」。
 
 虚拟列表，就是在长列表滚动过程中，只有视图区域显示的是真实 DOM ，滚动过程中，不断截取视图的有效区域，让人视觉上感觉列表是在滚动。达到无限滚动的效果。
 
@@ -1040,6 +1183,7 @@ class Suspense extends React.Component {
    1. 首先函数每次 rerender 都会执行 hooks ，那么在执行 hooks 函数的同时，也会执行函数的参数
    2. 函数组件在初始化和更新流程中，会使用不同的 hooks 对象，还是以 useRef 为例子，在初始化阶段用的是 mountRef 函数，在更新阶段用的是 updateRef 函数，开发者眼睛看见的是 useRef，在 React 底层却悄悄的替换成了不同的函数。 更重要的是大部分的 hooks 参数都作为初始化的参数，在更新阶段压根没有用到，那么传入的参数也就没有了意义
    3. 如果开发者真的想在 hooks 中，以函数组件执行结果或者是实例对象作为参数的话，那么应该怎么处理呢。这个很简单，可以用 useMemo 包装一下。
+7. React19 中增加了对动画的支持！
 
 ## React 事件系统-合成事件
 
@@ -1313,3 +1457,99 @@ Reactv16 为了解决卡顿问题引入了 fiber，为什么它能解决卡顿�
 7. 对 commit 阶段做一个总结，主要做的事就是执行 effectList，更新 DOM，执行生命周期，获取 ref 等操作。
 
 ![调和 + 异步调度 流程总图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/sche_rcon.png)
+
+## 常用 Hooks 及作用
+
+### State Hook
+
+状态帮助组件 “记住”用户输入的信息。
+
+#### useState
+
+使用 useState 声明可以直接更新的状态变量。
+
+#### useReducer
+
+允许你向组件里面添加一个 reducer，用于管理组件状态。使用 useReducer 在 reducer 函数中声明带有更新逻辑的 state 变量。
+
+### Context Hook
+
+上下文帮助组件 从祖先组件接收信息，而无需将其作为 props 传递。
+
+#### useContext
+
+使用 useContext 读取订阅上下文。
+
+### ref 允许组件
+
+保存一些不用于渲染的信息，比如 DOM 节点或 timeout ID。与状态不同，更新 ref 不会重新渲染组件。ref 是从 React 范例中的“脱围机制”。当需要与非 React 系统如浏览器内置 API 一同工作时，ref 将会非常有用。
+
+#### useRef
+
+使用 useRef 声明 ref。你可以在其中保存任何值，但最常用于保存 DOM 节点。
+
+#### useImperativeHandle
+
+使用 useImperativeHandle 自定义从组件中暴露的 ref，但是很少使用。
+
+### Effect Hook
+
+Effect 允许组件 连接到外部系统并与之同步。这包括处理网络、浏览器、DOM、动画、使用不同 UI 库编写的小部件以及其他非 React 代码。
+
+#### useEffect
+
+使用 useEffect 将组件连接到外部系统。
+
+#### useLayoutEffect
+
+useLayoutEffect 在浏览器重新绘制屏幕前执行，可以在此处测量布局。
+
+#### useInsertionEffect
+
+useInsertionEffect 在 React 对 DOM 进行更改之前触发，库可以在此处插入动态 CSS。
+
+### 性能 Hook
+
+优化重新渲染性能的一种常见方法是跳过不必要的工作。
+
+#### useMemo
+
+使用 useMemo 缓存计算代价昂贵的计算结果。
+
+#### useCallback
+
+使用 useCallback 将函数传递给优化组件之前缓存函数定义。
+
+#### useDefferedValue
+
+useDeferredValue 允许延迟更新 UI 的非关键部分，以让其他部分先更新。
+
+#### useTransition
+
+useTransition 允许将状态转换标记为非阻塞，并允许其他更新中断它。
+
+### 资源 Hook
+
+#### use
+
+use 允许读取像 Promise 或 上下文 这样的资源的值。
+
+### 其他 hook
+
+这些 Hook 主要适用于库作者，不常在应用程序代码中使用。
+
+#### useId
+
+使用 useId 将唯一的 ID 与组件相关联，其通常与可访问性 API 一起使用。
+
+#### useDebugValue
+
+使用 useDebugValue 自定义 React 开发者工具为自定义 Hook 添加的标签。
+
+#### useSyncExternalStore
+
+使用 useSyncExternalStore 订阅外部 store。
+
+### 自定义 hook
+
+开发者可以 自定义 Hook 作为 JavaScript 函数。

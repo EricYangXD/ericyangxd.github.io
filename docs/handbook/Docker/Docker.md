@@ -342,18 +342,18 @@ RUN npm run build
 FROM nginx:alpine
 
 # 将构建产物移至 nginx 中
-COPY --from=builder code/build/ /usr/share/nginx/html/
+COPY --from=builder code/dist/ /usr/share/nginx/html/
 ```
 
 使用 docker build 构建镜像并把它跑起来。
 
 ```bash
 # 构建镜像
-$ docker build -t fe-app .  # -t fe-app为镜像命名为fe-app，.：表示当前目录包含 Dockerfile。
+$ docker build -t fe-app .  # -t fe-app为镜像命名为fe-app，.：表示当前目录包含的 Dockerfile。
 
 # 运行容器
-# 1.以交互模式启动，用户可以直接进入容器终端与容器内部环境进行交互。容器停止后会自动删除，不会保留运行记录，也不会生成新的容器 ID。适合运行临时处理的任务，比如在容器内执行某个脚本，任务完成后直接销毁容器。非常适合需要进入容器交互式操作的场景，比如测试某些命令是否正常运行，检查容器环境等。实时输出容器日志到终端。
-$ docker run -it --rm -p 3000:3000/tcp fe-app /bin/bash
+# 1.以交互模式启动，用户可以直接进入容器终端与容器内部环境进行交互。容器停止后会自动删除，不会保留运行记录，也不会生成新的容器 ID。适合运行临时处理的任务，比如在容器内执行某个脚本，任务完成后直接销毁容器。非常适合需要进入容器交互式操作的场景，比如测试某些命令是否正常运行，检查容器环境等。实时输出容器日志到终端。可以暴露多个端口。没有/bin/bash就用sh
+$ docker run -it --rm -p 3000:3000/tcp -p 8000:8000 fe-app /bin/bash
 # 2.以守护进程模式启动，容器会在后台运行，用户无法直接进入容器终端与容器内部环境进行交互。容器停止后不会自动删除，会保留运行记录，会生成新的容器 ID。主机的 3000 端口将转发到容器的 3000 端口，因此可以通过访问主机的 http://localhost:3000 来访问容器中的服务。后台运行的模式适合需要高可用的生产环境服务。适合运行 Web 应用、API 服务等长期运行的服务。不输出日志，需要通过 docker logs 查看。必须指定端口映射
 $ docker run -d -p 3000:3000/tcp --name my-node-app base-node-app
 $ docker exec -it my-node-app /bin/bash

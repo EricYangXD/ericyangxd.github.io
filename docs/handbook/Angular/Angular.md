@@ -399,6 +399,35 @@ platformRef.bootstrapModule(AppModule2);
 <span class="material-symbols-outlined"> progress_activity </span>
 ```
 
+## 原理
+
+### Angular 的 DOM 操作原理
+
+1. 变更检测（Change Detection）机制
+   - Zone.js 监控异步操作：Angular 使用 Zone.js 来包装所有异步 API，当异步事件（点击、定时器、AJAX 等）发生时触发变更检测
+   - 组件树检查：从根组件开始，自上而下检查整个组件树
+   - 数据绑定更新：比较模板绑定表达式的当前值和上次值，如果不同则更新 DOM
+2. 模板编译过程：Angular 在构建时（AOT）或运行时（JIT）将模板编译为 JavaScript 指令代码
+   - 解析模板：将 HTML 模板解析为抽象语法树（AST）
+   - 生成视图工厂：编译为可执行的视图工厂函数
+   - 创建视图实例：运行时生成具体的视图结构
+   - 绑定更新函数：为每个数据绑定生成专用的更新函数
+3. 增量 DOM 技术--使用增量 DOM（Incremental DOM） 而不是虚拟 DOM：
+   - 内存中的模板指令：编译后的模板保留如何创建/更新 DOM 的指令
+   - 就地更新：直接操作真实 DOM，但通过指令系统最小化操作
+   - 内存效率高：不需要维护完整的虚拟 DOM 树
+4. 更新流程示例：
+   - 点击事件发生：Zone.js 捕获事件
+   - 触发变更检测：Angular 从根组件开始检测
+   - 检查绑定：发现 count 值已变化
+   - 执行更新：调用编译阶段生成的专门更新函数，只更新 `<span>` 的文本节点
+   - DOM 更新：直接修改真实 DOM 的文本内容
+5. Angular DOM 操作的优势
+   - AOT 编译优化：提前编译可以发现模板错误，生成高度优化的 DOM 操作代码，移除了运行时模板解析的开销
+   - 内存效率高：不需要维护虚拟 DOM 的完整副本，增量 DOM 的内存占用更小
+   - 可预测的更新：明确的数据流（单向数据绑定），变更检测路径清晰
+   - 集成优化：与 Angular 其他特性（如 DI、RxJS）深度集成，自动处理变更检测和 DOM 更新
+
 ## 技巧
 
 ### 卸载@angular-cli
@@ -430,9 +459,9 @@ platformRef.bootstrapModule(AppModule2);
 6. Angular 的 AOT 编译器会在构建阶段，在浏览器下载并运行这些代码之前，把 Angular 的 HTML 和 TypeScript 代码转换成高效的 JavaScript 代码。这是生产环境的最佳编译模式，与即时(JIT)编译相比，它可以减少加载时间并提高性能。
 7. 通过使用`ngc`命令行工具编译你的应用，你可以直接引导到模块工厂，所以你不需要在你的 JavaScript 包中包含 Angular 编译器。
 
-### 移除打包时关于文件体积限制的warning
+### 移除打包时关于文件体积限制的 warning
 
-在angular.json 文件里`architect.build.options.budgets`配置，以及在`architect.build.configurations`中的每个环境中的budgets中单独配置，比如：production、styling-mode等
+在 angular.json 文件里`architect.build.options.budgets`配置，以及在`architect.build.configurations`中的每个环境中的 budgets 中单独配置，比如：production、styling-mode 等
 
 ```json
 {
