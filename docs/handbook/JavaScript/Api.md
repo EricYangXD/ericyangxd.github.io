@@ -1042,6 +1042,13 @@ const target = document.querySelector("#container>div:nth-child(2) > span");
 
 ### 较新的 APIs
 
+#### designMode
+
+1. `document.designMode = "on";`可以直接把网页变为可编辑的。
+2. `<div contenteditable="true">这是一个可编辑的文本区域。你可以在这里输入文本。</div>`HTML 的 contenteditable 属性可以添加到任何 HTML 元素上，使该元素的内容可编辑。
+3. `<textarea contenteditable="true"></textarea>`也可以添加一个可编辑区域。常规做法。
+4. js 动态设置 dom 元素的 attribute 属性为`contenteditable=true`。
+
 #### Array.prototype.at(index)
 
 允许通过索引访问数组中的元素，支持负数索引，可以从数组末尾开始计数。
