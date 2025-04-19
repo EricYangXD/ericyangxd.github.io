@@ -106,6 +106,10 @@ fetch(url, {
 });
 ```
 
+### web-see
+
+使用第三方库，其原理也是综合了`img.src`、`navigator.sendBeacon`、`fetch keepalive`这几种方式来实现上报。可用来收集并上报：代码报错、性能数据、页面录屏、用户行为、白屏检测等个性化指标数据。(websee)[https://github.com/xy-sea/web-see]。
+
 ## undefined
 
 不要再直接写 undefined，因为可以局部也起一个叫 undefined 的变量并给它赋值，如果此时用到了 undefined，那么可能出现 bug。示例如下：

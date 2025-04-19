@@ -48,7 +48,7 @@ date: "2022-02-23"
 
 ### require 工作原理
 
-- require 方法
+- `require` 方法
 
 ```js
 Module.prototype.require = function (id) {
@@ -62,7 +62,7 @@ Module.prototype.require = function (id) {
 };
 ```
 
-- \_load 方法
+- `_load` 方法
 
 ```js
 Module._load = function (request, parent, isMain) {
@@ -104,13 +104,11 @@ Module._load = function (request, parent, isMain) {
 1. 先检测传入的 id 是否有效。
 2. 如果有效，则调用 Module.\_load 方法，该方法主要负责加载新模块和管理模块的缓存，而 require 本身就是对该方法的一个封装。
 3. 然后会调用 Module.\_resolveFilename 去取文件地址。
-
-- 1. 查询文件名是否是核心模块，如果是直接返回传入的 id
-- 2. 因为 option 没有参数传入，所以会调用 Module.\_resolveLookupPaths 方法去获取路径
-- 3. 调用 Module.\_findPath 方法
-  - \_resolveLookupPaths：其实就是 node 解析模块中的路径查找，他会向父目录查找，直到根目录为止。
-  - \_findPath：其实就是将\_resolveLookupPaths 查找出来的文件名和文件 id 向匹配，返回一个文件地址。
-
+   - 1. 查询文件名是否是核心模块，如果是直接返回传入的 id
+   - 2. 因为 option 没有参数传入，所以会调用 Module.\_resolveLookupPaths 方法去获取路径
+   - 3. 调用 Module.\_findPath 方法
+     - \_resolveLookupPaths：其实就是 node 解析模块中的路径查找，他会向父目录查找，直到根目录为止。
+     - \_findPath：其实就是将\_resolveLookupPaths 查找出来的文件名和文件 id 向匹配，返回一个文件地址。
 4. 判断是否有缓存模块，如果有则返回缓存模块的 exports。
 5. 如果没有缓存，再检测文件名是否是核心模块，如果是则调用核心模块的 require。
 6. 如果不是核心模块，那么创建一个新的 module 对象。
@@ -124,7 +122,7 @@ nodejs 中的 `protobufjs` 库包含一个 `toObject` 方法，该方法提供�
 
 ## 常用 npm 脚本示例
 
-```Bash
+```bash
 # 删除目录
 "clean": "rimraf dist/*",
 
@@ -181,12 +179,16 @@ nodejs 中的 `protobufjs` 库包含一个 `toObject` 方法，该方法提供�
 
 ### path.join vs path.resolve with `__dirname`
 
-1. `const absolutePath = path.join(__dirname, some, dir);`:`path.join` 将连接 `__dirname`--它是当前文件的目录名，与 some 和 dir 的值连接，带有特定于平台的分隔符。(从左向右进行拼接)，返回相对路径。参数都是 string
+1. `const absolutePath = path.join(__dirname, some, dir);`:`path.join` 将连接 `__dirname`--它是当前文件的目录名，与 some 和 dir 的值连接，带有特定于平台的分隔符。(从左向右进行拼接)，返回相对路径。参数都是 string。
 2. `const absolutePath = path.resolve(__dirname, some, dir);`:`path.resolve` 将处理 `__dirname`、some 和 dir，即从左到右处理，如果第一个参数不是绝对路径或`__dirname`，那么默认使用当前路径的绝对路径，也就是说，如果三个（全部）参数都是相对路径，那么默认使用当前路径的绝对路径作为第 0 个参数，然后依次拼接后续参数，返回绝对路径。如果 some 或 dir 的任何值对应于根路径(以`/`开头？)，则先前的路径将被省略，并通过将其视为根来处理--即从右往左找到第一个绝对路径，以他为根，再向右拼接其余相对路径。
 3. `__dirname`:**`__dirname`** 是包含正在执行的源文件的目录的**绝对路径**，而不是当前工作目录*current working directory*。(在 Shell 中`pwd`命令即打印当前工作路径)
 4. `path.join()`将所有给定的路径段连接在一起，使用平台特定的分隔符作为分隔符，然后将得到的路径规范化。而`path.resolve()`从右到左处理路径序列，每一个后续的路径都会被预置，直到构造出一个绝对路径。
 
 ```javascript
+const path = require("path");
+
+const result = path.join("/foo", "bar", "baz/asdf", "quux", "..");
+console.log(result); // 输出: '/foo/bar/baz/asdf'
 console.log("path.join() : ", path.join());
 // path.join() :  .                // 表示当前工作路径
 
@@ -309,3 +311,174 @@ server.listen(8080, () => {
    13. 其实这类正则回溯引发的进程级别阻塞问题，本质上都是由于不可控的用户输入引发的，而 Node.js 应用又往往作为 Web 应用直接面向一线客户，无时不刻地处理千奇百怪的用户请求，因此更容易触发这样的问题。相似的问题其实还有一些代码逻辑中诸如 while 循环的跳出条件在一些情况下失效，导致 Node.js 应用阻塞在循环中。
    14. 雪崩型内存泄漏问题：堆快照一般来说确实是分析内存泄漏问题的最佳手段。但是还有一些问题场景下下应用的内存泄漏非常严重和迅速，甚至于在我们的告警系统感知之前就已经造成应用的 OOM 了，这时我们来不及或者说根本没办法获取到堆快照，因此就没有办法借助于之前的办法来分析为什么进程会内存泄漏到溢出进而 Crash 的原因了。这种问题场景实际上属于线上 Node.js 应用内存问题的一个极端状况。
    15. Egg-logger 官方是使用 `circular-json` 来替换掉原生的 `util.inspect` 序列化动作，并且增加序列化后的字符串最大只保留 10000 个字符的限制，这样就解决这种包含大字符串的错误对象在 Egg-logger 模块中的序列化问题。
+
+## 常用库
+
+#### fs
+
+```js
+const fs = require("node:fs");
+const data = JSON.parse(fs.readFileSync("./809.json", "utf8"));
+console.log(data);
+```
+
+1. `fs.readFileSync()` 方法用于同步读取文件内容。返回一个包含文件内容的 Buffer 对象。参数是文件路径和字符编码。会阻塞当前线程，直到文件读取完成。
+2. `fs.readFile()` 方法用于异步读取文件内容。返回一个 Promise 对象。参数是文件路径和字符编码。不会阻塞当前线程，而是将读取文件的操作放入事件队列中，当文件读取完成时，会触发回调函数。
+
+#### fs-extra
+
+Node.js 文件系统操作的强化版
+
+#### co-body
+
+co-body 是一个用于解析 HTTP 请求体和响应体的中间件，它提供了多种解析方法，如 JSON、Form、Text、Buffer 等。
+
+#### body-parser
+
+body-parser 是一个用于解析 HTTP 请求体和响应体的中间件，它提供了多种解析方法，如 JSON、Form、Text、Buffer 等。
+
+#### cors
+
+跨域资源共享的 Node.js 解决方案，作为 Connect/Express 的中间件来提供 CORS 支持。
+
+#### Sequelize
+
+Node.js 下的 ORM（对象关系映射）神器，支持多种流行的数据库，包括 PostgreSQL、MySQL、MariaDB 和 SQLite 等。
+
+#### Nodemailer
+
+让你的 Node.js 服务轻松发送邮件
+
+#### Passport
+
+Node.js 的灵活认证中间件，支持超过 500 种认证方案，这包括了谷歌、脸书、推特等社交媒体平台的认证，以及其他定制的认证和单点登录（SSO）方案。它不仅支持普通的用户名和密码登录，还支持通过 OAuth 进行的社交网站代理认证，以及用于联合认证的 OpenID。
+
+#### Async
+
+Node.js 中处理异步 JavaScript 的强大工具，Async 库以其提供的一系列函数和控制流结构，为管理和协调这些随时间进行的任务（或者说，承诺）提供了强大的支持。它旨在通过清晰和可预测的方式，解决异步编程的复杂性。
+
+#### Winston
+
+Node.js 日志管理神器，对于 Node.js 应用而言，Winston 库以其灵活性和多功能性成为了日志记录的首选工具。它支持多种传输机制，包括控制台、文件、云服务和第三方服务，使得监控和调试工作变得更加全面和高效。
+
+#### Mongoose
+
+Node.js 的数据模型大师，它是一个基于 Node.js 的 MongoDB（轻量级、高效的 NoSQL 数据库）对象建模工具，简称 ODM（对象数据建模）库，使得与 MongoDB 的交互变得既简单又高效。
+
+#### Socket.IO
+
+实时通信利器，它允许客户端浏览器和服务器之间进行实时、双向和基于事件的通信。通过低级连接和数字握手（如 HTTP 长轮询），Socket.IO 确保了客户端与服务器之间的实时通信。
+
+#### Puppeteer
+
+自动化 Chrome 的 Node.js 框架，在前端开发中，自动化测试是提高效率和确保质量的关键。Puppeteer，作为一个 Node.js 框架，正是为了这一需求而生。它提供了一个高级 API，允许通过 DevTools 协议控制 Chrome/Chromium 浏览器，从而实现浏览器的自动化操作。
+
+#### Multer
+
+Node.js 中的文件上传利器，它基于 HTML 表单解析器 Busboy 构建，支持多部分（multipart）和多格式（multiform）数据，特别适用于处理文件上传。
+
+#### Busboy
+
+#### Dotenv
+
+保护 Node.js 应用配置的利器，在 Node.js 开发中，管理应用的环境变量是一项基本且重要的任务。Dotenv 正是为此而生的实用模块。它帮助开发者维护应用的环境变量，保护关键的配置数据，如 API 密钥、登录凭证等。Dotenv 遵循十二因素应用方法论，有效地管理环境变量。
+
+#### Prisma
+
+一个专为 Node.js 和 TypeScript 应用设计的下一代 ORM 工具。它通过提供类型安全的 API、自动生成查询和迁移，简化了数据库的交互操作。这不仅使开发过程变得高效，而且还帮助开发者避免了许多常见的错误。
+
+#### Express-rate-limit
+
+它是一个专为 Express.js 应用设计的中间件，用于强制执行请求速率限制，确保控制进入流量，保护资源不被滥用。
+
+#### Semver
+
+它提供了一套标准化的版本号表示方法，通过 MAJOR（主版本号）、MINOR（次版本号）、PATCH（修订号）的格式来传达版本间的兼容性和变更的重要性。
+
+#### JS-YAML
+
+YAML 作为一种人类可读的数据序列化格式，在配置文件、数据交换等场景中被广泛使用。它以其简洁明了的结构赢得了开发者的喜爱。js-yaml 库则为 JavaScript 提供了 YAML 数据的解析和字符串化功能，使得在 Node.js 应用中整合 YAML 数据变得轻而易举。
+
+#### Mime-types
+
+Node.js 中处理 MIME 类型的实用工具，mime-types 包为 Node.js 应用提供了一个全面的工具集，以便正确处理各种文件格式。
+
+#### Chalk
+
+通过使用 Chalk，开发者可以轻松地改善控制台日志、错误信息等文本输出的可读性和视觉吸引力，让枯燥的黑白文本变得生动鲜明。
+
+#### Commander
+
+打造人性化命令行工具，
+
+#### Debug
+
+轻量级 Node.js 调试神器，debug 库为 Node.js 开发者提供了一个精确且信息丰富的日志记录工具，通过一种轻量级和灵活的机制，使得开发者能够向控制台打印自定义消息，进行有针对性的调试和故障排除，而不会让输出因不必要的信息而变得杂乱无章。debug 库注重简洁和上下文意识，确保日志信息既相关又可操作。
+
+#### tslib
+
+TypeScript 运行时的核心支持库
+
+#### TypeORM
+
+打通 TypeScript 与数据库的桥梁，TypeORM 是一个为 TypeScript 和 JavaScript 设计的强大对象关系映射（ORM）库，它旨在弥合代码中的对象与关系数据库世界之间的鸿沟。通过使用熟悉的面向对象范式与数据库进行交互，TypeORM 简化了开发流程，提升了代码的可维护性。
+
+#### mkdirp
+
+轻松创建嵌套目录结构
+
+#### glob
+
+Node.js 中的模式匹配文件查找神器
+
+#### minimist
+
+简化命令行参数解析的利器
+
+#### Joi
+
+JavaScript 对象模式验证的强大工具。在开发过程中，确保数据的完整性和遵守既定规则至关重要。Joi 为 JavaScript 开发者提供了全面的对象模式验证，通过在开发过程的早期捕捉无效数据，发挥着预防错误、安全漏洞和意外行为的关键作用。
+
+#### GraphQL
+
+API 数据获取的革命性方法。GraphQL 作为一种数据查询和操作语言，提供了一种灵活高效的方式来处理 API 中的数据。它使客户端能够精确指定所需的数据，大大减少了传统 REST API 中常见的数据过度获取和数据不足的问题。
+
+#### Ajv
+
+JavaScript 应用中的快速 JSON 模式验证器，用于 JavaScript 应用中的 JSON 数据验证。通过定义的模式（schemas），Ajv 确保数据遵循结构和语义规则，促进数据完整性和应用可靠性。
+
+#### Helmet
+
+加固 Node.js Web 应用的安全盾牌，在开发基于 Express 的 Node.js Web 应用时，安全性是一个不可忽视的重要方面。Helmet 作为一个中间件，通过设置各种 HTTP 头来增强应用的安全性。这些头部设置针对常见的漏洞进行了优化，可以缓解攻击并保护敏感信息，为用户创造了更加安全的网络体验。
+
+#### Ora
+
+你的 CLI 任务进度指示器
+
+#### Faker
+
+轻松生成测试数据
+
+#### CSV
+
+高效处理 CSV 数据，
+
+#### Pdfkit
+
+生成 PDF 文档是一项常见需求。Pdfkit 作为一个功能强大的 Node.js 库，为开发者提供了一个简洁的 API，使得生成美观且功能丰富的 PDF 文档变得非常容易。
+
+#### Pino
+
+高效日志记录利器，它不仅帮助开发者监控和调试应用，还能在出现问题时提供关键的诊断信息。Pino 作为一个高性能的日志记录库，以其速度和效率为优先，同时提供了一系列丰富的功能，使得结构化和信息化的日志记录变得更加便捷。
+
+#### Cheerio
+
+Cheerio 是 jQuery 的一个子集的服务端实现，为开发者提供了熟悉的语法和 API，用于在 Node.js 中导航、选择和修改 HTML 元素。
+
+#### Grunt
+
+在 Web 开发中，重复性的任务如代码编译、压缩、质量检查等往往耗时费力。Grunt 作为一个 JavaScript 任务管理工具，通过自动化这些任务，极大地提升了开发效率。通过配置文件（Gruntfile），Grunt 可以定义任务和插件，使开发流程更加流畅和高效。
+
+#### 其他常用的的库
+
+Lodash、Axios、Axios-retry、Superagent、dayjs、date-fns、rxjs、jest、ramda、ejs、

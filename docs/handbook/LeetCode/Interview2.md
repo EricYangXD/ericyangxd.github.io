@@ -522,7 +522,7 @@ function ExampleComponent() {
 
 1. 前端起一个定时器 setInterval 轮询后端服务器，对比 etag 是否变化，如果变化，则刷新页面。
 2. 每次上线，后端加一下自定义响应字段`add_header X-App-Version "1.0.0"`，然后前端每次请求都会带上，如果某次带的和返回的不一致就是有更新，提示用户刷新。
-3. websocket 或者 EventSource（SSE），服务端推送版本变化情况，前端监听结果并根据结果刷新页面。
+3. websocket 或者 EventSource（SSE），服务端推送版本变化情况，前端监听结果并根据结果刷新页面。[SSE demo](../../../demos/js/sse-client.html)
 4. 使用 Service Worker，监听更新事件，当检测到新版本时，提示用户刷新页面。
 
 ## 实现一个支持链式调用的函数

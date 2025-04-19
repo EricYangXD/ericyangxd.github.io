@@ -330,7 +330,27 @@ class HtmlWebpackPlugin {
 
 ### mini-css-extract-plugin
 
-将 CSS 单独抽离出来，以便单独加载 CSS 资源。
+将 CSS 单独抽离出来，以便单独加载 CSS 资源。在 Webpack 工作流中，首先利用 MiniCssExtractPlugin 将所有 CSS 文件抽离成独立文件，然后借助下述提到的任何一个压缩工具对其进行进一步优化；与此同时，可以运行 PurifyCSS 或 UnCSS 来进行代码剪枝，确保只保留真正需要的样式规则。
+
+### optimize-css-assets-webpack-plugin
+
+CSS 代码压缩，该插件可以在生产模式下自动压缩 CSS 文件，并且兼容其他类型的资源优化插件。安装后，只需将其添加到 Webpack 配置中的 optimization.minimizer 数组即可启用压缩功能。
+
+### css-minimizer-webpack-plugin
+
+CSS 代码压缩，随着 Webpack 5 的到来，推荐使用`css-minimizer-webpack-plugin`来替代旧版本中的`optimize-css-assets-webpack-plugin`进行 CSS 压缩。此插件同样依赖于 cssnano 作为其内部引擎之一，提供了更好的性能和更丰富的特性集。
+
+### CssNano
+
+CSS 代码压缩，一个基于 PostCSS 的 CSS 优化工具，它能够在保持 CSS 代码语义不变的情况下，执行一系列优化操作，如删除多余的空白符及注释、简化选择器等，以确保最终生成的 CSS 文件尽可能小。此外，CssNano  还支持多种配置选项，允许开发者根据项目需求调整优化级别。
+
+### PurifyCSS 
+
+CSS 代码剪枝，是一款专门用来清除未使用 CSS 代码的工具。它可以分析 HTML 文档并与之关联的 CSS 文件对比，识别出哪些样式规则实际上并未被应用，进而将这些冗余部分从最终输出中剔除。这种方式不仅有助于减小文件体积，还能改善浏览器渲染效率。
+
+### UnCSS
+
+也是一个能够检测并移除网页中未引用 CSS 规则的工具。
 
 ## webpack5
 

@@ -555,6 +555,22 @@ observer.disconnect();
 | 触发时机 | 当目标元素进入或离开视口时触发   | 当 DOM 发生变化时触发                 |
 | 性能     | 性能较高，使用异步处理           | 相对较高的性能，适用于频繁的 DOM 更新 |
 
+### ResizeObserver
+
+ResizeObserver 是一个用于监听 DOM 元素尺寸变化的 API，它允许开发者在元素尺寸发生变化时进行响应。
+
+```js
+const element = document.querySelector(".resize-me");
+
+const resizeObserver = new ResizeObserver((entries) => {
+  for (let entry of entries) {
+    console.log("Element size:", entry.contentRect.width, entry.contentRect.height);
+  }
+});
+
+resizeObserver.observe(element);
+```
+
 ### Symbol
 
 Symbol 可以用于创建唯一标识符，可以用于定义对象的私有属性或方法。

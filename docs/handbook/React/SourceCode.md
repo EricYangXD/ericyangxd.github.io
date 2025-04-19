@@ -1100,11 +1100,37 @@ class Suspense extends React.Component {
 
 ### 渲染错误边界 ErrorBoundary
 
-使用 ErrorBoundary 包裹可能出错的组件。
+使用 ErrorBoundary 包裹可能出错的组件。从 react16 开始，官方提供了 ErrorBoundary 错误边界的功能，被该组件包裹的子组件，render 函数报错时会触发离当前组件最近父组件的 ErrorBoundary 生产环境，一旦被 ErrorBoundary 捕获的错误，不会触发全局的 window.onerror 和 error 事件。在使用某些前端监控工具的时候要注意。
 
 1. componentDidCatch：可以捕获异常，上报错误日志；可以再次触发 setState，来降级 UI 渲染，componentDidCatch() 会在 commit 阶段被调用，因此允许执行副作用。
 2. static getDerivedStateFromError()：getDerivedStateFromError 是静态方法，内部不能调用 setState。getDerivedStateFromError 返回的值可以合并到 state，作为渲染使用。
 3. 如果存在 getDerivedStateFromError 生命周期钩子，那么将不需要 componentDidCatch 生命周期再降级 ui。
+4. ErrorBoundary 示例代码：使用 class 组件才能用上那几个生命周期钩子函数。
+
+```js
+import webSee from "@websee/core";
+import React from "react";
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+  componentDidCatch(error, errorInfo) {
+    // 在componentDidCatch中将报错上报给服务器
+    webSee.errorBoundary(err);
+  }
+  render() {
+    if (this.state.hasError) {
+      return <h1>Something went wrong.</h1>;
+    }
+    return this.props.children;
+  }
+}
+```
 
 #### ErrorBoundary 能捕获的错误
 

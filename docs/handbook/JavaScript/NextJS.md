@@ -24,7 +24,7 @@ meta:
 13. `export async function generateMetadata(){...}`:做 SEO
 14. 根目录下创建`sitemap.ts`，做 SEO
 
-```js
+```typescript
 export default async function sitemap() {
   const res = await fetch("https://jsonplaceholder.typicode.com/todos/1");
   const allPosts = (await res.json()) as Post[];
@@ -47,7 +47,7 @@ export default async function sitemap() {
 }
 ```
 
-1.  根目录下添加一张图片并命名为`opengraph-image.png`作为Open Graph image。。。每个组下面都可以添加。
+1.  根目录下添加一张图片并命名为`opengraph-image.png`作为 Open Graph image。。。每个组下面都可以添加。
 2.  `app/api/user/route.ts`: route 是固定写法，访问`http://localhost:3000/api/user`即可获取 mock 接口数据
 3.  `export const runtime = 'edge';` 定义运行的环境
 4.  `template.js`与`layout.js`类似，只是在导航时安装一个新的组件实例。除非你需要这种行为，否则请使用 layouts。
@@ -57,13 +57,13 @@ export default async function sitemap() {
 8.  `global-error.js`与`error.js`类似，但专门用于捕捉根`layout.js`中的错误。
 9.  `not-found.js`当 notFound 函数在一个路由段中被抛出时，或者当一个 URL 没有被任何路由匹配时，创建 UI 来显示。
 10. ![nextjs文件与react的对应关系](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/202305161448254.png)
-11. Metadata元数据可以通过在layout.js或page.js文件中导出一个元数据对象或generateMetadata函数来定义。
-12. 要使用`<Link>`，请从`next/link`中导入它，并向组件传递一个`href`，类似react，用来跳转
-13. 获取pathName：`import { usePathname } from 'next/navigation'; const pathname = usePathname();`
+11. Metadata 元数据可以通过在 layout.js 或 page.js 文件中导出一个元数据对象或 generateMetadata 函数来定义。
+12. 要使用`<Link>`，请从`next/link`中导入它，并向组件传递一个`href`，类似 react，用来跳转
+13. 获取 pathName：`import { usePathname } from 'next/navigation'; const pathname = usePathname();`
 14. 要使用`useRouter` hook，请从`next/navigation`导入，并在你的客户端组件中调用钩子：`const router = useRouter(); router.push('/dashboard');`
-15. 一个路径下有多个子路径时也是用layout来处理.
+15. 一个路径下有多个子路径时也是用 layout 来处理.
 16. 要创建多个根布局，移除顶层的 layout.js 文件，并在每个路由组内添加 layout.js 文件。这对于将一个应用程序分割成具有完全不同的用户界面或体验的部分很有用。`<html>`和`<body>`标签需要被添加到每个根布局中。
-17. `parallel routes`或者一个路径下的同级子路径，要同时显示出来，那么子路径定义时要用`@`加在子路径名称之前。然后就可以同时在父路径下展示了。父路径的layout可以通过props接收子路径的ReactNode。相当于slot插槽的功能。
-18. 值得注意的是：`children prop`是一个隐含的插槽，不需要映射到一个文件夹。这意味着`app/page.js`等同于`app/@children/page.js`。你可以定义一个`default.js`文件，在Next.js无法根据当前URL恢复槽的活动状态时，作为后备文件呈现。
-19. layout不能接受searchParams参数。
-20. 在客户端组件中使用page的searchParams属性或useSearchParams钩子，他们在客户端和最新的searchParams重新渲染了。
+17. `parallel routes`或者一个路径下的同级子路径，要同时显示出来，那么子路径定义时要用`@`加在子路径名称之前。然后就可以同时在父路径下展示了。父路径的 layout 可以通过 props 接收子路径的 ReactNode。相当于 slot 插槽的功能。
+18. 值得注意的是：`children prop`是一个隐含的插槽，不需要映射到一个文件夹。这意味着`app/page.js`等同于`app/@children/page.js`。你可以定义一个`default.js`文件，在 Next.js 无法根据当前 URL 恢复槽的活动状态时，作为后备文件呈现。
+19. layout 不能接受 searchParams 参数。
+20. 在客户端组件中使用 page 的 searchParams 属性或 useSearchParams 钩子，他们在客户端和最新的 searchParams 重新渲染了。

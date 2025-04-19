@@ -1,0 +1,24 @@
+title: sequenceDiagram
+Note left of A: Note to the\n left of A
+Note right of A: Note to the\n right of A
+Note over A: Note over A
+Note over A,B: Note over both A and B
+
+
+title: 2
+用户->>ChatGPT: 输入查询请求
+ChatGPT->>MCP服务端: 调用stockHistory工具
+MCP服务端->>金融数据API: 获取TSLA历史数据
+MCP服务端->>金融数据API: 获取NVDA历史数据
+MCP服务端->>ChatGPT: 返回结构化数据
+ChatGPT->>MCP服务端: 调用analyzeTrend工具
+MCP服务端->>ChatGPT: 流式返回分析结果
+ChatGPT->>用户: 生成自然语言报告
+
+
+# 语法参考：https://bramp.github.io/js-sequence-diagrams/
+title: 3
+participant C
+participant B
+participant A
+Note right of A: By listing the participants\n you can change their order

@@ -142,7 +142,7 @@ devServer:{
 2. CORS 机制跨域会首先进行 preflight 预检（一个 OPTIONS 请求），该请求成功后才会发送真正的请求
 3. 示例：
 
-```http
+```bash
 server {
 	listen 22222;
 	server_name localhost;

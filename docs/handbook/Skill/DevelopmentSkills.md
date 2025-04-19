@@ -632,7 +632,7 @@ chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
 4. 当我们的办公文件（excel、word、ppt）解压缩之后就变成一堆 xml 文件了，然后在浏览器端可以通过`DOMParser Api`进行解析，可以把数据提取出来生成「json」，也可以创建为「DOM」。第三方库将依据 Microsoft Office Open XML 标准提取信息。
 5. PDF 对应的就是电子世界的打印纸张，它拥有「不可编辑」、「占用空间小」、「稳定性强」、「可加密」等特点，它由「Adobe」于 1993 年首次提出，旨在实现跨平台和可靠性的文档显示。PDF 文件可以包含文本、图形、图像和其他多媒体元素，并以一种独立于操作系统和硬件的方式呈现。PDF 的本质就是一套有含义的指令集合，用来描述一份文档信息绝对位置。
 6. PDF 文件不是压缩包，PDF 中描述了文字的布局信息，相当于一个指针告诉解析器应该在哪个位置画一个怎样的符号。我们可以选择使用「embed」标签或者「iframe」标签来解析 PDF。
-7. `vue-office`x支持多种文件(docx、excel、pdf、pptx)预览的vue组件库，支持vue2/3。也支持非Vue框架的预览，分为多个包。貌似是闭源？
+7. `vue-office`x 支持多种文件(docx、excel、pdf、pptx)预览的 vue 组件库，支持 vue2/3。也支持非 Vue 框架的预览，分为多个包。貌似是闭源？
 
 ## 有用的前端库
 
@@ -641,16 +641,16 @@ chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
 3. `markmap`：使用思维导图的方式来实现 Markdown 文档的可视化
 4. `docx` 或 `html-docx-js`：前端动态生成 Word 文档
 5. `ni`：`npm i -g @antfu/ni`，智能安装前段依赖
-6. `pdf.js`：解析 PDF 文件，还有很多能预览pdf的库，但是一般可以直接借助iframe即浏览器自身来预览即可了。
+6. `pdf.js`：解析 PDF 文件，还有很多能预览 pdf 的库，但是一般可以直接借助 iframe 即浏览器自身来预览即可了。
 7. `@nest-public/totp`：是一个用 TypeScript 编写的 TOTP 库。它提供了一个简单易用的 API，可以方便地生成和验证 TOTP 密码。
-8. `docxjs`：`npm install docx-preview`在线预览docx文件
-9. `vue-office`：支持多种文件(docx、excel、pdf、pptx)预览的vue组件库，支持vue2/3。也支持非Vue框架的预览，分为多个包。貌似是闭源？
-10. `docx-preview`：`npm install docx-preview`在线预览docx文件
-11. ``：``
-12. ``：``
-13. ``：``
-14. ``：``
-15. ``：``
+8. `docxjs`：`npm install docx-preview`在线预览 docx 文件
+9. `vue-office`：支持多种文件(docx、excel、pdf、pptx)预览的 vue 组件库，支持 vue2/3。也支持非 Vue 框架的预览，分为多个包。貌似是闭源？
+10. `docx-preview`：`npm install docx-preview`在线预览 docx 文件
+11. `：`
+12. `：`
+13. `：`
+14. `：`
+15. `：`
 
 ## DOM Api 解析 xml
 
@@ -852,4 +852,23 @@ chrome.webRequest.onHeadersReceived.addListener(
   // extraInfoSpec
   ["blocking", "responseHeaders", "extraHeaders"]
 );
+```
+
+## 流程图/时序图
+
+```txt
+title:sequenceDiagram
+participant 用户
+participant ChatGPT
+participant MCP服务端
+participant 金融数据API
+
+用户->>ChatGPT: 输入查询请求
+ChatGPT->>MCP服务端: 调用stockHistory工具
+MCP服务端->>金融数据API: 获取TSLA历史数据
+MCP服务端->>金融数据API: 获取NVDA历史数据
+MCP服务端->>ChatGPT: 返回结构化数据
+ChatGPT->>MCP服务端: 调用analyzeTrend工具
+MCP服务端->>ChatGPT: 流式返回分析结果
+ChatGPT->>用户: 生成自然语言报告    
 ```

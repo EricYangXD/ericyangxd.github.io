@@ -389,3 +389,150 @@ actions.onGlobalStateChange((state, prevState) => {
   console.log("全局状态变更:", state);
 });
 ```
+
+## CI/CD 持续集成
+
+简单示例：服务器一台，代码仓库托管在 gitlab 上，docker 镜像托管在 dockerhub 上，通过 k8s 部署镜像到服务器上，前端 app 运行在 nginx 上，通过 nginx 代理到后端 app。
+
+> 预处理：dockerhub 以及国内镜像仓库的问题造成直接 docker pull 时无法运行；使用 Github Action 将国外的 Docker 镜像转存到阿里云私有仓库。此处使用 oracle 的云服务器，使用 docker-compose 部署。
+
+具体步骤：假设 gitlab 也部署在 oracle 的云服务器。
+
+| 工具       | 作用                                                       |
+| ---------- | ---------------------------------------------------------- |
+| GitLab     | 托管代码，触发 Jenkins 构建（通过 Webhook）                |
+| Jenkins    | 执行 CI/CD 流水线（构建、测试、打包镜像）                  |
+| Docker     | 容器化应用，生成镜像                                       |
+| Kubernetes | 编排容器，实现滚动更新、扩缩容                             |
+| 镜像仓库   | 存储 Docker 镜像（如 Docker Hub、Harbor、GitLab Registry） |
+
+1. 比如我有一台运行 centos7 的甲骨文云主机，我想在这个机器上部署一套 CICD 流水线，包括 gitlab 托管代码，jenkins，docker，k8s 等，我从本地能推送代码到这个云主机上的 gitlab 仓库里，然后触发 jenkin 去打包生成镜像，然后通过 k8s 部署到这台机器上。
+2. GitLab + Jenkins + Docker + Kubernetes 的 CI/CD 流水线设计，![架构图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20250417155815962.png)
+3. 环境准备（CentOS 7 云主机）:`sudo yum update -y && sudo yum install -y curl wget git vim`
+4. 安装 Docker
+
+```bash
+# 安装 Docker CE
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install -y docker-ce docker-ce-cli containerd.io
+
+# 启动 Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# 验证
+docker --version
+```
+
+5. 安装 Kubernetes（单节点 MiniKube 或 K3s）:`curl -sfL https://get.k3s.io | sh -`，`sudo kubectl get nodes`验证
+6. 安装 GitLab
+
+```bash
+# 使用 Docker 运行 GitLab
+docker run -d \
+  --name gitlab \
+  --hostname your-server-ip \
+  -p 80:80 -p 443:443 -p 22:22 \
+  -v /gitlab/config:/etc/gitlab \
+  -v /gitlab/logs:/var/log/gitlab \
+  -v /gitlab/data:/var/opt/gitlab \
+  --restart always \
+  gitlab/gitlab-ce:latest
+
+# 等待初始化完成（约 5 分钟），检查状态
+docker logs -f gitlab
+```
+
+7. 访问 GitLab：`http://<云主机IP>`，初始密码：`sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password`
+8. 安装 Jenkins
+
+```bash
+# 使用 Docker 运行 Jenkins
+docker run -d \
+  --name jenkins \
+  -p 8080:8080 -p 50000:50000 \
+  -v /jenkins_home:/var/jenkins_home \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --restart always \
+  jenkins/jenkins:lts
+
+# 获取初始密码
+docker logs jenkins  # 查找 "InitialAdminPassword"
+```
+
+9. 访问 Jenkins：`http://<云主机IP>:8080`
+10. 配置 GitLab 和 Jenkins:
+
+- 在 GitLab 中创建项目（如 my-app），上传代码（含 Dockerfile）。
+- 配置 GitLab Webhook：进入 `Settings > Webhooks`，URL 填写 `http://<云主机IP>:8080/gitlab/build_now`。触发事件选择 `Push events`。
+- 在 Jenkins 中安装插件：GitLab Plugin、Docker Pipeline、Kubernetes CLI。
+- 创建 Jenkins Pipeline：选择 Pipeline 类型，定义从 GitLab 拉取代码的 Jenkinsfile（见下文）。
+
+```jenkinsfile
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'http://<云主机IP>/your-group/my-app.git'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("my-app:${env.BUILD_ID}")
+                }
+            }
+        }
+        stage('Deploy to K8s') {
+            steps {
+                sh """
+                    kubectl apply -f k8s-deployment.yaml
+                """
+            }
+        }
+    }
+}
+```
+
+11. 准备 Kubernetes 部署文件，创建 k8s-deployment.yaml：
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-app
+          image: my-app:latest # Jenkins 会动态替换为 ${BUILD_ID}
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      nodePort: 30080
+  selector:
+    app: my-app
+```
+
+12. 将 Jenkins 用户加入 Docker 组：`sudo usermod -aG docker jenkins`，防止 Jenkins 构建权限不足。
+13. 本地推送代码触发流水线自动触发流程：`GitLab → Jenkins → Docker → Kubernetes → 应用部署`。
+14. 验证部署：`sudo kubectl get pods`，`curl http://<云主机IP>:30080`。
+15. 生产环境建议分离组件到不同节点。使用 Harbor 替代本地 Docker Registry 管理镜像。

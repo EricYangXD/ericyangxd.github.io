@@ -1065,6 +1065,62 @@ const a = async () => {
 a();
 ```
 
+#### 前端音视频流
+
+1. 调用摄像头麦克风
+
+```js
+navigator.mediaDevices
+  .getUserMedia({ audio: true, video: true })
+  .then(function (stream) {
+    // 使用视频流，例如将其显示在video元素上
+    var video = document.querySelector("video");
+    video.srcObject = stream;
+    video.play();
+  })
+  .catch(function (err) {
+    console.error("Error accessing media devices.", err);
+  });
+```
+
+2. 录制视频并保存或者上传
+
+```js
+const mediaRecorder = new MediaRecorder(stream);
+let chunks = [];
+
+mediaRecorder.ondataavailable = function (event) {
+  chunks.push(event.data);
+};
+
+mediaRecorder.onstop = function () {
+  const blob = new Blob(chunks, { type: "video/mp4" });
+  const videoURL = window.URL.createObjectURL(blob);
+  // 这里可以将videoURL赋值给某个<video>元素的src属性来播放录制的视频
+  // 或者将blob对象上传到服务器
+  chunks = []; // 清空chunks数组，以便下次录制
+};
+
+// 开始录制
+mediaRecorder.start();
+
+// 停止录制
+// mediaRecorder.stop(); // 可以在需要的时候调用
+```
+
+3. 使用 Canvas API 对当前摄像头画面进行截图
+
+```js
+const canvas = document.createElement("canvas");
+canvas.width = video.videoWidth;
+canvas.height = video.videoHeight;
+const ctx = canvas.getContext("2d");
+ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+// 将canvas内容转换为图片URL并显示或下载
+const imageURL = canvas.toDataURL("image/png");
+// 可以在这里将imageURL赋值给某个<img>元素的src属性来显示图片，或者使用a标签的download属性来下载图片
+```
+
 ## 数组和链表
 
 ### 区别
@@ -1238,7 +1294,349 @@ input_dom.addEventListener("compositionend", onCompositionEnd);
 
 ![2025 React 状态管理终极指南](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/202504102335834.png)
 
-1.
+- 本地状态：组件内部管理的数据，这些数据可以影响组件的渲染输出和行为。本地状态是相对于全局状态而言的，它只存在于单个组件中，用于存储那些不需要在整个应用范围内共享的信息。私有性：本地状态是特定于某个组件的，其他组件无法直接访问或修改它。局部性：状态的变化只会影响该组件及其子组件，而不会影响到父组件或其他兄弟组件。生命周期性：随着组件的挂载、更新和卸载，本地状态也会经历相应的生命周期阶段。
+
+1. useState：略
+2. useReducer：用于复杂状态逻辑或状态更新依赖于前一状态的情况。`const [state, dispatch] = useReducer(reducer, initialState);`
+3. 自定义 Hooks：封装特定的状态逻辑，并且可以在多个组件之间共享这些逻辑。这不仅提高了代码的复用性，还使得状态管理更加模块化。
+4. 类组件：在 constructor 中初始化`this.state`，再使用 `this.setState()` 方法来更新状态。
+
+- 全局状态：指那些在整个应用中多个组件之间需要共享和访问的状态。与本地状态不同，全局状态不局限于单个组件，而是可以在应用的不同部分之间传递、更新和同步。当应用变得越来越大，组件之间的嵌套层次越来越深时，使用 props 逐层传递状态会变得非常麻烦且难以维护。全局状态管理工具可以帮助解决这个问题，它们提供了一种集中管理和共享状态的方式，减少了冗余代码，并提高了开发效率。
+
+1. 状态提升： 当需要在兄弟组件中共享状态时，可以将状态提升到父组件。将需要在多个组件之间共享的状态移动到它们的最近公共父组件中进行管理。
+2. Context API：适合简单的全局状态管理，尤其是当需要避免 props drilling 时。在 React 19 之前，可以使用 MyContext.Provider 的形式来提供共享状态。React 19 中，可以直接使用 MyContext 的形式，省略掉了.Provider。
+3. Zustand：一个轻量级的选择，适合小型到中型应用，特别是那些注重性能和易用性的项目。
+4. Jotai：为更细粒度的状态管理提供了可能性，非常适合那些寻求模块化和高效状态管理的开发者。
+
+```js
+// store.js
+import { create } from "zustand";
+
+const useStore = create((set) => ({
+  count: 0,
+  name: "Zustand Store",
+  increment: () => set((state) => ({ count: state.count + 1 })),
+  setName: (newName) => set({ name: newName }),
+}));
+export default useStore;
+
+// component.js
+import React from "react";
+import { useStore } from "./store";
+
+function Counter() {
+  const { increment, decrement } = useStore();
+  // 在组件中，如果只想订阅count状态，可以这样做：不会导致不必要的重新渲染！
+  const { count } = useStore((state) => ({ count: state.count }));
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+    </div>
+  );
+}
+export default MyComponent;
+```
+
+- 服务器状态：指的是应用与服务端交互相关的状态，包括从服务器获取的数据（如 API 响应）以及请求的状态（如加载中、完成、失败等）。数据一致性：确保前端展示的数据是最新的，并且与服务器上的数据一致。用户体验：提供即时反馈，比如加载指示器、错误消息等，以改善用户的交互体验。缓存策略：合理地使用缓存可以减少不必要的网络请求，提高性能并节省带宽。错误处理：优雅地处理网络故障或其他异常情况，保证应用的稳定性和可靠性。
+
+1. useState + useEffect：当只需要从服务器加载一次数据，并且不需要复杂的缓存或重试机制时使用。
+2. 自定义 Hooks： 当多个组件中有相似的数据获取模式，可以将这部分逻辑提取成一个自定义 Hook 来减少重复代码。
+3. React Query（现称为 TanStack Query）：一个强大的工具，特别适用于需要全面数据获取功能的大型应用。专为 React 应用设计的数据获取、缓存和状态管理库。它通过简化常见的数据操作任务，如发起 HTTP 请求、处理加载状态、错误处理等。
+4. SWR（stale-while-revalidate）：以其简洁性和对实时性的支持而闻名，是那些追求快速集成和良好用户体验的应用的理想选择。它是一个用于数据获取和缓存的 React Hooks 库，由 Vercel 开发。SWR 专为构建快速响应的用户界面而设计，它的工作原理是先返回缓存的数据，然后在后台发起请求获取最新的数据，并在收到新数据后更新 UI。这种模式可以提供即时的用户体验，同时确保数据保持最新。
+
+```js
+// ahooks - useRequest 示例
+import { useRequest } from "ahooks";
+import React from "react";
+import Mock from "mockjs";
+
+function getUsername(): Promise<string> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(Mock.mock("@name"));
+    }, 1000);
+  });
+}
+
+export default () => {
+  const { data, loading, run, cancel } = useRequest(getUsername, {
+    pollingInterval: 1000,
+    pollingWhenHidden: false,
+  });
+
+  return (
+    <>
+      <p>Username: {loading ? "loading" : data}</p>
+      <button type="button" onClick={run}>
+        start       
+      </button>
+      <button type="button" onClick={cancel} style={{ marginLeft: 8 }}>
+        stop       
+      </button>
+    </>
+  );
+};
+```
+
+```js
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { getTodos, postTodo } from "../my-api";
+
+const queryClient = new QueryClient();
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Todos />
+    </QueryClientProvider>
+  );
+}
+
+function Todos() {
+  const queryClient = useQueryClient();
+  const query = useQuery({ queryKey: ["todos"], queryFn: getTodos });
+  const mutation = useMutation({
+    mutationFn: postTodo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+
+  return (
+    <div>
+      <ul>
+        {query.data?.map((todo) => (
+          <li key={todo.id}>{todo.title}</li>
+        ))}
+      </ul>
+      <button
+        onClick={() => {
+          mutation.mutate({
+            id: Date.now(),
+            title: "Do Laundry",
+          });
+        }}>
+        Add Todo       
+      </button>
+    </div>
+  );
+}
+
+render(<App />, document.getElementById("root"));
+```
+
+```js
+import React, { useState } from "react";
+import useSWR from "swr";
+import axios from "axios";
+
+// 自定义的 fetcher 函数，使用 axios
+const fetcher = (url) => axios.get(url).then((res) => res.data);
+
+// 自定义的 SWR 配置选项
+const swrConfig = {
+  // 重试次数
+  retry: 3, // 缓存时间（毫秒）
+  revalidateOnFocus: false,
+  shouldRetryOnError: false,
+};
+
+function BlogPosts() {
+  const [page, setPage] = useState(1);
+  const perPage = 10; // 构建 API URL，包含分页参数
+
+  const apiUrl = `https://api.example.com/posts?page=${page}&perPage=${perPage}`; // 使用 SWR 获取文章数据
+
+  const { data: posts, error, isValidating } = useSWR(apiUrl, fetcher, swrConfig); // 数据转换：按日期排序
+
+  const sortedPosts = posts?.sort((a, b) => new Date(b.date) - new Date(a.date)) || [];
+
+  if (error) return <div>加载出错: {error.message}</div>;
+  if (!posts) return <div>正在加载... {isValidating && "重新验证..."}</div>;
+
+  return (
+    <div>
+      <h1>博客文章</h1>
+      <ul>
+        {sortedPosts.map((post) => (
+          <li key={post.id}>
+            <h2>{post.title}</h2>
+            <p>{post.content}</p>
+            <small>发布于: {new Date(post.date).toLocaleDateString()}</small>
+          </li>
+        ))}
+      </ul>
+      <button onClick={() => setPage(page - 1)} disabled={page === 1}>
+        上一页
+      </button>
+      <button onClick={() => setPage(page + 1)}>下一页</button>
+    </div>
+  );
+}
+
+export default BlogPosts;
+```
+
+- 导航状态：是指与应用内部页面或视图之间的导航相关的状态。它包括但不限于当前路由信息、历史记录栈、参数传递以及可能的其他元数据。当进行路由导航时，有时需要将前一个页面的状态带到新页面，以确保用户体验的一致性和连续性。通常，在 React 项目中会借助 React Router、TanStack Router 等路由库来实现状态管理。
+
+1. React Router
+2. TanStack Router
+
+- 表单状态：指的是用于保存和管理表单中各个输入元素（如文本框、选择框、复选框、单选按钮等）的数据。这些数据反映了用户与表单的交互情况，并且通常需要被收集起来以便后续处理，例如提交给服务器或用于本地逻辑计算。数据收集：从用户那里获取必要的信息，比如用户的联系信息、偏好设置或者订单详情。验证逻辑：确保用户输入的数据符合预期格式和规则，防止无效或恶意数据进入系统。用户体验：提供即时反馈，比如显示错误消息、动态更新选项或其他增强功能。持久化：即使页面刷新，也能够保持未完成的表单内容，避免用户重新填写。
+
+1. 简单表单：使用 useState，它足够简单且无需额外依赖。
+2. 中等复杂度表单：考虑使用 React Hook Form，特别是重视性能和希望保持依赖树轻量化的时候。
+3. 复杂表单：选择 Formik，它提供了最全面的功能集，非常适合构建大型、复杂的表单应用。
+
+```js
+import React from "react";
+import { useForm } from "react-hook-form";
+
+function LoginForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label>用户名:</label>
+        <input {...register("username", { required: "用户名是必填项" })} />
+        {errors.username && <p>{errors.username.message}</p>}
+      </div>
+      <div>
+        <label>密码:</label>
+        <input type="password" {...register("password", { required: "密码是必填项" })} />
+        {errors.password && <p>{errors.password.message}</p>}
+      </div>
+      <button type="submit">登录</button>
+    </form>
+  );
+}
+
+export default LoginForm;
+```
+
+```js
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+
+// 使用 Yup 定义验证模式
+const validationSchema = Yup.object().shape({
+  username: Yup.string().required("用户名是必填项"),
+  password: Yup.string().required("密码是必填项"),
+});
+
+function LoginForm() {
+  return (
+    <Formik
+      initialValues={{ username: "", password: "" }} // 设置初始表单值
+      validationSchema={validationSchema} // 定义验证规则
+      onSubmit={(values, actions) => {
+        console.log(values); // 可选地，在这里执行异步操作，并在完成后调用 actions.setSubmitting(false)
+        actions.setSubmitting(false);
+      }}>
+      {(
+        { isSubmitting } // 获取提交状态
+      ) => (
+        <Form>
+          <div>
+            <label>用户名:</label>
+            <Field name="username" type="text" /> {/* 创建用户名输入框 */}
+            <ErrorMessage name="username" component="div" /> {/* 显示用户名的错误信息 */}
+          </div>
+          <div>
+            <label>密码:</label>
+            <Field name="password" type="password" /> {/* 创建密码输入框 */}
+            <ErrorMessage name="password" component="div" /> {/* 显示密码的错误信息 */}
+          </div>
+          <button type="submit" disabled={isSubmitting}>
+            {/* 提交按钮，当提交中时禁用 */}登录           
+          </button>
+        </Form>
+      )}
+    </Formik>
+  );
+}
+
+export default LoginForm;
+```
+
+- 持久化状态：是指将应用的状态保存到一个持久的存储介质中，以便在用户关闭浏览器、刷新页面或重新启动应用后仍然能够恢复这些状态。持久化状态对于提升用户体验非常重要，因为它可以避免用户丢失数据，并且能够让应用在不同会话之间保持一致的行为。重要性：数据保留：确保用户输入或选择的数据不会因为页面刷新或应用重启而丢失。用户体验：提供更流畅和连续的用户体验，减少重复操作。离线支持：允许应用在没有网络连接的情况下继续工作，并在网络恢复时同步更改。
+
+1. Web Storage：适合简单的、短期或长期的客户端状态保存，尤其是用户偏好设置。
+2. Cookies：主要用于处理认证和跨页面通信，但要注意安全性和数据量限制。
+3. IndexedDB：一个强大的客户端数据库解决方案，适用于需要存储大量数据或结构化数据的应用。
+4. Zustand 或 Redux 中间件：结合持久化插件是全局状态管理和持久化的优秀选择，特别适合大型应用和复杂的状态逻辑。
+
+```js
+import create from "zustand";
+import { persist } from "@zustand/middleware";
+import { localStoragePersist } from "zustand/persist";
+
+const persistConfig = {
+  key: "myStore", // 存储在 localStorage 中的键名
+  storage: localStoragePersist, // 使用 localStorage 作为存储介质
+};
+
+const createStore = () =>
+  create(
+    persist((set, get) => ({
+      count: 0,
+      increment: () => set((state) => ({ count: state.count + 1 })),
+      decrement: () => set((state) => ({ count: state.count - 1 })),
+    })),
+    persistConfig
+  );
+
+export const useStore = createStore;
+```
+
+```js
+// store.js
+import { createStore } from "redux";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage"; // 使用默认的localStorage
+import rootReducer from "./reducers"; // 引入根reducer
+// 配置redux-persist
+const persistConfig = {
+  key: "root", // 保存数据时使用的键名
+  storage, // 存储机制
+};
+// 创建持久化后的reducer
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+// 创建Redux Store
+const store = createStore(persistedReducer);
+// 创建persistor对象，用于在应用中集成PersistGate
+const persistor = persistStore(store);
+export { store, persistor };
+
+// App.js
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./store"; // 引入刚才设置的store和persistor
+import App from "./App";
+
+ReactDOM.render(
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <App />
+    </PersistGate>
+  </Provider>,
+  document.getElementById("root")
+);
+```
 
 ### Vue、React、Angular 避免不必要渲染的机制详解
 
@@ -1264,3 +1662,19 @@ input_dom.addEventListener("compositionend", onCompositionEnd);
 | 列表优化     | key 属性                         | key 属性               | 自定义 trackBy 函数                    |
 | 强制更新     | forceUpdate                      | $forceUpdate           | detectChanges                          |
 | 不可变数据   | 重要                             | 推荐                   | OnPush 下必需                          |
+
+## 前端工程化
+
+前端工程化是指将软件工程的原理和方法应用到前端开发中，以提高开发效率、代码质量和可维护性。随着 Web 应用的复杂度不断增加，传统的前端开发方式已经难以满足需求，因此引入了工程化的概念来更好地管理和优化前端开发流程。前端工程化主要包括以下几个方面：
+
+1. 项目构建工具：使用自动化构建工具（如 Webpack, Vite, Parcel 等）来处理和打包前端资源（JavaScript, CSS, 图片等），从而简化开发流程，提升开发体验。这些工具通常支持模块化开发、代码压缩、混淆、热更新等功能。
+2. 模块化开发：采用模块化的开发模式（如 ES6 模块、CommonJS、AMD 等），可以将代码拆分为更小、更易于管理的部分，有助于团队协作和代码复用。每个模块负责单一功能，并且通过明确的接口与其他模块交互。
+3. 组件化开发：基于组件的思想构建用户界面，比如 React、Vue 和 Angular 中的组件。组件是独立且可复用的 UI 构建块，它们封装了自身的逻辑和样式，可以在不同的页面或应用之间共享。
+4. 版本控制：利用 Git 或其他版本控制系统来跟踪代码的变化历史，方便团队成员之间的协作开发，确保项目的稳定性和可回溯性。
+5. 持续集成/持续部署 (CI/CD)：设置 CI/CD 流程自动化测试、构建和部署过程，保证每次代码变更都能经过严格的测试并顺利上线，减少人工操作带来的风险。
+6. 静态代码分析：通过 ESLint、Prettier 等工具进行静态代码分析，帮助开发者遵循编码规范，提前发现潜在的问题，如语法错误、风格不一致等。
+7. 性能优化：采取各种措施优化 Web 应用的加载速度和运行性能，例如图片懒加载、服务端渲染（SSR）、客户端缓存策略、减少 HTTP 请求次数、使用 CDN 分发静态资源等。
+8. 文档生成与维护：保持良好的文档习惯，包括但不限于 API 文档、架构设计文档、开发指南等，这不仅有助于新人快速上手项目，也能为后续的维护提供便利。
+9. 依赖管理：合理地管理和更新第三方库依赖，确保项目所使用的库是最新的同时避免引入不必要的安全漏洞。常用工具如 pnpm、npm、yarn 可以有效地管理 JavaScript 包依赖。
+10. 单元测试与集成测试：编写测试用例对组件的功能进行验证，保证在修改代码后不会破坏现有功能；集成测试则用于检查不同模块之间的协同工作是否正常。
+11. 前端监控体系：本地埋点和线上监控相结合，及时响应故障，收集项目信息并分析。

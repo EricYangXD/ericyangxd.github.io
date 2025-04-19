@@ -719,13 +719,13 @@ position 的粘性定位指的是通过用户的滚动，元素的 position 属�
 11. `place-content: align justify`：用于同时设置`align-content`和`justify-content`属性的速记。
 12. `flex-direction`的方向就是主轴的方向，所以主轴和横轴实际上是相对的。
 
-- item 属性
+- item 子元素属性
 
-1.  `order`：决定子项目的顺序，order 越小，越是排列在最前面。
-2.  `flex-grow`：该属性是决定当前 item 的放大比例，默认是 0 项目不放大。
-3.  `flex-shrink`：当前 item 的缩小比例，默认的是 0。
-4.  `flex-basis`：设置当前的 item 的固定宽度。
-5.  `align-self`：这个属性可以单独控制当前元素的位置。`flex-start`、`center`、`flex-end`。
+  1.  `order`：决定子项目的顺序，order 越小，越是排列在最前面。
+  2.  `flex-grow`：该属性是决定当前 item 的放大比例，默认是 0 项目不放大。
+  3.  `flex-shrink`：当前 item 的缩小比例，默认的是 0。
+  4.  `flex-basis`：设置当前的 item 的固定宽度。
+  5.  `align-self`：这个属性可以单独控制当前元素的位置。`flex-start`、`center`、`flex-end`。
 
 ### grid 属性
 

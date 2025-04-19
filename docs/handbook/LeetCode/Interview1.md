@@ -1138,6 +1138,45 @@ function getMax(arr) {
 }
 ```
 
+### 求数组中大于某个数的所有段落的起始和终止下标
+
+有一个由很多数字组成的数组，要求找到数组中小于 1500 的数字段落的起始下标和终止下标。
+
+```js
+const fs = require("node:fs");
+const data = JSON.parse(fs.readFileSync("./551.json", "utf8"));
+
+function parseData(data) {
+  const res = [];
+  let startIndex = -1;
+
+  for (let i = 0; i < data.length; i++) {
+    if (data[i] < 1500) {
+      // 如果当前数字小于1500且startIndex为-1，说明是一个新的段落的开始
+      if (startIndex === -1) {
+        startIndex = i; // 记录起始下标
+      }
+    } else {
+      // 如果当前数字大于等于1500，且startIndex不为-1，说明段落结束
+      if (startIndex !== -1) {
+        res.push([startIndex, i - 1]); // 记录段落的起始和结束下标
+        startIndex = -1; // 重置起始下标
+      }
+    }
+  }
+
+  // 如果最后一个段落在数组末尾，并未遇到大于1500的值
+  if (startIndex !== -1) {
+    res.push([startIndex, data.length - 1]);
+  }
+
+  return res;
+}
+
+const res = parseData(data);
+console.log(res);
+```
+
 ## 山月前端工程化
 
 厘清几个概念
