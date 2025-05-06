@@ -1177,6 +1177,70 @@ const res = parseData(data);
 console.log(res);
 ```
 
+### 实现一个函数，把 data 转换成对应的 dom 结构
+
+```js
+// 输入
+const data = {
+  tagName: "ul",
+  props: { class: "list" },
+  children: [
+    { tagName: "li", children: ["douyin"] },
+    { tagName: "li", children: ["toutiao"] },
+  ],
+};
+// 输出
+// <ul class="list">
+//     <li>douyin</li>
+//     <li>toutiao</li>
+// </ul>
+
+var transform = (data) => {
+  const dfs = (node, parentNode) => {
+    // 遍历子节点
+    node.children.forEach((element) => {
+      const { tagName, children: subChildren } = element;
+      const childDom = document.createElement(tagName);
+
+      // 如果子元素是字符串，直接设置文本
+      if (subChildren && subChildren.length === 1 && typeof subChildren[0] === "string") {
+        childDom.innerText = subChildren[0];
+      } else if (subChildren && subChildren.length > 0) {
+        // 如果子元素是对象，递归调用 dfs
+        subChildren.forEach((sub) => {
+          dfs(sub, childDom);
+        });
+      }
+
+      // 将子DOM节点添加到父节点
+      parentNode.appendChild(childDom);
+    });
+  };
+
+  const { tagName, props, children } = data;
+
+  // 创建父节点
+  const parent = document.createElement(tagName);
+  if (props) {
+    // 设置属性
+    Object.keys(props).forEach((key) => {
+      parent.setAttribute(key, props[key]);
+    });
+  }
+
+  // 开始递归构建 DOM 树
+  if (children) {
+    dfs(data, parent);
+  }
+
+  return parent;
+};
+
+// 使用 transform 生成 DOM
+const domTree = transform(data);
+document.body.appendChild(domTree); // 将生成的 DOM 追加到文档中
+```
+
 ## 山月前端工程化
 
 厘清几个概念

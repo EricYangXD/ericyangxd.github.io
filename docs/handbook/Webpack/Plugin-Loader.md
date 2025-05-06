@@ -440,6 +440,19 @@ Webpack4 默认把所有的代码看作副作用代码，所以会把所有的�
 
 ## 手写简单 webpack 插件
 
+一个简单的 Webpack 插件通常是一个 JavaScript 类。插件的核心是实现 apply 方法，该方法在 Webpack 编译过程中被调用。
+
+### 常用的生命周期钩子
+
+WebPack 插件的生命周期钩子非常丰富，以下是一些常用的钩子：
+
+- compiler.hooks.initialize：在 Webpack 初始化时触发。
+- compiler.hooks.compile：在编译开始时触发。
+- compiler.hooks.emit：在输出资源之前触发，通常用于修改生成的文件。
+- compiler.hooks.done：在编译完成时触发。
+- compilation.hooks.processAssets：在处理资源时触发。
+- compilation.hooks.optimize：在资源优化时触发。
+
 ### 修改打包时的 HTML 的插件
 
 ```js
@@ -736,6 +749,41 @@ module.exports = {
 `npm install --save-dev @babel/preset-typescript`
 
 ## Loader
+
+Loader 通常是一个函数，接受源代码作为输入，并返回处理后的代码。Loader 也可以是一个对象，提供多个处理方法。
+
+```js
+// my-loader.js
+module.exports = function (source, map, meta) {
+  console.log("Processing source:", source);
+  // 这里可以对 source 进行处理
+  const options = this.getOptions();
+  if (options.replaceConsole) {
+    return source.replace(/console\.log/g, "console.warn"); // 返回处理后的代码
+  }
+  return source;
+};
+
+// 使用：
+// webpack.config.js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        use: [
+          {
+            loader: "./my-loader.js",
+            options: {
+              replaceConsole: true,
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+```
 
 ### css-loader
 

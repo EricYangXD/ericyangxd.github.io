@@ -931,7 +931,7 @@ css 模块化的几个重要目的，如下:
 
 ## 性能优化之 React 几种控制 render 方法
 
-render 的作用是根据一次更新中产生的新状态值，通过 React.createElement ，替换成新的状态，得到新的 React element 对象，新的 element 对象上，保存了最新状态值。 createElement 会产生一个全新的 props。到此 render 函数使命完成了。
+render 的作用是根据一次更新中产生的新状态值，通过 `React.createElement` ，替换成新的状态，得到新的 React element 对象，新的 element 对象上，保存了最新状态值。 createElement 会产生一个全新的 props。到此 render 函数使命完成了。
 
 接下来，React 会调和由 render 函数产生的 chidlren，将子代 element 变成 fiber（这个过程如果存在 alternate，会复用 alternate 进行克隆，如果没有 alternate ，那么将创建一个），将 props 变成 pendingProps ，至此当前组件更新完毕。然后如果 children 是组件，会继续重复上一步，直到全部 fiber 调和完毕。完成 render 阶段。
 
@@ -984,24 +984,55 @@ shouldComponentUpdate 可以根据传入的新的 props 和 state ，或者 newC
 
 ![渲染控制流程图](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/renderControl.png)
 
+### 7 避免不必要的状态提升
+
+状态提升通常会导致子组件在父组件状态变化时重新渲染。只有在必要的情况下，才需提升状态。如果不得不这样做，那么子组件中的方法可以用 useCallback 或者 useMemo 来缓存以避免不必要的渲染。
+
+- 在函数组件中，使用 useCallback 来缓存回调函数，避免因新函数实例的创建而造成的渲染。
+- 使用 useMemo 缓存计算结果，减少不必要的计算开销。
+
+### 8 懒加载和按需加载组件
+
+懒加载和按需加载组件可以提高性能和用户体验。当组件在需要时才加载，而不是在页面加载时就加载，可以减少页面的加载时间，提高用户体验。
+
+### 9 使用 Fragment
+
+使用 `React.Fragment` 来减少不必要的 DOM 节点，避免增加 DOM 树的复杂度。
+
+### 10 优化列表渲染
+
+在渲染长列表时，使用 `React-window` 或 `React-virtualized` 等库来实现虚拟滚动，只渲染可视区域内的元素，提升性能。
+
+### 11 合理分割组件
+
+将大型组件分割为更小的组件，减少每次状态更新时的渲染负担，提高可复用性和可维护性。
+
+### 12 使用 CSS 动画
+
+使用 CSS 动画和过渡，而非 JavaScript，来提高性能，因为 CSS 动画能够利用硬件加速。
+
+### 13 限制 Context 的使用
+
+使用 Context API 时，避免频繁更新 Context 的值，以减少使用该 Context 的组件的重新渲染。可以通过将不同的状态分开到多个 Context 来优化。也可以借助第三方库，如`use-context-selector`等。
+
 ### 什么时候需要注意渲染节流
 
-1. 数据可视化的模块组件（展示了大量的数据），这种情况比较小心因为一次更新，可能伴随大量的 diff ，数据量越大也就越浪费性能，所以对于数据展示模块组件，有必要采取 memo ， shouldComponentUpdate 等方案控制自身组件渲染。
+1. 数据可视化的模块组件（展示了大量的数据），这种情况比较小心，因为一次更新，可能伴随大量的 diff，数据量越大也就越浪费性能，所以对于数据展示模块组件，有必要采取 memo，shouldComponentUpdate 等方案控制自身组件渲染。
 2. 含有大量表单的页面，React 一般会采用受控组件的模式去管理表单数据层，表单数据层完全托管于 props 或是 state ，而用户操作表单往往是频繁的，需要频繁改变数据层，所以很有可能让整个页面组件高频率 render 。
 3. 越是靠近 app root 根组件越值得注意，根组件渲染会波及到整个组件树重新 render ，子组件 render ，一是浪费性能，二是可能执行 useEffect ，componentWillReceiveProps 等钩子，造成意想不到的情况发生。
 
 ### 一些开发中的细节问题
 
-1. 开发过程中对于大量数据展示的模块，开发者有必要用 shouldComponentUpdate ，PureComponent 来优化性能。
-2. 对于表单控件，最好办法单独抽离组件，独自管理自己的数据层，这样可以让 state 改变，波及的范围更小。
-3. 如果需要更精致化渲染，可以配合 immutable.js 。
-4. 组件颗粒化，配合 memo 等 api ，可以制定私有化的渲染空间。
+1. 开发过程中对于大量数据展示的模块，开发者有必要用 shouldComponentUpdate，PureComponent 来优化性能。
+2. 对于表单控件，最好办法单独抽离组件，独自管理自己的数据层，这样可以让 state 改变时，波及的范围更小。
+3. 如果需要更精致化渲染，可以配合 `immutable.js` 。
+4. 组件颗粒化/HOC 高阶组件，配合 memo 等 api ，可以制定私有化的渲染控件。
 
 ## 懒加载和异步渲染
 
 ### 异步渲染
 
-Suspense 是 React 提出的一种同步的代码来实现异步操作的方案。Suspense 让组件‘等待’异步操作，异步请求结束后在进行组件的渲染，也就是所谓的异步渲染。
+Suspense 是 React 提出的一种同步的代码来实现异步操作的方案。Suspense 让组件‘等待’异步操作，异步请求结束后再进行组件的渲染，也就是所谓的异步渲染。
 
 Suspense 是组件，有一个 fallback 属性，用来代替当 Suspense 处于 loading 状态下渲染的内容，Suspense 的 children 就是异步组件。多个异步组件可以用 Suspense 嵌套使用。
 

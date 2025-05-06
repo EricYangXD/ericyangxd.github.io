@@ -301,7 +301,7 @@ module.exports = {
         children: [
           {
             title: "Webpack基础知识",
-            path: "/handbook/Webpack/Basic",
+            path: "/handbook/Webpack/Webpack",
           },
           {
             title: "常用插件和Loader",
@@ -373,6 +373,10 @@ module.exports = {
             title: "Tauri",
             path: "/handbook/Skill/Tauri",
           },
+          {
+            title: "Prisma",
+            path: "/handbook/Skill/Prisma",
+          },
         ],
       },
       {
@@ -411,6 +415,10 @@ module.exports = {
           {
             title: "MySQL笔记",
             path: "/handbook/Java/SQL",
+          },
+          {
+            title: "Redis",
+            path: "/handbook/Java/Redis",
           },
           {
             title: "Groovy笔记",

@@ -1122,9 +1122,9 @@ function processTasks(...tasks) {
 }
 ```
 
-###
+### find 父级路径函数
 
-根据已有数据，实现一个 find 函数查找当前 id 及所有父级的 id(路径查找)
+根据已有数据，实现一个 find 函数查找当前 id 及所有父级的 id(路径查找)。
 
 ```js
 const data = [
@@ -1148,30 +1148,34 @@ const data = [
   },
 ];
 
-const find = (id) => {
+const find = (targetId) => {
+  // 用map存搜索的路径，当前节点id--从顶部到当前节点的路径id数组
   const map = new Map();
-  map.set(0, []);
+  map.set(0, []); // 初始化，假设根元素id为0
 
   function dfs(node, parentId) {
-    const { id: nodeId, children } = node;
+    const { id, children } = node;
 
     if (map.has(parentId)) {
-      map.set(nodeId, [...map.get(parentId), nodeId]);
+      // 更新当前路径
+      map.set(id, [...map.get(parentId), id]);
     } else {
-      map.set(nodeId, [nodeId]);
+      map.set(id, [parentId, id]);
     }
-    const found = children?.filter((child) => child.id === id);
+    // 如果目标id是children中的元素，则直接更新map，return即可。如果children中找不到目标id元素，则继续遍历children。
+    const found = children?.filter((child) => child.id === targetId);
+    // const found = children?.find((child) => child.id === targetId); // 直接返回找到的元素或者undefined
 
-    if (found?.[0]?.id === id) {
-      map.set(id, [...map.get(nodeId), id]);
+    if (found?.[0]?.id === targetId) {
+      map.set(targetId, [...map.get(id), targetId]);
       return;
     }
-    children?.forEach((child) => dfs(child, nodeId));
+    children?.forEach((child) => dfs(child, id));
   }
 
   data.forEach((d) => dfs(d, 0));
 
-  return map.get(id);
+  return map.get(targetId);
 };
 
 console.log(find(0)); // []

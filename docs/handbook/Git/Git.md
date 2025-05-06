@@ -332,8 +332,8 @@ eg.
 1. 基础操作，逐次`git reset --soft HEAD^`，合并冲突，直至到合适的 commit。
 2. 使用`git merge --squash branchName`压缩 Git 提交：当我们使用 `--squash` 选项执行 merge 时，Git 不会像在正常合并中那样在目标分支中创建合并提交。相反，Git 接受源分支中的所有更改，并将其作为本地更改放入目标分支的工作副本中，此时需要 add+commit 然后才可以 push。
 
-```git
-<!-- 不可以和 --no-ff同时使用 -->
+```bash
+# <!-- 不可以和 --no-ff同时使用 -->
 git merge --squash <source_branch_name_to_squash>
 ```
 

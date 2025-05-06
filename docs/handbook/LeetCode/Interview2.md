@@ -41,7 +41,7 @@ es6 中新增了箭头函数，而箭头函数最大的特色就是没有自己�
 6. 多进程打包:利用 node 的多进程，利用多个 cpu 进行项目打包（thread-loader，parallel-webpack，happypack）
 7. 合理使用 SourceMap
 8. 结合 stats.json 文件分析打包结果;分析 bundle 包,打包后的 bundle 文件生成一个分析文件:`"analyse": "webpack --config ./webpack.config.js --profile --json>states.json"`
-9. webpack-analyzer
+9. `webpack-bundle-analyzer`
 10. 开发环境无用插件需要剔除
 
 ### 相关 webpack 插件和 loader 等
@@ -68,16 +68,18 @@ es6 中新增了箭头函数，而箭头函数最大的特色就是没有自己�
    - `webpack-parallel-uglify-plugin`
    - `uglifyjs-webpack-plugin`
    - `terser-webpack-plugin`**(webpack4.0 推荐使用，支持压缩 es6 代码)**
-9. 通过分包提升打包速度:可以使用`html-webpack-externals-plugin`分离基础包，分离之后以 CDN 的方式引入所需要的资源文件，缺点就是一个基础库必须指定一个 CDN，实际项目开发中可能会引用到多个基础库，还有一些业务包，这样会打出很多个 script 标签。
-10. 进一步分包，采用预编译资源模块：采用 webpack 官方内置的插件`DLLPlugin`进行分包，`DLLPlugin`可以将项目中涉及到的例如 react、react-router 等组件和框架库打包成一个文件，同时生成`manifest.json`文件。`manifest.json`是对分离出来的包进行一个描述，实际项目就可以引用`manifest.json`，引用之后就会关联 `DLLPlugin` 分离出来的包,这个文件是用来让  `DLLReferencePlugin`  映射到相关的依赖上去。
-11. 通过缓存提升二次打包速度:
+9. 通过分包提升打包速度：可以使用`html-webpack-externals-plugin`分离基础包，分离之后以 CDN 的方式引入所需要的资源文件，缺点就是一个基础库必须指定一个 CDN，实际项目开发中可能会引用到多个基础库，还有一些业务包，这样会打出很多个 script 标签。
+10. 进一步分包，采用预编译资源模块：采用 webpack 官方内置的插件`DLLPlugin`进行分包，`DLLPlugin`可以将项目中涉及到的例如 react、react-router 等组件和框架库打包成一个文件，同时生成`manifest.json`文件。`manifest.json`是对分离出来的包进行一个描述，实际项目就可以引用`manifest.json`，引用之后就会关联 `DLLPlugin`分离出来的包，这个文件是用来让`DLLReferencePlugin`映射到相关的依赖上去。
+11. 通过**缓存**提升二次打包速度:
+    - 模块缓存：Webpack5 会在首次构建时将模块的编译结果存储在缓存中。设置`cache.type`字段，比如：`filesystem`，表示使用文件系统缓存存储到硬盘中，适合长期使用的项目。`memory`表示默认。缓存存储路径默认是 `node_modules/.cache/webpack`
+    - 持久化缓存：Webpack 5 的缓存是持久化的，即使在重新启动构建工具后，缓存仍然可用。这种机制使得后续构建的速度可以显著提高。
     - `babel-loader `开启缓存:`cacheDirectory=true`
     - `terser-webpack-plugin` 开启缓存:`new TerserPlugin({cache: true,})`
     - 使用`cache-loader`或者 `hard-source-webpack-plugin`
 12. 打包体积优化
-    1. 图片压缩:使用 Node 库的 imagemin，配置`image-webpack-loader`对图片优化，改插件构建时会识别图片资源，对图片资源进行优化，借助 pngquant（一款 PNG 的压缩器）压缩图片
-    2. 擦除无用到的 css:插件`purgecss-webpack-plugin`
-    3. 动态 Polyfill：由于 Polyfill 是非必须的，对一些不支持 es6 新语法的浏览器才需要加载 polyfill，为了百分之 3.几的用户让所有用户去加载 Polyfill 是很没有必要的；我们可以通过 polyfill-service，只给用户返回需要的 polyfill。每次用户打开一个页面，浏览器端会请求 polyfill-service，polyfill-service 会识别用户 User Agent，下发不同的 polyfill。如何使用动态 Polyfill service，通过[官方](https://polyfill.io)提供的服务，自建 polyfill 服务。
+    - 图片压缩:使用 Node 库的 imagemin，配置`image-webpack-loader`对图片优化，改插件构建时会识别图片资源，对图片资源进行优化，借助 pngquant（一款 PNG 的压缩器）压缩图片
+    - 擦除无用到的 css:插件`purgecss-webpack-plugin`
+    - 动态 Polyfill：由于 Polyfill 是非必须的，对一些不支持 es6 新语法的浏览器才需要加载 polyfill，为了百分之 3.几的用户让所有用户去加载 Polyfill 是很没有必要的；我们可以通过 polyfill-service，只给用户返回需要的 polyfill。每次用户打开一个页面，浏览器端会请求 polyfill-service，polyfill-service 会识别用户 User Agent，下发不同的 polyfill。如何使用动态 Polyfill service，通过[官方](https://polyfill.io)提供的服务，自建 polyfill 服务。
 
 ## ES6 继承
 
@@ -367,7 +369,7 @@ console.log(num.toPrecision(1)); // "1e+2"
 
 ## 数组扁平化
 
-即把数组从多维的展成一维的。大概有如下几种方法：
+即把数组从多维的展成一维的。大概有如下几种方法：字节外包遇到了。
 
 - 使用 `Array.prototype.flat()`：`arr.flat(Infinity)`使用 Infinity 可以展开任意深度的嵌套数组。
 - 递归方法，对于大型数组或深层嵌套，可能导致栈溢出。
@@ -609,7 +611,7 @@ Webpack HMR 特性的原理并不复杂，核心流程：
 3. Webpack 监听到文件变化后，增量构建发生变更的模块，并通过 WebSocket 发送 hash 事件
 4. 浏览器接收到 hash 事件后，请求 manifest 资源文件，确认增量变更范围
 5. 浏览器加载发生变更的增量模块
-6. Webpack 运行时触发变更模块的 module.hot.accept 回调，执行代码变更逻辑
+6. Webpack 运行时触发变更模块的 `module.hot.accept` 回调，执行代码变更逻辑
 7. done
 
 ![hmr](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/hmr.png)
@@ -619,7 +621,7 @@ Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSoc
 
 ## vue diff 和 react diff
 
-| 特性       | React Diff                      | Vue Diff                               |
+| 特性       | React Diff                      | Vue2 Diff                              |
 | ---------- | ------------------------------- | -------------------------------------- |
 | 基本策略   | 同层比较 + key 优化             | 同层比较 + 双端比较                    |
 | 列表 Diff  | 依赖唯一 key，逐一对比          | 双端比较，按头尾指针寻找最优解         |
@@ -633,7 +635,7 @@ Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSoc
 2. React 列表的比较：使用 key 进行优化，避免出现全量更新。
    - 如果所有节点都有唯一的 key，React 可以快速找到对应的节点，按 key 匹配更新。即使节点顺序发生变化，也只更新必要部分。
    - 如果没有 key 或 key 不唯一，React 会按默认顺序逐一对比，这在插入或删除节点时可能导致性能下降。
-3. Vue 列表的比较：使用了一种高效的 双端比较算法。它通过四个指针，分别指向新旧列表的头尾节点，
+3. Vue2 列表的比较：使用了一种高效的 双端比较算法。它通过四个指针，分别指向新旧列表的头尾节点，
 
    - 1. 从新旧列表的头部开始比较，如果相同则复用，更新内容，指针向后移动。newStart++，oldStart++。否则，进入下一步。
    - 2. 从新旧列表的尾部开始比较，如果相同则复用，更新内容，指针向前移动。newEnd--，oldEnd--。否则，进入下一步。
@@ -642,7 +644,16 @@ Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSoc
    - 5. 如果头尾无法匹配即以上 4 步均未找到相同节点，则尝试查找旧节点中能复用的节点（通过 key 查找新节点在旧列表中的位置）-遍历旧列表，查找 newStart 节点是否存在。如果找到：复用旧节点，更新内容（如有变化）。将旧节点移动到 newStart 的位置（DOM 操作）。如果未找到：创建新节点并插入到 newStart 的位置（DOM 操作）。移动指针：newStart++。
    - 6. 处理剩余节点，如果旧列表遍历完毕，但新列表仍有剩余节点：创建新节点并插入到对应位置（DOM 操作）。如果新列表遍历完毕，但旧列表仍有剩余节点：删除旧节点（DOM 操作）。
 
-4. 总结：
+4. Vue3 中的 diff：
+
+   - 基于 Proxy 的响应式系统：Vue 3 引入了基于 Proxy 的响应式系统，这使得其在处理数据变化时更加高效。Diff 算法可以在更细粒度的变化中快速识别更新，减少不必要的重渲染。
+   - 编译时优化：Vue 3 使用了新的模板编译器，可以在编译时就生成更优化的虚拟 DOM 结构，减少运行时的开销，提升 Diff 效率。
+   - 优化的 Diff 算法：Vue 3 的 Diff 算法对比逻辑进行了简化，采用了一种基于层级的比较策略。它首先比较节点的位置信息，从而快速决定哪些节点需要更新。对于同一层级的节点，Vue 3 会直接对比节点类型，如果节点类型相同，则只需更新属性和事件。
+   - Fragment 支持：Vue 3 支持 Fragment，使得多个根节点的支持更为简单。Diff 算法在处理这些情况下也进行了优化。
+   - 逻辑分离：Vue 3 通过重构，将不同的 Diff 逻辑分离到不同的函数中，使得代码更加清晰，易于维护和扩展。
+   - key 的使用：同样地，Vue 3 依然鼓励在列表渲染时使用 key 属性，但它在处理带有 key 的节点时也进行了优化，能够更高效地利用节点缓存。
+
+5. 总结：
 
    - React 的 diff 算法更侧重于简单规则和 key 的使用，通过假设更新操作是局部的来优化性能。
    - Vue 的 diff 算法使用了双端比较，更适合频繁插入、删除的场景，进一步提升了列表的更新效率。
@@ -1538,6 +1549,10 @@ Node.js 内存泄漏是指程序在执行过程中不再使用的内存没有被
 
 默认情况下，addEventListener 的第三个参数为 false，表示使用冒泡阶段。如果将其设置为 true，则事件将在捕获阶段被处理。
 
+1. 捕获阶段：当触发事件时，首先会从根节点向目标节点进行捕获。如果元素注册了在捕获阶段的事件处理器，则会依次触发的事件。
+2. 目标阶段：事件到达目标节点，如果有相关的事件处理器，它们会被调用。
+3. 冒泡阶段：当事件从目标节点向根节点冒泡时，各个元素注册在冒泡阶段的事件处理器会被调用。
+
 ## 数据大屏怎么实现响应式
 
 1. 使用响应式框架：Bootstrap：提供了强大的栅格系统和组件，适合快速开发响应式布局。Tailwind CSS：采用实用程序优先的 CSS 方法，可以轻松创建响应式设计。Ant Design 或 Material UI：这两者都是基于 React 的 UI 组件库，具有响应式设计的理念。
@@ -1777,8 +1792,9 @@ Array.prototype.myForEach = function (callback, thisArg) {
 
 ## Promise
 
-1. Promise 中的内部发生的错误在 try/catch 中无法捕获，需要在 Promise 的 catch 中捕获，或者需要 async/await 和 try/catch 配合使用才能捕获错误。
-2. try/catch 捕获的是 try 中报的错或者 throw 的 Error。
+1. Promise 中的内部发生的错误在 try/catch 中无法捕获，需要在 Promise 的 catch 中捕获，或者需要 async/await 和 try/catch 配合使用才能捕获错误。或者通过 then 方法的第二个参数处理，且第二个参数处理之后，后续的 catch 就不会再捕获到错误，如果有 return，则后续 then 正常执行。
+2. new Promise 时传入的函数中，如果先 resolve()然后又 reject()，则前者会生效，后者不生效。反之亦然。
+3. try/catch 捕获的是 try 中报的错或者 throw 的 Error，并且如果在 Promise 的构造函数中 throw Error，则先捕获 Error，后捕获内部 error。
 
 ## async、await 的原理和优势
 
@@ -1998,7 +2014,7 @@ console.log(Reflect.construct(Object, [], obj6.sayName)); // 报错==>false
    - Vue2：通过 Object.defineProperty() 方法对数据进行劫持，当数据发生变化时，会触发 setter 方法，通知依赖的视图更新。
    - Vue3：通过 Proxy 对象代理数据，当数据发生变化时，会触发 Proxy 的 set 方法，通知依赖的视图更新。
    - React：通过 Virtual DOM 和 Diff 算法，当数据发生变化时，会重新渲染 Virtual DOM，然后通过 Diff 算法对比新旧 Virtual DOM，找出差异，最后更新差异部分。
-   - Angular：通过 Zone.js 拦截异步操作，当数据发生变化时，会触发 Angular 的变更检测机制，检测数据变化并更新视图。
+   - Angular：通过 Zone.js 拦截 http、setTimeout、用户交互事件等异步操作，当数据发生变化时，会触发 Angular 的变更检测机制，检测数据变化并更新视图。
 
 2. react 中 hooks 不能放在 if 判断里的原因
 
@@ -2720,3 +2736,23 @@ console.log(validateData(data)); // 输出：false
 ```
 
 8. React.memo 特性和使用场景。
+
+### 严格模式非严格模式的区别和注意事项
+
+1. 全局严格模式：在脚本或函数的最顶部添加 `"use strict";` 即可启用严格模式。
+2. 函数级严格模式：`function strictFunction() {"use strict";// 该函数以严格模式运行}`
+3. 变量声明：非严格模式：未使用 var、let 或 const 声明的变量会被隐式创建为全局变量。严格模式：未声明的变量赋值会抛出 ReferenceError。
+4. 删除操作：非严格模式：允许删除变量、函数或函数参数（尽管无效）。严格模式：删除变量、函数或函数参数会抛出 SyntaxError。
+5. 重复属性名：非严格模式：允许对象字面量中出现重复的属性名。严格模式：对象字面量中重复的属性名会抛出 SyntaxError。
+6. 函数参数重复：非严格模式：允许函数参数重复。严格模式：函数参数重复会抛出 SyntaxError。
+7. this 的值：非严格模式：在全局函数中，this 指向全局对象（浏览器中为 window）。严格模式：在全局函数中，this 为 undefined。
+8. eval 的行为：非严格模式：eval 可以在当前作用域中创建变量。严格模式：eval 不会在外部作用域中创建变量，变量仅存在于 eval 内部。
+9. arguments 对象：非严格模式：修改函数参数会同步修改 arguments 对象。严格模式：修改函数参数不会影响 arguments 对象。
+10. 八进制字面量：非严格模式：允许使用八进制字面量（以 0 开头的数字）。严格模式：使用八进制字面量会抛出 SyntaxError。
+
+### JS 中的类型
+
+1. 原始类型：undefined、null、boolean、number、bigint、string、symbol。
+2. 对象类型：Object、Array、Function、Date、RegExp、Map、Set、Promise、Error、JSON、Math 等。
+3. typeof：检测原始类型和 function。
+4. instanceof：检测对象类型。

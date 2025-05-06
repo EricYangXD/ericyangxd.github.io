@@ -1411,3 +1411,7 @@ function myInstanceof(instance, constructor) {
 ```javascript
 
 ```
+
+## 打开一个页面所触发的事件
+
+![页面加载事件](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images/imgs/20250419160943831.jpeg)

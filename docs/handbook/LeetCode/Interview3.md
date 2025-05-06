@@ -55,6 +55,12 @@ Decorator：装饰类或者方法，不会修改原有的功能，只是增加�
 
 ## 面试题
 
+### addEventListener 和 onclick 事件的优先级
+
+1. 在事件发生时，所有通过 addEventListener 添加的处理函数都会先被调用（包括捕获阶段的处理函数），然后再调用 onclick 处理函数。
+2. addEventListener 可以添加多个处理函数，不会被覆盖。
+3. onclick 是单一的，后赋值会覆盖前一个。
+
 ### 手写 AST 的 demo
 
 ```js
@@ -1248,8 +1254,19 @@ input_dom.addEventListener("compositionend", onCompositionEnd);
    6. 使用多个图片系统域名
    7. 对域名做 dns 预解析
 3. 优化渲染
-   1. css、js 资源位置
-   2. 避免重绘重排/减少 dom 结构复杂度
+
+   1. css、js 资源位置，异步加载，设置优先级，防止阻塞 dom 解析，预加载预请求资源，提高响应速度
+   2. 避免重绘重排/减少 dom 结构复杂度：合并 DOM 操作。避免频繁访问布局属性：如 offsetWidth、offsetHeight、clientWidth 等。使用 CSS 动画替代 JavaScript 动画。
+   3. 使用虚拟 DOM，减少 DOM 节点数量，优化结构。
+   4. 懒加载和按需加载，图片懒加载，组件懒加载，使用动态导入（如 React 的 React.lazy()）按需加载组件。
+   5. 采用合适的渲染策略，使用 requestAnimationFrame，节流和防抖
+   6. 优化 CSS：减少选择器复杂性，合并 CSS 文件：减少 HTTP 请求次数，使用 CSS 精灵图（sprites）合并小图片。使用 CSS 变量：提高样式的可重用性与管理效率。
+   7. 使用 Web Worker，多线程处理：将处理密集型任务放入 Web Worker 中，避免阻塞主线程，保持 UI 响应。
+   8. 合理使用缓存，利用浏览器缓存：设置适当的缓存策略，利用 HTTP 缓存、Service Worker 等来提升资源加载速度。数据缓存：在前端应用中，使用本地存储（localStorage、sessionStorage）或 IndexedDB 缓存数据，减少不必要的网络请求。
+   9. 优化图像和媒体文件，压缩和优化图片：使用合适的格式（如 WebP），以及压缩图片以减少加载时间。使用 SVG：对于矢量图形，使用 SVG 图片可以减少文件体积，并保持清晰度。
+   10. 减少 HTTP 请求，合并资源，使用 CDN。
+   11. 监测和分析性能
+
 4. 其他关联系统方面
    1. 长耗时任务，分析耗时长的接口，后端优化
    2. `web-vitals`库和 performance 进行结合，分析 LCP：主要内容出现的时间，越短越好；FID：输入延迟的时间，低于 100ms 越好；CLS：页面变化的积累量，低于 0.1 越好

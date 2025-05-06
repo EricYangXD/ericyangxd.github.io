@@ -23,11 +23,35 @@ Webpack5 实现了 4 种新的模块类型，通过 Rule 的 type 属性设置�
 - 如果设置成 asset，则会根据图片的大小在 asset/inline 和 asset/resource 中自动选择
 - 默认大于 8KB 导出单独文件，小于等于 8KB 导出 dataURI（可通过 Rule 的 parser.dataUrlCondition.maxSize 去设置，单位是:Byte 字节）
 
-### loader 和 plugin
+### 缓存
 
-Loader 是用来解决资源文件的加载和编译问题，它只在模块加载环节工作。
+Webpack 5 引入了内置缓存机制，旨在减少后续构建的时间。它通过缓存模块的编译结果，避免重复的计算，帮助开发者提高构建效率。
 
-而 Plugin 就是用来处理 loader 工作以外的自动化工作：用来增加 Webpack 在项目自动化构建方面的能力，能作用于 Webpack 工作流程的方方面面，正是有了 Plugin，让 Webpack 几乎无所不能。
+1. 模块缓存：Webpack 会在首次构建时将模块的编译结果存储在缓存中。
+2. 持久化缓存：Webpack 5 的缓存是持久化的，即使在重新启动构建工具后，缓存仍然可用。这种机制使得后续构建的速度可以显著提高。
+3. 在 webpack.config.js 中，可以通过配置 cache 属性来启用缓存：
+
+```js
+module.exports = {
+  // ...
+  cache: {
+    type: "filesystem", // 使用文件系统缓存filesystem 类型会将缓存存储到硬盘中，适合长期使用的项目。默认是memory
+  },
+};
+```
+
+4. 缓存的工作原理：
+   - 缓存的存储：Webpack 会将编译结果存储在指定的目录中（默认是 node_modules/.cache/webpack）。
+   - 无效缓存：当某个模块的源代码或其依赖发生变化时，Webpack 会自动失效相应的缓存，并重新编译。
+5. 性能优化
+   - 启用缓存后，可以显著减少构建时间，特别是在热重载和开发环境中。
+   - 对于大型项目，文件系统缓存能够在多次构建中节省大量时间。
+
+### loader 和 plugin 区别
+
+Loader 是用来**解决资源文件的加载和编译**问题，它只在模块加载环节工作。
+
+而 Plugin 就是用来**处理 loader 工作以外的自动化工作**：用来增加 Webpack 在项目自动化构建方面的能力，能作用于 Webpack 工作流程的方方面面，正是有了 Plugin，让 Webpack 几乎无所不能。
 
 ### 插件 (Plugin)
 
@@ -222,12 +246,14 @@ module.exports = {
 };
 ```
 
-### 多进程: thread-loader
+### 多线程: thread-loader
 
-1. thread-loader 为官方推荐的开启多进程的 loader，可对 babel 解析 AST 时开启多线程处理，提升编译的性能。
+1. thread-loader 为官方推荐的开启多线程的 loader，可对 babel 解析 AST 时开启多线程处理，提升编译的性能。
 2. 把这个 loader 放置在其他 loader 之前，放置在这个 loader 之后的 loader 就会在一个单独的 worker 池(worker pool)中运行。
 3. 每个 worker 都是一个单独的有 600ms 限制的 node.js 进程。同时跨进程的数据交换也会被限制。
 4. 可以在 options 中配置 workers：即产生的 worker 的数量，默认是 cpu 的核心数；workerParallelJobs：一个 worker 进程中并行执行工作的数量，默认为 20；poolTimeout：闲置时定时删除 worker 进程，默认为 500ms；等参数。
+5. 共享内存：由于线程之间共享内存，可能会导致某些上下文不一致或状态不可预测，因此在使用时要注意代码的线程安全性。
+6. 不适用于所有加载器：并不是所有的加载器都能够与 thread-loader 一起工作。确保所使用的加载器支持并发处理。
 
 ```js
 module.exports = {
@@ -239,10 +265,11 @@ module.exports = {
           {
             loader: "thread-loader",
             options: {
-              workers: 10,
+              workers: 10, // 设置工作线程的数量
+              workerParallelJobs: 50, // 每个工作线程的最大任务数
             },
           },
-          "babel-loader",
+          "babel-loader", // 随后使用 babel-loader
         ],
       },
     ],
@@ -254,7 +281,7 @@ module.exports = {
 
 ## 如何分析前端打包体积
 
-在 webpack 中，可以使用 webpack-bundle-analyzer (opens new window)分析打包后体积分析。
+在 webpack 中，可以使用 `webpack-bundle-analyzer` (opens new window)分析打包后体积分析。
 
 其原理是根据 webpack 打包后的 Stats (opens new window)数据进行分析，在 webpack compiler 的 done hook (opens new window)进行处理。
 

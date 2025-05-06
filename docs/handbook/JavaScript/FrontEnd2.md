@@ -549,6 +549,7 @@ webpack4+无需配置默认会压缩代码，如果你想亲自试试，Js 可�
 - WebSocket
 - SharedWorker
 - Service Worker
+- BroadcastChannel API
 
 ### url 传参
 
@@ -583,7 +584,7 @@ window.onbeforeunload = function (e) {
 
 ### postMessage
 
-postMessage 是 h5 引入的 API，postMessage() 方法允许来自不同源的脚本采用异步方式进行有效的通信，可以实现跨文本文档、多窗口、跨域消息传递，可在多用于窗口间数据通信，这也使它成为跨域通信的一种有效的解决方案。
+postMessage 是 h5 引入的 API，`postMessage()` 方法允许来自**不同源**的脚本采用**异步**方式进行有效的通信，可以实现跨文本文档、多窗口、跨域消息传递，多用于窗口间数据通信，这也使它成为**跨域通信**的一种有效的解决方案。
 
 ```js
 // A.html
@@ -617,7 +618,7 @@ function sendA() {
 2. 在新标签或窗口打开一个页面时会「复制」顶级浏览会话的上下文作为新会话的上下文，这点和 session cookies 的运行方式不同。彼此之间是独立的，不会相互影响。
 3. 打开多个相同的 URL 的 Tabs 页面，会创建各自的 sessionStorage。也就是说彼此之间是独立的，不会相互影响。
 4. 关闭对应浏览器标签或窗口，会清除对应的 sessionStorage。
-5. _注意_：sessionStorage 不能在多个窗口或标签页之间共享数据，但是当通过 `window.open` 或`链接`*打开新页面*时(不能是新窗口)，新页面会复制前一页的 sessionStorage。
+5. _注意_：sessionStorage 不能在多个窗口或标签页之间共享数据，但是当通过 `window.open` 或`链接`**打开新页面**时(不能是新窗口)，新页面会复制前一页的 sessionStorage。
 
 - sessionStorage 顾名思义是针对一个 session 的数据存储，生命周期为当前窗口，一旦窗口关闭，那么存储的数据将被清空。最后还有一个很主要的区别同一浏览器的相同域名和端口的不同页面间可以共享相同的 localStorage，但是不同页面间无法共享 sessionStorage 的信息。
 - 比如：打开了两个百度首页 A 和 B，在 A 的 localStorage 中添加删除或修改某个 key/value，在 B 中也能同步看到 localStorage 中数据的变化。而对于这两个页面的 sessionStorage，修改 A 的 sessionStorage 并不会同步到 B 页面。
@@ -827,6 +828,27 @@ try {
   `chrome://serviceworker-internals` 找到对应的 sw 并关闭
 - 移除&unregister，方法 3:
   Open Developer Tools (F12) and Select Application. Then Either `Select Clear Storage -> Unregister service worker` or `Select Service Workers -> Choose Update on Reload`
+
+### BroadcastChannel
+
+仅在同源的上下文中有效。
+
+```js
+// A.html
+const channel = new BroadcastChannel("chat_channel");
+
+document.getElementById("send").onclick = function () {
+  const message = document.getElementById("message").value;
+  channel.postMessage(message);
+};
+
+// B.html
+const channel = new BroadcastChannel("chat_channel");
+
+channel.onmessage = function (event) {
+  document.getElementById("output").innerText = event.data;
+};
+```
 
 ### B 页面意外崩溃，该如何通知 A 页面
 
