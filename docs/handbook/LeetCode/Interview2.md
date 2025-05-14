@@ -1381,29 +1381,242 @@ Vue 还有一种特殊的方式：attrs/useAttrs，attrs 是一个特殊的对�
 
 ## 浏览器盒模型
 
+盒模型（Box Model）是 CSS 布局的核心概念，定义了元素在页面中占据空间的方式。每个 HTML 元素都被视为一个矩形盒子，由 内容区域（content）、内边距（padding）、边框（border） 和 外边距（margin） 组成。
+
+1. 标准盒模型（content-box）:默认情况下，浏览器使用 标准盒模型（`box-sizing: content-box`），`元素总宽度 = width + padding-left + padding-right + border-left + border-right`，外边距（margin） 不计算在总宽高内，但影响元素间距。
+2. 怪异盒模型（border-box）：IE 早期版本使用怪异盒模型，现代浏览器可通过`box-sizing: border-box` 启用。`元素总宽度 = width（包含 padding 和 border）`，更直观的布局控制（如响应式设计）。避免因 padding 或 border 导致元素溢出容器。
+3. 盒模型与布局技术：
+   - Flexbox 与盒模型：Flex 容器的子元素默认 `box-sizing: content-box`。可通过 `align-self` 或 `margin: auto` 控制对齐。
+   - Grid 与盒模型：Grid 单元格的尺寸计算受 box-sizing 影响。`gap` 属性替代 margin 避免折叠问题。
+   - 绝对定位（position: absolute）：定位**元素的宽高默认基于父容器的 padding box（不含 margin）**。
+
 ## 手写 Promise.all
 
 ## js 隔离原理
 
 ## CDN 缓存策略
 
+CDN（Content Delivery Network，内容分发网络）的核心目标是通过边缘节点缓存加速内容分发，减少源站负载。合理的缓存策略能显著提升性能，同时避免内容更新延迟或缓存污染。
+
+1. 缓存流程：用户请求 → CDN 边缘节点检查缓存：命中（HIT）：直接返回缓存内容。未命中（MISS）：回源获取资源并缓存（按策略）。缓存更新：通过过期时间（TTL）或主动刷新触发。
+2. 缓存层级：边缘节点缓存：用户最近的 POP 节点。中间层缓存：区域级缓存（如大区中心节点）。源站缓存：最终回源时的缓存（如 Nginx、Cloudflare 的 Argo）。
+3. 关键缓存策略：
+   - 缓存时间控制（TTL），通过 HTTP 头部设置资源的存活时间。
+     - `Cache-Control: max-age=3600`：资源在 CDN 和浏览器中缓存 1 小时。
+     - `Cache-Control: s-maxage=86400`：仅 CDN 缓存 24 小时（覆盖 max-age）。
+     - `Expires: Wed, 21 Oct 2025 07:28:00 GMT`：旧版绝对时间（优先级低于 Cache-Control）。
+     - 静态资源（JS/CSS/图片）：设置较长时间。
+     - 动态内容（API/HTML）：max-age=60（短 TTL）或 no-cache。
+   - 缓存验证策略：确保内容新鲜性，避免过期数据
+     - `Last-Modified + If-Modified-Since`：源站返回 `304 Not Modified` 若未修改。
+     - `ETag + If-None-Match`：基于内容哈希的强校验（更精确）。
+   - 缓存键（Cache Key）优化：CDN 通过 URL + 特定头部 生成缓存键，需避免冗余：
+     - 忽略无关查询参数：`https://example.com/image.jpg?timestamp=123` → 忽略 `timestamp`
+     - 区分设备类型：包含 `User-Agent` 或 `Vary: User-Agent`（谨慎使用，可能降低缓存命中率）。
+     - 多语言/地区分离：`Vary: Accept-Language`。
+   - 动态内容缓存：动态请求（如 API）也可有限缓存
+     - 短 TTL 缓存：`Cache-Control: public, max-age=10`。
+     - 按参数缓存：`GET /api/data?city=beijing` 和 `city=shanghai` 分别缓存。
+     - 边缘计算：使用 CDN 的 Edge Functions（如 Cloudflare Workers）动态生成内容。
+   - 主动缓存刷新：强制更新过期内容
+     - URL 刷新：使特定 URL 缓存失效（如 https://example.com/style.css）。
+     - 目录刷新：清除路径下所有缓存（如 /images/\*）。
+     - 缓存标签（Cache Tags）：通过标签批量刷新（如 version=2）。
+4. 高级策略
+   - 分层缓存（Cache Tiering）
+     - 边缘优先：优先从边缘节点获取，未命中时查询中间层。
+     - 父节点回源：多个边缘节点共享同一上级缓存（减少源站压力）。
+   - 热点缓存（Hot Content）
+     - 预加载（Prefetch）：预测热门内容提前缓存。
+     - 永久缓存（Pinning）：强制保留关键资源在边缘。
+   - 实时日志与监控
+   - 命中率监控：目标 > 90%（静态资源）或 > 50%（动态内容）。
+   - 带宽节省：通过缓存减少回源流量。
+5. 常见问题与解决方案：
+   - 缓存穿透：大量请求绕过缓存直接回源（如恶意攻击）。
+     - 设置合理的 Cache-Control。
+     - 对缺失资源缓存空结果（Cache-Control: max-age=60）。
+   - 缓存雪崩：同一时间大量缓存过期，导致源站瞬时压力。
+     - 随机化 TTL（如 max-age=3600 + rand(600)）。
+     - 使用 stale-while-revalidate 允许旧内容短期服务。
+   - 版本控制：静态资源更新后浏览器仍用旧缓存。
+     - 文件名哈希：/app.3a2b1c.js。
+     - 查询参数：/app.js?v=2（需配置 CDN 忽略 v 参数）。
+
 ## XSS 和 CSRF
 
-CSRF 原理和解决方案
-
-## websocket 消息质量保证
-
-012 段消息是什么
+CSRF 原理和解决方案，参考[## CSRF 攻击](../WebSecurity/WebSecurity.md)，[## XSS 攻击](../WebSecurity/WebSecurity.md)。
 
 ## websocket 通信机制
 
-## 前端性能优化
+WebSocket 是一种基于 TCP 的全双工通信协议，允许客户端和服务器在单个长连接上进行实时双向数据传输。与 HTTP 的“请求-响应”模式不同，WebSocket 在握手后保持连接开放，适合实时应用（如聊天、游戏、股票行情）。总结：双向通信，低延迟，协议开销低，节省带宽，能跨域，适用于实时交互场景。
+
+通信流程：
+
+1. 握手阶段（HTTP Upgrade）：WebSocket 通过 HTTP 协议发起握手，服务端响应`101 Switching Protocols Upgrade: websocket`升级为 WebSocket 连接
+2. 数据传输阶段：握手成功后，连接升级为 WebSocket 协议，后续通信通过 二进制帧（Frame）传输，而非 HTTP 报文。
+
+WebSocket 高级特性：
+
+1. 子协议（Subprotocol）：握手时可协商子协议（如 `Sec-WebSocket-Protocol: chat, stock`），用于区分业务类型。
+2. 扩展（Extensions）：支持压缩等扩展（如 permessage-deflate）：`Sec-WebSocket-Extensions: permessage-deflate`
+3. 安全性：同源策略：WebSocket **不受同源限制**，但可通过 Origin 头验证。加密：`wss://` 使用 TLS 加密（类似 HTTPS）。
+
+## websocket 消息质量保证
+
+1. WebSocket 数据以帧为单位传输，包含 FIN、Opcode、Mask、Payload length、Payload data 等
+2. 消息完整性：
+   - 分片消息（Fragmentation）：大消息可拆分为多帧传输（FIN=0 表示还有后续帧，FIN=1 表示结束）。
+   - 校验机制：TCP 层校验（保证数据不损坏）。应用层可通过消息序号或哈希校验（需自行实现）。
+3. 心跳检测（Ping/Pong）：检测连接存活状态，避免因超时断开。服务器定期发送 Ping 帧（Opcode 0x9）。客户端回复 Pong 帧（Opcode 0xA）。
+4. 错误处理与重连：关闭帧（Close Frame）：发送 Opcode 0x8 通知对方正常关闭。自动重连：客户端需监听 onclose 事件并重新建立连接（即自行实现）。
+
+### 012 段消息是什么
+
+消息分片。WebSocket 支持将一条逻辑消息拆分为多个帧传输（分片）。传输大文件或流式数据。避免单帧过大导致缓冲区溢出。
 
 ## 面向对象编程和面向过程编程的区别和理解
 
+| 维度         | 面向过程编程（POP）         | 面向对象编程（OOP）                |
+| ------------ | --------------------------- | ---------------------------------- |
+| 核心思想     | 以“过程”（函数/步骤）为中心 | 以“对象”（数据与行为的封装）为中心 |
+| 代码组织方式 | 线性流程，按步骤调用函数    | 通过类和对象组织代码，强调交互     |
+| 数据与行为   | 数据与函数分离              | 数据与方法绑定在对象中             |
+| 典型语言     | C、Pascal、早期 Fortran     | Java、C++、Python、C#              |
+
+1. 面向过程编程（POP）：将问题分解为一系列步骤，通过函数依次调用解决问题。
+   - 数据与函数分离：数据通过参数传递给函数。
+   - 流程驱动：代码执行顺序明确，适合简单任务。
+   - 低抽象层级：直接操作数据，缺乏封装。
+2. 面向对象编程（OOP）：将问题抽象为对象，对象包含数据（属性）和行为（方法）。
+   - 封装：隐藏内部细节，暴露接口（如类的 private/public）。
+   - 继承：子类复用父类的属性和方法（如 class Dog extends Animal）。
+   - 多态：同一接口不同实现（如方法重写、接口实现）。
+   - 抽象：定义共性（如抽象类、接口）。
+
 ## 大数据渲染造成的页面卡顿怎么优化
 
+1. 结合时间切片和虚拟滚动优化：列表渲染不会阻塞用户输入，滚动流畅。
+
+```jsx
+import { useDeferredValue } from "react";
+
+function BigList({ items }) {
+  const deferredItems = useDeferredValue(items);
+  return (
+    <div style={{ height: "500px", overflow: "auto" }}>
+      {deferredItems.map((item) => (
+        <div key={item.id}>{item.content}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+2. 数据分片+RequestAnimationFrame
+3. Web Worker 异步处理数据，postMessage 传给主线程渲染
+
+## React 并发渲染
+
+React 18 默认启用并发渲染，但需要通过 并发特性 API 显式使用。是 React18 的核心特性之一，通过时间切片和可中断渲染机制，将长时间的渲染任务拆分为小块，避免阻塞主线程，从而提高应用的响应性，减少页面卡顿，提高用户体验。
+
+- 时间切片（Time Slicing）：将渲染工作分解为多个小任务（通常以 5ms 为单位），在浏览器的空闲时段（通过 requestIdleCallback 类似机制）执行，避免长时间占用主线程。
+- 可中断渲染（Interruptible Rendering）：React 可以在执行渲染任务时，根据优先级中断低优先级的更新（如后台数据加载），优先处理高优先级的用户交互（如按钮点击）。
+
+使用方法：
+
+1. 使用 createRoot 和并发模式：确保使用 `ReactDOM.createRoot` 替代旧的 `ReactDOM.render`
+2. 并发特性 API：
+   - startTransition：标记非紧急更新，在不阻塞 UI 的情况下更新状态。useTransition hook 返回的 startTransition 函数允许将状态更新标记为 transition。`const [isPending, startTransition] = useTransition();`，startTransition 接收一个回调函数用于执行相应的状态更新等操作。
+   - useDeferredValue：延迟派生值，延迟计算某些依赖状态的派生值（如防抖效果）。`const deferredData = useDeferredValue(data); // 延迟更新`，deferredData 会在空闲时更新，避免阻塞高优先级任务。
+   - Suspense + 懒加载：拆分渲染优先级，结合 React.lazy 和 Suspense，延迟加载非关键组件。
+
+```jsx
+import { Suspense, lazy } from "react";
+import { useDeferredValue } from "react";
+import { useState, startTransition } from "react";
+
+function SearchBox() {
+  const [input, setInput] = useState("");
+  const [results, setResults] = useState([]);
+
+  const handleChange = (e) => {
+    setInput(e.target.value); // 紧急更新：立即显示输入
+    startTransition(() => {
+      setResults(filterLargeData(e.target.value)); // 非紧急更新：可中断
+    });
+  };
+
+  return (
+    <>
+      <input value={input} onChange={handleChange} />
+      <ResultsList data={results} />
+    </>
+  );
+}
+
+function ResultsList({ data }) {
+  const deferredData = useDeferredValue(data); // 延迟更新
+  return (
+    <ul>
+      {deferredData.map((item) => (
+        <li key={item.id}>{item.text}</li>
+      ))}
+    </ul>
+  );
+}
+
+const HeavyComponent = lazy(() => import("./HeavyComponent"));
+
+function App() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <HeavyComponent /> {/* 渲染可中断 */}
+    </Suspense>
+  );
+}
+```
+
+3. 时间切片的底层机制：React 18 通过 Fiber 架构 和 调度器（Scheduler） 实现时间切片
+   - Fiber 节点的遍历：React 将组件树转换为 Fiber 链表，每个 Fiber 节点代表一个工作单元。渲染时按 Fiber 节点逐个处理，每完成一个单元检查剩余时间，若不足则暂停并让出主线程。
+   - 调度器优先级：优先级类型：Immediate：用户交互（如点击）。Default：普通状态更新。Low：后台任务（如数据预加载）。调度逻辑：高优先级任务可打断低优先级任务的渲染。
+4. 其他的优化性能的手段：React 18 自动批处理状态更新（包括异步操作）。避免不必要的渲染，使用 React.memo 或 useMemo/useCallback 减少子组件重复渲染等。
+
 ## 为什么要使用虚拟 DOM
+
+为了解决直接操作真实 DOM 的性能瓶颈，同时平衡开发体验与渲染效率。虚拟 DOM 是一个轻量级的 JavaScript 对象，是对真实 DOM 的抽象。
+
+1. 减少直接操作真实 DOM 的次数
+
+   - 批量更新：将多次状态变化合并为一次虚拟 DOM 计算，最后统一更新真实 DOM。
+   - 差异更新（Diffing）：通过对比新旧虚拟 DOM 的差异，只更新必要的部分（而非全量渲染）。
+
+2. 跨平台能力
+
+   - 虚拟 DOM 是 JavaScript 对象，可以渲染到不同平台（如 Web、Native、Canvas），而不仅限于浏览器 DOM。
+
+3. 声明式编程模型
+   - 开发者只需描述“UI 应该是什么样子”（如 JSX/Vue 模板），无需关心如何一步步更新 DOM。
+   - 框架自动处理虚拟 DOM 到真实 DOM 的转换。
+
+| 维度     | 虚拟 DOM 的作用                                     |
+| -------- | --------------------------------------------------- |
+| 性能     | 减少直接操作 DOM 的次数，通过 Diff 实现最小化更新。 |
+| 开发体验 | 声明式编程，让开发者专注于状态而非 DOM 操作。       |
+| 跨平台   | 同一套代码可渲染到 Web、Native 等不同环境。         |
+| 可维护性 | 组件化 + 虚拟 DOM 使大型应用更易维护。              |
+
+4. 缺点：虚拟 DOM 不是最快的，但是最平衡的。直接操作 DOM（如手动优化过的 Vanilla JS）可能比虚拟 DOM 更快。但虚拟 DOM 在 复杂应用 中提供了可预测的性能下限，避免了最差情况。虚拟 DOM 牺牲了少量性能（Diff 计算开销），换取了开发效率和可维护性。
+
+5. 不适用于：
+
+   - 超高频更新（如每秒 1000 次动画）：直接操作 DOM 或使用 Canvas 更合适。
+   - 完全静态页面：虚拟 DOM 的 Diff 反而多余。
+
+6. 现代框架的优化趋势
+   1. React 的并发渲染（Concurrent Mode）：将 Diff 过程拆分为可中断的小任务，避免阻塞主线程（时间切片）。
+   2. Vue 3 的编译时优化：静态提升（Hoist Static）：将静态节点编译为常量，避免重复创建。Patch Flags：在编译时标记动态节点类型，减少运行时 Diff 成本。
+   3. 替代方案的出现：Svelte：编译时直接生成 DOM 操作代码，无需虚拟 DOM。SolidJS：通过细粒度响应式更新，跳过虚拟 DOM。
 
 ## 有效括号匹配
 
@@ -1411,9 +1624,92 @@ CSRF 原理和解决方案
 
 ## 判断 b 是否是 a 的子集
 
-ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
+ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的。假设 a、b 是数组。
+
+1. 分别统计 a 和 b 中每个元素的出现次数（使用字典或哈希表）。检查 b 的所有元素是否都存在于 a 中，且 b 中每个元素的计数 ≤ a 中的计数。
+2. 排序 a 和 b。使用双指针遍历 a 和 b，确保 b 的所有元素都能在 a 中找到，且 b 中相同元素的出现次数 ≤ a 中的出现次数。
+3. 遍历 b 的每个元素。在 a 中查找该元素，并移除匹配的元素（避免重复计数）。如果 b 的某个元素不在 a 中，或 a 中该元素的剩余数量不足，返回 False。
+
+```js
+function isSubSet(a, b) {
+  if (b?.length === 0) return true;
+  if (a.length < b.length) return false;
+
+  const count = {};
+  for (const num of a) {
+    count[num] = (count[num] || 0) + 1;
+  }
+  for (const num of b) {
+    if (!count[num]) return false;
+    count[num]--;
+  }
+  return true;
+}
+
+function isSubSet(a, b) {
+  if (b?.length === 0) return true;
+  if (a.length < b.length) return false;
+
+  const sup = [...a].sort(); // 复制数组
+  const sub = [...b].sort();
+  let i = 0,
+    j = 0;
+  while (i < sup.length && j < sub.length) {
+    if (sup[i] === sub[j]) {
+      i++;
+      j++;
+    } else if (sup[i] < sub[j]) {
+      i++;
+    } else {
+      return false;
+    }
+  }
+  return j === sub.length; // 是否遍历完 b
+}
+```
 
 ## 302 怎么确定重定向路径
+
+302 Found 状态码表示临时重定向，客户端需要根据响应头中的 Location 字段确定重定向路径。当服务器返回 302 状态码时，必须包含 Location 头部，指明重定向的目标 URL。客户端（浏览器或 HTTP 客户端库）会自动跳转到 Location 指定的 URL。如果服务器返回 302 但未提供 Location，客户端行为可能不一致（部分浏览器会报错）。Location 是相对路径时，相对于当前请求的域名。返回绝对路径的时候，则直接跳转。
+
+1. 浏览器会自动处理 302 跳转，用户无感知（地址栏会更新为目标 URL）。
+2. 命令行工具（cURL）：`curl -v https://old-url.com`
+3. 使用 fetch 或 axios 等库时，默认会跟随重定向，需显式禁用以获取 302 响应：
+
+```js
+// 使用 fetch（禁止自动重定向）
+fetch("https://old-url.com", {
+  redirect: "manual", // 不自动跳转
+}).then((response) => {
+  if (response.status === 302) {
+    const redirectUrl = response.headers.get("Location");
+    console.log("重定向路径:", redirectUrl);
+  }
+});
+
+// 使用 axios（需拦截响应）
+axios
+  .get("https://old-url.com", {
+    maxRedirects: 0, // 禁止自动重定向
+  })
+  .catch((error) => {
+    if (error.response.status === 302) {
+      const redirectUrl = error.response.headers.location;
+      console.log("重定向路径:", redirectUrl);
+    }
+  });
+```
+
+4. 302：临时重定向，搜索引擎不会更新索引。301：永久重定向，搜索引擎会将权重转移到新 URL。
+5. 避免循环重定向（如 A → B → A），浏览器通常限制最大跳转次数（如 Chrome 限制 20 次）。
+
+```bash
+server {
+    listen 80;
+    server_name old-site.com;
+    return 302 https://new-site.com$request_uri;
+}
+```
 
 ## 几种 worker 的对比
 
@@ -1429,6 +1725,28 @@ ab 有重复元素，要求 b 中相同元素出现的次数<=a 中的
 ## 全排列
 
 回溯算法模板，一种方式是递归，循环遍历各个数字字符，先存到 path 中，然后递归剩下的数字字符，递归结束后 pop 恢复现场，继续循环。终止条件是`path.length===nums.length`。
+
+```js
+function permute(nums) {
+  if (nums?.length < 2) return nums;
+  const res = [];
+  function backtrack(start) {
+    if (start === nums.length) {
+      res.push(nums.slice());
+      return;
+    }
+
+    for (let i = start; i < nums.length; i++) {
+      [nums[i], nums[start]] = [nums[start], nums[i]];
+      backtrack(start + 1);
+      [nums[i], nums[start]] = [nums[start], nums[i]];
+    }
+  }
+
+  backtrack(0);
+  return res;
+}
+```
 
 ## 前端路由原理
 
@@ -2014,7 +2332,7 @@ console.log(Reflect.construct(Object, [], obj6.sayName)); // 报错==>false
    - Vue2：通过 Object.defineProperty() 方法对数据进行劫持，当数据发生变化时，会触发 setter 方法，通知依赖的视图更新。
    - Vue3：通过 Proxy 对象代理数据，当数据发生变化时，会触发 Proxy 的 set 方法，通知依赖的视图更新。
    - React：通过 Virtual DOM 和 Diff 算法，当数据发生变化时，会重新渲染 Virtual DOM，然后通过 Diff 算法对比新旧 Virtual DOM，找出差异，最后更新差异部分。
-   - Angular：通过 Zone.js 拦截 http、setTimeout、用户交互事件等异步操作，当数据发生变化时，会触发 Angular 的变更检测机制，检测数据变化并更新视图。
+   - Angular：通过 Zone.js 拦截 http、setTimeout、用户交互事件等异步操作，当数据发生变化时，会触发 Angular 的变更检测机制-脏值检查，检测数据变化并更新视图。
 
 2. react 中 hooks 不能放在 if 判断里的原因
 

@@ -190,6 +190,34 @@ var lengthOfLongestSubstring = function (str) {
   }
   return maxLen;
 };
+
+// 双指针法
+var lengthOfLongestSubstring = function (s) {
+  if (s.length <= 1) return s.length;
+
+  let maxLen = 0;
+  let left = 0;
+  let right = 0;
+  const str = [];
+
+  while (left < s.length && right < s.length) {
+    const rightStr = s[right];
+
+    if (str.includes(rightStr)) {
+      left++;
+      maxLen = Math.max(maxLen, str.length);
+      str.shift();
+    } else {
+      str.push(rightStr);
+      right++;
+    }
+  }
+
+  // 最后当right到头时，也要更新一下长度
+  maxLen = Math.max(maxLen, right - left);
+
+  return maxLen;
+};
 ```
 
 ### 22.括号生成
@@ -440,6 +468,7 @@ function moveZeroes(nums) {
   for (let i = 0; i < nums.length; i++) {
     if (nums[i] !== 0) {
       [nums[i], nums[j]] = [nums[j], nums[i]];
+      // nums[i]不是0的时候，j和一起右移
       j++;
     }
   }
@@ -1172,6 +1201,36 @@ var generateParenthesis = function (n) {
 };
 ```
 
+### 415.字符串相加
+
+```js
+var addStrings = function (num1, num2) {
+  if (num1 === "0") return num2;
+  if (num2 === "0") return num1;
+
+  const arr1 = num1.split("").map(Number).reverse();
+  const arr2 = num2.split("").map(Number).reverse();
+
+  const res = [];
+  let carry = 0;
+  const maxLen = Math.max(arr1.length, arr2.length);
+
+  for (let i = 0; i < maxLen; i++) {
+    const n1 = i < arr1.length ? arr1[i] : 0;
+    const n2 = i < arr2.length ? arr2[i] : 0;
+    const sum = n1 + n2 + carry;
+    res.push(sum % 10);
+    carry = Math.floor(sum / 10);
+  }
+
+  if (carry !== 0) {
+    res.push(carry);
+  }
+
+  return res.reverse().join("");
+};
+```
+
 ### 51. N 皇后
 
 N 皇后问题是一个经典的问题，要求在 n x n 的棋盘上放置 n 个皇后，使得皇后之间没有冲突。解决这个问题的关键是找到一种合适的放置方式，使得皇后之间没有冲突。
@@ -1345,9 +1404,31 @@ var maxProfit = function (k, prices) {
 };
 ```
 
+### 322. 零钱兑换
+
+根据给定的硬币面额凑出总金额。凑不出就返回-1，总金额是 0 则返回 0。
+
+```js
+var coinChange = function (coins, amount) {
+  // 动态规划解法
+  const dp = Array(amount + 1).fill(Infinity);
+  // 初始值
+  dp[0] = 0;
+
+  for (let i = 0; i < dp.length; i++) {
+    for (let c of coins) {
+      if (i - c < 0) continue; // 如果总金额小于这个硬币的面值，那就凑不齐，跳过
+      dp[i] = Math.min(dp[i], 1 + dp[i - c]); // dp[i-c]表示当前金额减去当前硬币面额对应的金额的最小硬币组合
+    }
+  }
+
+  return dp[amount] === Infinity ? -1 : dp[amount];
+};
+```
+
 ### 516. 最长回文子序列
 
-回文子序列问题，就是求最长的回文子序列，即子序列中的字符是回文的。子序列和子串不是一回事！！！
+回文子序列问题，就是求最长的回文子序列，即子序列中的字符是回文的。子序列和子串不是一回事！子序列不需要连续，子串要保持连续！
 
 1. 翻转字符串，然后求最长公共子序列。
 2. 动态规划求解。
@@ -1370,6 +1451,35 @@ const longestPalindromeSubseq = (s) => {
     }
   }
   return dp[0][n - 1];
+};
+
+// 记忆化递归
+var longestPalindromeSubseq = (s) => {
+  const n = s.length;
+  // 不用缓存的话会超时
+  const cache = Array(n)
+    .fill(null)
+    .map(() => Array(n).fill(-1));
+
+  function dfs(i, j) {
+    if (i > j) {
+      return 0;
+    }
+    if (i === j) {
+      return 1;
+    }
+    if (cache[i][j] !== -1) {
+      return cache[i][j];
+    }
+    if (s[i] === s[j]) {
+      cache[i][j] = dfs(i + 1, j - 1) + 2;
+    } else {
+      cache[i][j] = Math.max(dfs(i + 1, j), dfs(i, j - 1));
+    }
+
+    return cache[i][j];
+  }
+  return dfs(0, n - 1);
 };
 ```
 

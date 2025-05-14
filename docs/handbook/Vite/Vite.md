@@ -64,7 +64,25 @@ Vite 的优化会跟踪所有的直接导入，无论导入的深度如何，都
 
 ### 新项目
 
-使用 Vite 提供的模板工具：@vitejs/create-app
+使用 Vite 提供的模板工具：`@vitejs/create-app`，template 后面可以跟具体的框架：vue、react、vue-ts、react-ts 等。`create-vite-extra` 包含了一些你可以用作参考的 SSR 设置示例。
+
+```bash
+# npm 7+, extra double-dash is needed:
+npm create vite@latest my-vue-app -- --template vue-ts
+
+# 通过create-vue脚手架创建vue+vite+ts的项目
+npm create vue@latest
+
+# yarn
+yarn create vite my-vue-app --template vue
+
+# pnpm
+pnpm create vite my-vue-app --template vue
+
+# Bun
+bun create vite my-vue-app --template vue
+
+```
 
 ### 老项目
 

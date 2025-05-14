@@ -2,6 +2,9 @@
 title: Spectre
 author: EricYangXD
 date: "2022-03-02"
+meta:
+  - name: keywords
+    content: Spectre
 ---
 
 ## 什么是 Spectre
@@ -65,7 +68,7 @@ CPU 执行了这个不应该被执行的命令后，CPU 认为它需要看一下
 
 要利用 Spectre，攻击者需要精确测量从内存中读取某个值所需的时间。所以需要一个可靠且准确的计时器。
 
-浏览器提供的一个 `performance.now()` API ，时间精度可以精确到 5 微秒。作为一种缓解措施，所有主要浏览器都降低了 performance.now() 的分辨率，这可以提高攻击的难度。
+浏览器提供的一个 `performance.now()` API ，时间精度可以精确到 5 微秒。作为一种缓解措施，所有主要浏览器都降低了 `performance.now()` 的分辨率，这可以提高攻击的难度。
 
 获得高分辨率计时器的另一种方法是使用 `SharedArrayBuffer`。web worker 使用 Buffer 来增加计数器。主线程可以使用这个计数器来实现计时器。浏览器就是因为这个原因禁用了 SharedArrayBuffer。
 

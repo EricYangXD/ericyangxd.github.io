@@ -1241,6 +1241,70 @@ const domTree = transform(data);
 document.body.appendChild(domTree); // 将生成的 DOM 追加到文档中
 ```
 
+### 计算给定日期属于当前月份的第几周
+
+假设每周一是新的一周的开始。
+
+- getDate()：获取日期，即该日期是该月的第几天。
+- getDay()：获取周几，从 0 开始，0 表示周日。
+- getFullYear()：获取年份
+- getMonth()：获取月份，从 0 开始，0 代表一月
+
+```js
+function getWeekOfMonth(date) {
+  // 确保输入为 Date 类型
+  if (!(date instanceof Date) || typeof date !== "number") {
+    throw new Error("Invalid date");
+  }
+
+  // 获取该日期的年、月、日
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  // 获取该月的第一天
+  const firstDayOfMonth = new Date(year, month, 1);
+  const firstDayOfWeek = firstDayOfMonth.getDay(); // 该月第一天是星期几（0-6）
+
+  // 将星期日（0）调整为星期一（1）
+  const adjustedFirstDayOfWeek = firstDayOfWeek === 0 ? 7 : firstDayOfWeek;
+
+  // 计算当前日期在该月的第几天
+  const dayOfMonth = day;
+
+  // 计算该天是该月的第几周
+  const weekOfMonth = Math.ceil((dayOfMonth + adjustedFirstDayOfWeek - 1) / 7);
+
+  return weekOfMonth;
+}
+
+// 示例用法
+const date = new Date(2025, 5, 15); // 2023年10月15日
+const weekNumber = getWeekOfMonth(date);
+console.log(`该日期是该月的第 ${weekNumber} 周`);
+```
+
+### 队列循环逢 3 的倍数删除求最后一个的下标
+
+```js
+function lastRemainingNumber(arr) {
+  const queue = [...arr]; // 克隆原数组，避免修改输入
+  let count = 0;
+
+  while (queue.length > 1) {
+    const num = queue.shift(); // 取出队头元素
+    count++;
+    if (count % 3 === 0) {
+      // 先加了1
+      count = 0; // 重置计数器
+    } else {
+      queue.push(num); // 放回队尾继续循环
+    }
+  }
+  return queue[0];
+}
+```
+
 ## 山月前端工程化
 
 厘清几个概念

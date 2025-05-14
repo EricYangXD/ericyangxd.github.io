@@ -377,6 +377,10 @@ module.exports = {
             title: "Prisma",
             path: "/handbook/Skill/Prisma",
           },
+          {
+            title: "前端脚手架",
+            path: "/handbook/Skill/FeCli",
+          },
         ],
       },
       {
@@ -582,6 +586,10 @@ module.exports = {
           {
             title: "可转债",
             path: "/handbook/Stock/KZZ",
+          },
+          {
+            title: "板王追风实战",
+            path: "/handbook/Stock/BWZF",
           },
         ],
       },
