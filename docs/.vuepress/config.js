@@ -591,6 +591,10 @@ module.exports = {
             title: "板王追风实战",
             path: "/handbook/Stock/BWZF",
           },
+          {
+            title: "个人经验总结笔记",
+            path: "/handbook/Stock/Note",
+          },
         ],
       },
       {

@@ -971,7 +971,7 @@ useSelector 是 React-Redux 提供的一个 Hook，用于在函数组件中从 R
 
 - 默认使用严格相等（===）比较选择器的返回值。
 - 如果选择器返回一个对象或数组，每次状态变化时都会触发重新渲染（即使内容没有变化）。
-- 可以通过 浅比较 或 深比较 来优化：
+- 可以通过传递第二个参数（如 shallowEqual 或 deepEqual） 浅比较 或 深比较 来优化：
 
 ```js
 import { shallowEqual } from "react-redux";
