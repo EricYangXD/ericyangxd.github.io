@@ -1394,6 +1394,52 @@ Vue 还有一种特殊的方式：attrs/useAttrs，attrs 是一个特殊的对�
 
 ## js 隔离原理
 
+JavaScript 隔离是指在同一个运行环境中安全地执行多个独立代码块，防止它们相互干扰或访问彼此的数据。
+
+隔离的关键技术点：
+
+- 作用域控制：通过函数/块级作用域限制变量访问
+
+- 全局对象保护：防止修改或污染全局对象
+
+- API 限制：禁用危险 API (如 eval、Function 构造函数)
+
+- 通信机制：通过安全的消息传递进行交互
+
+- 资源限制：限制内存、CPU 使用等
+
+### 作用域隔离
+
+1. 函数作用域：立即执行函数
+2. 块级作用域 (ES6+)：{}
+
+### 沙箱隔离 (Sandboxing)
+
+1. 使用 iframe：`iframe.sandbox = 'allow-scripts'; // 限制能力`，通过`iframe.contentWindow`来控制 iframe
+2. 使用 Proxy 实现沙箱：使用 Proxy 代理 window 对象，`(new Function('window', code))(proxy);`
+
+### Web Workers 隔离
+
+在 worker 子线程中执行，可以完全隔离主线程环境，通过 onmessage 和 postMessage 来通信
+
+### 模块隔离 (ES Modules)
+
+打包成不同的模块，通过`import/export`引用和导出
+
+### 虚拟机隔离 (Node.js)
+
+使用 vm/vm2 模块
+
+### ShadowRealm 提案 (ES 未来特性)
+
+```js
+const realm = new ShadowRealm();
+realm.evaluate(`var inner = 'shadow realm value'`);
+const result = realm.evaluate(`inner`);
+console.log(result); // "shadow realm value"
+// 外部无法直接访问 inner
+```
+
 ## CDN 缓存策略
 
 CDN（Content Delivery Network，内容分发网络）的核心目标是通过边缘节点缓存加速内容分发，减少源站负载。合理的缓存策略能显著提升性能，同时避免内容更新延迟或缓存污染。
@@ -1858,6 +1904,8 @@ Node.js 内存泄漏是指程序在执行过程中不再使用的内存没有被
    - 使用内存监控工具：PM2：一个进程管理工具，提供内存监控功能。Node Clinic：用于性能分析的工具，可以帮助识别内存泄漏。
 
 ## 多窗口之间怎么通信
+
+参考[页面间通信](../JavaScript/FrontEnd2.md)
 
 ## 捕获和冒泡事件触发顺序
 

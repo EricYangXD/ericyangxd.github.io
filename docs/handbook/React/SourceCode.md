@@ -803,6 +803,273 @@ middleware 可以让你提供一个拦截器在 reducer 处理 action 之前被�
 
 所以说异步 Action 并不是一个具体的概念，而可以把它看作是 Redux 的一个使用模式。它通过组合使用同步 Action ，在没有引入新概念的同时，用一致的方式提供了处理异步逻辑的方案。
 
+### Redux 实现原理
+
+核心思想是将应用的状态集中管理，并通过一系列规则确保状态的可预测性。
+
+1. Store 是 Redux 的核心，用于存储整个应用的状态。它是一个 JavaScript 对象，包含了应用的所有状态数据。Store 是唯一的，整个应用只有一个 Store。
+2. Action 是一个普通的 JavaScript 对象，用于描述状态的变化。它必须包含一个 type 字段，表示要执行的操作类型。Action 可以携带额外的数据（payload），用于更新状态。
+3. Reducer 是一个纯函数，接收当前的状态和一个 Action，返回一个新的状态。Reducer 根据 Action 的 type 来决定如何更新状态。Reducer 必须是纯函数，不能有副作用，即相同的输入必须产生相同的输出。
+4. Dispatch 是 Store 提供的一个方法，用于发送 Action。当调用 dispatch(action) 时，Store 会将当前的 state 和 action 传递给 reducer，reducer 返回新的 state，Store 更新状态并通知所有订阅者。
+5. Subscribe 是 Store 提供的一个方法，用于注册监听器。当状态发生变化时，Store 会调用所有注册的监听器。通常用于在 React 组件中订阅状态变化，以便在状态更新时重新渲染组件。
+6. Middleware 是 Redux 提供的一个扩展机制，用于在 Action 被 Dispatch 到 Reducer 之前或之后执行一些额外的逻辑。常见的 Middleware 包括 redux-thunk（用于处理异步操作）和 redux-logger（用于日志记录）。
+
+> Redux 工作流程
+
+- 用户触发一个事件（如点击按钮）。
+- 事件处理函数调用 dispatch(action)，发送一个 Action 到 Store。
+- Store 将当前的 state 和 action 传递给 reducer。
+- Reducer 根据 state 和 action 的 type 返回一个新的 state。
+- Store 更新 state，并调用所有注册的监听器。
+- 监听器（通常是 React 组件）接收到新的 state，重新渲染 UI。
+
+> Demo: redux 结合 redux-thunk 处理异步请求
+
+```js
+// 0. 安装依赖并在React中引入注册
+// npm install redux react-redux redux-thunk axios
+
+// 1. 创建 Action 函数用于定义异步操作和同步操作。redux-thunk 允许 Action 创建函数返回一个函数（而不仅仅是一个对象），从而支持异步操作。
+// src/actions/userActions.js
+import axios from 'axios';
+
+// 同步 Action：请求开始
+export const fetchUsersRequest = () => ({
+  type: 'FETCH_USERS_REQUEST',
+});
+
+// 同步 Action：请求成功
+export const fetchUsersSuccess = (users) => ({
+  type: 'FETCH_USERS_SUCCESS',
+  payload: users,
+});
+
+// 同步 Action：请求失败
+export const fetchUsersFailure = (error) => ({
+  type: 'FETCH_USERS_FAILURE',
+  payload: error,
+});
+
+// 异步 Action：使用 redux-thunk 处理异步请求
+export const fetchUsers = () => {
+  return async (dispatch) => {
+    dispatch(fetchUsersRequest()); // 分发请求开始的 Action
+    try {
+      const response = await axios.get('https://jsonplaceholder.typicode.com/users');
+      const users = response.data;
+      dispatch(fetchUsersSuccess(users)); // 分发请求成功的 Action
+    } catch (error) {
+      dispatch(fetchUsersFailure(error.message)); // 分发请求失败的 Action
+    }
+  };
+};
+
+// 2. 创建 Reducer 用于处理 Action 并更新状态。
+// src/reducers/userReducer.js
+const initialState = {
+  loading: false, // 是否正在加载
+  users: [],      // 用户数据
+  error: '',      // 错误信息
+};
+
+const userReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case 'FETCH_USERS_REQUEST':
+      return {
+        ...state,
+        loading: true,
+      };
+    case 'FETCH_USERS_SUCCESS':
+      return {
+        ...state,
+        loading: false,
+        users: action.payload,
+        error: '',
+      };
+    case 'FETCH_USERS_FAILURE':
+      return {
+        ...state,
+        loading: false,
+        users: [],
+        error: action.payload,
+      };
+    default:
+      return state;
+  }
+};
+
+export default userReducer;
+
+// 3. 创建 Redux Store，并应用 redux-thunk 中间件。
+// src/store.js
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import userReducer from './reducers/userReducer';
+
+// 创建 Store，并应用 redux-thunk 中间件
+const store = createStore(userReducer, applyMiddleware(thunk));
+
+export default store;
+
+// 4. 在组件中使用 react-redux 的 useSelector 和 useDispatch Hook 来访问 Redux 状态和分发 Action。
+// src/components/UserList.js
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchUsers } from '../actions/userActions';
+
+const UserList = () => {
+  const dispatch = useDispatch();
+  const { loading, users, error } = useSelector((state) => state);
+
+  // 组件挂载时触发异步请求
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
+  // 渲染逻辑
+  return (
+    <div>
+      <h1>用户列表</h1>
+      {loading && <p>加载中...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <ul>
+        {users.map((user) => (
+          <li key={user.id}>{user.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default UserList;
+
+// 5. 在应用的入口文件（如 index.js）中，使用 Provider 将 Redux Store 提供给整个应用。
+// src/index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import store from './store';
+import UserList from './components/UserList';
+
+ReactDOM.render(
+  <Provider store={store}>
+    <UserList />
+  </Provider>,
+  document.getElementById('root')
+);
+```
+
+#### useSelector 的原理和使用
+
+useSelector 是 React-Redux 提供的一个 Hook，用于在函数组件中从 Redux Store 中选择状态。它接收一个 选择器函数（selector function），该函数接收整个 Redux Store 的状态作为参数，并返回组件需要的部分状态。当 Redux Store 的状态发生变化时，useSelector 会比较选择器函数的返回值。如果返回值发生变化，组件会重新渲染。当组件卸载时，useSelector 会清理订阅，避免内存泄漏。
+
+1. 简洁易用：适合函数组件，代码更简洁。
+2. 自动订阅：useSelector 会自动订阅 Redux Store 的状态变化。
+3. 性能优化：默认使用严格相等（===）比较选择器的返回值，避免不必要的重新渲染。
+4. 灵活性：可以在一个组件中多次调用 useSelector，分别选择不同的状态。
+5. 强制渲染：如果选择器函数的返回值发生变化，useSelector 会触发组件的重新渲染。
+
+- 默认使用严格相等（===）比较选择器的返回值。
+- 如果选择器返回一个对象或数组，每次状态变化时都会触发重新渲染（即使内容没有变化）。
+- 可以通过 浅比较 或 深比较 来优化：
+
+```js
+import { shallowEqual } from "react-redux";
+const data = useSelector((state) => state.data, shallowEqual);
+
+// ----------------------------- //
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { increment } from "./actions";
+
+const Counter = () => {
+  const counter = useSelector((state) => state.counter);
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <p>{counter}</p>
+      <button onClick={() => dispatch(increment())}>增加</button>
+    </div>
+  );
+};
+
+export default Counter;
+```
+
+#### connect 的原理和使用
+
+connect 是 React-Redux 提供的一个 高阶组件（Higher-Order Component, HOC），用于将 Redux Store 的状态和 Action 创建函数注入到组件中。
+
+它接收两个可选参数：
+
+- mapStateToProps：将 Redux Store 的状态映射到组件的 props。
+- mapDispatchToProps：将 Action 创建函数映射到组件的 props。
+
+connect 返回一个新的组件，该组件会订阅 Redux Store 的状态变化，并在状态变化时重新渲染。
+
+1. 适合类组件：connect 是类组件时代的主流方式。
+2. 显式映射：通过 mapStateToProps 和 mapDispatchToProps 显式地定义组件需要的状态和 Action。
+3. 性能优化：connect 会通过浅比较（shallow comparison）来避免不必要的重新渲染。
+4. 灵活性：可以通过 mapDispatchToProps 将多个 Action 创建函数注入到组件中。
+
+- 默认使用浅比较（shallow comparison）来比较 mapStateToProps 的返回值。
+- 如果 mapStateToProps 返回一个对象，只有对象的引用发生变化时才会触发重新渲染。
+
+```js
+import React from "react";
+import { connect } from "react-redux";
+import { increment } from "./actions";
+
+const Counter = ({ counter, increment }) => {
+  return (
+    <div>
+      <p>{counter}</p>
+      <button onClick={increment}>增加</button>
+    </div>
+  );
+};
+
+const mapStateToProps = (state) => ({
+  counter: state.counter,
+});
+
+const mapDispatchToProps = {
+  increment,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Counter);
+```
+
+### useContext 的原理
+
+useContext 是 React 提供的一个 Hook，用于在函数组件中访问 Context 的值。它的原理基于 React 的 Context API，通过组件树传递数据，避免了手动逐层传递 props 的繁琐过程。
+
+1. Context 是 React 提供的一种跨组件树传递数据的机制。它允许数据在组件树中“全局”共享，而不需要通过 props 逐层传递。Context 由 React.createContext 创建，返回一个包含 Provider 和 Consumer 的对象。
+2. Provider 是一个组件，用于提供 Context 的值。它通过 value 属性将数据传递给子组件。所有嵌套在 Provider 中的组件都可以访问 Context 的值。
+3. Consumer 是一个组件，用于在类组件中订阅 Context 的值。在函数组件中，useContext 取代了 Consumer 的作用。
+
+### Redux 和 useContext 的区别
+
+1. 状态管理范围：
+   - Redux 是一个全局状态管理工具，适用于整个应用的状态管理。
+   - useContext 通常用于局部状态管理，适用于在组件树中共享状态。
+2. 状态更新机制：
+   - Redux 通过 Action 和 Reducer 来更新状态，状态更新是显式的、可预测的。
+   - useContext 的状态更新依赖于 Context Provider 提供的值变化，状态更新是隐式的。
+3. 性能优化：
+   - Redux 提供了精细化的状态更新控制，可以通过 connect 或 useSelector 来选择性地订阅状态变化，避免不必要的重新渲染。
+   - useContext 在 Context 值变化时，所有使用该 Context 的组件都会重新渲染，可能导致性能问题。
+4. 中间件和异步处理：
+   - Redux 支持中间件，可以方便地处理异步操作、日志记录等。
+   - useContext 本身不支持中间件，异步操作需要手动处理。
+5. 学习曲线：
+   - Redux 的概念较多（如 Action、Reducer、Middleware 等），学习曲线较陡。
+   - useContext 相对简单，易于上手。
+6. 总结
+   - Redux 适用于大型应用，需要全局状态管理和复杂的异步操作。
+   - useContext 适用于小型应用或局部状态管理，简单易用。
+
 ### 按需加载的实现原理
 
 按需加载的实现原理：Webpack 利用了动态 import 语句，自动实现了整个应用的拆包。而我们在实际开发中，其实并不需要关心 Webpack 是如何做到的，而只需要考虑：该在哪个位置使用 import 语句去定义动态加载的拆分点。

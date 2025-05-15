@@ -246,11 +246,14 @@ rmb.forEach((value) => {
 
 项目中遇到需要支持用户输入 js 并加以解析的场景。eval() 本身不太好，会在当前作用域中运行代码。由于其权限较大，可以访问上下文中的所有变量，这可能会引入安全风险。eval 会对传入的字符串进行解析和执行，是一种直接的语法操作，对性能有一定影响。
 
-new Function 创建的函数是在全局作用域中执行的，无法直接访问当前作用域的变量（除非通过显式传递参数）。这样可以一定程度上避免安全风险。new Function 会创建一个新的全局函数，性能通常比 eval 略好。依然可能执行恶意代码。
+new Function 创建的函数是在全局作用域中执行的，无法直接访问当前作用域的变量（除非通过显式传递参数）。这样可以一定程度上避免安全风险。new Function 会创建一个新的全局函数，性能通常比 eval 略好。依然可能执行恶意代码。`new Function(arg1, arg2, ..., functionBody)`前几个参数是字符串，表示函数的形参名称；最后一个参数：是函数体的代码字符串；返回一个新创建的函数。
 
 所以查找了下其他实现：
 
 ```js
+const dynamicFunc = new Function("a", "b", "return a + b;");
+dynamicFunc(1, 2); // 返回 3
+
 function new_eval(str) {
   var fn = Function;
   return new fn("return " + str)();
