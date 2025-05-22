@@ -602,9 +602,11 @@ console.log(chain(1).plusOne.double.minusOne.end); // 3
 
 ## npm i/npm start/npm run build 区别
 
-## webpack 热加载 hmr 原理
+## webpack 热加载 HMR 原理
 
-Webpack HMR 特性的原理并不复杂，核心流程：
+- 使用 `HotModuleReplacementPlugin` 插件，并配置 `webpack-dev-server` 启用 HMR。开发服务器监控文件变化，检测到变化后重新编译并推送更新，浏览器通过 WebSocket 接收并替换模块。
+
+- Webpack HMR 特性的原理并不复杂，核心流程：
 
 1. 使用 webpack-dev-server (后面简称 WDS)托管静态资源，同时以 Runtime 方式注入 HMR 客户端代码
 2. 浏览器加载页面后，与 WDS 建立 WebSocket 连接
@@ -617,7 +619,21 @@ Webpack HMR 特性的原理并不复杂，核心流程：
 ![hmr](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/hmr.png)
 ![hmr-process](https://cdn.jsdelivr.net/gh/EricYangXD/vital-images@master/imgs/hmr-process.png)
 
-Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSocket 发送变更消息；二是需要客户端提供配合，通过 module.hot.accept 接口明确告知 Webpack 如何执行代码替换。
+Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSocket 发送变更消息到浏览器端；二是需要客户端提供配合，通过 `module.hot.accept` 接口明确告知 Webpack 如何执行代码替换。
+
+生产环境打包时 Webpack 默认配置可能残留部分未引用代码，需要手动配置`optimization.usedExports`等选项。
+
+## Vite 的 HMR 原理
+
+- Vite 的热更新（HMR）通过浏览器原生支持 ES 模块和 WebSocket 实现。当代码文件被修改时，Vite 服务端会精准定位到变化的模块，通过 WebSocket 通知浏览器，浏览器动态加载新模块并替换旧模块，无需刷新页面。例如修改 Vue 单文件组件时，仅该组件的实例会被更新，保留当前应用状态。
+
+- Vite 的 HMR 利用浏览器原生 ESM 特性，直接按需加载模块，**无需打包**，因此更新速度更快。而 Webpack 的 HMR 依赖打包后的模块系统，每次修改需重新构建依赖图，并通过 hot.accept 手动声明更新边界。修改一个 Vue 文件时，Vite 仅替换该文件，而 Webpack 可能需要重新构建整个 chunk（可能需构建完整依赖图谱）。
+
+- Vite 在开发模式下借助浏览器原生 ESM 能力也能实现**实时按需加载**。
+
+- 模块处理机制：
+  - Vite 通过 ESM 的 import/export 实现实时按需编译
+  - Webpack 需通过 AST 解析构建模块依赖关系图
 
 ## vue diff 和 react diff
 
@@ -1663,6 +1679,78 @@ function App() {
    1. React 的并发渲染（Concurrent Mode）：将 Diff 过程拆分为可中断的小任务，避免阻塞主线程（时间切片）。
    2. Vue 3 的编译时优化：静态提升（Hoist Static）：将静态节点编译为常量，避免重复创建。Patch Flags：在编译时标记动态节点类型，减少运行时 Diff 成本。
    3. 替代方案的出现：Svelte：编译时直接生成 DOM 操作代码，无需虚拟 DOM。SolidJS：通过细粒度响应式更新，跳过虚拟 DOM。
+
+## Concurrent Mode
+
+Concurrent Mode（并发模式） 是 React 推出的一种全新渲染模式，旨在提升大型复杂应用的响应速度和用户体验。它让 React 能够将渲染工作拆分成多个小任务，并根据优先级灵活地“暂停”、“中断”、“恢复”或“放弃”某些渲染任务，从而实现更流畅的界面更新。简单来说：并发模式让 React 不再“一口气做完所有事”，而是像操作系统调度任务一样，把渲染变得可中断、可分片，响应更及时。
+
+传统同步模式的问题：
+
+- React 默认是同步渲染：一旦开始更新，就会一直执行完所有计算和 DOM 更新，期间主线程被占用。
+- 如果组件树庞大或有大量数据计算，页面就会卡顿甚至假死（如“白屏”）。
+- 用户交互（如点击、输入）可能延迟响应。
+
+并发模式的优势：
+
+- 可中断：React 可以暂停当前渲染，优先处理用户交互等高优先级任务。
+- 任务分片：长时间的渲染可以被切割成多段，逐步完成，避免主线程被长时间占用。
+- 优先级调度：不同类型的更新有不同优先级，比如输入框输入比动画重要。
+- 更流畅体验：实现“随时可响应”的 UI。
+
+整个渲染过程分为两个阶段：render 阶段（调和/Reconciliation） 和 commit 阶段（提交）：
+
+- render 阶段会生成 fiber 树（虚拟 DOM 树），这个阶段可以被中断（在并发模式下）。
+- commit 阶段会将变更应用到真实 DOM，这一阶段不可中断。commit 阶段只有在整个 fiber 树调和完毕后才会进行。
+
+Concurrent Mode 的底层依赖于 Fiber 架构：
+
+- Fiber 节点表示每个组件单元，每次只处理一小部分 Fiber 树，可以随时暂停。
+- 利用浏览器空闲时间（如 requestIdleCallback 或 Scheduler），在主线程空闲时继续未完成的任务。
+- 支持异步渲染、优先级调度和批量更新。
+
+主要特性：
+
+1. 可中断/恢复/放弃渲染
+   - 渲染过程中可以被打断，然后稍后恢复。
+   - 如果出现新的高优任务，可以放弃当前低优先级渲染。
+2. 自动批量更新：多个 setState 会自动合并为一次批量更新，提高性能。
+3. Suspense 支持：Concurrent Mode 下 Suspense 更强大，可以等待异步数据加载。
+4. startTransition API：可以手动标记哪些 setState 是低优先级（比如搜索过滤列表）。
+5. useDeferredValue/useTransition Hooks：用于处理高低优先级状态分离，实现流畅体验。
+
+实际应用场景举例：
+
+1. 大型表格/列表滚动优化：渲染超大数据量时不会卡死页面，可随时响应用户滚动。
+2. 输入框实时搜索：输入时立刻响应，但数据过滤属于低优先级，可以延后处理，不影响输入流畅性。
+3. 图片懒加载/骨架屏：使用 Suspense 实现图片或内容加载中的占位效果。
+
+### 如何开启并发模式
+
+1. React 18：Concurrent Mode 已经集成到 createRoot API，无需特殊标签。
+2. React 16.8/17 的 Concurrent Mode 是实验性质，需要引入实验版包，并用 `<ConcurrentMode>` 包裹根组件。
+3. 老的 `ReactDOM.render` 不支持 concurrent。
+
+```js
+// react18
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+
+const root = createRoot(document.getElementById("root"));
+root.render(<App />);
+
+// react16.8/17
+import React, { unstable_ConcurrentMode as ConcurrentMode } from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+
+ReactDOM.render(
+  <ConcurrentMode>
+    <App />
+  </ConcurrentMode>,
+  document.getElementById("root")
+);
+```
 
 ## 有效括号匹配
 

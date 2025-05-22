@@ -833,7 +833,7 @@ esm 有 default 这个概念，而 cjs 没有。任何导出的变量在 cjs 看
 
 ## alias 别名设置
 
-使用设置别名的方式解决上述问题，两个地方要同时修改，tsconfig 使 vscode 显示不报错,webpack.js 使打包编译不报错
+使用设置别名的方式解决上述问题，两个地方要同时修改，tsconfig 使 vscode 显示不报错，webpack.js 使打包编译不报错
 
 ```ts
 // 1.修改tsconfig.json、tsconfig.app.json...
@@ -841,8 +841,8 @@ esm 有 default 这个概念，而 cjs 没有。任何导出的变量在 cjs 看
   "compilerOptions": {
  		...
     "baseUrl": ".",
-    "paths":{
-      "@/*":["src/*"]
+    "paths": {
+      "@/*": ["src/*"]
     }
   },
   "include": ["./src"]
@@ -995,14 +995,14 @@ TypeScript 的类型系统是图灵完备的，也就是能描述各种可计算
 
 8. 四种特殊的类型：void、never、any、unknown
 
-- never 代表不可达，比如函数抛异常的时候，返回值就是 never。
-- void 代表空，可以是 undefined 或 never。
-- any 是任意类型，任何类型都可以赋值给它，它也可以赋值给任何类型（除了 never）。
-- unknown 是未知类型，任何类型都可以赋值给它，但是它不可以赋值给别的类型。
+   - never 代表不可达，比如函数抛异常的时候，返回值就是 never。
+   - void 代表空，可以是 undefined 或 never。
+   - any 是任意类型，任何类型都可以赋值给它，它也可以赋值给任何类型（除了 never）。
+   - unknown 是未知类型，任何类型都可以赋值给它，但是它不可以赋值给别的类型。
 
-5. 传入类型参数，经过一系列类型运算逻辑后，返回新的类型的类型就叫做高级类型。高级类型的特点是传入类型参数，经过一系列类型运算逻辑后，返回新的类型。
-6. 对象、class 在 TypeScript 对应的类型是索引类型（Index Type），对索引类型作修改通过映射类型。映射类型就相当于把一个集合映射到另一个集合，这是它名字的由来。除了值可以变化，索引也可以做变化，用 as 运算符，叫做重映射。
-7. `& string`: 因为索引类型（对象、class 等）可以用 string、number 和 symbol 作为 key，这里 keyof T 取出的索引就是 string | number | symbol 的联合类型，和 string 取交叉部分就只剩下 string 了。就像前面所说，交叉类型会把同一类型做合并，不同类型舍弃。
+9. 传入类型参数，经过一系列类型运算逻辑后，返回新的类型的类型就叫做高级类型。高级类型的特点是传入类型参数，经过一系列类型运算逻辑后，返回新的类型。
+10. 对象、class 在 TypeScript 对应的类型是索引类型（Index Type），对索引类型作修改通过映射类型。映射类型就相当于把一个集合映射到另一个集合，这是它名字的由来。除了值可以变化，索引也可以做变化，用 as 运算符，叫做重映射。
+11. `& string`: 因为索引类型（对象、class 等）可以用 string、number 和 symbol 作为 key，这里 keyof T 取出的索引就是 string | number | symbol 的联合类型，和 string 取交叉部分就只剩下 string 了。就像前面所说，交叉类型会把同一类型做合并，不同类型舍弃。
 
 ## 有用的实例
 
@@ -1019,6 +1019,4 @@ const option = [
 type B = (typeof option)[number]["value"];
 ```
 
-`option[number]`：表示 option 数组中的任意一个元素。在 TypeScript 类型定义中,number 表示一个不确定的数字索引,用于表示数组中任意一个元素
-
-##
+`option[number]`：表示 option 数组中的任意一个元素。在 TypeScript 类型定义中，number 表示一个不确定的数字索引，用于表示数组中任意一个元素。

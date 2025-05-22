@@ -53,7 +53,8 @@ meta:
    - 保存更改后的 my.cnf 文件后，重启下 mysql，然后输入 status 再次查看，"Server/Db characterset"已经是 utf-8。
 
 6. 命令行启动：`mysql -h 192.168.0.124 -P 3306 -u root -p`，输入密码即可登录。
-7. 重置mysql密码：
+7. 重置 mysql 密码：
+
 ```bash
 1. brew services stop mysql
 
@@ -274,7 +275,7 @@ Compressed 和 Dynamic 这两种格式采用完全的行溢出方式，记录的
 1. 数据类型是指列、存储过程参数、表达式和局部变量的数据特征，它决定了数据的存储格式，代表了不同的信息类型。有一些数据是要存储为数字的，数字当中有些是要存储为整数、小数、日期型等...
 2. mysql 常见数据类型:
 
-```text
+```bash
 <1>整数型
      类型      大小      范围（有符号）               范围（无符号unsigned）    用途
      TINYINT   1 字节    (-128，127)                (0，255)                 小整数值
@@ -357,12 +358,15 @@ unique key      ----唯一值
 
 ```sql
 CREATE TABLE student (
-                    id tinyint(5) zerofill auto_increment  not null comment '学生学号',
+                    id tinyint(5) zerofill auto_increment  not null comment '学生学号' primary key, -- 定义主键
                     name varchar(20) default null comment '学生姓名',
                     age  tinyint  default null comment '学生年龄',
                     class varchar(20) default null comment '学生班级',
                     sex char(5) not null comment '学生性别',
-                    unique key (id)
+                    unique key (id),
+                    primary key(id, name), -- 或者这样定义主键，支持多个主键
+                    ts5_a int not null,
+                    foreign key(ts5_a) references test5(a), -- 外键，假设关联test5表中的a字段
                     )engine=innodb charset=utf8;;
 ​
 CREATE TABLE student (
@@ -370,10 +374,17 @@ CREATE TABLE student (
                     name varchar(20) default null comment '学生姓名',
                     age  tinyint  default null comment '学生年龄',
                     class varchar(20) default null comment '学生班级',
-                    sex char(5) not null comment '学生性别',
-                    unique key (id)
+                    sex char(5) not null comment '学生性别' unique key,
+                    unique key (id), -- 同主键用法
+                    a float(5,2) -- 表示a是float类型有效数字5位，保留2位小数
                     )engine=innodb charset=utf8;;
 ```
+
+- 在开发中，我们会碰到有些定义整型的写法是 int(11)，⽆论 N 等于多少，int 永远占 4 个字节，N 表⽰的是显⽰宽度，不⾜的⽤ 0 补⾜，超过的⽆视长度⽽直接显⽰整个数字，但这要整型设置了`[unsigned] zerofill`(\[无符号\]补 0)才有效--"`e` int(5) unsigned zerofill"，数据保存为--`00123`。当使⽤了`zerofill`⾃动会将⽆符号提升为有符号。这个需要特别注意！
+- decimal 采⽤的是四舍五⼊，float 和 double 采⽤的是四舍六⼊五成双。decimal 插⼊的数据超过精度之后会触发警告。
+- 什么是四舍六⼊五成双？就是 5 以下舍弃，5 以上进位，如果需要处理数字为 5 的时候，需要看 5 后⾯是否还有不为 0 的任何数字，如果有，则直接进位，如果没有，需要看 5 前⾯的数字，若是奇数则进位，若是偶数则将 5 舍掉。
+- decimal 不写精度和标度，⼩数点后⾯的会进⾏四舍五⼊，并且插⼊时会有警告！float 和 double 在不指定精度时，默认会按照实际的精度来显⽰。
+- 被插⼊的值在外键表必须存在。
 
 #### 查看
 
@@ -392,10 +403,10 @@ CREATE TABLE student (
 - 添加列
 
 ```sql
--- 给表添加一列：alter table 表名 add 列名 类型;
-alter table user add addr varchar(50);
+-- 给表添加一列：alter table 表名 add column 列名 类型;  -- column可以不加，视具体数据库而定，大多数数据库都支持不写 column
+alter table user add [column] addr varchar(50);
 ​
-alter table add 列名 类型 comment '说明';
+alter table 表名 add 列名 类型 comment '说明';
 alter table user add famliy varchar(50) comment '学生父母';
 ​
 -- 给表最前面添加一列：alter table 表名 add 列名 类型 first;
@@ -411,28 +422,28 @@ alter table user add servnumber int(11)  after id;
 
 ```sql
 -- alter table 表名 modify 列名 新类型;
-alter table user modify servnumber varchar(20);
+alter table user modify [column] servnumber varchar(20);
 ```
 
 - 修改列名
 
 ```sql
--- alter table 表名 change 旧列名 新列名 类型;
-alter table user change servnumber telephone varchar(20);
+-- alter table 表名 change [column] 旧列名 新列名 类型 [约束];
+alter table user change [column] servnumber telephone varchar(20);
 ```
 
 - 删除列
 
 ```sql
--- alter table 表名 drop 列名;
-alter table user drop famliy;
+-- alter table 表名 drop [column] 列名;
+alter table user drop [column] famliy;
 ```
 
 - 修改字符集
 
 ```sql
 -- alter table 表名 character set 字符集;
-alter table user character  set GBK;
+alter table user character set GBK;
 ```
 
 - mysql 表的删除
@@ -611,6 +622,9 @@ INSERT INTO salgrade VALUES (2, 12010, 14000);
 INSERT INTO salgrade VALUES (3, 14010, 20000);
 INSERT INTO salgrade VALUES (4, 20010, 30000);
 INSERT INTO salgrade VALUES (5, 30010, 99990);
+
+-- 插入多条记录：非全量需指定字段
+INSERT INTO users (username, email) VALUES ('lisi', 'lisi@example.com'), ('wangwu', 'wangwu@example.com');
 ```
 
 #### where 条件查询
@@ -635,7 +649,7 @@ select * from employee where sal > 10000;
 
 ```sql
 show variables like '%aracter%';
-select * from employee  where ename like '林%';
+select * from employee where ename like '林%';
 ```
 
 - 范围查询
@@ -748,20 +762,25 @@ select * from 表名 a where exists (select 1 from 表名2 where 条件);
 -- eg:查询出公司有员工的部门的详细信息
 select * from dept a where exists (select 1 from employee b where a.deptnu=b.deptnu);
 select * from dept a where not exists (select 1 from employee b where a.deptnu=b.deptnu);
+
+-- 查询订单总金额大于1000的用户
+SELECT * FROM users WHERE id IN (
+    SELECT user_id FROM orders GROUP BY user_id HAVING SUM(total_price) > 1000
+);
 ```
 
 #### 左连接查询与右连接查询
 
-- 左连接称之为左外连接 右连接称之为右外连接 这俩个连接都是属于外连接
+- 左连接称之为左外连接，右连接称之为右外连接，这俩个连接都是属于外连接。
 - 左连接关键字：`left join 表名 on 条件` / `left outer 表名 join on 条件` 右连接关键字：`right join 表名 on 条件`/ `right outer 表名 join on 条件`
-- 左连接说明： `left join` 是`left outer join`的简写，左(外)连接，左表(a_table)的记录将会全部表示出来， 而右表(b_table)只会显示符合搜索条件的记录。右表记录不足的地方均为 NULL。
+- 左连接说明： `left join` 是`left outer join`的简写，左(外)连接，左表(a_table)的记录将会全部表示出来，而右表(b_table)只会显示符合搜索条件的记录。右表记录不足的地方均为 NULL。
 - 右连接说明：`right join`是`right outer join`的简写，与左(外)连接相反，右(外)连接，左表(a_table)只会显示符合搜索条件的记录，而右表(b_table)的记录将会全部表示出来。左表记录不足的地方均为 NULL。
 
 ```sql
--- eg:列出部门名称和这些部门的员工信息，同时列出那些没有的员工的部门
---   dept，employee
-select a.dname,b.* from dept a  left join employee b on a.deptnu=b.deptnu;
-select b.dname,a.* from employee a  right join  dept b on b.deptnu=a.deptnu;
+-- eg: 列出部门名称和这些部门的员工信息，同时列出那些没有员工的部门
+-- dept，employee
+select a.dname,b.* from dept a left join employee b on a.deptnu=b.deptnu;
+select b.dname,a.* from employee a right join dept b on b.deptnu=a.deptnu;
 ```
 
 #### 内连接查询与联合查询
@@ -1275,20 +1294,5 @@ mysql> call name();
 
 ```sql
 create index 索引名称 on 表名(字段名);
-```
-
-```sql
-
-```
-
-####
-
-```sql
-
-```
-
-####
-
-```sql
-
+CREATE INDEX idx_users_status ON users(status);
 ```

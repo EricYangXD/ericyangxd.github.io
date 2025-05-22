@@ -1300,6 +1300,28 @@ var rob = function (nums) {
 };
 ```
 
+### 121. 买卖股票的最佳时机
+
+只能买卖一次。
+
+1. 动态规划：二维数组，当天买或者不买的最大利润。
+2. 贪心算法：当前价格比前一天高则卖出，否则不卖。
+
+```js
+var maxProfit = function (prices) {
+  if (prices.length < 2) return 0;
+
+  let lastMin = prices[0];
+  let curMax = 0;
+  for (let price of prices) {
+    lastMin = Math.min(price, lastMin);
+    curMax = Math.max(curMax, price - lastMin);
+  }
+
+  return curMax;
+};
+```
+
 ### 122. 买卖股票的最佳时机 II
 
 ```js
@@ -1754,5 +1776,105 @@ var maxSlidingWindow = function (nums, k) {
     }
   }
   return res;
+};
+```
+
+### 53. 最大子数组和
+
+给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。子数组是数组中的一个连续部分。
+
+```js
+// 动态规划版
+var maxSubArray = function (nums) {
+  if (nums.length === 1) return nums[0];
+
+  // 动态规划，根据前一个max计算当前的max，状态转移方程：dp[i] = Math.max(nums[i], dp[i - 1] + nums[i])
+  const dp = Array(nums.length).fill(-Infinity);
+  dp[0] = nums[0];
+  let max = dp[0];
+  for (let i = 1; i < nums.length; i++) {
+    // 可以把这个数组优化掉
+    dp[i] = Math.max(nums[i], dp[i - 1] + nums[i]);
+    max = Math.max(dp[i], max);
+  }
+  return max;
+};
+
+// 优化版
+var maxSubArray = function (nums) {
+  if (nums.length === 1) return nums[0];
+
+  let preMax = nums[0];
+  let max = nums[0];
+  for (let i = 1; i < nums.length; i++) {
+    // 可以把这个数组优化掉
+    preMax = Math.max(nums[i], preMax + nums[i]);
+    max = Math.max(preMax, max);
+  }
+  return max;
+};
+```
+
+### 470. 用 Rand7() 实现 Rand10()
+
+给定方法 rand7 可生成 `[1,7]` 范围内的均匀随机整数，试写一个方法 rand10 生成 `[1,10]` 范围内的均匀随机整数。
+
+```js
+// ①已知 rand7()可以等概率生成1~7；
+// ②那么rand7()-1可以等概率生成0~6；
+// ③那么（rand7()-1）* 7 可以等概率生成{0, 7, 14, 21, 28, 35, 42};
+// ④那么（rand7()-1）* 7 + rand7()可以等概率生成1~49。
+
+// 现在我们实现了等概率生成1~49的功能，我们规定如果生成的数大于40，
+// 我们就重新生成，即只要生成在1~40之间的数，这一我们就可以生成1~40的等概率分布。
+
+// 再接着，我们用（1~40）%10，就可以得到0~9
+// 最后，（1~40）%10 + 1 ，就可以得到1~10了。
+var rand10 = function () {
+  var row, col, idx;
+  do {
+    row = rand7();
+    col = rand7();
+    idx = col + (row - 1) * 7;
+  } while (idx > 40);
+  return 1 + ((idx - 1) % 10);
+};
+```
+
+### 724. 寻找数组的中心下标
+
+```js
+var pivotIndex = function (nums) {
+  let sum = nums.reduce((acc, num) => acc + num, 0);
+
+  let total = 0;
+  for (let i = 0; i < nums.length; i++) {
+    total += nums[i];
+    if (total === sum) {
+      return i;
+    }
+    sum -= nums[i];
+  }
+
+  return -1;
+};
+```
+
+### 26. 删除有序数组中的重复项
+
+给你一个 非严格递增排列 的数组 nums ，请你 原地 删除重复出现的元素，使每个元素 只出现一次 ，返回删除后数组的新长度。元素的 相对顺序 应该保持 一致 。然后返回 nums 中唯一元素的个数。
+
+```js
+var removeDuplicates = function (nums) {
+  if (!nums || nums.length === 1) return nums;
+
+  let slow = 0;
+  for (let fast = 1; fast < nums.length; fast++) {
+    if (nums[slow] !== nums[fast]) {
+      slow++;
+      nums[slow] = nums[fast];
+    }
+  }
+  return slow + 1;
 };
 ```
