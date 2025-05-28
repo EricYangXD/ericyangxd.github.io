@@ -262,6 +262,18 @@ server.listen(8080, () => {
 });
 ```
 
+## 线程池
+
+1. Node.js 本身单进程单主线，但底层 libuv 实现了一个固定大小的“工作池”（thread pool，默认 4），用于处理文件 IO、加密等异步操作
+2. Node.js `worker_threads` 模块可以实现真正多线程，但较少用于普通业务场景。
+3. 通常 IO 密集型操作自动走 `libuv thread pool`，无需手动干预。
+
+## 事件循环
+
+1. 顺序：`timers -> pending callbacks -> idle, prepare -> poll -> check -> close callbacks`
+2. 通常情况下，如果代码在主模块中直接调用，timeout 会先于 immediate；如果在 I/O 回调中调用，则 immediate 会先于 timeout。
+3. 在 Node.js，还有一个更快的“微任务”队列——`process.nextTick()`，它会比上述两者更早执行，在本轮事件循环的所有其他 I/O 和定时器之前。
+
 ## Trouble Shooting -- Aliyun
 
 ### 处理线上异常
@@ -287,7 +299,8 @@ server.listen(8080, () => {
    - 内存泄漏问题，导出 JS 堆内存快照：如果我们发现 Node.js 应用的总内存占用曲线 处于长时间的只增不降 ，并且堆内存按照趋势突破了 堆限制的 70% 了，那么基本上应用 很大可能 产生了泄漏。如果确实因为 QPS 的不断增长导致堆内存超过堆限制的 70% 甚至 90%，此时我们需要考虑的扩容服务器来缓解内存问题。
    - 导出 JS 堆内存快照：采用 heapdump 这个模块，得到一个堆快照文件：test.heapsnapshot ，后缀必须为 .heapsnapshot，分析堆快照，在 Chrome devtools 的工具栏中选择 Memory 即可进入到分析页面，Load 刚才生成 test.heapsnapshot 文件
 
-   5. Node.js 性能平台使用指南：异常指标告警，导出线上 Node.js 应用状态，在线分析结果和更好的 UI 展示。配置合适的告警， 按照告警类型进行分析等
+   5. Node.js 性能平台使用指南：异常指标告警，导出线上 Node.js 应用状态，在线分析结果和更好的 UI 展示。配置合适的告警，按照告警类型进行分析等
+      - `node --prof` 或 `node --inspect`，然后用 chrome devtools 分析。
    6. 利用 CPU 分析调优吞吐量：打开了模板缓存，按理来说不会再出现 ejs.compile 函数对应的模板编译。模板的编译本质上字符串处理，它恰恰是一个 CPU 密集的操作。将 koa-view 替换为更好用的 koa-ejs >= 4.1.2 模块，可以正确开启模板缓存。
    7. 调试工具 ndb
    8. 使用 Chrome inspect 的调试方法：

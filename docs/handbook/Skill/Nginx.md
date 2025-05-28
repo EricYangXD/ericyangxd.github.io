@@ -4,7 +4,7 @@ author: EricYangXD
 date: "2022-05-09"
 meta:
   - name: keywords
-    content: nginx,Nginx,NGINX
+    content: Nginx
 ---
 
 ## Nginx 是什么
@@ -77,6 +77,8 @@ location / {
 - 快速关闭：`./nginx -s stop`(推荐) 或 有序停止`./nginx -s quit`
 - 重新加载 nginx 配置：`./nginx -s reload`
 - 直接杀死 nginx 进程：`killall nginx`
+- `nginx -s start`
+- 重启 nginx：`nginx -t`
 
 ### Nginx 的配置文件
 
@@ -221,14 +223,33 @@ location /nameb/ { 
 ```bash
 location / {
     try_files $uri $uri/ /index.html;
+    # 不使用缓存
+    add_header Cache-Control "no-store";
 }
 ```
 
 #### 配置跨域请求
 
 ```bash
+# 配置跨域请求，示例代码结构
+user nginx; # nginx进行运行的用户
+error_log /var/log/nginx/error.log; # 错误日志
+http {
+    server_names_hash_bucket_size 512; # 设置哈希表的大小
+    log_format main ...; # nginx日志格式
+    access_log /var/log/nginx/access.log main; # 日志位置
+        
+    # 引入的nginx配置文件，可以将server放在该目录下，方便管理
+    include /etc/nginx/conf.d/*.conf; 
+    # 一个nginx服务一个server
+    server {...}
+}
+# 配置跨域请求，server示例应该在http中，否则会报错
 server {
-    listen   80;
+    listen   80; # 服务启动的端口
+    server_name _; # 服务域名或IP
+    root /usr/share/nginx/html; # 服务指向的文件地址
+
     location / {
         # 服务器默认是不被允许跨域的。
         # 配置`*`后，表示服务器可以接受所有的请求源（Origin）,即接受所有跨域的请求
@@ -248,13 +269,23 @@ server {
         if ($request_method = 'OPTIONS') {
             return 204;
         }
+
+        # etag on; # 默认开启
+        # last_modified on; # 默认开启
     }
+
+    location /api/ {}
+    error_page 404 /404.html; # 找不到资源重定向到404页面
+    location = /40x.html {};
+            
+    error_page 500 502 503 504 /50x.html; # 系统错误重定向50x页面
+    location = /50x.html {};
 }
 ```
 
 ### root 与 alias 的区别
 
-1. root 是直接拼接 root + location 而 alias 是用 alias 替换 location
+1. root 是直接拼接 root + location，而 alias 是用 alias 替换 location
 2. server 和 location 中的 root:
    - server 和 location 中都可以使用 root
    - 如果两者都出现，优先级就是就近原则，如果 location 中能匹配到，就是用 location 中的 root 配置，忽略 server 中的 root，当 location 中匹配不到的时候，则使用 server 中的 root 配置。
@@ -570,9 +601,12 @@ $uri 不带请求参数的当前URI
 $document_uri 与$uri相同
 ```
 
-### 本地nginx
+### 本地 nginx
 
 1. 安装：`brew install nginx`
 2. 安装位置：`/usr/local/Cellar/nginx/1.25.3`
 3. 配置文件：`/usr/local/etc/nginx/nginx.conf`
 4. 重启（不一定有用）：`brew services restart nginx`
+5. 在 http 下可以有多个 Server，启动多个服务，但如果都写在一个文件里面，文件就越来越大了，那么为了便于管理多个服务，我们要对 nginx.conf 进行拆分。conf.d 目录下一般是空的，我们新建文件 web.conf 或者任意命名的以.conf 结尾的文件即可被 Nginx 使用，需要在 http 下添加`include conf.d/*.conf`
+6. 检查 nginx 配置文件是否正确，如果错误会提示具体的错误信息：`nginx -t`
+7.

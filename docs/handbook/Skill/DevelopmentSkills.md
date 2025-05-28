@@ -646,11 +646,6 @@ chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver
 8. `docxjs`：`npm install docx-preview`在线预览 docx 文件
 9. `vue-office`：支持多种文件(docx、excel、pdf、pptx)预览的 vue 组件库，支持 vue2/3。也支持非 Vue 框架的预览，分为多个包。貌似是闭源？
 10. `docx-preview`：`npm install docx-preview`在线预览 docx 文件
-11. `：`
-12. `：`
-13. `：`
-14. `：`
-15. `：`
 
 ## DOM Api 解析 xml
 
@@ -856,7 +851,7 @@ chrome.webRequest.onHeadersReceived.addListener(
 
 ## 流程图/时序图
 
-```txt
+```bash
 title:sequenceDiagram
 participant 用户
 participant ChatGPT

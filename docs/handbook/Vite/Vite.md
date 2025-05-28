@@ -214,14 +214,30 @@ export default defineConfig({
 - unplugin-vue-components/vite 按需组件自动导入 集成按需引入配置
 - unocss/vite 原子化 css
 - vite-plugin-compression gzip 压缩打包
-- rollup-plugin-visualize 打包分析可视化
+- rollup-plugin-visualizer 是一个可视化工具，以图表的形式，展示打包结果的模块构成与体积分布。
 - vite-plugin-chunk-split 代码分包
+- vite-plugin-remove-console 移除 console
+- rollup-plugin-external-globals  插件将外部依赖映射为全局变量，避免将其打包进最终文件，减小文件体积。配合 `vite-plugin-html`  自动注入代码到 HTML 文件中。
+-
 
 ```js
 //vite.config.ts
 import { defineConfig } from "vite";
 import viteCompression from "vite-plugin-compression";
 import { visualizer } from "rollup-plugin-visualizer";
+import removeConsole from "vite-plugin-remove-console";
+import { createHtmlPlugin } from "vite-plugin-html";
+import externalGlobals from "rollup-plugin-external-globals";
+import vue from "@vitejs/plugin-vue";
+const cdn = {
+  jspdf: "jspdf",
+  xlsx: "XLSX",
+  html2canvas: "html2canvas",
+};
+
+const externalList = Object.keys(cdn);
+
+const globals = externalGlobals(cdn);
 // 集成按需引入配置
 import Components from "unplugin-vue-components/vite";
 import { AntDesignVueResolver, ElementPlusResolver } from "unplugin-vue-components/resolvers";
@@ -230,10 +246,15 @@ import AutoImport from "unplugin-auto-import/vite";
 export default defineConfig({
   plugins: [
     vue(),
+    removeConsole(),
     //默认压缩gzip，生产.gz文件
     viteCompression({
       //压缩后是否删除源文件
       deleteOriginFile: false,
+      algorithm: "gzip",
+      include: [/\.(js|ts|jsx|tsx)$/], //过滤不需要压缩的文件
+      threshold: 1024 * 10, //体积大于 threshold 字节才会被压缩
+      ext: ".gz", //生成文件后缀
     }),
     visualizer({
       open: true, //build后，是否自动打开分析页面，默认false
@@ -262,8 +283,46 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()], //AntDesignVueResolver()
       dts: "src/typings/auto-imports.d.ts", //自定义生成 auto-imports.d.ts 路径
     }),
+    // 集成按需引入CDN配置
+    createHtmlPlugin({
+      minify: true,
+      inject: {
+        data: {
+          jspdfscript: '<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>',
+          xlsxscript: '<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>',
+          html2canvasscript:
+            '<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>',
+        },
+      },
+    }),
   ],
+  build: {
+    // 集成按需引入CDN配置
+    rollupOptions: {
+      external: externalList,
+      plugins: [globals],
+    },
+  },
 });
+```
+
+在 index.html 中使用 CDN 脚本：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AIChat</title>
+        <%- xlsxscript %><%- jspdfscript %><%- html2canvasscript %>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
 ```
 
 - unplugin-vue-components 会在 src/typings 文件夹下生成 components.d.ts 类型文件
@@ -460,7 +519,20 @@ export default ({ mode }: ConfigEnv): UserConfig => {
           entryFileNames: "assets/js/[name]-[hash:8].js", //入口文件名称
           chunkFileNames: "assets/js/[name]-[hash:8].js", //引入文件名名称
           assetFileNames: "assets/[ext]/[name]-[hash:8][extname]", //静态资源名称
-          manualChunks,
+          // manualChunks,
+          // 在项目中，xlsx、html2canvas、jspdf，只在对应功能模块中使用，可以单独打包出来，用户使用对应功能，才会下载对应js脚本。
+          experimentalMinChunkSize: 20 * 1024,
+          manualChunks: (id: string) => {
+            if (id.includes("html2canvas")) {
+              return "html2canvas";
+            }
+            if (id.includes("jspdf")) {
+              return "jspdf";
+            }
+            if (id.includes("xlsx")) {
+              return "xlsx";
+            }
+          },
         },
       },
     },

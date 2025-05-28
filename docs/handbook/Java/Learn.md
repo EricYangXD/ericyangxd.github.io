@@ -7,6 +7,8 @@ meta:
     content: JAVA,java,Java
 ---
 
+\*\*
+
 ## Learn Java - Basic
 
 ### 基础语法
@@ -23,7 +25,7 @@ meta:
 8. 字符：char:2 字节（单引号&一个字符）
 9. 布尔：boolean：1 字节
 10. 较新版本：`java --version`，较旧版本：`java -version`
-11. Java中都是值传递：对于基本数据类型，传递的是值的副本；对于对象引用，传递的是引用的副本，但这并不改变对象本身的可变性。
+11. Java 中都是值传递：对于基本数据类型，传递的是值的副本；对于对象引用，传递的是引用的副本，但这并不改变对象本身的可变性。
 
 ### Java 开发中的基础概念
 
@@ -1398,14 +1400,14 @@ System.out.println(sum);
 - @Async + CompletableFuture：适合后台异步任务执行，快速返回结果。
 - StreamingResponseBody：适合大数据量或持续数据流传输，避免内存溢出。
 
-CompletableFuture的常用api方法：，支持非阻塞的任务执行、任务依赖和结果组合。
+CompletableFuture 的常用 api 方法：，支持非阻塞的任务执行、任务依赖和结果组合。
 
-  - 任务创建：supplyAsync、runAsync。
-  - 结果处理：thenApply、thenAccept、thenRun、whenComplete、handle。
-  - 任务组合：thenCombine、thenCompose、allOf、anyOf。
-  - 异常处理：exceptionally、handle。
-  - 超时处理：orTimeout、completeOnTimeout。
-  - 阻塞获取结果：join、get。
+- 任务创建：supplyAsync、runAsync。
+- 结果处理：thenApply、thenAccept、thenRun、whenComplete、handle。
+- 任务组合：thenCombine、thenCompose、allOf、anyOf。
+- 异常处理：exceptionally、handle。
+- 超时处理：orTimeout、completeOnTimeout。
+- 阻塞获取结果：join、get。
 
 1. CompletableFuture.supplyAsync：用于执行有返回值的异步任务。内部使用 默认线程池 ForkJoinPool.commonPool() 异步执行任务。
 2. CompletableFuture.runAsync：用于执行没有返回值的异步任务。
@@ -1467,6 +1469,7 @@ CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> 10 / 0)
 
 System.out.println(future.join()); // 输出: -1
 ```
+
 9. thenCombine：用于将两个 CompletableFuture 的结果组合起来。
 10. thenCompose：用于在一个任务完成后，基于其结果启动另一个异步任务。
 11. allOf：用于等待多个 CompletableFuture 全部完成。
@@ -1589,6 +1592,8 @@ CompletableFuture.runAsync(() -> System.out.println("Delayed Task"), delayedExec
 
 #### 线程池
 
+一句话：线程池是一种多线程管理机制。它维护着一定数量的可复用线程，当有任务到来时，从池中取出空闲线程执行任务，任务完成后线程不会被销毁，而是回到池中等待下一个任务。这种方式避免了频繁创建和销毁线程的开销，提高了系统资源利用率和响应速度。
+
 1. 原理：创建一个空池子，提交任务时池子会创建新的线程对象，线程执行完毕，线程归还给池子，下次再提交任务时，不需要重复创建新的线程，直接复用已有的线程。所有任务都执行完毕后，关闭线程池（现实中不会关闭，因为服务器是 24 小时运行的）。如果提交任务时线程池中没有空闲的线程，也无法创建新的线程，那么任务就会排队等待。
 2. 线程池代码实现：`Executors`线程池的工具类，通过调用方法返回不同类型的线程池对象。
 3. 创建线程池的方法：
@@ -1627,6 +1632,45 @@ ThreadPoolExecutor tpe = new ThreadPoolExecutor(
 
 6. 最大并行数：核心线程数 + 阻塞队列容量。设置的时候看 CPU 是几核几线程的，一般设置为核心数的 2 倍。
 7. 线程池多大比较合适：CPU 密集型：核心数（最大并行数）+1；IO 密集型：核心数\*2。
+8. 优势：
+   - 减少资源消耗：反复创建/销毁线程开销大，线程池使这些操作只需进行有限次数。
+   - 提升响应速度：任务到达时无需等待新线程创建，可直接复用已有空闲线程。
+   - 便于统一管理与调度：可以设置最大并发数，防止系统因过多线程而崩溃（如“线程爆炸”）。
+   - 支持任务队列化：超过最大并发数的任务会被放入队列，等有空闲线程再执行。
+9. 核心参数：
+   - 核心线程数（core pool size）：池中保持活动状态的最小线程数，即使没有任务也不会销毁。
+   - 最大线程数（max pool size）：池中允许存在的最大线程数。
+   - 任务队列（task queue）：等待执行的任务排队区。
+   - 存活时间（keep alive time）：非核心空闲线程超过该时间会被回收。
+   - 拒绝策略（rejection policy）：当队列已满且无可用线程时，对新任务如何处理（抛异常/丢弃/调用者运行等）。
+   - 工作线程（worker thread）：实际执行任务的对象。
+10. 常见拒绝策略：
+    - AbortPolicy：抛出异常（默认）
+    - DiscardPolicy：直接丢弃新任务
+    - DiscardOldestPolicy：丢弃最老未处理的任务，然后尝试重新提交当前任务
+    - CallerRunsPolicy：由调用者所在的主线程执行该任务
+11. demo:
+
+```java
+// 1. 使用 Executors 工厂类
+ExecutorService pool = Executors.newFixedThreadPool(10); // 固定10个工作线程
+
+pool.execute(() -> {
+    System.out.println("Hello from thread pool!");
+});
+
+// 2. 自定义 ThreadPoolExecutor
+ThreadPoolExecutor pool = new ThreadPoolExecutor(
+    5,         // corePoolSize
+    10,        // maximumPoolSize
+    60,        // keepAliveTime
+    TimeUnit.SECONDS,
+    new LinkedBlockingQueue<>(100), // 工作队列容量100
+    new ThreadPoolExecutor.AbortPolicy() // 拒绝策略：抛异常
+);
+
+pool.execute(new RunnableTask());
+```
 
 ### 网络编程
 
@@ -2223,3 +2267,34 @@ MySQL 底层用 B+树的，B+树本质是由一个个 16KB 的数据页实现的
 | 基于资源的访问控制（Resource-Based Access Control，RBAC） | 这种方案将权限控制与资源本身关联起来。系统中的每个资源都有自己的访问权限，用户通过被授予资源的访问权限来控制其对资源的操作。                                                         |
 | 层次结构权限控制（Hierarchical Access Control）           | 这种方案基于资源和操作的层次结构来进行权限控制。系统中的资源和操作被组织成层次结构，用户被授予访问某个层次及其子层次的权限。                                                         |
 | 基于规则的访问控制（Rule-Based Access Control）           | 这种方案使用预定义的规则来确定用户对系统中功能和资源的访问权限。规则可以基于用户属性、环境条件或其他因素进行定义。                                                                   |
+
+## 高 CPU 占用分析
+
+1. 定位高 CPU 的进程，用`top`或者`htop`（更美观），找到占用 CPU 最高的进程 PID
+2. 查看进程详情，`ps -p 12345 -o pid,ppid,cmd,%mem,%cpu`，确认这个进程就是你的应用。
+3. 分析具体线程（多线程程序），查看哪个线程占用高（以 Java 为例）：`top -Hp 12345`，会显示每个线程的 LWP（Light Weight Process，轻量级进程，也叫“线程”）以及其 CPU 占比。有时需要将线程号转换为 16 进制，用于后续堆栈分析--`printf "%x\n" 线程号`。
+4. 导出/抓取堆栈信息，`jstack 12345 > jstack.log`
+5. 性能分析工具（火焰图等）分析
+6. 查看日志与监控：检查应用日志，有没有异常输出？检查最近上线变更，有没有相关代码修改？检查监控系统指标：QPS 突增？GC 频繁？IO 阻塞？
+
+### 常见高 CPU 场景
+
+- 死循环或递归导致的无限计算；
+- 热点数据结构过大，遍历低效；
+- 大量锁竞争导致自旋；
+- 垃圾回收频繁（Java/Python 等虚拟机语言）；
+- 第三方库 bug；
+- 外部接口调用阻塞导致轮询等待。
+
+### 应急处理建议
+
+- 若影响面大，可考虑先下线部分服务或重启实例缓解压力。
+- 若是集群部署，可临时摘除有问题节点，避免影响全局。
+
+### 优化与根因修复
+
+- 优化热点代码逻辑（如减少不必要循环/计算）；
+- 合理使用缓存，避免重复性大数据处理；
+- 排查锁粒度与并发设计；
+- 针对 GC 问题调整参数或优化对象生命周期；
+- 修复死循环/递归等 bug。
