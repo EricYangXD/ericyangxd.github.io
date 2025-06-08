@@ -23,6 +23,14 @@ Webpack5 实现了 4 种新的模块类型，通过 Rule 的 type 属性设置�
 - 如果设置成 asset，则会根据图片的大小在 asset/inline 和 asset/resource 中自动选择
 - 默认大于 8KB 导出单独文件，小于等于 8KB 导出 dataURI（可通过 Rule 的 parser.dataUrlCondition.maxSize 去设置，单位是:Byte 字节）
 
+#### module/chunk/bundle 分别是什么
+
+1. module（模块）：在 webpack 里，module 就是你的项目中的每一个文件（包括 .js、.css、图片、字体等），都被看作一个模块。
+2. chunk（代码块/块）：chunk 是 webpack 打包过程中生成的中间产物。它由一组 module（通常是有依赖关系的一组）组成，是 webpack 内部用来管理和分割代码的单位。一个 chunk 可以包含多个 module。chunk 的划分规则取决于你的配置（如 entry、动态导入等）。
+3. bundle（包/输出文件）：bundle 就是 webpack 打包后最终输出到磁盘上的文件，每个 bundle 通常对应一个或多个 chunk。bundle 是浏览器真正会加载的文件，用户访问页面时，实际下载的是 bundle 文件。
+4. module(模块) → chunk(代码块) → bundle(最终产物)
+5. module 是源码文件，chunk 是打包过程中的代码块，bundle 是产出的可部署文件。
+
 ### 缓存
 
 Webpack 5 引入了内置缓存机制，旨在减少后续构建的时间。它通过缓存模块的编译结果，避免重复的计算，帮助开发者提高构建效率。

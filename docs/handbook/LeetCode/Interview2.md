@@ -1642,7 +1642,7 @@ function App() {
 3. 时间切片的底层机制：React 18 通过 Fiber 架构 和 调度器（Scheduler） 实现时间切片
    - Fiber 节点的遍历：React 将组件树转换为 Fiber 链表，每个 Fiber 节点代表一个工作单元。渲染时按 Fiber 节点逐个处理，每完成一个单元检查剩余时间，若不足则暂停并让出主线程。
    - 调度器优先级：优先级类型：Immediate：用户交互（如点击）。Default：普通状态更新。Low：后台任务（如数据预加载）。调度逻辑：高优先级任务可打断低优先级任务的渲染。
-4. 其他的优化性能的手段：React 18 自动批处理状态更新（包括异步操作）。避免不必要的渲染，使用 React.memo 或 useMemo/useCallback 减少子组件重复渲染等。
+4. 其他的优化性能的手段：React 18 自动批处理状态更新（包括异步操作）。避免不必要的渲染，使用 React.memo 或 useMemo/useCallback/useImperativeHandle 减少子组件重复渲染等。
 
 ## 为什么要使用虚拟 DOM
 
