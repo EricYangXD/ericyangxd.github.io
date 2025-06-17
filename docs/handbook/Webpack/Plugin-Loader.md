@@ -444,7 +444,7 @@ Webpack4 默认把所有的代码看作副作用代码，所以会把所有的�
 
 ### 常用的生命周期钩子
 
-WebPack 插件的生命周期钩子非常丰富，以下是一些常用的钩子：
+Webpack 插件的生命周期钩子非常丰富，以下是一些常用的钩子：
 
 - compiler.hooks.initialize：在 Webpack 初始化时触发。
 - compiler.hooks.compile：在编译开始时触发。

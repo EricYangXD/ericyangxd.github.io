@@ -962,6 +962,123 @@ const App = () => {
 export default App;
 ```
 
+#### 如何避免大文件重复上传
+
+> 核心解决方案：文件内容哈希校验
+
+- 实现原理：通过计算文件的唯一哈希值（如 SHA-256）作为文件的"指纹"，服务端通过这个指纹判断文件是否已存在。
+
+1. 秒传功能（Instant Upload）：客户端计算文件哈希，发送哈希到服务端查询，服务端返回文件是否存在，若存在则直接标记为上传成功。否则执行普通分片上传。
+2. 分块哈希校验（断点续传优化）：
+
+```js
+// 客户端计算文件哈希
+async function calculateFileHash(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const buffer = e.target.result;
+      const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+      resolve(hashHex);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+```
+
+```js
+// 对于超大文件，可以计算分块哈希实现更高效的校验：
+async function uploadWithChunkVerification(file) {
+  const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB分块
+  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+  const fileHash = await calculateFileHash(file);
+
+  // 获取服务端已存在的分块
+  const { existingChunks } = await fetch(`/api/check-chunks?fileHash=${fileHash}`);
+
+  for (let i = 0; i < totalChunks; i++) {
+    if (existingChunks.includes(i)) continue;
+
+    const chunk = file.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+    const chunkHash = await calculateChunkHash(chunk);
+
+    await uploadChunk({
+      fileHash,
+      chunkIndex: i,
+      chunkHash,
+      chunkData: chunk,
+    });
+  }
+
+  // 通知服务端合并文件
+  await fetch(`/api/merge-file?fileHash=${fileHash}`);
+}
+```
+
+```js
+// 前端哈希计算优化
+// 使用Web Worker避免阻塞主线程
+function calculateHashInWorker(file) {
+  return new Promise((resolve) => {
+    const worker = new Worker("hash-worker.js");
+    worker.postMessage(file);
+    worker.onmessage = (e) => resolve(e.data);
+  });
+}
+
+// hash-worker.js
+self.onmessage = async (e) => {
+  const file = e.data;
+  const hash = await calculateFileHash(file);
+  self.postMessage(hash);
+  self.close();
+};
+
+// 增量上传（Rsync算法）
+// 伪代码
+async function uploadChanges(file, previousVersionHash) {
+  // 获取旧文件的分块签名
+  const signatures = await getFileSignatures(previousVersionHash);
+
+  // 计算新文件的滚动哈希
+  const newSignatures = calculateRollingHashes(file);
+
+  // 比较差异
+  const diff = findDifferences(signatures, newSignatures);
+
+  // 仅上传差异部分
+  await uploadDiffs(diff);
+}
+
+// 浏览器存储记忆
+// 使用IndexedDB存储上传记录：
+// 存储已上传文件记录
+async function saveUploadRecord(file, hash) {
+  const db = await openDB("upload-cache", 1);
+  await db.put("files", {
+    fileHash: hash,
+    fileName: file.name,
+    fileSize: file.size,
+    lastModified: file.lastModified,
+    uploadedAt: Date.now(),
+  });
+}
+
+// 检查本地记录
+async function checkLocalRecord(file) {
+  const db = await openDB("upload-cache", 1);
+  const record = await db.get("files", file.name);
+
+  if (record && record.fileSize === file.size && record.lastModified === file.lastModified) {
+    return record.fileHash;
+  }
+
+  return null;
+}
+```
+
 #### 如何实现一个 Promise
 
 ```js

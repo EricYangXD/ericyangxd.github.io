@@ -681,6 +681,119 @@ Webpack 的 HMR 特性有两个重点，一是监听文件变化并通过 WebSoc
 
 ### vue3
 
+## Vue 中 computed 的原理
+
+0. 基于响应式系统实现的。核心思想是：计算属性是基于它们的依赖进行缓存的，只有在依赖发生变化时才会重新计算。
+1. Vue 的 computed 属性是其响应式系统的核心功能之一，其实现主要基于依赖追踪和缓存机制。
+2. 计算属性：本质是一个惰性求值的函数，依赖其他响应式数据（如 data、props 或其他 computed）。
+3. Watcher：Vue 内部用于追踪依赖的观察者，分为三种：
+   - 渲染 Watcher（负责视图更新）
+   - 用户 Watcher（监听 watch 选项）
+   - 计算 Watcher（专用于 computed）
+4. 当组件初始化时，Vue 会遍历 computed 对象，为每个计算属性创建一个特殊的 `lazy Watcher（惰性求值）`，并传入计算函数。初始时 `Watcher.dirty = true`，表示值未计算或需要重新计算。
+5. 当模板或代码首次访问计算属性时，触发 getter，调用 `Watcher.evaluate()` 进行求值。执行计算函数，触发依赖项（如果有依赖其它 computed 等）的 getter。依赖项的 Dep 对象会将计算 Watcher 收集为订阅者（`dep.depend()`）。
+6. 计算完成后，结果被缓存到 `Watcher.value`，并标记 `dirty = false`。后续访问时，若依赖未变化，直接返回缓存值（`Watcher.value`），避免重复计算。
+7. 当依赖项改变时触发更新流程：触发 setter，通知依赖项的所有订阅者（Watcher）更新。标记脏数据：计算 Watcher 收到通知后，仅设置 `dirty = true`（不立即计算）。下次访问时重新计算：当再次访问这个计算属性时，发现 `dirty=true`，重新执行计算函数并更新缓存。
+8. 触发视图更新：若模板中使用了计算属性，则渲染 Watcher 会订阅计算属性的变化：当计算属性重新计算后（dirty 从 true 变为 false），通知渲染 Watcher 触发视图更新。
+
+```js
+class Watcher {
+  constructor(vm, fn, options) {
+    this.lazy = !!options.lazy; // 标记为计算Watcher
+    this.dirty = this.lazy; // 初始为脏数据
+    this.getter = fn;
+    this.value = this.lazy ? undefined : this.get();
+  }
+
+  get() {
+    pushTarget(this); // 将当前Watcher设为活动状态
+    const value = this.getter(); // 执行计算函数，触发依赖收集
+    popTarget();
+    return value;
+  }
+
+  update() {
+    if (this.lazy) {
+      this.dirty = true; // 仅标记脏数据，不立即计算
+    } else {
+      // 其他Watcher直接重新计算
+      this.get();
+    }
+  }
+
+  evaluate() {
+    this.value = this.get();
+    this.dirty = false; // 计算完成，标记为干净
+  }
+}
+```
+
+## Vue2 中怎么创建一个非响应式的数据
+
+- 使用场景：
+  - 配置常量：API 端点、应用版本等
+  - 大型静态数据集：下拉选项、国家列表
+  - 频繁访问的性能敏感数据：游戏引擎状态、实时绘图数据
+
+1. 在 data 外部创建对象， Vue 只会处理 data 返回的对象内的属性为响应式。
+2. 使用 `Object.freeze()`，Vue 会直接忽略对它的访问和修改。可以正常访问，但修改时可能不会报错也不会生效。也可以防止嵌套响应式。
+3. 在生命周期钩子中赋值，比如在 data 中只 return 一个占位符，然后在 created 钩子中给这个占位符赋值。
+4. 使用`Object.create(null)`，创建一个没有原型链的对象。
+5. 通过`$options`存储，即和 data 同层级，直接挂载到组件选项上。
+
+替代方案：对于大型数据结构，使用计算属性返回冻结版本，避免每次访问时都进行深拷贝。
+
+关键原则：Vue 2 仅转换 data() 返回对象中的属性为响应式，在组件初始化后添加的属性或外部创建的对象不会被自动处理。根据需求选择合适的方式，既能提升性能又能避免不必要的响应式开销。验证是否响应式：`console.log(this.$isReactive(this.staticData)) // false`。
+
+## 深拷贝时函数怎么拷贝
+
+1. 直接复用原函数（推荐）：保持函数原有行为（this 绑定、闭包），性能最佳
+2. 通过 toString() 动态重建（有局限）：无法保留函数上下文，无法访问闭包，使用 eval 或 new Function() 可能引发 XSS
+3. 绑定新上下文：通过 bind()、call()、apply() 等方法绑定新上下文，但会创建新函数，性能较差。
+
+## Web Worker 大文件处理机制详解
+
+### 主线程文件是否会被修改？
+
+不会 - Web Worker 运行在独立线程中，与主线程完全隔离；主线程发送给 Worker 的数据是只读副本，原始文件不受影响。
+
+### 文件如何传输到 Web Worker？
+
+- 使用 postMessage() API 发送数据
+- 浏览器使用结构化克隆算法复制数据
+- 对于超大文件，浏览器有零拷贝优化机制
+
+### 传输会耗费很多时间吗？
+
+- 对于小文件：直接复制数据
+- 对于大文件（Blob/File）：引用传递（零拷贝），几乎瞬时完成
+
+```js
+// 优先使用 Blob/File API：
+// 高效传输
+worker.postMessage({ file: largeFile }, [largeFile]);
+
+// 避免不必要的数据复制：
+// 不推荐 - 会导致完整复制
+worker.postMessage({ data: await largeFile.arrayBuffer() });
+
+// 分片处理超大文件：
+const chunkSize = 50 * 1024 * 1024; // 50MB
+for (let i = 0; i < file.size; i += chunkSize) {
+  const chunk = file.slice(i, i + chunkSize);
+  worker.postMessage({ chunk }, [chunk]);
+}
+
+// 内存监控：
+// 使用Performance API监控内存
+const mem = performance.memory;
+console.log(`Used: ${mem.usedJSHeapSize} bytes`);
+```
+
+## indexedDB 简介
+
+参考[### IndexDB](../Chrome/Tips.md)
+
 ## 扁平数据结构转 Tree
 
 ```js

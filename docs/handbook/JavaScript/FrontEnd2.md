@@ -609,8 +609,9 @@ function sendA() {
 - localStorage 仅允许你访问一个 Document 源（origin）的对象 Storage；存储的数据将保存在浏览器会话中。如果 A 打开的 B 页面和 A 是不同源，则无法访问同一 localStorage。
 - 无论数据存储在 localStorage 还是 sessionStorage ，它们都特定于页面的协议。localStorage 类似 sessionStorage，但其区别在于：存储在 localStorage 的数据可以长期保留，没有过期时间设置；而当页面会话结束——也就是说，当页面被关闭时，存储在 sessionStorage 的数据会被清除 。
 - 可以通过挂载 iframe 给 localStorage 扩容。通过 postMessage 通信。
-- 存储在 sessionStorage 或 localStorage 中的数据特定于页面的协议。也就是说 http://example.com 与 https://example.com 的 sessionStorage 相互隔离。
+- 存储在 sessionStorage 或 localStorage 中的数据特定于页面的协议。也就是说 http://example.com 与 https://example.com 的 sessionStorage 相互隔离。而同源页面共享 Cookie，只要在同一个浏览器中，无论是否新窗口，都可以访问，修改会立即同步到所有同源页面。
 - 被存储的键值对总是以 UTF-16 DOMString 的格式所存储，其使用两个字节来表示一个字符。对于对象、整数 key 值会自动转换成字符串形式。
+- 修改会触发所有同源页面的 storage 事件。
 
 ### sessionStorage
 
@@ -618,7 +619,7 @@ function sendA() {
 2. 在新标签或窗口打开一个页面时会「复制」顶级浏览会话的上下文作为新会话的上下文，这点和 session cookies 的运行方式不同。彼此之间是独立的，不会相互影响。
 3. 打开多个相同的 URL 的 Tabs 页面，会创建各自的 sessionStorage。也就是说彼此之间是独立的，不会相互影响。
 4. 关闭对应浏览器标签或窗口，会清除对应的 sessionStorage。
-5. _注意_：sessionStorage 不能在多个窗口或标签页之间共享数据，但是当通过 `window.open` 或`链接`**打开新页面**时(不能是新窗口)，新页面会复制前一页的 sessionStorage。
+5. _注意_：sessionStorage 不能在多个窗口或标签页之间共享数据，但是当通过 `window.open` 或`链接`（`<a target="_blank">`）**打开新页面**时(不能是新窗口)，新页面会复制前一页的 sessionStorage。但注意，这个复制是一次性的，之后两个页面的 sessionStorage 就独立了。也就是说，在父页面中后续对 sessionStorage 的修改不会反映到子页面，同样子页面的修改也不会影响父页面。而且也不能互相访问。
 
 - sessionStorage 顾名思义是针对一个 session 的数据存储，生命周期为当前窗口，一旦窗口关闭，那么存储的数据将被清空。最后还有一个很主要的区别同一浏览器的相同域名和端口的不同页面间可以共享相同的 localStorage，但是不同页面间无法共享 sessionStorage 的信息。
 - 比如：打开了两个百度首页 A 和 B，在 A 的 localStorage 中添加删除或修改某个 key/value，在 B 中也能同步看到 localStorage 中数据的变化。而对于这两个页面的 sessionStorage，修改 A 的 sessionStorage 并不会同步到 B 页面。

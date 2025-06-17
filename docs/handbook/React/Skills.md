@@ -1232,3 +1232,32 @@ React Fiber 将虚拟 DOM 的更新过程划分两个阶段，Reconciler 调和�
 
    - 电脑手机处于同一局域网，修改手机网络，服务器主机名设置成电脑 IP，服务器端口设置成电脑服务端口
    - 手机浏览器打开`http://${电脑IP}:${电脑服务端口}`
+
+## CSS moudule 配置
+
+react 中使用 css 时，可以使用 css module，这样每个组件中的 css 都是独立的，不会相互影响，而且可以避免全局污染。使用时需要做如下操作：
+
+1. css 文件以 xx.module.css 命名
+2. 引入 css 文件时，使用`import styles from './xx.module.css'`
+3. 使用 css 时，使用`styles.xx`来引用
+4. 借助`babel-plugin-react-css-modules`插件，将 css module 编译成普通的 css 文件
+5. 借助`typescript-plugin-css-modules`插件，将 css module 编译成 typescript 类型文件，这样在 tsx 中就可以使用类型提示了
+6. 配置 VScode 的`.vscode/settings.json`文件，添加如下配置：
+
+```json
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+  // "css.validate": false,
+  // "css.modules.tsplugin["typescript-plugin-css-modules"]
+}
+```
+
+7. 在`custom.d.ts`中添加如下声明配置，让 ts 能够识别 css module
+
+```typescript
+declare module "*.module.css" {
+  const classes: { readonly [key: string]: string };
+  export default classes;
+}
+```

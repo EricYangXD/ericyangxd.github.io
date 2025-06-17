@@ -279,7 +279,7 @@ Service Worker 将遵守以下生命周期：
 
 ### SharedWorker
 
-SharedWorker 是一种在 Web 浏览器中使用的 Web API，它允许不同的浏览上下文,如不同的浏览器标签页之间共享数据和执行代码。它可以用于在多个浏览上下文之间建立通信通道，以便它们可以共享信息和协同工作。与普通的 Worker 不同，SharedWorker 可以在多个浏览上下文中实例化，而不仅限于一个单独的浏览器标签页或框架。这使得多个浏览上下文可以共享同一个后台线程，从而更有效地共享数据和资源，而不必在每个标签页或框架中都创建一个独立的工作线程。
+SharedWorker 是一种在 Web 浏览器中使用的 Web API，它允许不同的浏览上下文，如不同的浏览器标签页之间共享数据和执行代码。它可以用于在多个浏览上下文之间建立通信通道，以便它们可以共享信息和协同工作。与普通的 Worker 不同，SharedWorker 可以在多个浏览上下文中实例化，而不仅限于一个单独的浏览器标签页或框架。这使得多个浏览上下文可以共享同一个后台线程，从而更有效地共享数据和资源，而不必在每个标签页或框架中都创建一个独立的工作线程。
 
 ```html
 <!-- a.html -->
@@ -328,14 +328,14 @@ self.onconnect = (e) => {
 
 ### IndexDB
 
-IndexedDB 是一种在浏览器中用于存储和管理大量结构化数据的 Web API。它提供了一种持久性存储解决方案，允许 Web 应用程序在客户端存储数据，以便在不同会话、页面加载或浏览器关闭之间保留数据。与传统的 cookie 或 localStorage 等存储方式不同，IndexedDB 更适合存储复杂的、结构化的数据，例如对象、数组、键值对等。这使得它特别适用于应用程序需要存储大量数据、执行高级查询或支持离线工作的情况。
+IndexedDB 是一种在浏览器中用于存储和管理大量`结构化数据`的 Web API。它提供了一种持久性存储解决方案，允许 Web 应用程序在客户端存储数据，以便在不同会话、页面加载或浏览器关闭之间保留数据。与传统的 cookie 或 localStorage 等存储方式不同，IndexedDB 更适合存储复杂的、结构化的数据，例如`对象、数组、键值对`等。这使得它特别适用于应用程序需要存储大量数据、执行高级查询或支持离线工作的情况。
 
 ```html
 <!-- a.html -->
 <script>
   let index = 0;
   // 打开或创建 IndexedDB 数据库
-  const request = indexedDB.open("database", 1);
+  const request = indexedDB.open("database", 1); // 数据库名称和版本号
 
   request.onupgradeneeded = (event) => {
     const db = event.target.result;
@@ -356,6 +356,10 @@ IndexedDB 是一种在浏览器中用于存储和管理大量结构化数据的 
     transaction.oncomplete = () => {
       db.close();
     };
+  };
+
+  request.onerror = (event) => {
+    // 使用 request.errorCode 来做点什么！
   };
 </script>
 

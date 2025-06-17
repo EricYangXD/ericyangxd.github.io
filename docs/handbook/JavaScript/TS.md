@@ -717,7 +717,7 @@ declare global {
    4. target：编译结果的版本；
    5. module：编译的模块类型；
    6. outFile
-   7. lib
+   7. lib：编译时使用的库
    8. allowJs、checkJs
    9. outDir、rootDir
    10. declaration、declarationDir
@@ -726,7 +726,7 @@ declare global {
    13. removeComments
    14. noEmitHelpers、importHelpers
 6. strict
-   1. noImplicitAny
+   1. noImplicitAny：不必手动添加 any 类型
    2. alwaysStrict
    3. strictNullChecks
    4. strictBindCallApply
@@ -737,9 +737,12 @@ declare global {
    3. noImplicitReturns：每个分支都要有返回值
 8. esModuleInterop:允许`export=`导出，有 import from 导入
 9. moduleResolution：模块解析策略，默认 node，定义查找文件时候的策略
-10. paths:[]：路径映射
-11. rootDirs:[]：将多个目录放在一个虚拟目录下，用于运行时
-12. references:[]：引用的其他工程 path、prepend 等
+10. resolveJsonModule：允许导入 json 模块，需配合`moduleResolution:node`使用
+11. paths:[]：路径映射
+12. rootDirs:[]：将多个目录放在一个虚拟目录下，用于运行时
+13. references:[]：引用的其他工程 path、prepend 等
+14. noEmit：不生成输出文件
+15. jsx：jsx 语法
 
 ### 基础配置
 

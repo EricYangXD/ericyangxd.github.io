@@ -1268,7 +1268,7 @@ try {
 }
 ```
 
-7. 很多老版本的 DOM API 其实并不支持 AbortSignal，例如：WebSocket，其只有一个 .close() 方法用于在请求完成后关闭连接。此时，开发者可以通过判断`signal.aborted`来判断是否被中断，然后手动关闭`ws.close()`。
+7. 很多老版本的 DOM API 其实并不支持 AbortSignal，例如：WebSocket，其只有一个 `.close()` 方法用于在请求完成后关闭连接。此时，开发者可以通过判断`signal.aborted`来判断是否被中断，然后手动关闭`ws.close()`。
 8. 通过`controller.abort();`移除事件处理函数，开发者只需要将 signal 传递给 addEventListener 的第三个参数即可。`window.addEventListener("resize", () => doSomething(), { signal });`，不需要再手动 removeEventListener。
 9. React hooks 中的异步任务：在 React 中，如果 Effect 在再次触发之前没有完成，开发者一般不容易发现，此时 Effect 会并行运行。那么我们可以借助 AbortController，每当下一个 useEffect 调用运行时就中止上一个请求：
 
@@ -1287,4 +1287,4 @@ function FooComponent({something}) {
 }
 ```
 
-10. 值得一提的是， TaskController 是 AbortController 的子级，除了可以调用 abort() 取消 task，还可以通过 setPriority() 方法中途修改 task 的优先级，如果不需要控制优先级，则可以直接使用 AbortController。
+10. 值得一提的是， TaskController 是 AbortController 的子级，除了可以调用 abort() 取消 task，还可以通过 `setPriority()` 方法中途修改 task 的优先级，如果不需要控制优先级，则可以直接使用 AbortController。

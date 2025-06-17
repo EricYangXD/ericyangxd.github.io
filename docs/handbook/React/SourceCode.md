@@ -292,6 +292,11 @@ schedule().onClick(); // 'num: ' 2
   2. useLayoutEffect 的作用几乎与 useEffect 一致，不同的是，「useLayoutEffect」 是**渲染前同步执行**的，与 componentDidUpdate 和 componentDidMount 执行机制一样，在 **DOM 更新后，在浏览器渲染这些更改之前**，立即执行。
 - effect list 可以理解为是一个存储 effectTag 副作用列表容器。它是由 fiber 节点和指针 nextEffect 构成的单链表结构，这其中还包括第一个节点 firstEffect ，和最后一个节点 lastEffect。 React 采用深度优先搜索算法，在 render 阶段遍历 fiber 树时，把每一个有副作用的 fiber 筛选出来，最后构建生成一个只带副作用的 effect list 链表。在 commit 阶段，React 拿到 effect list 数据后，通过遍历 effect list，并根据每一个 effect 节点的 effectTag 类型，执行每个 effect，从而对相应的 DOM 树执行更改。
 
+#### useEffect 的清理操作
+
+1. 在 17 之前的版本中是同步的
+2. 在 17 及之后的版本中是异步的
+
 ### 3. useContext
 
 - 如果你只是想避免层层传递一些属性，组件组合（component composition）有时候是一个比 context 更好的解决方案。
@@ -902,9 +907,11 @@ export default userReducer;
 
 // 3. 创建 Redux Store，并应用 redux-thunk 中间件。
 // src/store.js
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import userReducer from './reducers/userReducer';
+// 多个reducer的话使用combineReducers合成一个，使用的时候多加一层key来解析
+// const rootReducer = combineReducers({ language: languageReducer, recommend: recommendReducer, user: userReducer });
 
 // 创建 Store，并应用 redux-thunk 中间件
 const store = createStore(userReducer, applyMiddleware(thunk));
@@ -1069,6 +1076,11 @@ useContext 是 React 提供的一个 Hook，用于在函数组件中访问 Conte
 6. 总结
    - Redux 适用于大型应用，需要全局状态管理和复杂的异步操作。
    - useContext 适用于小型应用或局部状态管理，简单易用。
+
+### redux 中间件的原理
+
+1. 中间件本质就是一个函数，它接收一个 store 的 dispatch 方法作为参数，返回一个新的 dispatch 方法。
+2. 公式：`const middleware = (store) => (next) => (action) => { ... }`，其中`next`即`store.dispatch`，`action`即`dispatch`传入的参数。
 
 ### 按需加载的实现原理
 
