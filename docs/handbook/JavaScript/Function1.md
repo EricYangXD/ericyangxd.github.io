@@ -867,9 +867,9 @@ for (let key in obj) {
 
 ### 深拷贝
 
-0. 现代 JavaScript 的结构化克隆（Structured Clone）:从现代浏览器开始，structuredClone 是一种内置的深拷贝工具。它支持拷贝复杂的数据结构。支持 Date、Map、Set、循环引用等。
+0. 现代 JavaScript 的结构化克隆（Structured Clone）:从现代浏览器开始，structuredClone 是一种内置的深拷贝工具。它支持拷贝复杂的数据结构。支持 Date、Map、Set、循环引用等。不能拷贝函数。
 
-1. 「深」拷贝：`JSON.parse(JSON.stringify(arr));`--不能拷贝函数，且会丢失为 undefined 的属性。不能用于复制用户定义的对象方法。无法拷贝特殊对象，如 Date、Set、Map、RegExp 等。
+1. 「深」拷贝：`JSON.parse(JSON.stringify(arr));`--也不能拷贝函数，且会丢失为 undefined 的属性。不能用于复制用户定义的对象方法。无法拷贝特殊对象，如 Date、Set、Map、RegExp 等。
 
 2. 手动实现深拷贝：
 

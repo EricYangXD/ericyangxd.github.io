@@ -2200,6 +2200,17 @@ Node.js 内存泄漏是指程序在执行过程中不再使用的内存没有被
 4. 响应式图表：如果数据大屏中包含图表，确保使用支持响应式的图表库：Chart.js：可以自动适应容器大小。ECharts：提供了良好的响应式支持，可以通过配置自动调整图表大小。AntV：企业级数据可视化解决方案。
 5. 动态调整布局：可以使用 JavaScript 监听窗口大小变化，动态调整布局，监听 resize 事件，做相应处理。
 
+## 前端响应式布局的方式
+
+1. 媒体查询：使用 CSS 媒体查询`@media`，根据不同的屏幕尺寸（一般是根据宽度设置 max-width/min-width 区间）应用不同的样式。orientation（横竖屏）。
+2. 响应式栅格系统：使用栅格系统（如 Bootstrap、Foundation 或 Bulma）来创建响应式布局。比如 antd 中的 Row 和 Col 基于 24 列 span 布局。
+3. Flexbox 和 CSS Grid 布局：使用 Flexbox 或 CSS Grid 布局，可以更灵活地创建响应式设计。
+4. 媒体对象：使用媒体对象（如 Bootstrap 的 media）来创建响应式布局。
+5. 图片和媒体：使用 `max-width: 100%` 属性，确保图片和媒体在响应式布局中保持正确的比例。使用 `<picture>` 或 srcset 实现不同屏幕加载不同图片资源
+6. 视口设置：使用 `<meta name="viewport" content="width=device-width, initial-scale=1.0">`，确保页面在移动设备上正确缩放。
+7. JavaScript 动态调整布局：使用 JavaScript 监听窗口大小变化，动态调整布局。
+8. `百分比/vw/rem`宽高字体随屏幕自动缩放
+
 ## 浏览器访问 url 过程
 
 硬件加速方案，优缺点；DNS 解析过程、预解析、耗时指标

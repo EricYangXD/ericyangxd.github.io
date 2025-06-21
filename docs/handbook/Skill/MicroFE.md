@@ -390,6 +390,8 @@ actions.onGlobalStateChange((state, prevState) => {
 });
 ```
 
+2. 子应用间通信使用 PostMessage、Websocket、EventEmitter、localStorage、URL 传参等都有适用场景。
+
 ## CI/CD 持续集成
 
 简单示例：服务器一台，代码仓库托管在 gitlab 上，docker 镜像托管在 dockerhub 上，通过 k8s 部署镜像到服务器上，前端 app 运行在 nginx 上，通过 nginx 代理到后端 app。

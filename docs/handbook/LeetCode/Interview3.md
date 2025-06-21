@@ -1926,3 +1926,44 @@ Angular17 中已经使用 Signals 作为其响应式的机制，优化其渲染�
 5. 运行时性能不错，不需要额外的性能优化 API。
 6. 适用范围更广，Signal 就是一个普通的 js 对象，可以在任何地方使用，不局限于组件内部。
 7. Vue3 中的 ref 也是一种 Signal。Vue 通过编译器来实现 signal 优化，编译器可以静态分析模板并在生成的代码中留下标记，使得运行时尽可能的走捷径。也在探索一种 vapor mode 的编译策略，不依赖于 VDOM，而是更多地利用 vue 内置的响应式系统。
+
+## 写一个重发按钮
+
+```tsx
+// ResendButton.tsx
+// 点击之后按钮会显示倒计时且不可点击，倒计时5s结束后可以重新点击
+import React, { useState, useEffect, useRef } from "react";
+
+const ResendButton = ({ onClick }) => {
+  const [count, setCount] = useState(0);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    return () => clearInterval(timerRef.current);
+  }, []);
+
+  const handleClick = () => {
+    if (count > 0) return;
+    onClick && onClick();
+
+    setCount(5);
+    timerRef.current = setInterval(() => {
+      setCount((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  return (
+    <button onClick={handleClick} disabled={count > 0}>
+      {count > 0 ? `Retry (${count}s)` : "Resend SMS Code"}
+    </button>
+  );
+};
+
+export default ResendButton;
+```

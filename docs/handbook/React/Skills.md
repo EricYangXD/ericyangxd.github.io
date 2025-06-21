@@ -357,9 +357,68 @@ const useWindowWidth = () => {
 export default useWindowWidth;
 ```
 
+## 函数组件与类组件的区别
+
+1. 类组件有生命周期，函数组件没有生命周期，但是有 hooks 处理副作用。
+2. 类组件有 this，函数组件没有 this。
+3. 类组件会实例化，函数组件不会实例化，而是每次都执行函数。
+4. OOP 思想和函数式编程思想。
+5. class 语法和 js 函数。
+6. this.props 和函数第个参数即 props。
+7. 性能优化：PureComponent/ShouldComponentUpdate VS React.memo/useCallback/useMemo 等。
+8. 类组件状态逻辑复用困难，函数组件有自定义 hooks 复用逻辑方便。
+9. 维护的难度也是函数组件更方便，因为可用 useEffect 集中处理副作用。
+10. 学习曲线 class+this 比较容易出错，函数组件是纯函数，输入不变则输出不变，所以函数组件更简单。
+
+### 必须使用类组件的场景
+
+1. 错误边界：ErrorBoundary，借助类组件的生命周期钩子实现
+2. 维护旧项目
+3. 某些旧的第三方库可能尚未完全兼容 hooks
+4. 需要访问某些特定的、只有类组件采用的生命周期方法时
+
+## useState
+
+1. 多个 setState 会合并，可以理解成后面的会覆盖前面的--适用于直接更新 state 的场景：`setCount(10)`，而不是`setCount(prev=>prev+1)`。
+2. `setCount(prev=>prev+1)`，有几个则执行几个，不会合并。
+3. 先`setCount(1)`，再`setCount(prev=>prev+1)`时，会先执行`setCount(1)`，再执行`setCount(prev=>prev+1)`，即执行两次。
+4. 先`setCount(prev=>prev+1)`，再`setCount(1)`时，只会执行`setCount(1)`，即执行一次。
+
+## useReducer
+
+类似于 redux 的用法，但是只是用于组件内部较复杂的状态管理和简单的跨组件状态管理，不适用于全局状态管理。使用于组件内部 state 较多且有相互依赖关系、更新的逻辑分散难以追踪的场景。否则还是 useState 更方便。
+
+1. 将复杂的状态管理逻辑抽离到 reducer 中，可以集中处理复杂的逻辑，避免组件逻辑混乱。
+2. 所有状态转换规则清晰定义，通过 action.type 区分
+3. 增强代码意图明确性、可读性和可维护性、可测试性
+4. 优化的 dispatch 函数传递：传递给深层子组件时只需传递一个 dispatch 函数。react 会保证 dispatch 函数的引用是稳定的，有助于性能优化，避免因 prop 引用变化导致不必要的重渲染（配合 react.memo）。
+5. reducer 是个纯函数，不会产生副作用，可以放心使用。易于进行单元测试，独立于组件渲染。
+6. 更清晰的 action 流向，通过 dispatch(action)触发更新，action 对象包含 type 和 payload，action.type 用于区分不同的 action，action.payload 用于传递数据。有助于调试和理解复杂状态的流转过程。
+7. 配合 Context API 可进一步扩大共享范围。
+8. 全局状态管理还是使用 RTK。
+
+## useCallback
+
+即`useMemo(()=>fn, [deps])`，用于缓存函数，避免每次都重新生成函数，从而提升性能。
+
+## useMemo
+
+用于缓存计算结果，避免每次都重新计算，从而提升性能。这两个 Api 不能滥用：他们自身都有执行成本，会消耗性能，可能超过收益，甚至拖慢性能负优化。代码复杂度可读性变差，可维护性降低。
+
+## useEffect
+
+1. 通过`Object.is()`来判断新旧值是否相同，如果相同则返回之前的旧值，否则返回新值。浅比较：基础类型比较的是值，引用类型比较的是引用地址。
+2. 可能会有过时闭包的 bug（闭包陷阱）：即在 useEffect 中使用闭包，导致闭包中的变量值始终是最后一次更新的值，而不是最新的值。把所有依赖项都放到依赖数组里，借助 eslint 插件`eslint-plugin-react-hooks`来避免遗漏依赖项。解决方法：一是正确设置依赖数组，二是使用函数式更新，三是使用 useRef。
+3. 处理快速操作引发的多个异步请求，避免竞态条件，即对于请求响应返回延迟的问题，保证数据最新。一是可以用 AbortController 借助 signal 取消请求；二是借助一个标志位，在每次请求时更新标志位，如果标志位为 true，则取消上一次的请求，重新发起请求。
+
+## useRef
+
+## useImperativeHandle
+
 ## useLayoutEffect
 
-- useLayoutEffect 与 useEffect 使用方式是完全一致的，useLayoutEffect 的区别在于它会在所有的 「DOM 变更之后，浏览器渲染之前」「同步」调用 effect。
+- useLayoutEffect 与 useEffect 使用方式是完全一致的，useLayoutEffect 的区别在于它会在所有的 「DOM 变更之后，浏览器渲染之前」「同步」调用 effect，可能会阻塞渲染。而 useEffect 是异步的，会在浏览器绘制之后异步调用 effect，不会阻塞渲染。
+- 可用于避免页面抖动/闪烁，提升用户体验。动态调整元素位置尺寸时。
 - 可以使用它来读取 DOM 布局并同步触发重渲染。在浏览器执行绘制之前， useLayoutEffect 内部的更新计划将被同步刷新。
 - 通常对于一些通过 JS 计算的布局，如果你想减少 useEffect 带来的「页面抖动」,你可以考虑使用 useLayoutEffect 来代替它。
 - 需要注意 useLayoutEffect 与 componentDidMount、componentDidUpdate 的调用阶段是一样的。
@@ -367,6 +426,11 @@ export default useWindowWidth;
 - 本质上还是 useLayoutEffect 的实现是基于 micro ，而 Effect 是基于 macro ，所以 useLayoutEffect 会在页面更新前去执行。
 - 如果你使用服务端渲染，请记住，无论 useLayoutEffect 还是 useEffect 都无法在 Javascript 代码加载完成之前执行。这就是为什么在服务端渲染组件中引入 useLayoutEffect 代码时会触发 React 告警。要解决这个问题，需要将代码逻辑移至 useEffect 中（如果首次渲染不需要这段逻辑的情况下），或是将该组件延迟到客户端渲染完成后再显示（如果直到 useLayoutEffect 执行之前 HTML 都显示错乱的情况下）。
 - 与 useEffect 的区别之一：与 componentDidMount、componentDidUpdate 不同的是，传给 useEffect 的函数会在浏览器完成布局与绘制之后，在一个延迟事件中被调用。虽然 useEffect 会在浏览器绘制后延迟执行，但会保证在任何新的渲染前执行。在开始新的更新前，React 总会先清除上一轮渲染的 effect。
+
+## useContext
+
+1. 由于 Provider 的 value 是引用类型，所以当 Provider 的 value 变化时，会触发所有使用该 Provider 的子组件的重新渲染。
+2. 为了解决上述问题：一是可以使用 useMemo 来缓存 value，二是可以拆分多个 Provider，三是借助第三方库：`react-context-selector`。
 
 ## useDebugValue
 
@@ -774,6 +838,10 @@ class MyComponent extends React.Component {
 }
 ```
 
+## React.memo
+
+浅比较，如果 props 相等，则返回 true，否则返回 false。比较的是原始类型的值和引用类型的内存地址。
+
 ## React.forwardRef
 
 `React.forwardRef` 会创建一个 React 组件，这个组件能够将其接收到的 ref 属性转发到其组件树下的另一个组件中。这种技术并不常见，但在以下两种场景中特别有用：
@@ -782,6 +850,8 @@ class MyComponent extends React.Component {
 - 在高阶组件中转发 refs
 
 `React.forwardRef` 接受渲染函数作为参数。React 将使用 props 和 ref 作为参数来调用此函数。此函数应返回 React 节点。
+
+可以使得父组件通过 ref 获取到子组件中的 DOM 节点。因为正常情况下 ref 和 key 一样，都是会被 react 特殊处理的 prop，函数组件默认会忽略 ref，所以 ref 无法被直接传递到子组件中，但是通过 `React.forwardRef`，可以将 ref 传递到子组件中，从而使父组件可以通过 ref 获取到子组件中的 DOM 节点并进行一定的操作。
 
 ### 转发 refs 到 DOM 组件
 
@@ -1041,6 +1111,9 @@ export default function Form() {
 | 适用场景     | 需要跟踪并响应状态变化的场景         | 需要存储不需要触发重渲染的可变数据的场景      |
 
 ### Ref 和 useRef 的使用场景
+
+1. ref 用于获取 DOM 节点
+2. 创建一个 ref 对象，该对象`.current`可以存储任何可变值，发生变化不会触发组件重新渲染。
 
 一些可供参考的使用场景：
 

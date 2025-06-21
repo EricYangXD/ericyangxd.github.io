@@ -154,19 +154,19 @@ export { RequestConfig, RequestInterceptors }
 ```ts
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 export interface RequestInterceptors<T> {
-	// 请求拦截
-	requestInterceptors?: (config: AxiosRequestConfig) => AxiosRequestConfig;
-	requestInterceptorsCatch?: (err: any) => any;
-	// 响应拦截
-	responseInterceptors?: (config: T) => T;
-	responseInterceptorsCatch?: (err: any) => any;
+  // 请求拦截
+  requestInterceptors?: (config: AxiosRequestConfig) => AxiosRequestConfig;
+  requestInterceptorsCatch?: (err: any) => any;
+  // 响应拦截
+  responseInterceptors?: (config: T) => T;
+  responseInterceptorsCatch?: (err: any) => any;
 }
 // 自定义传入的参数
 export interface RequestConfig<T = AxiosResponse> extends AxiosRequestConfig {
-	interceptors?: RequestInterceptors<T>;
+  interceptors?: RequestInterceptors<T>;
 }
 export interface CancelRequestSource {
-	[index: string]: () => void;
+  [index: string]: () => void;
 }
 ```
 
@@ -174,18 +174,18 @@ export interface CancelRequestSource {
 
 ### 取消 axios
 
-从 v0.22.0 开始，Axios 支持以 fetch API 方式—— AbortController 取消请求：
+从 v0.22.0 开始，Axios 支持以 fetch API 方式 —— AbortController 取消请求：
 
 ```js
 const controller = new AbortController();
 
 axios
-	.get("/foo/bar", {
-		signal: controller.signal,
-	})
-	.then(function (response) {
-		//...
-	});
+  .get("/foo/bar", {
+    signal: controller.signal,
+  })
+  .then(function (response) {
+    //...
+  });
 // 取消请求
 controller.abort();
 ```
@@ -198,11 +198,11 @@ const CancelToken = axios.CancelToken;
 // 获取令牌对象
 const source = CancelToke.source();
 axios.get("/url/123", {
-	cancelToken: source.token,
+  cancelToken: source.token,
 });
 // 2秒后取消请求
 setTimeout(() => {
-	source.cancel();
+  source.cancel();
 }, 2000);
 ```
 
@@ -212,14 +212,14 @@ setTimeout(() => {
 
 ```js
 var xhr = new XMLHttpRequest(),
-	method = "GET",
-	url = "https://developer.mozilla.org/";
+  method = "GET",
+  url = "https://developer.mozilla.org/";
 xhr.open(method, url, true);
 
 xhr.send();
 
 if (OH_NOES_WE_NEED_TO_CANCEL_RIGHT_NOW_OR_ELSE) {
-	xhr.abort();
+  xhr.abort();
 }
 ```
 
@@ -232,24 +232,33 @@ const controller = new AbortController();
 const signal = controller.signal;
 
 fetch("https://baidu.com/", {
-	signal,
+  signal,
 })
-	.then(() => {})
-	.catch((err) => {
-		console.log(err); // DOMException: The user aborted a request.
-		if (err.name === "") {
-			// 中止信号
-		} else {
-			// 其他错误
-		}
-	});
+  .then(() => {})
+  .catch((err) => {
+    console.log(err); // DOMException: The user aborted a request.
+    if (err.name === "") {
+      // 中止信号
+    } else {
+      // 其他错误
+    }
+  });
 
 // 监听abort事件
 signal.addEventListener("abort", () => {
-	console.log("中断信号发出");
+  console.log("中断信号发出");
 });
 
 // 控制器发出中断信号
 controller.abort();
 console.log("是否中断：", signal.aborted);
 ```
+
+### axios 与 fetch 的区别
+
+1. fetch 是原生 js API，在 IE 下原生不支持，需要 polyfill。axios 是基于 XMLHttpRequest 封装的，可以兼容 IE11
+2. axios 提供了 interceptors，可以在请求发出前和响应到达后统一处理（如自动加 token、统一错误处理）。fetch 没有拦截器机制，需要自己封装。
+3. axios 默认会自动把返回的 JSON 数据转成对象（response.data），fetch 需要手动 .json()。axios 支持多种响应类型自动处理。
+4. axios 内置超时控制，设置 timeout 参数即可。fetch 没有超时机制，需要用 Promise.race 或 AbortController 自己实现。
+5. axios 支持 onUploadProgress、onDownloadProgress（XHR 实现）。fetch 原生不支持上传进度，下载进度要用 ReadableStream 手动实现，较复杂。
+6. axios 会自动将对象参数转换为 URL 查询字符串或表单格式。fetch 要自己手动拼接。

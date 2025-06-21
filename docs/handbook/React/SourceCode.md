@@ -62,6 +62,8 @@ date: "2021-12-28"
 
 ### Fiber 原理
 
+参考：[## 什么是 React Fiber](./Skills.md)
+
 ## 问题
 
 ### 为什么不能将 hooks 写到 if else 语句中？
@@ -1105,7 +1107,15 @@ function ProfilePage() {
 }
 ```
 
-使用 react-lodable，实现组件的异步加载。专门用于 React 组件的按需加载。
+使用 `react-lodable`，实现组件的异步加载。专门用于 React 组件的按需加载。
+
+## React18 并发的核心机制
+
+1. 可中断的渲染：可暂停、恢复或放弃渲染。
+2. 时间分片：将工作分解成小块、间歇执行。
+3. 优先级调度：高优先级任务可以打断低优先级任务。
+4. Transitions：引入 startTransition、useTransition，用于手动标记非紧急更新，控制渲染过程。
+5. useDeferredValue：推迟值的更新，不阻塞当前渲染。
 
 ## React Diff 算法
 

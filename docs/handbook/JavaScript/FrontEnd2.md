@@ -272,11 +272,11 @@ function eazyFormateQueryUrl() {
 
 ### 设置
 
-| 平台                    | 操作示例                                   | 说明                                              |
-| ----------------------- | ------------------------------------------ | ------------------------------------------------- |
-| 服务端                  | `set-cookie: <cookie-name>=<cookie-value>` | 服务端通过设置 set-cookie 控制 Cookie             |
-| 浏览器 document.cookie  | `document.cookie = "name=scar";`           | 获取并设置与当前文档相关联的 cookie，操作不灵活。 |
-| 浏览器 Cookie Store API | `cookieStore.set("name", "scar");`         | 新特性，仅支持在 HTTPS 使用，目前还在实验阶段。   |
+| 平台                    | 操作示例                                   | 说明                                                                             |
+| ----------------------- | ------------------------------------------ | -------------------------------------------------------------------------------- |
+| 服务端                  | `set-cookie: <cookie-name>=<cookie-value>` | 服务端通过设置 set-cookie 控制 Cookie                                            |
+| 浏览器 document.cookie  | `document.cookie = "name=scar";`           | 获取并设置与当前文档相关联的 cookie，操作不灵活。只能设置非 HttpOnly 的 Cookie。 |
+| 浏览器 Cookie Store API | `cookieStore.set("name", "scar");`         | 新特性，仅支持在 HTTPS 使用，目前还在实验阶段。                                  |
 
 ### 伪代码/使用
 
@@ -314,7 +314,7 @@ http
   .listen(3000);
 ```
 
-2. 客户端，通过浏览器方法 document.cookie 读写当前界面的 Cookie。
+2. 客户端，通过浏览器方法 document.cookie 读写当前界面的 Cookie，只能设置非 HttpOnly 的 Cookie。。
 
 ```js
 // 编辑 Cookie，必须一个一个设置！！！不能多个一起设置！！！
@@ -328,7 +328,7 @@ console.log(document.cookie);
 document.cookie = "name=scar;expires=Thu, 01 Jan 1970 00:00:01 GMT";
 ```
 
-1. 客户端：Cookie Store API，目前正在试验阶段，Firefox、Safari 浏览器 还不支持，所以不建议在生产环境使用，相信在将来我们会用上它更方便地操作 Cookie。
+3. 客户端：Cookie Store API，目前正在试验阶段，Firefox、Safari 浏览器 还不支持，所以不建议在生产环境使用，相信在将来我们会用上它更方便地操作 Cookie。
 
 ```js
 // 读取 Cookie，返回的是Promise，所以要用await！！！
@@ -375,6 +375,23 @@ cookieStore.addEventListener("change", (event) => {
 ```
 
 ### Q&A
+
+#### 请求时，哪些 Cookie 会被带到后端？由什么决定？
+
+- 浏览器请求头：`Cookie: token=abc123`
+- Cookie 本质由服务器下发或 JS 写入，浏览器存储和管理。
+- 前端只能操作非 HttpOnly 的 Cookie。
+- 发送哪些 cookie 完全由浏览器根据域、路径、安全等属性决定，不需要开发者手动指定。
+- AJAX 跨域需注意 CORS 配置以及 withCredentials，否则不会自动发送 cookie。
+
+1. 域名和路径（Domain & Path）：浏览器只会带上“当前请求 URL”匹配的域名和路径范围内的 Cookie。
+2. 安全属性（Secure）：如果设置了 Secure 属性，那么浏览器只有在 HTTPS 协议下才会带上该 Cookie，如果是 HTTP 协议，浏览器会忽略该 Cookie。
+3. HttpOnly：如果设置了 HttpOnly 属性，那么通过 JavaScript 脚本将无法读取到 Cookie 信息，这样能有效的防止 XSS 攻击。
+4. SameSite 属性：
+   - Lax：默认。部分跨站请求不带（比如 a 标签、GET 表单），一般导航或同源会带
+   - Strict：严格模式，任何第三方场景都不会带
+   - None：总是允许跨站携带，但必须配合 Secure 属性一起使用，否则无效。
+5. 请求方式：通常 GET、POST 都会自动按规则附带符合条件的 Cookie。跨域 AJAX 请求还受 CORS 策略影响，需要配置 `withCredentials=true` 并且后端允许。
 
 #### Cookie 的限制
 
@@ -557,7 +574,7 @@ webpack4+无需配置默认会压缩代码，如果你想亲自试试，Js 可�
 1. `let windowObjectReference = window.open(strUrl, strWindowName, [strWindowFeatures]);`
 
 - strUrl === 要在新打开的窗口中加载的 URL。
-- strWindowName === 新窗口的名称。
+- strWindowName === 新窗口的名称。如果 strWindowName 已经存在，则按照指定的 strWindowName 打开新窗口，否则按照指定的名称创建一个新窗口。可以限制打开的标签页的数量！很有用。`window.open('xxx?xx=xx', 'music');`这样只会新开一个 tab 播放音乐，后续切歌也仍然在这个 tab 上播放。但是会刷新页面。
 - strWindowFeatures === 一个可选参数，列出新窗口的特征(大小，位置，滚动条等)作为一个 DOMString。-- menubar, location, resizable, scrollbars, status...
 - 返回值 WindowObjectReference：打开的新窗口对象的引用。如果调用失败，返回值会是 null 。如果父子窗口满足“同源策略”，你可以通过这个引用访问新窗口的属性或方法。
 
@@ -832,7 +849,7 @@ try {
 
 ### BroadcastChannel
 
-仅在同源的上下文中有效。
+仅在**同源**的上下文中有效。通过频道名称来进行独立通信，**同一页面**的两个 BroadcastChannel 对象是**相互独立的**。
 
 ```js
 // A.html

@@ -845,7 +845,7 @@ console.profileEnd("MyProfile");
 
 ### 深拷贝 structuredClone()
 
-现在，JavaScript 内置了一个 `structuredClone()` 的方法， 此方法提供了一种简单有效的方法来深度克隆对象， 且适用于大多数现代浏览器和 Node.js v17 以上。`structuredClone()` 允许您克隆循环引用，这是目前在 JavaScript 中使用深拷贝最简单的方法。
+现在，JavaScript 内置了一个 `structuredClone()` 的方法， 此方法提供了一种简单有效的方法来深度克隆对象，且适用于大多数现代浏览器和 Node.js v17 以上。`structuredClone()` 允许您克隆循环引用，这是目前在 JavaScript 中使用深拷贝最简单的方法。无论是普通函数还是箭头函数，structuredClone 都无法克隆，貌似会直接报错。
 
 ### 带标签的模板
 
