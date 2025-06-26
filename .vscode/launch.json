@@ -5,6 +5,13 @@
   "version": "0.3.0",
   "configurations": [
     {
+      "name": "Nodejs: Launch Program",
+      "program": "${file}",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    },
+    {
       "name": "Python: Current File",
       "type": "debugpy",
       "request": "launch",

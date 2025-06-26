@@ -40,7 +40,7 @@ const longestString = (str, n) => {
       if (Number.isNaN(Number(str[j])) && countNum < n) {
         countNum++;
       }
-      // 如果已经遍历到最后一个了，或者，数字的个数已经是n了而且下一个字符还是数字，那就终止遍历，计算当前的长度和max取较大值。
+      // 如果已经遍历到最后一个了，或者，字母的个数已经是n了而且下一个字符还是字母，那就终止遍历，计算当前的长度和max取较大值。
       if (j === len - 1 || (countNum === n && Number.isNaN(Number(str[j + 1])))) {
         max = Math.max(max, j - i + 1);
         break;

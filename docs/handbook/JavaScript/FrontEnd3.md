@@ -314,7 +314,7 @@ originalObject.circular = originalObject;
 const copied = structuredClone(originalObject);
 ```
 
-- 在 JavaScript 中，可转移对象（Transferable Objects）是指 ArrayBuffer 和 MessagePort 等类型的对象，它们可以在主线程和 Web Worker 线程之间相互传递，同时还可以实现零拷贝内存共享，提高性能。这是由于可转移对象具有两个特点：
+- 在 JavaScript 中，`可转移对象`（Transferable Objects）是指 `ArrayBuffer` 和 `MessagePort` 等类型的对象，它们可以`在主线程和 Web Worker 线程`之间`相互传递`，同时还可以`实现零拷贝内存共享`，提高性能。这是由于可转移对象具有两个特点：
 
   1. 可共享：可转移对象本身没有所有权，可以在多个线程之间共享，实现零拷贝内存共享。
   2. 可转移：调用 Transferable API 时，可转移对象会从发送方（发送线程）转移到接收方（接收线程），不再存在于原始线程中，因此可以避免内存拷贝和分配等开销。

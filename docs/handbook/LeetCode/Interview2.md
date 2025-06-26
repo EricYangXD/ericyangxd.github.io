@@ -2731,8 +2731,8 @@ console.log(4);
 //     id: 1,
 //     parentId: null,
 //     children: [
-//       { id: 3, parentId: null, children: [{ id: 5, parentId: null, children: [] }] },
-//       { id: 4, parentId: null, children: [] },
+//       { id: 3, parentId: 1, children: [{ id: 5, parentId: 3, children: [] }] },
+//       { id: 4, parentId: 1, children: [] },
 //     ],
 //   },
 //   { id: 2, parentId: null, children: [] })

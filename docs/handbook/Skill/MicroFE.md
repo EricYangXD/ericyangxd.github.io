@@ -57,6 +57,16 @@ qiankun 是一个基于 single-spa 的微前端实现库，旨在帮助大家能
 
 这里必然要涉及前端的跨域问题，尤其是当主应用和微应用的域名不一致时，qiankun 客户端如何能够在跨域的限制之下获取到微应用的页面资源？一个解决方案是主应用提供一个鉴权秘钥下发的接口 signUrl，这个接口由微应用提供也可以，将秘钥信息下发到 cookie 中，通过配置 qiankun 自定义 fetch 方法，带上这些鉴权信息。官方也提供了一些通用方案以供参考。
 
+#### 实现原理
+
+1. 主应用与子应用注册&加载：主应用通过 `registerMicroApps` 注册多个子应用，每个子应用指定自己的入口（如 HTML 地址）、激活规则（如路由前缀）、挂载节点等。当用户访问某路由，主应用判断符合哪个子应用的激活规则 activeRule，就去加载该子应用。
+2. 子应用资源加载与渲染：qiankun 会请求子应用的入口 HTML（比如 `http://localhost:7100`），解析出里面的 JS/CSS 静态资源。HTML Entry 解析：qiankun 会把入口 HTML 的 `<script>`、`<link>` 等标签提取出来，转为字符串或 Blob，然后通过 DOM API 动态插入到主页面，实现“远程加载”。加载完成后，调用子应用暴露的生命周期方法（`bootstrap`、`mount`、`unmount`），将其渲染到指定容器中。
+3. 沙箱隔离机制：
+   - JS 执行环境隔离（沙箱）：qiankun 的核心创新之一是沙箱机制。它利用 ES6 Proxy 技术，为每个子应用创建一个“伪造”的 window 对象（叫 sandbox）。子应用里的全局变量/方法操作，如 `window.xxx = ...`，其实只会影响自己的沙箱，不会污染主应用或其他子应用的 window。当切换到别的子应用时，当前沙箱被销毁或失效，新沙箱接管 window 操作。
+   - 样式隔离：qiankun 支持 CSS 隔离方案：`Scoped CSS`：给所有样式选择器加上前缀，只作用于本子应用容器。`Shadow DOM（可选）`：让样式天然不外泄，但兼容性有限。避免不同子应用间样式冲突。
+4. 生命周期管理：每个子应用需要导出如下生命周期函数：`bootstrap、mount、unmount`。qiankun 在加载/卸载/切换时会自动调用这些生命周期函数，完成子应用的加载、渲染和卸载。
+5. 通信机制：提供全局通信对象（initGlobalState），主/子可以共享状态或发送事件，实现跨项目通信。支持自定义事件、props 传递等多种方式。如：EventEmitter、url 传参、EventBus 时间事件等。
+
 #### 主应用的选择
 
 通常主应用作为基座，负责整体布局、路由导航和子应用的加载。主应用可以使用任何框架，但需要支持微前端框架的要求。比如 qiankun 推荐主应用使用 React 或者 Vue，但也可以纯 JavaScript。
@@ -538,3 +548,59 @@ spec:
 13. 本地推送代码触发流水线自动触发流程：`GitLab → Jenkins → Docker → Kubernetes → 应用部署`。
 14. 验证部署：`sudo kubectl get pods`，`curl http://<云主机IP>:30080`。
 15. 生产环境建议分离组件到不同节点。使用 Harbor 替代本地 Docker Registry 管理镜像。
+
+## 前端沙箱机制
+
+### iframe 沙箱
+
+每个子应用放在独立的 `<iframe>` 中。浏览器天然为 iframe 提供了 JS/CSS/DOM 的隔离。
+
+- 优点
+  - 隔离彻底，安全性高。
+- 缺点
+  - 性能差，每个 iframe 都有独立渲染进程。
+  - 跨窗口通信麻烦，体验不佳，不利于 SEO 和 SPA 路由。
+
+### JS 沙箱（Proxy 代理 window）
+
+现代微前端框架（如 qiankun）常用方案。利用 ES6 Proxy 特性，为每个子应用创建一个“假的 window 对象”。当子应用内代码访问 window.xxx 时，其实访问的是代理对象的数据空间，而不是真正的全局 window。
+
+- 优点
+  - 单页面多实例，可灵活加载/卸载。
+  - 性能好，通信方便。
+- 缺点
+  - 无法完全隔离 DOM 操作（如直接操作 document）。
+  - 某些第三方库可能绕过代理直接挂载到真实 window。
+
+```js
+const fakeWindow = {};
+const sandbox = new Proxy(window, {
+  get(target, key) {
+    // 优先从 fakeWindow 拿
+    if (key in fakeWindow) return fakeWindow[key];
+    // 否则 fallback 到真实 window
+    return target[key];
+  },
+  set(target, key, value) {
+    // 写操作只写到 fakeWindow
+    fakeWindow[key] = value;
+    return true;
+  },
+});
+
+// 在 eval 或 new Function 中绑定 sandbox 为 this
+(function () {
+  with (sandbox) {
+    eval("window.a = 123"); // 实际写入的是 fakeWindow.a
+    console.log(window.location); // 能访问到真实 location
+  }
+})();
+```
+
+### Shadow DOM + Scoped CSS
+
+用于样式隔离。将每个子应用挂载到一个带 ShadowRoot 的节点下，实现 CSS 隔离，防止样式污染其他区域。Web Components 就是基于 Shadow DOM 实现的。
+
+### VM/Sandbox 环境（如 Web Worker、iframe CSP）
+
+更高级的隔离，如 Web Worker 可做纯 JS 沙盒，但无法访问 DOM。也有基于 CSP 限制 iframe 权限做更细粒度隔离的方案，但实际用得较少。

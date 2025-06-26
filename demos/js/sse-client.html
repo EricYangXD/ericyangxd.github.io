@@ -9,7 +9,9 @@
     <div id="output"></div>
 
     <script>
-      const eventSource = new EventSource("/events");
+      // const eventSource = new EventSource("http://localhost:5000/events");
+      const eventSource = new EventSource("http://localhost:3001/events");
+      // const eventSource = new EventSource("/events");
       const output = document.getElementById("output");
 
       eventSource.onopen = function () {
@@ -42,7 +44,7 @@
         output.innerText += `    ${data.message}    `;
       };
 
-      eventSource.onerror = function (err) {
+      eventSource.onerror = function (event) {
         if (event.target.readyState == EventSource.CLOSED) {
           console.log("EventSource closed.");
         } else {

@@ -76,6 +76,15 @@ HEAD 方法可以看做是 GET 方法的一个`简化版`或者`轻量版`。因
 5. 一般浏览器对 URL 长度的最大限制从 2083 个字符（IE）到 19 万个字符（Opera）不等，Chrome-8182 个字符，Apache (Server)-8192 个字符，Firefox-65536 个字符，等等。
 6. 一般，URL 如果包含汉字，会进行转换 encodeURIComponent，如果浏览器的编码为 UTF8 的话，一个汉字最终编码后的字符长度为 9 个字符。因此如果使用的 GET 方法，最大长度等于 URL 最大长度减去实际路径中的字符数。
 
+### 请求时 Cookie 的发送机制
+
+在向后端发送请求时，是什么决定了请求头中要带那些 cookie 传给后端？
+
+1.  域名和路径（Domain & Path）：浏览器只会带上“当前请求 URL”匹配的域名和路径范围内的 Cookie。比如：cookie 设置了 `domain=.example.com; path=/api`，只有在访问 `example.com` 域下 `/api` 路径及其子路径时才会带上。
+2.  安全属性（Secure）：如果 Cookie 设置了 `Secure`，只有在 HTTPS 请求时才会携带。
+3.  SameSite 属性：Lax-默认。部分跨站请求不带（比如 a 标签、GET 表单），一般导航或同源会带；Strict-不允许跨站请求携带 Cookie，包括 GET 和 POST 请求；None-总是允许跨站携带，但必须配合 Secure 来使用。
+4.  请求方式：通常 GET、POST 都会自动按规则附带符合条件的 Cookie。跨域 AJAX 请求还受 CORS 策略影响，需要配置 `withCredentials=true` 并且后端允许。
+
 ### GET VS POST
 
 1. 多数浏览器对于 POST 采用两阶段发送数据的，先发送请求头，再发送请求体，即使参数再少再短，也会被分成两个步骤来发送（相对于 GET），也就是第一步发送 header 数据，第二步再发送 body 部分。HTTP 是应用层的协议，而在传输层有些情况 TCP 会出现两次连结的过程，HTTP 协议本身不保存状态信息，一次请求一次响应。对于 TCP 而言，通信次数越多反而靠性越低，能在一次连结中传输完需要的消息是最可靠的，尽量使用 GET 请求来减少网络耗时。如果通信时间增加，这段时间客户端与服务器端一直保持连接状态，在服务器侧负载可能会增加，可靠性会下降。
@@ -119,10 +128,12 @@ HEAD 方法可以看做是 GET 方法的一个`简化版`或者`轻量版`。因
 | 206                      | 成功，部分内容                                             | Partial Content                 |
 | 重定向消息 (300–399)     |
 | 300                      | 请求拥有不只一个响应                                       | Multiple Choice                 |
-| 301                      | 永久移动，重定向                                           | Moved Permanently               |
-| 302                      | 临时移动，可使用原有 URI                                   | Found                           |
+| 301                      | 永久移动，重定向，请求通常变为 GET                         | Moved Permanently               |
+| 302                      | 临时移动，可使用原有 URI，请求通常变为 GET                 | Found                           |
 | 303                      | 指示客户端通过一个 GET 请求在另一个 URI 中获取所请求的资源 | See Other                       |
 | 304                      | 资源未修改，可使用协商缓存                                 | Not Modified                    |
+| 307                      | 临时重定向，保持原请求方法的临时跳转                       | Temporary Redirect              |
+| 308                      | 永久重定向，保持原请求方法的永久跳转                       | Permanent Redirect              |
 | 客户端错误响应 (400–499) |
 | 400                      | 客户端错误，如请求语法错误                                 | Bad Request                     |
 | 401                      | 要求身份认证，客户端必须对自身进行身份验证                 | Unauthorized                    |
