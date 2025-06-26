@@ -35,12 +35,13 @@
 
 const express = require("express");
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 app.get("/events", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
+  res.setHeader("Access-Control-Allow-Origin", "*");
 
   let count = 0;
   const intervalId = setInterval(() => {
@@ -93,6 +94,7 @@ app.get("/sse", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.write("data: Hello\n\n");
 });
 
@@ -113,6 +115,7 @@ http
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
+        "Access-Control-Allow-Origin": "*", // 允许跨域
       });
 
       // 定时向客户端发送消息
