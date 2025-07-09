@@ -1,10 +1,10 @@
 ---
 title: 代码风格校验配置
-  author: EricYangXD
-  date: 2025-07-09
-  meta:
-    - name: keywords
-      content: 关键字
+author: EricYangXD
+date: '2025-07-09'
+meta:
+  - name: keywords
+    content: 代码风格校验,eslint,prettier,husky
 ---
 
 ## 简介
