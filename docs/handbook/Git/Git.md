@@ -9,6 +9,22 @@ meta:
 
 ## Git 命令
 
+### git init
+初始化仓库
+
+### 设置本地user信息
+在本地`<user>/.ssh`文件夹下可以找到生成的`id_rsa.pub`文件。
+
+```bash
+# 可以设置也可以修改
+git config --global user.name your-name
+git config --global user.email your-email
+# 推荐使用较新的 ed25519 算法（如果你的系统支持的话），命令如下：
+ssh-keygen -t ed25519 -C "your_email@example.com"
+# 如果系统不支持 ed25519，也可以使用 RSA 算法：
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+```
+
 ### git rebase
 
 > 不要对在你的仓库外有副本的分支执行变基。
