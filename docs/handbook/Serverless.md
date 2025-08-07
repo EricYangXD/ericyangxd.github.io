@@ -541,6 +541,40 @@ config 文件：
 16. 多次请求的日志可能会根据vin或者其他条件聚合到一条记录里
 
 
+1. **必须重新部署应用**才能让更新的 SSM 参数生效， `{{resolve:ssm:...}}` 会在 **部署阶段** 将 SSM 参数值硬编码到 Lambda 环境变量中，运行时不会动态更新。`npx sst deploy`，如果使用 `sst dev` 开发模式，也需要重启本地开发环境。
+
+2. **动态获取方式**：
+   
+   * 无需重新部署，参数修改后下一次 Lambda 执行立即生效。
+   
+   * **代价**：增加约 100ms 的 SSM API 调用延迟。
+   
+   ```
+   // 1. 移除环境变量中的 `{{resolve:ssm:...}}` 定义
+   // 2. 在代码中动态获取（示例）
+   import { SSM } from "aws-sdk";
+   const ssm = new SSM();
+   
+   export async function handler() { 
+       const paramName = `/sst/push-platform/${process.env.currentStage}/Parameter/MPM_DESCCODE_LIST/value`; 
+       const { Parameter } = await ssm.getParameter({ Name: paramName, WithDecryption: true }).promise(); 
+       const MPM_DESCCODE_LIST = Parameter?.Value; 
+       console.log(MPM_DESCCODE_LIST); // 每次执行获取最新值
+   }
+   ```
+
+3. | `Config.Parameter + fetch()` | 仅注入参数名 | 每次执行动态获取最新值 |
+   | ---------------------------- | ------ | ----------- |
+
+4. **静态注入（部署时注入）**  
+   在 `sst.config.ts` 中使用 `Config` 模块直接注入值（如 `MY_PARAM: new Config.Parameter(...)`），则需重新部署。
+
+5. ```
+   XXX:{{resolve:ssm:/sst/${app.name}/${currentStage}/Parameter/MPM_DESCCODE_LIST/value:2}}
+   // 不加上:2版本号则默认使用最新版本，但是仍需要重新部署
+   ```
+   
+ 
 
 
 #### Pipeline Buildkite
