@@ -619,3 +619,11 @@ jobs:
         run: |
           echo "Complete Successfully!"
 ```
+
+
+### 跨平台代码格式问题
+
+1. Git 中文件换行符问题涉及 LF（Line Feed，换行符）和 CRLF（Carriage Return + Line Feed，即回车换行）的设置。在 Windows 系统上，如果不希望 Git 自动将 LF 转换为 CRLF，可以设置 autocrlf 为 input 或 false。推荐使用 input（只在提交时转换为 LF），如果你希望在 Git 中统一使用 LF，可以参考以下方法：`git config --global core.autocrlf input`
+
+2. “refs/remotes/origin/HEAD cannot be resolved to branch” 表明 Git 无法解析远程仓库的 HEAD 指向的分支。通常情况下，远程仓库在初始化时会将 HEAD 指向一个默认分支（比如 master 或 main），如果远程仓库中的默认分支被删除或没有正确设置，Git 就会报这个错误。可以尝试运行下面的命令来重新设置远程 HEAD：  `git remote set-head origin -a` 
+   这条命令会自动检测远程仓库中存在的分支，并将 HEAD 指向其中一个。
