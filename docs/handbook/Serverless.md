@@ -373,9 +373,9 @@ export default class DynamoDbService {
 
 #### 如何创建一个AWS SST项目
 
-0. 搜索AWS相关插件并安装
+0. 搜索AWS相关插件并安装，aws-cli，等
 
-1. 同步代码安装依赖，新建项目：`npx create-sst@two my-sst-app`，启动：`npx sst dev`
+1. 同步代码安装依赖，新建项目：`npx create-sst@two my-sst-app`，启动：`npx sst dev`， `npm start`，可以在`.sst/stage`下自定义stage名称。
 
 2. 配置本地开发调试环境，通过调试启动项目之后可以在编辑器中打断点
    
@@ -469,9 +469,78 @@ export function DbStack({stack}: StackContext) {
 
   return {deviceTable, messageTable};
 }
-
-
 ```
+
+5. `aws sts get-caller-identity --profile xinde-yang-dev` 查看某个环境的凭证配置
+
+6. `aws sso login` 登录之后从AWS access portal=>应用=>获取 `[PowerUser]` 的凭证=>AWS IAM Identity Center 凭证（推荐），获取需要配置的SSO URL和region
+
+7. 跑测试的时候需要更新本地配置的.env文件，访问秘钥从AWS access portal处获取
+
+8. `npx sst secrets list --stage xinde-yang-dev` 查询某个环境下的secrets等配置
+
+9. 配置环境参数
+   
+   ```ts
+   npx sst secrets set STRIPE_KEY_XINDE sk_test_abc123
+   npx sst configs  --stage prod set STRIPE_KEY_XINDE sk_test_abc123 指定stage
+   // 直接在aws cloudshell中配置
+   aws ssm put-parameter --name "/sst/my-app/xinde-yang-dev/Secret/MESSAGE_API_KEY/value" --type SecureString --value "xxx" --region eu-central-1
+   
+   如果你已经安装并配置好 AWS CLI，就可以通过下面的命令来创建参数：
+   
+   ① 创建普通字符串类型的参数：
+     aws ssm put-parameter --name "/my/parameter" --type String --value "这是参数值"
+   
+   ② 创建 SecureString（加密型）参数：
+     aws ssm put-parameter --name "/my/secure/parameter" --type SecureString --value "密文参数值"
+   
+   ③ 如果需要更新已经存在的参数，则需要加上 --overwrite 参数：
+     aws ssm put-parameter --name "/my/parameter" --type String --value "新值" --overwrite
+   
+   命令执行后，就会在 Parameter Store 中创建或更新相应的参数。
+   
+   // 设置正确的token和secret key之后，通过aws插件连接对应的环境，之后就可以通过这个命令来设置SSM的secret和parameter。
+   // 获取使用config
+   import { Config } from "sst/node/config";
+   export async function getServerSideProps() { 
+     console.log(Config.VERSION, Config.STRIPE_KEY);
+   
+     return { props: { loaded: true } };
+   }
+   
+   // 为某个应用绑定
+   const site = new NextjsSite(stack, "site", {
+   + bind: [VERSION, STRIPE_KEY],
+     path: "packages/web",
+   });
+   
+   // 在代码中定义
+   const VERSION = new Config.Parameter/Secret(stack, "VERSION", { value: "1.2.0",});
+   ```
+
+10. 本地项目配置:
+
+```textile
+.aws 文件夹下主要有两个文件，分别为 credentials 和 config，它们的主要作用如下：
+credentials 文件：
+  • 用于存储 AWS 访问凭证，包括 Access Key ID、Secret Access Key，有时还会包含 Session Token。这些凭证用于身份验证，确保你在使用 AWS CLI、SDK 或其他工具时拥有合法的权限访问 AWS 资源。格式通常采用 ini 格式，支持配置多个 profile，每个 profile 都对应一组凭证。
+
+config 文件：
+  • 用于存储 AWS 客户端的配置信息，比如默认的区域（region）、输出格式等。 文件中也支持配置多个 profile，每个 profile 可以有不同的区域设置等。
+
+总的来说，credentials 文件主要管理访问权限信息，而 config 文件则配置一些环境和客户端设置。两者配合使用，使得 AWS CLI 和 SDK 能够方便地进行身份认证和环境配置。
+```
+
+11. `ssm  system manager - prameter store -config.secret search  key`
+12. `npx eslint --ext .ts,.vue src/utils/http/index.ts --fix`
+      `"lint:fix": "vue-tsc --noEmit --noEmitOnError --pretty && eslint --ext .ts,.vue src --fix"`
+13. 一个stack就是一个最小的资源，可以用来部署，可能包含多个不同的资源
+14. datadog管理日志的工具，快速查看某些服务下的日志
+15. 在cloudformation的resource tab下，会列出所有创建的资源
+16. 多次请求的日志可能会根据vin或者其他条件聚合到一条记录里
+
+
 
 
 #### Pipeline Buildkite
