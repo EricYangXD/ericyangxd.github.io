@@ -627,3 +627,6 @@ jobs:
 
 2. “refs/remotes/origin/HEAD cannot be resolved to branch” 表明 Git 无法解析远程仓库的 HEAD 指向的分支。通常情况下，远程仓库在初始化时会将 HEAD 指向一个默认分支（比如 master 或 main），如果远程仓库中的默认分支被删除或没有正确设置，Git 就会报这个错误。可以尝试运行下面的命令来重新设置远程 HEAD：  `git remote set-head origin -a` 
    这条命令会自动检测远程仓库中存在的分支，并将 HEAD 指向其中一个。
+
+3. 同时 stash 未被跟踪的文件（untracked files）：`git stash push --include-untracked -m "你的 stash 描述"`
+
