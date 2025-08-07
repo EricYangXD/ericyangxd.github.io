@@ -11,6 +11,14 @@
 
 
 ```ts
+// logger.ts
+import {Logger} from '@aws-lambda-powertools/logger';
+
+export const logger = new Logger({
+  serviceName: process.env.SST_APP,
+  logLevel: process.env.SST_STAGE === `prod` ? `INFO` : `DEBUG`,
+});
+
 // DbHelper.ts
 import {DocumentClient} from 'aws-sdk/lib/dynamodb/document_client';
 import {AppRequest} from '../appApi/model/AppRequest';
