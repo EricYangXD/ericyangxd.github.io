@@ -495,3 +495,143 @@ Cheerio 是 jQuery 的一个子集的服务端实现，为开发者提供了熟�
 #### 其他常用的的库
 
 Lodash、Axios、Axios-retry、Superagent、dayjs、date-fns、rxjs、jest、ramda、ejs、
+
+
+## 处理转换csv和json文件
+
+```ts
+import fs from 'fs';
+import csv from 'csv-parser';
+import {stringify} from 'csv-stringify/sync';
+
+interface LocalizedNotification {
+  [language: string]: {
+    M: {
+      title: {
+        S: string;
+      };
+      description?: {
+        S: string;
+      };
+    };
+  };
+}
+
+interface Message {
+  PartitionKey: string;
+  SortKey: string;
+  code: string;
+  descriptionCode: string;
+  ignored: string;
+  localizedNotifications: string;
+  silent: string;
+  titleCode: string;
+}
+
+async function convertCsvToJson(inputFile: string, outputFile: string) {
+  const results: Message[] = [];
+
+  return new Promise<void>((resolve, reject) => {
+    fs.createReadStream(inputFile)
+      .pipe(csv())
+      .on('data', (data: Message) => {
+        if (data['isDeleted'] && data['isDeleted'].toLowerCase() == 'true') {
+          return;
+        }
+        // Process and clean each field
+        const processedData: any = {};
+
+        for (const [key, value] of Object.entries(data)) {
+          // Skip the isDeleted field
+          if (key === 'isDeleted') {
+            continue;
+          }
+
+          // Handle special fields that might contain JSON
+          if (key === 'SortKey' || key === 'descriptionCode') {
+            if (value.startsWith('"') && value.endsWith('"')) {
+              processedData[key] = value.substring(1, value.length - 1);
+            } else {
+              processedData[key] = value;
+            }
+          } else {
+            processedData[key] = value;
+          }
+        }
+
+        results.push(processedData);
+      })
+      .on('end', () => {
+        // fs.writeFileSync(outputFile);
+        fs.writeFileSync(outputFile, JSON.stringify(results, null, 2));
+        console.log(`Converted ${inputFile} to ${outputFile} in UTF-8 format`);
+        resolve();
+      })
+      .on('error', (error) => {
+        reject(error);
+      });
+  });
+}
+
+async function convertJsonToCsv(inputFile: string, outputFile: string) {
+  try {
+    const jsonData = JSON.parse(
+      // remove BOM
+      fs.readFileSync(inputFile, 'utf8').replace(/^\uFEFF/, ''),
+    ) as Message[];
+
+    const csvData = [];
+
+    csvData.push([
+      'PartitionKey',
+      'SortKey',
+      'code',
+      'descriptionCode',
+      'ignored',
+      'localizedNotifications',
+      'silent',
+      'titleCode',
+    ]);
+
+    jsonData.forEach((item: Message) => {
+      const row = [
+        item.PartitionKey,
+        item.SortKey,
+        item.code,
+        item.descriptionCode,
+        item.ignored,
+        item.localizedNotifications,
+        item.silent,
+        item.titleCode,
+      ];
+
+      csvData.push(row);
+    });
+
+    const csvString = stringify(csvData, {
+      quoted: false,
+      encoding: 'utf8',
+    });
+
+    fs.writeFileSync(outputFile, csvString, 'utf8');
+    console.log(`Converted ${inputFile} to ${outputFile} in UTF-8 format`);
+  } catch (error) {
+    console.error('Error converting JSON to CSV:', error);
+    throw error;
+  }
+}
+
+const resultsCsvPath = 'data/results.csv';
+const resultsJsonPath = 'data/results.json';
+const resultsCleanedCsvPath = 'data/results_cleaned.csv';
+
+await convertCsvToJson(resultsCsvPath, resultsJsonPath)
+  .then(() => console.log('CSV to JSON conversion completed'))
+  .catch((error) => console.error('Error converting CSV to JSON:', error));
+
+await convertJsonToCsv(resultsJsonPath, resultsCleanedCsvPath)
+  .then(() => console.log('JSON to CSV conversion completed'))
+  .catch((error) => console.error('Error converting JSON to CSV:', error));
+
+```
+
