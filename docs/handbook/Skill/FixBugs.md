@@ -350,3 +350,48 @@ export class TableSortingExample implements OnInit {
   }
 }
 ```
+
+### 零宽字符/BOM编码
+
+在 UTF-8 编码中，BOM（Byte Order Mark） 是一个三个字节的特殊标记：
+
+```bash
+EF BB BF  // UTF-8 BOM
+```
+
+它常用于文本文件开头，用来声明“这是 UTF-8 编码”。 但是在 JavaScript 字符串中，如果字符串字面量前带 BOM，那这个字符是会保留的，变成 \uFEFF。
+
+```js
+let a=`﻿PMEW`;
+console.log(a);       // 看起来是 PMEW
+console.log(a.length); // 5，实际长度多了1
+console.log(a.charCodeAt(0).toString(16)); // feff
+```
+
+如何去掉这个 hidden char:
+
+```js
+// 方法 1：正则替换所有 BOM/零宽字符
+a = a.replace(/^\uFEFF/, "");
+
+// 方法 2：trim 掉特殊空白符也能处理，但要注意只对开头有效
+a = a.trimStart();
+
+// 方法 3：手动检测并裁剪
+if (a.charCodeAt(0) === 0xFEFF) {
+    a = a.slice(1);
+}
+```
+
+避免这种情况：
+
+- 用 VSCode、Sublime 等编辑器时保存为 UTF-8 without BOM 格式。
+- 从文件或 API 获取数据时，检查是否有 BOM，例如 Node.js 读取文件：
+
+```js
+let text = fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, '');
+```
+
+
+
+
