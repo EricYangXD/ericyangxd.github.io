@@ -492,10 +492,43 @@ Cheerio 是 jQuery 的一个子集的服务端实现，为开发者提供了熟�
 
 在 Web 开发中，重复性的任务如代码编译、压缩、质量检查等往往耗时费力。Grunt 作为一个 JavaScript 任务管理工具，通过自动化这些任务，极大地提升了开发效率。通过配置文件（Gruntfile），Grunt 可以定义任务和插件，使开发流程更加流畅和高效。
 
+#### prompt-sync
+
+```js
+import prompt from "prompt-sync";
+const confirm = prompt()(`⚠ You are running in ${stage} environment, continue? (yes/no) `);
+if (confirm !== "yes") process.exit(0);
+```
+
+#### child_process
+
+执行nodejs脚本
+
+```ts
+import { spawnSync } from "child_process";
+import path from "path";
+
+function runScript(scriptName: string, args: string[] = []) {
+  console.log(`\n=== Running ${scriptName} ${args.join(" ")} ===`);
+  const fullPath = path.resolve(`scripts/${scriptName}`);
+  const result = spawnSync("npx", ["tsx", fullPath, ...args], { stdio: "inherit" });
+
+  if (result.status !== 0) {
+    console.error(`❌ Script ${scriptName} failed`);
+    process.exit(1);
+  }
+}
+```
+
 #### 其他常用的的库
 
 Lodash、Axios、Axios-retry、Superagent、dayjs、date-fns、rxjs、jest、ramda、ejs、
 
+### pnpm
+
+1. 用 npm 全局装：`npm install -g pnpm`
+2. 用 corepack（Node 自带，从 16.13+ 开始）：`corepack enable`, `corepack prepare pnpm@latest --activate`
+3. 用 npx 临时调用：`npx pnpm install`
 
 ## 处理转换csv和json文件
 
