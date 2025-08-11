@@ -92,7 +92,7 @@ const enUsername = encrypt("username");
 module.exports = {
   parser: "@typescript-eslint/parser",
   // extends: ['xxxx', 'prettier'],
-  plugins: ["@typescript-eslint", "prettier"],
+  plugins: ["@typescript-eslint", "prettier", `eslint-plugin-import`, `unused-imports`],
   // ignorePatterns: ['/src/components/xxxx/*'],
   env: {
     browser: true,
