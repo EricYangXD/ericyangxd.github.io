@@ -478,10 +478,25 @@ export function DbStack({stack}: StackContext) {
 7. 跑测试的时候需要更新本地配置的.env文件，访问秘钥从AWS access portal处获取
 
 8. `npx sst secrets list --stage xinde-yang-dev` 查询某个环境下的secrets等配置
+9. SST部署之前需要配置AWS证书，Access Key & Secret，`aws configure --profile env-name`
+  
+10. 本地测试：`AWS_PROFILE=smartDev npx sst dev --stage dev --region eu-central-1`
+  
+11. 单元测试：`AWS_PROFILE=smartDev npx sst bind "vitest run"`
+  
+12. 部署：`AWS_PROFILE=smartDev npx sst deploy --stage dev --region eu-central-1`
 
-9. 配置环境参数
+13. 配置环境参数
    
    ```ts
+   // 配置secrets
+   // 增、改
+   AWS_PROFILE=smartDev npx sst secrets set <TOKEN_NAME> <TOKEN_VALUE> --stage dev --region eu-central-1
+   // 查
+   AWS_PROFILE=smartDev npx sst secrets get <TOKEN_NAME> --stage dev --region eu-central-1
+   // 删
+   AWS_PROFILE=smartDev npx sst secrets remove <TOKEN_NAME> --stage dev --region eu-central-1
+
    npx sst secrets set STRIPE_KEY_XINDE sk_test_abc123
    npx sst configs  --stage prod set STRIPE_KEY_XINDE sk_test_abc123 指定stage
    // 直接在aws cloudshell中配置
@@ -519,7 +534,7 @@ export function DbStack({stack}: StackContext) {
    const VERSION = new Config.Parameter/Secret(stack, "VERSION", { value: "1.2.0",});
    ```
 
-10. 本地项目配置:
+14. 本地项目配置:
 
 ```textile
 .aws 文件夹下主要有两个文件，分别为 credentials 和 config，它们的主要作用如下：
@@ -532,13 +547,13 @@ config 文件：
 总的来说，credentials 文件主要管理访问权限信息，而 config 文件则配置一些环境和客户端设置。两者配合使用，使得 AWS CLI 和 SDK 能够方便地进行身份认证和环境配置。
 ```
 
-11. `ssm  system manager - prameter store -config.secret search  key`
-12. `npx eslint --ext .ts,.vue src/utils/http/index.ts --fix`
+15. `ssm  system manager - prameter store -config.secret search  key`
+16. `npx eslint --ext .ts,.vue src/utils/http/index.ts --fix`
       `"lint:fix": "vue-tsc --noEmit --noEmitOnError --pretty && eslint --ext .ts,.vue src --fix"`
-13. 一个stack就是一个最小的资源，可以用来部署，可能包含多个不同的资源
-14. datadog管理日志的工具，快速查看某些服务下的日志
-15. 在cloudformation的resource tab下，会列出所有创建的资源
-16. 多次请求的日志可能会根据vin或者其他条件聚合到一条记录里
+17. 一个stack就是一个最小的资源，可以用来部署，可能包含多个不同的资源
+18. datadog管理日志的工具，快速查看某些服务下的日志
+19. 在cloudformation的resource tab下，会列出所有创建的资源
+20. 多次请求的日志可能会根据vin或者其他条件聚合到一条记录里
 
 
 1. **必须重新部署应用**才能让更新的 SSM 参数生效， `{{resolve:ssm:...}}` 会在 **部署阶段** 将 SSM 参数值硬编码到 Lambda 环境变量中，运行时不会动态更新。`npx sst deploy`，如果使用 `sst dev` 开发模式，也需要重启本地开发环境。
