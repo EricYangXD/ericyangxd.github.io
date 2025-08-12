@@ -668,3 +668,268 @@ await convertJsonToCsv(resultsJsonPath, resultsCleanedCsvPath)
 
 ```
 
+### 执行脚本
+
+1. Node.js 原生 child_process 模块
+
+|API	|同步/异步	|特点	|适用场景|
+|--|--|--|--|
+|exec	|异步	|直接执行一个 shell 命令，通过回调拿到 stdout/stderr（整个输出结果会缓存在内存，再一次性返回）|	快速执行小命令，输出不大（否则缓冲可能溢出）|
+|execSync	|同步|	同上，但是阻塞式	|启动简单任务并需要等待结束才继续|
+|spawn	|异步	|流式处理 stdout/stderr，不会缓存整块结果|	处理大量输出（比如日志很多的脚本）|
+|spawnSync	|同步	|和 spawn 一样支持流，但会等待完成|	当前逻辑必须等命令执行完才能继续|
+|fork	|异步|	专门用于执行 Node.js 子脚本（等于创建一个新的 Node 进程），主进程与子进程可互相用 process.send() 通信	|拆分长时间运行的 Node 子任务|
+
+   - 输出内容少 → exec/execSync 比较方便
+   - 输出内容大 → 直接用 spawn/spawnSync 流式写文件/打印
+   - 只是运行 Node 文件 → 用 fork 最干净，自动用同版本 Node 运行
+
+2. 通过 JS import/require 执行（同进程），如果目标文件也是 JavaScript/TypeScript 模块，且你希望直接在当前进程里运行它，可以用：
+
+   - require('./path/to/file.js')
+   - import('./path/to/file.js')（动态导入，返回 Promise）
+   - 直接调用模块里的方法，而不是跑一个新进程。
+   - 优点：不会额外启动 Node 进程，可以直接传递变量，而不是靠 CLI 参数/环境变量 
+   - 缺点：同一进程，共享全局状态，可能被目标脚本里修改（例如覆盖全局变量）
+
+3. 更高层封装的三方库
+
+   - execa：类似 child_process.spawn，但是 API 更友好，Promise 化，自动捕获 stdout/stderr，也可以继承输出，可以直接传数组形式的命令和参数
+   - shelljs：适合写跨平台脚本
+   - cross-spawn：对 spawn 的跨平台兼容处理，特别是在 Windows 上处理 .cmd/.bat
+   - zx：允许你直接用模板字符串写 shell 命令
+
+4. 在 Node 中运行 Shell 或其他语言解释器
+   - node-pty，模拟一个终端去运行程序，支持交互式命令行（例如运行 aws sso login 这种需要输入的）
+   - pty.js
+   - 如果是 Python/Go/Rust 等其他语言的程序，也可以用 spawn 或 exec 运行对应的解释器/二进制文件（Python 的话就是 python myscript.py args）。
+5. 如果专门是 TypeScript 脚本，可以用 ts-node 或 tsx 直接运行
+
+```ts
+import {spawnSync} from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import prompt from 'prompt-sync';
+import execa from 'execa';
+
+// ===== Ensure logs directory exists =====
+const logsDir = path.resolve('logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, {recursive: true});
+}
+
+// ===== Create log file name based on current timestamp =====
+function getTimestamp() {
+  const now = new Date();
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return (
+    now.getFullYear() +
+    pad(now.getMonth() + 1) +
+    pad(now.getDate()) +
+    '-' +
+    pad(now.getHours()) +
+    pad(now.getMinutes()) +
+    pad(now.getSeconds())
+  );
+}
+const logFilePath = path.join(logsDir, `release-${getTimestamp()}.txt`);
+
+// ===== Utility: Write logs to file and console =====
+function log(message: string) {
+  console.log(message);
+  fs.appendFileSync(logFilePath, message + '\n');
+}
+
+// ===== Parse CLI arguments =====
+const args = process.argv.slice(2);
+const argMap: Record<string, string | boolean> = {};
+for (let i = 0; i < args.length; i++) {
+  const arg = args[i];
+  if (arg.startsWith('--')) {
+    const [key, value] = arg.split('=');
+    const cleanKey = key.replace(/^--/, '');
+    if (value !== undefined) {
+      argMap[cleanKey] = value;
+    } else {
+      const next = args[i + 1];
+      if (next && !next.startsWith('--')) {
+        argMap[cleanKey] = next;
+        i++;
+      } else {
+        argMap[cleanKey] = true;
+      }
+    }
+  }
+}
+
+// Default args
+const stage = typeof argMap.stage === 'string' ? argMap.stage : 'test';
+const dryRun = Boolean(argMap['dry-run']);
+const tasksInput =
+  typeof argMap.tasks === 'string'
+    ? (argMap.tasks as string)
+    : 'compare,delete,insert,update';
+const tasks = tasksInput.split(',').map((t) => t.trim());
+
+// ===== Confirm for production =====
+if (stage === 'prod' && !dryRun) {
+  const p = prompt();
+  const confirm = p(
+    `⚠️  You are running in PROD environment. Are you sure? (yes/no): `,
+  );
+  if (confirm.toLowerCase() !== 'yes') {
+    log('🚫 Execution canceled by user.');
+    process.exit(0);
+  }
+}
+
+// // ===== Helper to run a given script =====
+// 不行~~
+// function runScript(scriptName: string, args: string[] = []) {
+//   const fullPath = path.resolve(`scripts/${scriptName}`);
+//   if (dryRun) {
+//     log(`[DryRun] npx tsx ${fullPath} ${args.join(' ')}`);
+//     return;
+//   }
+//   log(`\n=== Running ${scriptName} ${args.join(' ')} ===`);
+//   const result = spawnSync('npx', ['tsx', fullPath, ...args], {
+//     stdio: 'inherit',
+//     env: process.env,
+//   });
+
+//   // Capture stdout and stderr from the child process
+//   if (result.stdout) log(result.stdout.toString());
+//   if (result.stderr) log(result.stderr.toString());
+
+//   if (result.status !== 0) {
+//     log(`❌ Script ${scriptName} failed`);
+//     process.exit(1);
+//   }
+// }
+
+// 不行~~
+// function runScript(scriptName: string, args: string[] = []) {
+//   const fullPath = path.resolve(`scripts/${scriptName}`);
+//   if (dryRun) {
+//     log(`[DryRun] npx tsx ${fullPath} ${args.join(' ')}`);
+//     return;
+//   }
+//   log(`\n=== Running ${scriptName} ${args.join(' ')} ===`);
+//   const result = spawnSync('npx', ['tsx', fullPath, ...args], {
+//     encoding: 'utf-8',
+//     maxBuffer: 50 * 1024 * 1024, // 防止大输出阻塞
+//     env: process.env,
+//     stdio: 'inherit',
+//   });
+
+//   if (result.stdout) log(result.stdout);
+//   if (result.stderr) log(result.stderr);
+
+//   if (result.status !== 0) {
+//     log(`❌ Script ${scriptName} failed`);
+//     process.exit(1);
+//   }
+// }
+
+// 可以
+async function runScript(scriptName: string, args: string[] = []) {
+  const fullPath = path.resolve(`scripts/${scriptName}`);
+
+  if (dryRun) {
+    log(`[DryRun] npx tsx ${fullPath} ${args.join(' ')}`);
+    return;
+  }
+
+  log(`\n=== Running npx tsx ${fullPath} ${args.join(' ')} ===`);
+
+  try {
+    const subprocess = execa('npx', ['tsx', fullPath, ...args], {
+      stdio: ['inherit', 'pipe', 'pipe'],
+      env: process.env,
+    });
+
+    subprocess.stdout?.on('data', (chunk) => {
+      const msg = chunk.toString();
+      process.stdout.write(msg);
+      fs.appendFileSync(logFilePath, msg);
+    });
+    subprocess.stderr?.on('data', (chunk) => {
+      const msg = chunk.toString();
+      process.stderr.write(msg);
+      fs.appendFileSync(logFilePath, msg);
+    });
+
+    await subprocess;
+    log(`✅ Script ${scriptName} completed`);
+  } catch (error) {
+    log(`❌ Script ${scriptName} failed`);
+    process.exit(1);
+  }
+}
+
+// ===== Task implementations =====
+function task_compare() {
+  runScript('compare-prod-dev-message-table.ts', [
+    stage,
+    stage === 'dev' ? 'test' : 'dev',
+  ]);
+}
+function task_delete() {
+  runScript('delete-messages-in-message-table.ts', [stage]);
+}
+function task_insert() {
+  runScript('generate-csv-by-json.ts', [
+    'data/messages/dump/to-insert.json',
+    'data/messages/deploy/2025-08-18/to-insert.csv',
+  ]);
+  runScript('import-csv-to-message-table.ts', [
+    'data/messages/deploy/2025-08-18/to-insert.csv',
+    stage,
+  ]);
+}
+function task_update() {
+  runScript('generate-csv-by-json.ts', [
+    'data/messages/dump/to-update.json',
+    'data/messages/deploy/2025-08-18/to-update.csv',
+  ]);
+  runScript('import-csv-to-message-table.ts', [
+    'data/messages/deploy/2025-08-18/to-update.csv',
+    stage,
+  ]);
+}
+
+// ===== Task mapping =====
+const taskMap: Record<string, () => void> = {
+  compare: task_compare,
+  delete: task_delete,
+  insert: task_insert,
+  update: task_update,
+};
+
+// ===== Main execution flow =====
+log(`🚀 Release start for stage: ${stage}`);
+log(`Tasks to run: ${tasks.join(', ')}`);
+if (dryRun) {
+  log(`(DryRun Mode - No actual write operations will be made)`);
+}
+
+for (const task of tasks) {
+  const fn = taskMap[task];
+  if (!fn) {
+    log(`⚠️ Unknown task: ${task}, skipped.`);
+    continue;
+  }
+  fn();
+}
+
+log(`\n✅ Release completed for stage: ${stage}`);
+log(`📝 Logs saved to ${logFilePath}`);
+
+```
+
+
+
+
+
+
+
