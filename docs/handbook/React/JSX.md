@@ -1,7 +1,7 @@
 ---
 title: Serverless原理实战
 author: EricYangXD
-date: '2025-08-12'
+date: '2022-01-12'
 ---
 
 ## Serverless
@@ -506,7 +506,7 @@ AWS_PROFILE=smartDev npx sst secrets remove <TOKEN_NAME> --stage dev --region eu
 npx sst secrets set STRIPE_KEY_XINDE sk_test_abc123
 npx sst configs  --stage prod set STRIPE_KEY_XINDE sk_test_abc123 指定stage
 # 直接在aws cloudshell中配置
-aws ssm put-parameter --name "/sst/my-app/xinde-yang-dev/Secret/MESSAGE_API_KEY/value" --type SecureString --value "xxx" --region eu-central-1
+aws ssm put-parameter --name "/sst/my-app/mid-app-dev/Secret/MESSAGE_API_KEY/value" --type SecureString --value "xxx" --region eu-central-1
 
 # 如果你已经安装并配置好 AWS CLI，就可以通过下面的命令来创建参数：
 
