@@ -1,150 +1,737 @@
 ---
-title: JSX原理
+title: Serverless原理实战
 author: EricYangXD
-date: "2022-01-12"
+date: '2022-01-12'
 ---
 
-## JSX 原理
+## Serverless
 
-### babel 编译 jsx
+### AWS SST
 
-- Q:老版本的 React 中，为什么写 jsx 的文件要默认引入 React?
-- A:因为 jsx 在被 babel 编译后，写的 jsx 会变成 `React.createElement` 形式，所以需要引入 React，防止找不到 React 引起报错。
-- 新版本 React 已经不需要引入 `createElement` ，这种模式来源于 `Automatic Runtime`，使用`@babel/plugin-syntax-jsx`插件向文件中提前注入了 `_jsxRuntime api`。不过这种模式下需要我们在 `.babelrc` 设置 `runtime: automatic` 。
+是一个框架，基于AWS。
 
-- jsx 语法最终会被`babel`编译成为`React.createElement()`方法。
+#### util function
 
-比如：
-
-```js
-// element.js
-<div className="wrapper">hello</div>
-```
+1. 查询分为query精确匹配和scan全表扫描，不同的是query可以通过batchGet进行批量查询，然后分别返回对应的结果，而scan每次只能根据一组查询条件去扫描得到0条或多条结果，会消耗较多的RCU，注意控制成本。
+2. query的本质也是拼接查询表达式，需要借助PartitionKey和SortKey等“主键”。
 
 ```js
-// node
-const fs = require("fs");
-const babel = require("@babel/core");
+// logger.ts
+import {Logger} from '@aws-lambda-powertools/logger';
 
-/* 第一步：模拟读取文件内容。 */
-fs.readFile("./element.js", (e, data) => {
-  const code = data.toString("utf-8");
-  /* 第二步：转换 jsx 文件 */
-  const result = babel.transformSync(code, {
-    plugins: ["@babel/plugin-transform-react-jsx"],
-  });
-  /* 第三步：模拟重新写入内容。 */
-  fs.writeFile("./element.js", result.code, function () {});
+export const logger = new Logger({
+  serviceName: process.env.SST_APP,
+  logLevel: process.env.SST_STAGE === `prod` ? `INFO` : `DEBUG`,
 });
+
+// DbHelper.ts
+import {DocumentClient} from 'aws-sdk/lib/dynamodb/document_client';
+import {AppRequest} from '../appApi/model/AppRequest';
+import {
+  ERROR_CODES,
+  MESSAGE_ERROR_PREFIX,
+  MESSAGE_PARTITION_KEY_PREFIX,
+  MESSAGE_SORT_KEY_DESCRIPTION_CODE_PREFIX,
+  MESSAGE_SORT_KEY_TITLE_CODE_PREFIX,
+} from '../common/Constants';
+import {Message} from '../messages/models';
+
+export class DbHelper {
+  private readonly putItems: DocumentClient.PutItemInputAttributeMap[];
+  private readonly deleteKeys: DocumentClient.Key[];
+
+  constructor() {
+    this.putItems = [];
+    this.deleteKeys = [];
+  }
+
+  addPutItems(appRequest: AppRequest) {
+    // Add User Item
+    this.putItems.push({
+      PartitionKey: `USER#${appRequest.userId}`,
+      SortKey: `FID#${appRequest.fid}`,
+      FcmToken: appRequest.fcmToken,
+      Language: appRequest.language,
+      Fid: appRequest.fid,
+      UserId: appRequest.userId,
+      CreatedAt: appRequest.createdAt,
+    });
+    // Add Vehicle Items
+    for (let vehicleRole of appRequest.vehicleRoles) {
+      // if there is a start and expiry date, add 24 hours (86400 seconds) as buffer to the expiry
+      const endDate =
+        vehicleRole.startDate && vehicleRole.expiry
+          ? vehicleRole.expiry + 86400
+          : undefined;
+      this.putItems.push({
+        PartitionKey: `VIN#${vehicleRole.vin}`,
+        SortKey: `ROLE#${vehicleRole.role}#FID#${appRequest.fid}`,
+        Vin: vehicleRole.vin,
+        Role: vehicleRole.role,
+        Fid: appRequest.fid,
+        StartDate: vehicleRole.startDate,
+        Expiry: endDate,
+        UserId: appRequest.userId,
+        CreatedAt: appRequest.createdAt,
+      });
+    }
+  }
+
+  addMessagePutItems(message: Message) {
+    let partitionKey = `${MESSAGE_PARTITION_KEY_PREFIX}${message.code}`;
+    let sortKey = `${MESSAGE_SORT_KEY_TITLE_CODE_PREFIX}${message.titleCode}${MESSAGE_SORT_KEY_DESCRIPTION_CODE_PREFIX}${message.descriptionCode}`;
+    if (ERROR_CODES.includes(message.descriptionCode)) {
+      partitionKey = `${MESSAGE_ERROR_PREFIX}${message.descriptionCode}`;
+      sortKey = `${MESSAGE_ERROR_PREFIX}${message.descriptionCode}`;
+    }
+    this.putItems.push({
+      PartitionKey: partitionKey,
+      SortKey: sortKey,
+      code: message.code,
+      descriptionCode: message.descriptionCode,
+      titleCode: message.titleCode,
+      ignored: message.ignored,
+      silent: message.silent,
+      localizedNotifications: message.localizedNotifications,
+    });
+  }
+
+  addDeleteKey(partitionKey: string, sortKey: string) {
+    this.deleteKeys.push({
+      PartitionKey: partitionKey,
+      SortKey: sortKey,
+    });
+  }
+
+  getPutItems(): DocumentClient.PutItemInputAttributeMap[] {
+    return this.putItems;
+  }
+
+  getDeleteKeys(): DocumentClient.Key[] {
+    return this.deleteKeys;
+  }
+}
+
+
+// DynamoDbService.ts
+import * as AWS from 'aws-sdk';
+import {DocumentClient} from 'aws-sdk/clients/dynamodb';
+import {InternalResponse} from './InternalResponse';
+import {DbHelper} from './DbHelper';
+import {AppRequest} from '../appApi/model/AppRequest';
+import {logger} from '../common';
+import {Message} from '../messages/models';
+
+const USER_PARTITION_KEY_INDEX = 'UserPartitionKeyIndex';
+
+export default class DynamoDbService {
+  deviceTableName: string;
+  messageTableName: string;
+  dynamoDb: DocumentClient;
+
+  constructor(deviceTableName: string, messageTableName: string) {
+    this.deviceTableName = deviceTableName;
+    this.messageTableName = messageTableName;
+    this.dynamoDb = new AWS.DynamoDB.DocumentClient({
+      region: process.env.AWS_DEFAULT_REGION,
+      apiVersion: '2025-08-10',
+      maxRetries: 3,
+    });
+  }
+
+  async batchGetByKeys(messageTableQueryKeys: DocumentClient.Key[]): Promise<DocumentClient.BatchGetResponseMap> {
+    if (!this.messageTableName) {
+      throw new Error('Message table name is not defined');
+    }
+    const messageTableQuery: DocumentClient.BatchGetItemInput = {
+      RequestItems: {
+        [`${this.messageTableName}`]: {
+          Keys: messageTableQueryKeys,
+        },
+      },
+    };
+    return await this.batchGet(messageTableQuery);
+  }
+
+  async queryByUserIdAndVin(userId: string, vin: string): Promise<DocumentClient.ItemList> {
+    const filterExpression = 'attribute_not_exists(Vin) OR Vin = :vin';
+    const keyConditionExpression = 'UserId = :userId';
+    const expressionAttributeValues = {
+      ':userId': `${userId}`,
+      ':vin': `${vin}`,
+    };
+    return await this.query(
+      this.assembleDeviceQueryInput(
+        USER_PARTITION_KEY_INDEX,
+        keyConditionExpression,
+        expressionAttributeValues,
+        filterExpression,
+      ),
+    );
+  }
+
+  async queryByUserId(userId: string): Promise<DocumentClient.ItemList> {
+    const keyConditionExpression = 'UserId = :userId';
+    const expressionAttributeValues = {':userId': `${userId}`};
+    return await this.query(
+      this.assembleDeviceQueryInput(
+        USER_PARTITION_KEY_INDEX,
+        keyConditionExpression,
+        expressionAttributeValues,
+      ),
+    );
+  }
+
+  async queryVinsByUserIdFilterByFid(userId: string, fid: string): Promise<DocumentClient.ItemList> {
+    const filterExpression = 'Fid = :fid';
+    const keyConditionExpression =
+      'UserId = :userId AND begins_with(PartitionKey, :vin)';
+    const expressionAttributeValues = {
+      ':userId': `${userId}`,
+      ':fid': `${fid}`,
+      ':vin': 'VIN#',
+    };
+    return await this.query(
+      this.assembleDeviceQueryInput(
+        USER_PARTITION_KEY_INDEX,
+        keyConditionExpression,
+        expressionAttributeValues,
+        filterExpression,
+      ),
+    );
+  }
+
+  assembleDeviceQueryInput(
+    indexName: string,
+    keyConditionExpression: string,
+    expressionAttributeValues: DocumentClient.ExpressionAttributeValueMap,
+    filterExpression?: string,
+    expressionAttributeNames?: DocumentClient.ExpressionAttributeNameMap,
+    projectionExpression?: string,
+  ): DocumentClient.QueryInput {
+    const queryInput: DocumentClient.QueryInput = {
+      TableName: this.deviceTableName,
+      IndexName: indexName,
+      KeyConditionExpression: keyConditionExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+    };
+    if (filterExpression) {
+      queryInput.FilterExpression = filterExpression;
+    }
+    if (expressionAttributeNames) {
+      queryInput.ExpressionAttributeNames = expressionAttributeNames;
+    }
+    if (projectionExpression) {
+      queryInput.ProjectionExpression = projectionExpression;
+    }
+    return queryInput;
+  }
+
+  private async query(queryInput: DocumentClient.QueryInput): Promise<DocumentClient.ItemList> {
+    const output = await this.dynamoDb.query(queryInput).promise();
+    if (output.Count && output.Count > 0 && output.Items) {
+      return output.Items;
+    }
+    logger.debug('Items Empty', {queryInput: queryInput});
+    return [];
+  }
+
+  private async batchGet(batchGetQueryInput: DocumentClient.BatchGetItemInput): Promise<DocumentClient.BatchGetResponseMap> {
+    const output = await this.dynamoDb.batchGet(batchGetQueryInput).promise();
+    if (output.Responses) {
+      return output.Responses;
+    }
+    return {};
+  }
+
+  async deleteEntries(userId: string, fid: string) {
+    const dbHelper = new DbHelper();
+    const vinQueryOutput = await this.queryVinsByUserIdFilterByFid(userId, fid);
+
+    // Add user and device to the list of items to delete
+    dbHelper.addDeleteKey(`USER#${userId}`, `FID#${fid}`);
+
+    // Add all Vin entries for that particular user to the list of items to delete
+    vinQueryOutput.forEach(function (item) {
+      dbHelper.addDeleteKey(item.PartitionKey, item.SortKey);
+    });
+    return this.batchDeleteByKeys(
+      dbHelper.getDeleteKeys(),
+      this.deviceTableName,
+    );
+  }
+
+  async batchDeleteByKeys(deleteQueryKeys: DocumentClient.Key[], tableName: string) {
+    const deleteItems: DocumentClient.WriteRequest[] = [];
+    deleteQueryKeys.forEach((key) => {
+      deleteItems.push({
+        DeleteRequest: {
+          Key: key,
+        },
+      });
+    });
+    return this.batchWriteTableParams(deleteItems, 'Delete', tableName);
+  }
+
+  async saveEntities(appRequest: AppRequest) {
+    const dbHelper = new DbHelper();
+    dbHelper.addPutItems(appRequest);
+    return await this.batchWriteItems(
+      dbHelper.getPutItems(),
+      this.deviceTableName,
+    );
+  }
+
+  async saveMessage(message: Message) {
+    const dbHelper = new DbHelper();
+    dbHelper.addMessagePutItems(message);
+    return await this.batchWriteItems(
+      dbHelper.getPutItems(),
+      this.messageTableName,
+    );
+  }
+
+  async batchWriteItems(writeItemList: DocumentClient.PutItemInputAttributeMap[], tableName: string) {
+    const writeRequests: DocumentClient.WriteRequest[] = [];
+    writeItemList.forEach((item) => {
+      writeRequests.push({
+        PutRequest: {
+          Item: item,
+        },
+      });
+    });
+    return this.batchWriteTableParams(writeRequests, 'Put', tableName);
+  }
+
+  async batchWriteTableParams(writeRequests: DocumentClient.WriteRequest[], action: string, tableName: string) {
+    const bulkPutParams = {
+      RequestItems: {
+        [`${tableName}`]: writeRequests,
+      },
+    };
+    const response: InternalResponse = {
+      success: true,
+      statusCode: 200,
+      body: '',
+      headers: {'Content-Type': 'application/json'},
+      action: action,
+    };
+
+    await this.dynamoDb.batchWrite(bulkPutParams, function (err, data) {
+        if (err) {
+          logger.error('Error while writing to DynamoDB', {
+            error: err,
+            data: data,
+          });
+          response.success = false;
+          response.statusCode =
+            err.statusCode === undefined ? 500 : err.statusCode;
+          response.body = err.message === undefined ? '' : err.message;
+        }
+      })
+      .promise();
+    return response;
+  }
+
+  async scanByMultiConditions(searchConditions: Record<string, string | string[]>, tableName = this.messageTableName): Promise<[string, DocumentClient.ItemList]> {
+    const filterExpressions = [];
+    const expressionAttributeValues: DocumentClient.ExpressionAttributeValueMap =
+      {};
+
+    let index = 0;
+    for (let [attributeName, searchValue] of Object.entries(searchConditions)) {
+      if (Array.isArray(searchValue)) {
+        const arrayConditions = [];
+        for (let value of searchValue) {
+          const valueKey = `:searchValue${index++}`;
+          arrayConditions.push(`contains(${attributeName}, ${valueKey})`);
+          expressionAttributeValues[valueKey] = value;
+        }
+        if (arrayConditions.length > 0) {
+          filterExpressions.push(`(${arrayConditions.join(' AND ')})`);
+        }
+      } else {
+        const valueKey = `:searchValue${index++}`;
+        filterExpressions.push(`contains(${attributeName}, ${valueKey})`);
+        expressionAttributeValues[valueKey] = searchValue;
+      }
+    }
+
+    const params: DocumentClient.ScanInput = {
+      TableName: tableName,
+      FilterExpression: filterExpressions.join(' AND '),
+      ExpressionAttributeValues: expressionAttributeValues,
+    };
+
+    const sortKey = searchConditions.SortKey as string;
+    try {
+      const result = await this.dynamoDb.scan(params).promise();
+      return [sortKey, result.Items] || [];
+    } catch (err) {
+      logger.error('Error retrieving messages from DynamoDB', err);
+    }
+  }
+}
+
 ```
 
-经过 babel 编译后它变成这样的代码:
+#### 如何创建一个AWS SST项目
+
+0. VScode插件市场中搜索AWS相关插件并安装，AWS-Toolkit，等
+
+1. 同步代码安装依赖；新建项目：`npx create-sst@two my-sst-app`，启动：`npx sst dev`， `npm start`，可以在`.sst/stage`下自定义stage环境名称。
+
+2. 配置本地开发调试环境，通过调试启动项目之后可以在编辑器中打断点
 
 ```js
-React.createElement(
-  "div",
-  {
-    className: "wrapper",
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug SST",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/sst",
+      "args": ["dev"],
+      "runtimeArgs": ["start", "--increase-timeout"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "test-dev",
+        "NODE_ENV": "development"
+      }
+    }
+  ]
+}
+```
+
+3. 对于npm私服需要登录`npm login --registry=https://xxx.io/artifactory/api/npm/npm-xx/ --auth-type=web --scope="@<SCOPE>"`，登录之后配置`${HOME}/.npmrc`或者添加到项目中也行
+
+4. 根据配置创建DB，可以配置数据库详细信息
+
+```js
+// DbStack.ts
+import {StackContext, Table} from 'sst/constructs';
+
+export function DbStack({stack}: StackContext) {
+  const deviceTable = new Table(stack, 'DeviceTable', {
+    fields: {
+      PartitionKey: 'string',
+      SortKey: 'string',
+      FcmToken: 'string',
+      Language: 'string',
+      StartDate: 'number',
+      Expiry: 'number',
+      FID: 'string',
+      UserId: 'string',
+      Vin: 'string',
+      createdAt: 'string',
+    },
+    primaryIndex: {
+      partitionKey: 'PartitionKey',
+      sortKey: 'SortKey',
+    },
+    globalIndexes: {
+      UserPartitionKeyIndex: {
+        partitionKey: 'UserId',
+        sortKey: 'PartitionKey',
+      },
+      VinPartitionKeyIndex: {
+        partitionKey: 'Vin',
+        sortKey: 'PartitionKey',
+      },
+      UserFIDIndex: {
+        partitionKey: 'UserId',
+        sortKey: 'FID',
+      },
+    },
+    timeToLiveAttribute: 'Expiry',
+  });
+
+  const messageTable = new Table(stack, 'MessageTable', {
+    fields: {
+      PartitionKey: 'string',
+      SortKey: 'string',
+      code: 'string',
+      descriptionCode: 'string',
+      titleCode: 'string',
+      ignored: 'string',
+      silent: 'string',
+      timeToLive: 'number',
+    },
+    primaryIndex: {
+      partitionKey: 'PartitionKey',
+      sortKey: 'SortKey',
+    },
+    globalIndexes: {
+      MessageQueryIndex: {
+        partitionKey: 'descriptionCode',
+        sortKey: 'PartitionKey',
+      },
+    },
+  });
+
+  return {deviceTable, messageTable};
+}
+```
+
+5. `aws sts get-caller-identity --profile test-dev` 查看某个环境的凭证配置
+
+6. `aws sso login` 登录之后从AWS access portal=>应用=>获取 `[PowerUser]`
+   的凭证=>AWS IAM Identity Center 凭证（推荐），获取需要配置的SSO URL和region
+
+7. 跑测试的时候需要更新本地配置的.env文件，访问秘钥从AWS access portal处获取
+
+8. `npx sst secrets list --stage test-dev` 查询某个环境下的secrets等配置
+
+9. SST部署之前需要配置AWS证书，Access Key &
+   Secret，`aws configure --profile env-name`
+
+10. 本地测试：`AWS_PROFILE=smartDev npx sst dev --stage dev --region eu-central-1`
+
+11. 单元测试：`AWS_PROFILE=smartDev npx sst bind "vitest run"`
+
+12. 部署：`AWS_PROFILE=smartDev npx sst deploy --stage dev --region eu-central-1`
+
+13. 配置环境参数
+
+```bash
+// 配置secrets
+// 增、改
+AWS_PROFILE=smartDev npx sst secrets set <TOKEN_NAME> <TOKEN_VALUE> --stage dev --region eu-central-1
+// 查
+AWS_PROFILE=smartDev npx sst secrets get <TOKEN_NAME> --stage dev --region eu-central-1
+// 删
+AWS_PROFILE=smartDev npx sst secrets remove <TOKEN_NAME> --stage dev --region eu-central-1
+
+npx sst secrets set STRIPE_KEY_XINDE sk_test_abc123
+npx sst configs  --stage prod set STRIPE_KEY_XINDE sk_test_abc123 指定stage
+// 直接在aws cloudshell中配置
+aws ssm put-parameter --name "/sst/my-app/xinde-yang-dev/Secret/MESSAGE_API_KEY/value" --type SecureString --value "xxx" --region eu-central-1
+
+如果你已经安装并配置好 AWS CLI，就可以通过下面的命令来创建参数：
+
+① 创建普通字符串类型的参数：
+  aws ssm put-parameter --name "/my/parameter" --type String --value "这是参数值"
+
+② 创建 SecureString（加密型）参数：
+  aws ssm put-parameter --name "/my/secure/parameter" --type SecureString --value "密文参数值"
+
+③ 如果需要更新已经存在的参数，则需要加上 --overwrite 参数：
+  aws ssm put-parameter --name "/my/parameter" --type String --value "新值" --overwrite
+
+命令执行后，就会在 Parameter Store 中创建或更新相应的参数。
+```
+
+```js
+// 设置正确的token和secret key之后，通过aws插件连接对应的环境，之后就可以通过这个命令来设置SSM的secret和parameter。
+// 获取使用config
+import {Config} from 'sst/node/config';
+export async function getServerSideProps() {
+  console.log(Config.VERSION, Config.STRIPE_KEY);
+
+  return {props: {loaded: true}};
+}
+
+// 为某个应用绑定
+const site = new NextjsSite(stack, 'site', {
+  bind: [VERSION, STRIPE_KEY],
+  path: 'packages/web',
+});
+
+// 在代码中定义
+const VERSION =
+  new Config.Parameter() / Secret(stack, 'VERSION', {value: '1.2.0'});
+```
+
+14. 本地项目配置:
+
+```bash
+.aws 文件夹下主要有两个文件，分别为 credentials 和 config，它们的主要作用如下：
+credentials 文件：
+  • 用于存储 AWS 访问凭证，包括 Access Key ID、Secret Access Key，有时还会包含 Session Token。这些凭证用于身份验证，确保你在使用 AWS CLI、SDK 或其他工具时拥有合法的权限访问 AWS 资源。格式通常采用 ini 格式，支持配置多个 profile，每个 profile 都对应一组凭证。
+
+config 文件：
+  • 用于存储 AWS 客户端的配置信息，比如默认的区域（region）、输出格式等。 文件中也支持配置多个 profile，每个 profile 可以有不同的区域设置等。
+
+总的来说，credentials 文件主要管理访问权限信息，而 config 文件则配置一些环境和客户端设置。两者配合使用，使得 AWS CLI 和 SDK 能够方便地进行身份认证和环境配置。
+```
+
+15. `ssm system manager - prameter store -config.secret search  key`
+16. `npx eslint --ext .ts,.vue src/utils/http/index.ts --fix`,
+    `"lint:fix": "vue-tsc --noEmit --noEmitOnError --pretty && eslint --ext .ts,.vue src --fix"`
+17. 一个stack就是一个最小的资源，可以用来部署，可能包含多个不同的资源
+18. datadog管理日志的工具，快速查看某些服务下的日志
+19. 在cloudformation的resource tab下，会列出所有创建的资源
+20. 多次请求的日志可能会根据vin或者其他条件聚合到一条记录里
+21. `aws configure sso    # 建议用 AWS SSO 登录方式`
+22. 部署：`npx sst deploy --stage prod`
+23. 线上执行脚本：`npx sst shell --stage prod scripts/my-task.ts`
+
+#### 总结
+
+- `npx create-sst@latest my-sst-app`
+- 选模板 → 进入目录 → 安装依赖
+- 配置 AWS 登录（推荐 SSO）
+- 写 `functions/xxx.ts` Lambda 逻辑
+- 配置 `sst.config.ts` 添加 API 路由/资源
+- 本地 `npx sst dev` 开发调试
+- 上线 `npx sst deploy --stage prod`
+- 临时任务用 `npx sst shell --stage prod` 执行脚本
+
+#### Tips
+
+1. **必须重新部署应用**才能让更新的 SSM 参数生效， `{{resolve:ssm:...}}` 会在 **部署阶段** 将 SSM 参数值硬编码到 Lambda 环境变量中，运行时不会动态更新。`npx sst deploy`，如果使用 `sst dev` 开发模式，也需要重启本地开发环境。
+
+```js
+// ApiStack.ts
+// ...
+const api = new Api(stack, 'TestApi', {
+  authorizers: {
+    myAuthTokenAuthorizer: {
+      type: 'lambda',
+      responseTypes: ['simple'],
+      identitySource: ['$request.header.authorization'],
+      function: new Function(stack, 'myAuthTokenAuthorizer', {
+        bind: [
+          bucket, // 需要绑定的参数放在这里
+        ],
+        handler: 'services/functions/myApi/authorization/TokenAuth.handler', // 做权限校验，AWS提供了这个功能
+        environment: {
+          LOG_LEVEL: logLevel,
+          currentStage: currentStage,
+          bucket: bucket.bucketName,
+        },
+      }),
+      resultsCacheTtl: '1 minute',
+    },
   },
-  "hello"
-);
+  defaults: {
+    function: {
+      bind: [messageQueue, userTable, msgTable, bucket],
+      environment: {
+        LOG_LEVEL: logLevel,
+        currentStage: currentStage,
+        bucket: bucket.bucketName,
+        // 注入环境变量参数，最后的数字时修改的参数的版本，如果不加则默认取最新版本
+        MY_CODE_MAPPING: `{{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_CODE_MAPPING/value:1}}`,
+        MY_ADDR_MAPPING: `{{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_ADDR_MAPPING/value:1}}`,
+        MY_CODE_LIST: `{{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_CODE_LIST/value:1}}`,
+      },
+    },
+    authorizer: 'myAuthTokenAuthorizer',
+  },
+  routes: {
+    'POST /abc': 'services/functions/myApi/notification/Post.main',
+    'POST /def': 'services/functions/myApi/notification/Post.checkout',
+  },
+  customDomain: getCustomDomain(app.stage, domainName.value, hostedZone),
+  accessLog: true,
+});
+// ...
 ```
 
-当 jsx 中存在多个节点元素时，比如:
+2. **动态获取方式**：
 
-```html
-<div>hello<span>world</span></div>
-```
+- 无需重新部署，参数修改后下一次 Lambda 执行立即生效。
 
-它会将多个节点的 jsx 中 children 属性变成多个参数进行传递下去:
+- **代价**：增加约 100ms 的 SSM API 调用延迟。
 
 ```js
-React.createElement("div", null, "hello", React.createElement("span", null, "world"));
+// 1. 移除环境变量中的 `{{resolve:ssm:...}}` 定义
+// 2. 在代码中动态获取（示例）
+import {SSM} from 'aws-sdk';
+const ssm = new SSM();
+
+export async function handler() {
+  const paramName = `/sst/mid-platform/${process.env.currentStage}/Parameter/MY_CODE_LIST/value`;
+  const {Parameter} = await ssm
+    .getParameter({Name: paramName, WithDecryption: true})
+    .promise();
+  const MY_CODE_LIST = Parameter?.Value;
+  console.log(MY_CODE_LIST); // 每次执行获取最新值
+}
 ```
 
-可以看到，外层的 div 元素包裹的 children 元素依次在 `React.createElement` 中铺平排列进去，并不是树型结构排列。
+3. `Config.Parameter + fetch()` ，仅注入参数名，每次执行动态获取最新值。
 
-> 需要注意的是，旧的 react 版本中，只要我们使用 jsx 就需要引入 react 这个包。而且引入的变量必须大写 React，因为上边我们看到 babel 编译完 jsx 之后会寻找 React 变量。
+4. **静态注入（部署时注入）**：在 `sst.config.ts` 中使用 `Config` 模块直接注入值（如 `MY_PARAM: new Config.Parameter(...)`），则需重新部署。
 
-> 新版本中，不再需要引入 React 这个变量了。有兴趣的同学可以去看看打包后的 react 代码，内部会处理成为`Object(s.jsx)("div",{ children: "Hello" })`，而老的版本是`React.createElement('div',null,'Hello')`。
-
-> 这两种方式效果和原理是一模一样的，只是新版额外引入包去处理了引入。所以不需要单独进行引入 React。
-
-- React 之中 element 是构建 React 的最小单位，其实也就是虚拟 Dom 对象。
-
-- 本质上 jsx 执行时就是在执行函数调用，是一种工厂模式通过 `React.createElement` 返回一个元素。
-
-- JSX 会先转换成`React.element`，再转化成 `React.fiber`，再转化成真实 DOM。
-
-### React.createElement
-
-- `React.createElement` 用于生成虚拟 DOM 节点对象。
-
-在我们平常使用 react 项目的时候，`index.tsx` 中总是会存在这样一段代码:
+5. demo 配置
 
 ```js
-ReactDOM.render(<App />, document.getElementById("root"));
+// 不加上:2版本号则默认使用最新版本，但是仍需要重新部署
+{
+  environment:{
+    XXX:{{resolve:ssm:/sst/${app.name}/${currentStage}/Parameter/MY_CODE_LIST/value:2}}
+  }
+}
 ```
 
-结合上边我们所讲的 `React.createElement`，我们不难猜出 `ReactDOM.render` 这个方法它的作用其实就是按照 `React.createElement` 生成的虚拟 DOM 节点对象，生成真实 DOM 插入到对应节点中去，这就是简单的渲染过程。
+6. `fs.writeFileSync(outputCsvPath, '\uFEFF' + csvString, 'utf8'); // 输出加BOM防止Excel乱码`，导出 CSV 给非技术用户直接用 Excel 打开时，会在开头加个 BOM，以确保即便是在 Windows 系统默认环境下，也能正常显示语言字符。在没有手动指定编码时，自动识别为 UTF‑8 编码。
 
-- react 中元素本身是不可变的。会报错：无法给一个只读属性 children 进行赋值，修改其他属性比如 type 之类同理也是不可以的。
+#### Pipeline Buildkite
 
-> `not extensible` 是 react17 之后才进行增加的。通过 `Object.freeze()`将对象进行处理元素。
+```yaml
+definitions:
+  plugins:
+    - &docker-node-plugin
+      'https://bitbucket.org/xxx/docker-buildkite-plugin#v1.0.10':
+        image: 'node:22-alpine'
+    - &cache-plugin
+      cache#v1.3.0:
+        manifest: package-lock.json
+        path: node_modules
+        restore: pipeline
+        save: file
+    - &common-plugins [*docker-node-plugin, *cache-plugin]
 
-> 需要注意 `Object.freeze()`是一层浅冻结，在 react 内部进行了递归 `Object.freeze()`。
+steps:
+  - label: ':npm: Dependencies'
+    key: dependencies
+    plugins: *common-plugins
+    command: npm ci
 
-- 所以在 react 中元素本身是不可变的，当元素被创建后是无法修改的。只能通过重新创建一个新的元素来更新旧的元素。
+  - label: ':vitest: Tests & coverage'
+    key: test
+    depends_on: [dependencies]
+    plugins: *common-plugins
+    command: npm run coverage -- --require-approval never --stage $${TARGET}
+    env:
+      TARGET: 'dev'
 
-- 你可以这样理解，在 react 中每一个元素类似于动画中的每一帧，都是不可以变得。
+  - group: ':npm: Quality'
+    steps:
+      - label: ':prettier: Code style'
+        key: style
+        depends_on: [dependencies]
+        plugins: *common-plugins
+        command: npm run format:check
 
-### React.cloneElement
+  - group: ':aws: Deploy'
+    steps:
+      - block: ':shipit: Deploy PlatformDev'
+        key: block_dev
 
-createElement 把 jsx 变成 element 对象; 而 cloneElement 的作用是以 element 元素为样板克隆并返回新的 React element 元素。返回元素的 props 是将新的 props 与原始元素的 props 浅层合并后的结果。
+      - label: ':cloudformation: Deploy PlatformDev'
+        key: deploy_dev
+        depends_on: block_dev
+        plugins: [*cache-plugin, *docker-node-plugin]
+        command: npm run deploy -- --require-approval never --stage $${TARGET}
+        env:
+          TARGET: 'dev'
 
-- Q:`React.createElement` 和 `React.cloneElement` 到底有什么区别呢?
-- A:可以完全理解为，一个是用来创建 element 。另一个是用来修改 element，并返回一个新的 React.element 对象。也就是用途不一样。
+      - block: ':shipit: Deploy PlatformProd'
+        key: block_prod
+        branches: 'main'
 
-### ReactDOM.render
-
-- `ReactDOM.render` 把接收到的 VDOM 变成真实元素插入到对应的根节点上。
-
-- 明确一个思想: `ReactDOM.render()`方法仅仅支持传入一个 VDOM 对象和 el。他的作用就是将 VDOM 生成真实 DOM 挂载在 el 上。此时如果 VDOM 存在一些 children，那么 ReactDOM.render 会递归他的 children，将 children 生成的 DOM 节点挂载在 parentDom 上。一层一层去挂载。
-- 在 React 中 class 组件因为继承自 React.component，所以 class 组件的原型上会存在一个 isReactComponent 属性。这个属性仅有类组件独有，函数组件是没有的，这就可以区分 class 组件和函数式组件。
-
-1. 对于 class 组件：
-   - 经过 babel 之后得到的 vdom 的形式和函数组件类似，但是可以通过 type.prototype.isReactComponent 区分出来；
-   - 然后将他的 render 方法返回的 Vdom 对象通过 createDom 方法转化为真实 Dom 节点来进行挂载。
-   - `createDom(new type(props).render());`
-2. 对于函数组件 FC：
-   - 进入 ReactDOM.render 方法创建真实 DOM 时，在 createDom 时会判断传入的 vDom 的 type，发现是 FC 类型；
-   - 那么会传入自身 props 调用自身，运行这个函数组件后，得到 jsx，经过 babel 转化成对 React.createElement(FunctionCompoent,props,children)的调用，返回虚拟 DOM 对象；
-   - 拿到 vDom 对象后，通过之前的 createDom 方法将 vDom 转化成真实节点返回；
-   - 此时 render 方法就可以拿到对应生成的真实 DOM 对象，从而挂载在 DOM 元素上。
-   - `createDom(type(props));`
-3. 对于文本节点：直接`dom = document.createTextNode(props.content);`；
-4. 对于原生 DOM 节点：直接`dom = document.createElement(type);`。
-5. 无论是 FC 还是 CC 这两种组件，内部本质上还是基于普通 DOM 节点的封装，所以我们只需要递归调用他们直接返回基本的 DOM 节点之后进行挂载就 OK.
-
-> 本质上还是通过递归调用 createDOM 进行判断，如果是函数那么就运行函数的到返回的 vDOM，然后在通过 createDom 将 vDom 转化为对应的真实 DOM 挂载。
-
-> 从这里也可以看出为什么 React 中返回的 jsx 必须要求最外层元素需要一个包裹元素。
-
-### 相对于普通 dom 节点。纯函数组件的不同点:
-
-1. $$typeof 为 Symbol(react.element)表示这个元素节点的类型是一个纯函数组件。
-2. 经过 babel 编译后的 VDOM，在原生 dom 节点中，type 类型为对应的标签类型字符串。而当为纯函数组件时。type 类型为函数自身。
-
-### 核心思想总结
-
-1. createDom 如果传入的是一个普通节点，那么就直接根据对应 type 创建标签。
-2. createDom 如果传入的是一个函数组件，那么就调用这个函数组件得到它返回的 vDom 节点，然后在通过 createDom 将 vDom 渲染成为真实节点。
-3. createDom 如果传入的是一个 class 组件，那么就 `new Class(props).render()`得到返回的 vDom 对象，然后在将返回的 vDom 渲染成为真实 Dom。
-
-### 自定义组件必须大写的原因:
-
-babel 在编译的过程中会判断 JSX 组件的首字母，如果是小写，则为原生 DOM 标签，就编译成字符串。如果是大写，则认为是自定义组件，编译成对象。
-
-### 在项目中使用 babel
-
-[参考](https://mp.weixin.qq.com/s/qCJXhfd5ZBkpqV4bs_nY6w)
+      - label: ':cloudformation: Deploy PlatformProd'
+        depends_on: block_prod
+        branches: 'main'
+        plugins:
+          - *cache-plugin
+          - *docker-node-plugin
+        command: npm run deploy -- --require-approval never --stage $${TARGET}
+        env:
+          TARGET: 'prod'
+```
