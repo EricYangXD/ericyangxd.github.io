@@ -2,15 +2,14 @@
 
 ### AWS SST
 
+是一个框架，基于AWS。
 
 #### util function
 
 1. 查询分为query精确匹配和scan全表扫描，不同的是query可以通过batchGet进行批量查询，然后分别返回对应的结果，而scan每次只能根据一组查询条件去扫描得到0条或多条结果，会消耗较多的RCU，注意控制成本。
-2. query的本质也是拼接查询表达式，
+2. query的本质也是拼接查询表达式，需要借助PartitionKey和SortKey等“主键”。
 
-
-
-```ts
+```js
 // logger.ts
 import {Logger} from '@aws-lambda-powertools/logger';
 
@@ -373,39 +372,39 @@ export default class DynamoDbService {
 
 #### 如何创建一个AWS SST项目
 
-0. 搜索AWS相关插件并安装，aws-cli，等
+0. VScode插件市场中搜索AWS相关插件并安装，AWS-Toolkit，等
 
-1. 同步代码安装依赖，新建项目：`npx create-sst@two my-sst-app`，启动：`npx sst dev`， `npm start`，可以在`.sst/stage`下自定义stage名称。
+1. 同步代码安装依赖，新建项目：`npx create-sst@two my-sst-app`，启动：`npx sst dev`， `npm start`，可以在`.sst/stage`下自定义stage环境名称。
 
 2. 配置本地开发调试环境，通过调试启动项目之后可以在编辑器中打断点
    
    ```json
    {
-   "version": "0.2.0",
-   "configurations": [
-    {
-      "name": "Debug SST",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/sst",
-      "args": ["dev"],
-      "runtimeArgs": ["start", "--increase-timeout"],
-      "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"],
-      "env": {
-        "AWS_PROFILE": "xinde-yang-dev",
-        "NODE_ENV": "development"
-      }
-    }
-   ]
+     "version": "0.2.0",
+     "configurations": [
+      {
+          "name": "Debug SST",
+          "type": "node",
+          "request": "launch",
+          "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/sst",
+          "args": ["dev"],
+          "runtimeArgs": ["start", "--increase-timeout"],
+          "console": "integratedTerminal",
+          "skipFiles": ["<node_internals>/**"],
+          "env": {
+            "AWS_PROFILE": "test-dev",
+            "NODE_ENV": "development"
+          }
+       }
+     ]
    }
    ```
 
-3. 对于npm私服需要登录`npm login --registry=https://ecoplatform.jfrog.io/artifactory/api/npm/npm-eco-platform/ --auth-type=web --scope="@<SCOPE>"`，登录之后配置`${HOME}/.npmrc`或者添加到项目中也行
+3. 对于npm私服需要登录`npm login --registry=https://xxx.io/artifactory/api/npm/npm-xx/ --auth-type=web --scope="@<SCOPE>"`，登录之后配置`${HOME}/.npmrc`或者添加到项目中也行
 
 4. 根据配置创建DB，可以配置数据库详细信息
 
-```ts
+```js
 // DbStack.ts
 import {StackContext, Table} from 'sst/constructs';
 
@@ -471,13 +470,14 @@ export function DbStack({stack}: StackContext) {
 }
 ```
 
-5. `aws sts get-caller-identity --profile xinde-yang-dev` 查看某个环境的凭证配置
+5. `aws sts get-caller-identity --profile test-dev` 查看某个环境的凭证配置
 
 6. `aws sso login` 登录之后从AWS access portal=>应用=>获取 `[PowerUser]` 的凭证=>AWS IAM Identity Center 凭证（推荐），获取需要配置的SSO URL和region
 
 7. 跑测试的时候需要更新本地配置的.env文件，访问秘钥从AWS access portal处获取
 
-8. `npx sst secrets list --stage xinde-yang-dev` 查询某个环境下的secrets等配置
+8. `npx sst secrets list --stage test-dev` 查询某个环境下的secrets等配置
+
 9. SST部署之前需要配置AWS证书，Access Key & Secret，`aws configure --profile env-name`
   
 10. 本地测试：`AWS_PROFILE=smartDev npx sst dev --stage dev --region eu-central-1`
@@ -488,7 +488,7 @@ export function DbStack({stack}: StackContext) {
 
 13. 配置环境参数
    
-   ```ts
+   ```js
    // 配置secrets
    // 增、改
    AWS_PROFILE=smartDev npx sst secrets set <TOKEN_NAME> <TOKEN_VALUE> --stage dev --region eu-central-1
@@ -536,7 +536,7 @@ export function DbStack({stack}: StackContext) {
 
 14. 本地项目配置:
 
-```textile
+```bash
 .aws 文件夹下主要有两个文件，分别为 credentials 和 config，它们的主要作用如下：
 credentials 文件：
   • 用于存储 AWS 访问凭证，包括 Access Key ID、Secret Access Key，有时还会包含 Session Token。这些凭证用于身份验证，确保你在使用 AWS CLI、SDK 或其他工具时拥有合法的权限访问 AWS 资源。格式通常采用 ini 格式，支持配置多个 profile，每个 profile 都对应一组凭证。
@@ -547,16 +547,80 @@ config 文件：
 总的来说，credentials 文件主要管理访问权限信息，而 config 文件则配置一些环境和客户端设置。两者配合使用，使得 AWS CLI 和 SDK 能够方便地进行身份认证和环境配置。
 ```
 
-15. `ssm  system manager - prameter store -config.secret search  key`
-16. `npx eslint --ext .ts,.vue src/utils/http/index.ts --fix`
-      `"lint:fix": "vue-tsc --noEmit --noEmitOnError --pretty && eslint --ext .ts,.vue src --fix"`
+15. `ssm system manager - prameter store -config.secret search  key`
+16. `npx eslint --ext .ts,.vue src/utils/http/index.ts --fix`, `"lint:fix": "vue-tsc --noEmit --noEmitOnError --pretty && eslint --ext .ts,.vue src --fix"`
 17. 一个stack就是一个最小的资源，可以用来部署，可能包含多个不同的资源
 18. datadog管理日志的工具，快速查看某些服务下的日志
 19. 在cloudformation的resource tab下，会列出所有创建的资源
 20. 多次请求的日志可能会根据vin或者其他条件聚合到一条记录里
+21. `aws configure sso    # 建议用 AWS SSO 登录方式`
+22. 部署：`npx sst deploy --stage prod`
+23. 线上执行脚本：`npx sst shell --stage prod scripts/my-task.ts`
 
+
+#### 总结
+
+- `npx create-sst@latest my-sst-app`
+- 选模板 → 进入目录 → 安装依赖
+- 配置 AWS 登录（推荐 SSO）
+- 写 `functions/xxx.ts` Lambda 逻辑
+- 配置 `sst.config.ts` 添加 API 路由/资源
+- 本地 `npx sst dev` 开发调试
+- 上线 `npx sst deploy --stage prod`
+- 临时任务用 `npx sst shell --stage prod` 执行脚本
+
+
+#### Tips
 
 1. **必须重新部署应用**才能让更新的 SSM 参数生效， `{{resolve:ssm:...}}` 会在 **部署阶段** 将 SSM 参数值硬编码到 Lambda 环境变量中，运行时不会动态更新。`npx sst deploy`，如果使用 `sst dev` 开发模式，也需要重启本地开发环境。
+
+```ts
+// ApiStack.ts
+// ...
+const api = new Api(stack, 'TestApi', {
+  authorizers: {
+    myAuthTokenAuthorizer: {
+      type: 'lambda',
+      responseTypes: ['simple'],
+      identitySource: ['$request.header.authorization'],
+      function: new Function(stack, 'myAuthTokenAuthorizer', {
+        bind: [
+          bucket, // 需要绑定的参数放在这里
+        ],
+        handler: 'services/functions/myApi/authorization/TokenAuth.handler', // 做权限校验，AWS提供了这个功能
+        environment: {
+          LOG_LEVEL: logLevel,
+          currentStage: currentStage,
+          bucket: bucket.bucketName,
+        },
+      }),
+      resultsCacheTtl: '1 minute',
+    },
+  },
+  defaults: {
+    function: {
+      bind: [messageQueue, userTable, msgTable, bucket],
+      environment: {
+        LOG_LEVEL: logLevel,
+        currentStage: currentStage,
+        bucket: bucket.bucketName,
+        // 注入环境变量参数，最后的数字时修改的参数的版本，如果不加则默认取最新版本
+        MY_CODE_MAPPING: `{{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_CODE_MAPPING/value:1}}`,
+        MY_ADDR_MAPPING: `{{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_ADDR_MAPPING/value:1}}`,
+        MY_CODE_LIST: `{{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_CODE_LIST/value:1}}`,
+      },
+    },
+    authorizer: 'myAuthTokenAuthorizer',
+  },
+  routes: {
+    'POST /abc': 'services/functions/myApi/notification/Post.main',
+    'POST /def': 'services/functions/myApi/notification/Post.checkout',
+  },
+  customDomain: getCustomDomain(app.stage, domainName.value, hostedZone),
+  accessLog: true,
+});
+// ...
+```
 
 2. **动态获取方式**：
    
@@ -584,13 +648,14 @@ config 文件：
 4. **静态注入（部署时注入）**  
    在 `sst.config.ts` 中使用 `Config` 模块直接注入值（如 `MY_PARAM: new Config.Parameter(...)`），则需重新部署。
 
-5. ```
-   XXX:{{resolve:ssm:/sst/${app.name}/${currentStage}/Parameter/MPM_DESCCODE_LIST/value:2}}
-   // 不加上:2版本号则默认使用最新版本，但是仍需要重新部署
-   ```
-   
- 
+5. 
 
+```bash
+XXX:{{resolve:ssm:/sst/${app.name}/${currentStage}/Parameter/MY_CODE_LIST/value:2}}
+// 不加上:2版本号则默认使用最新版本，但是仍需要重新部署
+```
+
+6. `fs.writeFileSync(outputCsvPath, '\uFEFF' + csvString, 'utf8'); // 输出加BOM防止Excel乱码`，导出 CSV 给非技术用户直接用 Excel 打开时，会在开头加个 BOM，以确保即便是在 Windows 系统默认环境下，也能正常显示语言字符。在没有手动指定编码时，自动识别为 UTF‑8 编码。
 
 #### Pipeline Buildkite
 
