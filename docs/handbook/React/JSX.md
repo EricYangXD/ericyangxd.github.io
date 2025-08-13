@@ -1,7 +1,7 @@
 ---
 title: Serverless原理实战
 author: EricYangXD
-date: '2022-01-12'
+date: '2025-08-12'
 ---
 
 ## Serverless
@@ -372,12 +372,11 @@ export default class DynamoDbService {
     }
   }
 }
-
 ```
 
 #### 如何创建一个AWS SST项目
 
-0. VScode插件市场中搜索AWS相关插件并安装，AWS-Toolkit，等
+VScode插件市场中搜索AWS相关插件并安装，AWS-Toolkit，等。
 
 1. 同步代码安装依赖；新建项目：`npx create-sst@two my-sst-app`，启动：`npx sst dev`， `npm start`，可以在`.sst/stage`下自定义stage环境名称。
 
@@ -495,32 +494,32 @@ export function DbStack({stack}: StackContext) {
 
 13. 配置环境参数
 
-```bash
-// 配置secrets
-// 增、改
+```sh
+#  配置secrets
+#  增、改
 AWS_PROFILE=smartDev npx sst secrets set <TOKEN_NAME> <TOKEN_VALUE> --stage dev --region eu-central-1
-// 查
+#  查
 AWS_PROFILE=smartDev npx sst secrets get <TOKEN_NAME> --stage dev --region eu-central-1
-// 删
+#  删
 AWS_PROFILE=smartDev npx sst secrets remove <TOKEN_NAME> --stage dev --region eu-central-1
 
 npx sst secrets set STRIPE_KEY_XINDE sk_test_abc123
 npx sst configs  --stage prod set STRIPE_KEY_XINDE sk_test_abc123 指定stage
-// 直接在aws cloudshell中配置
+# 直接在aws cloudshell中配置
 aws ssm put-parameter --name "/sst/my-app/xinde-yang-dev/Secret/MESSAGE_API_KEY/value" --type SecureString --value "xxx" --region eu-central-1
 
-如果你已经安装并配置好 AWS CLI，就可以通过下面的命令来创建参数：
+# 如果你已经安装并配置好 AWS CLI，就可以通过下面的命令来创建参数：
 
-① 创建普通字符串类型的参数：
-  aws ssm put-parameter --name "/my/parameter" --type String --value "这是参数值"
+# ① 创建普通字符串类型的参数：
+aws ssm put-parameter --name "/my/parameter" --type String --value "这是参数值"
 
-② 创建 SecureString（加密型）参数：
-  aws ssm put-parameter --name "/my/secure/parameter" --type SecureString --value "密文参数值"
+# ② 创建 SecureString（加密型）参数：
+aws ssm put-parameter --name "/my/secure/parameter" --type SecureString --value "密文参数值"
 
-③ 如果需要更新已经存在的参数，则需要加上 --overwrite 参数：
-  aws ssm put-parameter --name "/my/parameter" --type String --value "新值" --overwrite
+# ③ 如果需要更新已经存在的参数，则需要加上 --overwrite 参数：
+aws ssm put-parameter --name "/my/parameter" --type String --value "新值" --overwrite
 
-命令执行后，就会在 Parameter Store 中创建或更新相应的参数。
+# 命令执行后，就会在 Parameter Store 中创建或更新相应的参数。
 ```
 
 ```js
@@ -546,25 +545,25 @@ const VERSION =
 
 14. 本地项目配置:
 
-```bash
-.aws 文件夹下主要有两个文件，分别为 credentials 和 config，它们的主要作用如下：
-credentials 文件：
-  • 用于存储 AWS 访问凭证，包括 Access Key ID、Secret Access Key，有时还会包含 Session Token。这些凭证用于身份验证，确保你在使用 AWS CLI、SDK 或其他工具时拥有合法的权限访问 AWS 资源。格式通常采用 ini 格式，支持配置多个 profile，每个 profile 都对应一组凭证。
+- .aws 文件夹下主要有两个文件，分别为 credentials 和 config，它们的主要作用如下：
 
-config 文件：
-  • 用于存储 AWS 客户端的配置信息，比如默认的区域（region）、输出格式等。 文件中也支持配置多个 profile，每个 profile 可以有不同的区域设置等。
+- credentials 文件：用于存储 AWS 访问凭证，包括 Access Key ID、Secret Access
+  Key，有时还会包含 Session Token。这些凭证用于身份验证，确保你在使用 AWS
+  CLI、SDK 或其他工具时拥有合法的权限访问 AWS 资源。格式通常采用 ini 格式，支持配置多个 profile，每个 profile 都对应一组凭证。
 
-总的来说，credentials 文件主要管理访问权限信息，而 config 文件则配置一些环境和客户端设置。两者配合使用，使得 AWS CLI 和 SDK 能够方便地进行身份认证和环境配置。
-```
+- config 文件：用于存储 AWS 客户端的配置信息，比如默认的区域（region）、输出格式等。 文件中也支持配置多个 profile，每个 profile 可以有不同的区域设置等。
 
-15. `ssm system manager - prameter store -config.secret search  key`
+- 总的来说，credentials 文件主要管理访问权限信息，而 config 文件则配置一些环境和客户端设置。两者配合使用，使得 AWS
+  CLI 和 SDK 能够方便地进行身份认证和环境配置。
+
+15. `ssm system manager - prameter store -config.secret search key`
 16. `npx eslint --ext .ts,.vue src/utils/http/index.ts --fix`,
     `"lint:fix": "vue-tsc --noEmit --noEmitOnError --pretty && eslint --ext .ts,.vue src --fix"`
 17. 一个stack就是一个最小的资源，可以用来部署，可能包含多个不同的资源
 18. datadog管理日志的工具，快速查看某些服务下的日志
 19. 在cloudformation的resource tab下，会列出所有创建的资源
 20. 多次请求的日志可能会根据vin或者其他条件聚合到一条记录里
-21. `aws configure sso    # 建议用 AWS SSO 登录方式`
+21. `aws configure sso`，建议用 AWS SSO 登录方式
 22. 部署：`npx sst deploy --stage prod`
 23. 线上执行脚本：`npx sst shell --stage prod scripts/my-task.ts`
 
@@ -581,7 +580,7 @@ config 文件：
 
 #### Tips
 
-1. **必须重新部署应用**才能让更新的 SSM 参数生效， `{{resolve:ssm:...}}` 会在 **部署阶段** 将 SSM 参数值硬编码到 Lambda 环境变量中，运行时不会动态更新。`npx sst deploy`，如果使用 `sst dev` 开发模式，也需要重启本地开发环境。
+1. 必须重新部署应用才能让更新的 SSM 参数生效， `{{resolve:ssm:...}}` 会在部署阶段将 SSM 参数值硬编码到 Lambda 环境变量中，运行时不会动态更新。`npx sst deploy`，如果使用 `sst dev` 开发模式，也需要重启本地开发环境。
 
 ```js
 // ApiStack.ts
@@ -631,14 +630,14 @@ const api = new Api(stack, 'TestApi', {
 // ...
 ```
 
-2. **动态获取方式**：
+2. 动态获取方式：
 
 - 无需重新部署，参数修改后下一次 Lambda 执行立即生效。
 
-- **代价**：增加约 100ms 的 SSM API 调用延迟。
+- 代价：增加约 100ms 的 SSM API 调用延迟。
 
 ```js
-// 1. 移除环境变量中的 `{{resolve:ssm:...}}` 定义
+// 1. 移除环境变量中的 {{resolve:ssm:...}} 定义
 // 2. 在代码中动态获取（示例）
 import {SSM} from 'aws-sdk';
 const ssm = new SSM();
@@ -655,7 +654,7 @@ export async function handler() {
 
 3. `Config.Parameter + fetch()` ，仅注入参数名，每次执行动态获取最新值。
 
-4. **静态注入（部署时注入）**：在 `sst.config.ts` 中使用 `Config` 模块直接注入值（如 `MY_PARAM: new Config.Parameter(...)`），则需重新部署。
+4. 静态注入（部署时注入）：在 `sst.config.ts` 中使用 `Config` 模块直接注入值，如 `MY_PARAM: new Config.Parameter(...)`，则需重新部署。
 
 5. demo 配置
 
@@ -710,10 +709,10 @@ steps:
 
   - group: ':aws: Deploy'
     steps:
-      - block: ':shipit: Deploy PlatformDev'
+      - block: ':shipit: Deploy MidPlatformDev'
         key: block_dev
 
-      - label: ':cloudformation: Deploy PlatformDev'
+      - label: ':cloudformation: Deploy MidPlatformDev'
         key: deploy_dev
         depends_on: block_dev
         plugins: [*cache-plugin, *docker-node-plugin]
@@ -721,11 +720,11 @@ steps:
         env:
           TARGET: 'dev'
 
-      - block: ':shipit: Deploy PlatformProd'
+      - block: ':shipit: Deploy MidPlatformProd'
         key: block_prod
         branches: 'main'
 
-      - label: ':cloudformation: Deploy PlatformProd'
+      - label: ':cloudformation: Deploy MidPlatformProd'
         depends_on: block_prod
         branches: 'main'
         plugins:
