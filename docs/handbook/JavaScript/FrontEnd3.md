@@ -635,16 +635,22 @@ getUsers.addImpl("string", () => console.log("按照姓名查询用户"));
 getUsers();
 ```
 
-## 画中画
+## 视频画中画
 
 ```html
 <body>
+// 旧方法
   <video
     id="video"
     height="500px"
     width="800px"
     src="../Downloads//Have the superpower of fixing containers.mp4"></video>
   <button id="pipButton">Open Picture-in-Picture</button>
+// 新方法
+  <video id="myVideo" controls>
+    <source src="video.mp4" type="video/mp4">
+  </video>
+  <button onclick="togglePiP()">📺 画中画</button>
   <script>
     const video = document.getElementById("video");
     const pipButton = document.getElementById("pipButton");
@@ -678,7 +684,68 @@ getUsers();
         video === document.pictureInPictureElement ? "Exit Picture-in-Picture" : "Enter Picture-in-Picture";
     }
   </script>
+  <script>
+	async function togglePiP() {
+	  const video = document.getElementById('myVideo');
+	  if (!document.pictureInPictureElement) {
+	    await video.requestPictureInPicture(); // 开启画中画
+	  } else {
+	    await document.exitPictureInPicture(); // 退出
+	  }
+	}
+  </script>
 </body>
+```
+
+## 文档浮窗/画中画
+
+1. 传统的 window.open() 虽然简单易用，但限制非常多：
+
+  - ❌ 容易被浏览器拦截（尤其是在移动端）
+  - ❌ 用户体验差（新窗口可能被挡住）
+  - ❌ 样式控制受限（几乎无法用 CSS 美化）
+  - ❌ 无法保证窗口始终置顶
+
+2. Modal（模态框）虽然解决了很多问题，但它始终依附于当前页面 DOM，一旦用户切换了标签页、最小化了窗口，就无法再查看。
+
+3. Document Picture-in-Picture API 是浏览器提供的原生 API，它允许你创建一个**独立的**、**始终置顶的**小窗口，并加载**自定义 HTML 内容**，需通过 HTML 字符串或 JS 注入。它和视频画中画（Video PiP）类似，但不是只能放视频，而是可以放任何 HTML 页面内容！
+4. 总结：Document PiP 是浏览器级别的浮窗，可以独立存在、随时可见，不会被拦截，特别适合那些希望“常驻桌面”的场景。
+5. 推荐使用 Document PiP： 实时数据窗口、悬浮工具、小地图、直播窗等。
+```js
+// 在代码中需要检查浏览器是否支持
+const isSupported = "documentPictureInPicture" in window;
+
+async function openPipWindow() {
+  if (!("documentPictureInPicture" in window)) return;
+
+  const pipWindow = await documentPictureInPicture.requestWindow({
+    width: 400,
+    height: 300
+  });
+
+  // 设置窗口内容（你可以用框架进一步封装）
+  pipWindow.document.body.innerHTML = \`
+    <div style="padding: 20px; background: #f0f0f0;">
+      <h2>🎉 自定义浮窗</h2>
+      <p>这是对 window.open 的完美替代</p>
+    </div>
+  \`;
+}
+
+// 响应式尺寸
+const pipWindow = await documentPictureInPicture.requestWindow({
+  width: Math.min(400, window.innerWidth * 0.8),
+  height: Math.min(300, window.innerHeight * 0.8)
+});
+
+// 错误处理
+try {
+  const pipWindow = await documentPictureInPicture.requestWindow();
+} catch (error) {
+  if (error.name === 'NotAllowedError') {
+    console.log('用户拒绝了浮窗权限');
+  }
+}
 ```
 
 ## for 和 forEach 的区别
