@@ -867,3 +867,77 @@ ChatGPT->>MCP服务端: 调用analyzeTrend工具
 MCP服务端->>ChatGPT: 流式返回分析结果
 ChatGPT->>用户: 生成自然语言报告    
 ```
+
+## 一种发布订阅与策略模式的结合示例
+
+```js
+
+let salt = 3;
+let isRegistered = false;
+
+const person = {
+  name: 'Eric',
+  age: 33,
+  mobile: 18888888888,
+  gender: 'M'
+};
+
+const randomNumber = () => {
+  const r = Math.random();
+  return r > 0.5 ? salt * r : salt - r;
+}
+
+
+function initEvent() {
+  if (isRegistered) {
+    console.log('isRegistered');
+    return;
+  }
+
+  register(callback);
+}
+
+function callback() {
+  const title = person.name;
+    const age = person.age;
+    const point = randomNumber();
+    const ts = Date.now();
+
+    const data = {
+      title,
+      desc: age,
+      point,
+      ts
+    }
+
+    return data;
+}
+
+let unregister = null;
+
+function register(cb) {
+  if (typeof cb === 'function') {
+    
+    let handler = () => {
+      const data = cb();
+      console.log(data);
+    }
+    
+    let body = document.querySelector('body');
+    body?.removeEventListener('click', handler);
+    body?.addEventListener('click', handler);
+
+    unregister = () => {
+      body?.removeEventListener('click', handler);
+      isRegistered = false;
+      handler = null;
+      body = null;
+      unregister = null;
+    }
+
+    isRegistered = true;
+  }
+}
+
+initEvent();
+```
