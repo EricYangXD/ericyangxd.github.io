@@ -13,7 +13,7 @@ jobs:
       # 使用别人的action:
       # checkout@v3:拉代码
       # setup-node@v3:设置特定nodejs版本
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
           fetch-depth: 0 # Fetch all history for .GitInfo and .Lastmod
