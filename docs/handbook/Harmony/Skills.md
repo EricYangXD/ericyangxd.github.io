@@ -1,8 +1,10 @@
 ---
-- title: 鸿蒙开发笔记
-- author: EricYangXD
-- date: 2025-12-22
-- description: HarmonyOS,鸿蒙开发
+title: 鸿蒙开发笔记
+author: EricYangXD
+date: "2025-12-22"
+meta:
+  - name: keywords
+    content: HarmonyOS,鸿蒙开发
 ---
 
 ## 尼尔森十大可用性原则
