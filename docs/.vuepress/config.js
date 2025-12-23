@@ -155,6 +155,13 @@ module.exports = {
         ],
       },
       {
+        title: "Harmony",
+        // path: "/handbook/Harmony/Skills",
+        children: [
+          { title: "鸿蒙开发", path: "/handbook/Harmony/Skills" },
+        ],
+      },
+      {
         title: "LeetCode",
         // path: "/handbook/LeetCode/BinaryTree",
         children: [
