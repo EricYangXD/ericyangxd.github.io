@@ -171,6 +171,36 @@ git checkout -b new-feature origin/new-feature
 
 - `git status --porcelain .`: 命令将以紧凑的"porcelain"格式显示 Git 存储库中的文件状态。
 
+### git 恢复本地删除的分支或者提交
+
+前提是知道被删掉的 commitId。
+
+```bash
+# 从服务器拿到所有提交对象（防止没有完整对象）
+git fetch origin
+
+# 假设最后一个提交 id 是 abc123456789
+git checkout -b master-c abc123456789
+```
+
+### git 忽略某些不需要提交的本地改动
+
+`git update-index --assume-unchanged relative/path/*`
+
+### powerShell 安装 posh-git
+
+```bash
+Install-Module posh-git -Scope CurrentUser
+
+Import-Module posh-git
+
+notepad $PROFILE # 在文件中添加  Import-Module posh-git
+```
+
+### 查看 PowerShell 版本
+
+`$PSVersionTable`/`$PSVersionTable.PSVersion`
+
 ## 修改 git commit msg
 
 1. 修改最近一次的 commit 信息 `git commit --amend`
