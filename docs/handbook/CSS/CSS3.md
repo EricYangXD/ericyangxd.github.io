@@ -73,6 +73,33 @@ input::placeholder {
 }
 ```
 
+#### 设置正方形
+
+自适应保持正方形比例
+
+```css
+/* 1. 使用aspect-ratio */
+width: 100%;
+aspect-ratio: 1 / 1; /* 设置宽高比为1:1 */
+
+/* 2. 使用padding-bottom技巧 */
+width: 100%;
+height: 0;
+padding-bottom: 100%; /* 1:1的宽高比 */
+
+/* 3. 使用vw单位 */
+width: 100vw;
+height: 100vw;
+max-width: 666px; /* 限制最大尺寸 */
+max-height: 666px;
+
+/* 4. 使用CSS Grid */
+display: grid;
+place-items: center;
+width: 100%;
+aspect-ratio: 1 / 1;
+```
+
 ### :first-of-type
 
 like `:first-child`
