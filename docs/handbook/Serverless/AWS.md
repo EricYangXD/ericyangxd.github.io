@@ -572,7 +572,7 @@ config 文件：
 
 #### Tips
 
-1. **必须重新部署应用**才能让更新的 SSM 参数生效， `{{resolve:ssm:...}}` 会在 **部署阶段** 将 SSM 参数值硬编码到 Lambda 环境变量中，运行时不会动态更新。`npx sst deploy`，如果使用 `sst dev` 开发模式，也需要重启本地开发环境。
+1. **必须重新部署应用**才能让更新的 SSM 参数生效， `\{\{resolve:ssm:...\}\}` 会在 **部署阶段** 将 SSM 参数值硬编码到 Lambda 环境变量中，运行时不会动态更新。`npx sst deploy`，如果使用 `sst dev` 开发模式，也需要重启本地开发环境。
 
 ```ts
 // ApiStack.ts
@@ -605,9 +605,9 @@ const api = new Api(stack, 'TestApi', {
         currentStage: currentStage,
         bucket: bucket.bucketName,
         // 注入环境变量参数，最后的数字时修改的参数的版本，如果不加则默认取最新版本
-        MY_CODE_MAPPING: `{{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_CODE_MAPPING/value:1}}`,
-        MY_ADDR_MAPPING: `{{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_ADDR_MAPPING/value:1}}`,
-        MY_CODE_LIST: `{{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_CODE_LIST/value:1}}`,
+        MY_CODE_MAPPING: `\{\{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_CODE_MAPPING/value:1\}\}`,
+        MY_ADDR_MAPPING: `\{\{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_ADDR_MAPPING/value:1\}\}`,
+        MY_CODE_LIST: `\{\{resolve:ssm:/sst/mid-platform/${currentStage}/Parameter/MY_CODE_LIST/value:1\}\}`,
       },
     },
     authorizer: 'myAuthTokenAuthorizer',
@@ -629,7 +629,7 @@ const api = new Api(stack, 'TestApi', {
    * **代价**：增加约 100ms 的 SSM API 调用延迟。
    
    ```
-   // 1. 移除环境变量中的 `{{resolve:ssm:...}}` 定义
+   // 1. 移除环境变量中的 `\{\{resolve:ssm:...\}\}` 定义
    // 2. 在代码中动态获取（示例）
    import { SSM } from "aws-sdk";
    const ssm = new SSM();
@@ -651,7 +651,7 @@ const api = new Api(stack, 'TestApi', {
 5. 
 
 ```bash
-XXX:{{resolve:ssm:/sst/${app.name}/${currentStage}/Parameter/MY_CODE_LIST/value:2}}
+XXX:\{\{resolve:ssm:/sst/${app.name}/${currentStage}/Parameter/MY_CODE_LIST/value:2\}\}
 // 不加上:2版本号则默认使用最新版本，但是仍需要重新部署
 ```
 
