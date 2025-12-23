@@ -84,7 +84,7 @@ meta:
 - 隔离性 (I)：多线程/多进程同时访问时没有强隔离机制，需要自己加锁或避免并发写入。
 - 持久性 (D)：调用 flush() 后数据会落盘，有一定持久化能力，但不如数据库那样有 WAL 日志和 crash-safe 保证。
 
-## Unit8Array
+## Uint8Array
 
 - 是 JavaScript/TypeScript 标准内置的 TypedArray 类型，在鸿蒙 ArkTS 中同样可用。
 - 它表示一个 无符号 8 位整型数组，每个元素占用 1 个字节（0 ~ 255）。
