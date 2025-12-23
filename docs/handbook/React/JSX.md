@@ -382,7 +382,7 @@ VScode插件市场中搜索AWS相关插件并安装，AWS-Toolkit，等。
 
 2. 配置本地开发调试环境，通过调试启动项目之后可以在编辑器中打断点
 
-```js
+```json
 {
   "version": "0.2.0",
   "configurations": [
@@ -476,15 +476,14 @@ export function DbStack({stack}: StackContext) {
 
 5. `aws sts get-caller-identity --profile test-dev` 查看某个环境的凭证配置
 
-6. `aws sso login` 登录之后从AWS access portal=>应用=>获取 `[PowerUser]`
-   的凭证=>AWS IAM Identity Center 凭证（推荐），获取需要配置的SSO URL和region
+6. `aws sso login` 登录之后从 `AWS access portal=>应用=>` 获取 `[PowerUser]`
+   的凭证=>`AWS IAM Identity Center 凭证`（推荐），获取需要配置的SSO URL和region
 
-7. 跑测试的时候需要更新本地配置的.env文件，访问秘钥从AWS access portal处获取
+7. 跑测试的时候需要更新本地配置的.env文件，访问秘钥从`AWS access portal`处获取
 
 8. `npx sst secrets list --stage test-dev` 查询某个环境下的secrets等配置
 
-9. SST部署之前需要配置AWS证书，Access Key &
-   Secret，`aws configure --profile env-name`
+9. SST部署之前需要配置AWS证书，Access Key & Secret，`aws configure --profile env-name`
 
 10. 本地测试：`AWS_PROFILE=smartDev npx sst dev --stage dev --region eu-central-1`
 
@@ -539,8 +538,7 @@ const site = new NextjsSite(stack, 'site', {
 });
 
 // 在代码中定义
-const VERSION =
-  new Config.Parameter() / Secret(stack, 'VERSION', {value: '1.2.0'});
+const VERSION = new Config.Parameter() / Secret(stack, 'VERSION', {value: '1.2.0'});
 ```
 
 14. 本地项目配置:
@@ -557,8 +555,7 @@ const VERSION =
   CLI 和 SDK 能够方便地进行身份认证和环境配置。
 
 15. `ssm system manager - prameter store -config.secret search key`
-16. `npx eslint --ext .ts,.vue src/utils/http/index.ts --fix`,
-    `"lint:fix": "vue-tsc --noEmit --noEmitOnError --pretty && eslint --ext .ts,.vue src --fix"`
+16. 格式化：`npx eslint --ext .ts,.vue src/utils/http/index.ts --fix`, 自动修复：`"lint:fix": "vue-tsc --noEmit --noEmitOnError --pretty && eslint --ext .ts,.vue src --fix"`
 17. 一个stack就是一个最小的资源，可以用来部署，可能包含多个不同的资源
 18. datadog管理日志的工具，快速查看某些服务下的日志
 19. 在cloudformation的resource tab下，会列出所有创建的资源
@@ -569,7 +566,7 @@ const VERSION =
 
 #### 总结
 
-- `npx create-sst@latest my-sst-app`
+- 创建：`npx create-sst@latest my-sst-app`
 - 选模板 → 进入目录 → 安装依赖
 - 配置 AWS 登录（推荐 SSO）
 - 写 `functions/xxx.ts` Lambda 逻辑
@@ -652,7 +649,7 @@ export async function handler() {
 }
 ```
 
-3. `Config.Parameter + fetch()` ，仅注入参数名，每次执行动态获取最新值。
+3. 使用`Config.Parameter + fetch()` ，仅注入参数名，每次执行动态获取最新值。
 
 4. 静态注入（部署时注入）：在 `sst.config.ts` 中使用 `Config` 模块直接注入值，如 `MY_PARAM: new Config.Parameter(...)`，则需重新部署。
 
