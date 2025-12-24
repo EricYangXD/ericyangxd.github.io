@@ -648,6 +648,18 @@ MyMainPage()
 12:10:33.906: com.wefoundi.app.games successfully launched within 7 s 287 ms
 ```
 
+### 强制删除系统自带应用
+
+写在一个 bat 文件里，双击直接执行即可。会重启设备。设备需要有 root 权限。
+
+```sh
+hdc target mount
+hdc shell rm -rf /system/app/Books #阅读-应用安装的路径
+hdc shell rm -rf /system/app/Browser #浏览器-应用安装的路径
+hdc shell rm -rf /data/service/el1/public/bms/bundle_manager_service/*
+hdc shell reboot
+```
+
 ### git 恢复本地删除的分支或者提交
 
 前提是知道被删掉的 commitId。
