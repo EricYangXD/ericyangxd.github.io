@@ -718,3 +718,218 @@ place-items: center;
 width: 100%;
 aspect-ratio: 1 / 1;
 ```
+
+## 如何在鸿蒙应用中加载一个Web页面
+
+简单示例，参考资料来自鸿蒙官网和CSDN等。Webview的优点是简单快捷，缺点是占内存、功耗大。需要权衡考虑。
+
+### 一、加载网络地址页面
+
+```ts
+// 1. 导入webview
+import web_webview from '@ohos.web.webview';
+
+// 2. 创建WebviewController
+controller: web_webview.WebviewController = new web_webview.WebviewController();
+
+// 3. 创建Web组件
+Web({ src: "http://www.example.com/", controller: this.controller });
+
+// 4. 在module.json5中添加网络权限
+"requestPermissions": [
+    {
+       "name": "ohos.permission.INTERNET",
+    }
+],
+```
+
+### 二、加载本地H5页面
+
+1. 假设在项目的`resources/rawfile`中存放着`html`文件；
+2. 在`Web`组件中使用`$rawfile`加载本地`html`：`Web({ src: $rawfile('webTo.html'), controller: this.controller });`
+3. 也可以在`Web`的其他生命周期中控制`html`文件的加载展示；
+
+
+## 实现Web组件H5与应用层之间相互通信
+
+### 一、鸿蒙应用向H5页面发送数据
+
+1. 在创建的`WebviewController`中使用`runJavaScript()`方法可直接触发H5页面中的方法
+
+```ts
+import { webview } from '@kit.ArkWeb';
+// ...
+webController: WebviewController = new webview.WebviewController();
+
+private callH5Func() {
+  const name = 'testName';
+  const age = 18;
+  const jsCode = `
+    if (handleInfoUpdate && typeof(handleInfoUpdate) === 'function') {
+      handleInfoUpdate(name, age);
+    }
+  `;
+  
+  this.webController.runJavaScript(jsCode)
+    .catch((error: BusinessError) => {
+      console.error('调用失败:', error.message);
+    });
+}
+```
+
+### 二、H5页面向鸿蒙应用发送数据
+
+1. 在原生代码侧使用 javaScriptProxy 方法向 h5 的 window 对象中注册方法，此处我注册的对象名叫 JSBridge ，在该对象中写入了一个 nativeMethod 方法，h5 中直接调用 nativeMethod() 方法即可向原生发送消息。
+
+#### 1. H5侧
+
+h5侧直接调用`window`对象下的`JSBridge.nativeMethod`方法，第一个参数对应原生侧对应的`channelName`方法名，第二个参数为h5自定义参数，可带入回调方法，供原生侧完成调用的回调结果。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo</title>
+    <style>
+      body {
+        padding-top: 80px;
+      }
+      .title {
+        background: #eeefff;
+        line-height: 60px;
+        text-align: center;
+        margin-bottom: 50px;
+      }
+      .button {
+        cursor: pointer;
+        line-height: 45px;
+        color: #fffeee;
+        border-radius: 10px;
+        left: 20%;
+        width: calc(100% - 30px);
+        text-align: center;
+        background: #616bff;
+        margin: 15px;
+      }
+      .button:active {
+        background: #525dff;
+      }
+    </style>
+    <script>
+      document.addEventListener('webActiveReceive', (e) => {
+        console.log('luvi > ' + JSON.stringify(e.detail));
+        let { key, data } = JSON.parse(e.detail);
+        switch (key) {
+          case 'changeBgColor':
+            document.getElementById('idt').style = 'background: #ffecea; color: #ff7361;';
+            break;
+          case 'changeBtColor':
+            document.querySelectorAll('.button').forEach((el) => {
+              el.style = `background: ${data}`;
+            });
+            break;
+          default:
+            break;
+        }
+      });
+    </script>
+    <script>
+      function openNativePage() {
+        let params = {
+          name: 'LoginPage',
+          success: function (res) {
+            console.log('luviWeb > openNativePage success. ' + res);
+          },
+          fail: function () {
+            console.log('luviWeb > openNativePage fail.');
+          },
+        };
+        window.JSBridge.nativeMethod('openNativePage', params);
+      }
+
+      function getCity() {
+        let params = {
+          success: function (res) {
+            document.getElementById('cityName').innerText = `当前城市：${res}`;
+          },
+          fail: function () {
+            console.log('luviWeb > getCity fail.');
+          },
+        };
+        window.JSBridge.nativeMethod('getCity', params);
+      }
+    </script>
+  </head>
+
+  <body>
+    <div style="width: 100%;">
+      <p class="title" id="idt">JSBridge演示</p>
+      <div>
+        <p class="button" onclick="openNativePage()">跳转原生页面</p>
+      </div>
+      <div style="margin-top: 30px;">
+        <p style="margin-left: 15px;" id="cityName">当前城市：</p>
+        <p class="button" onclick="getCity()">获取当前定位</p>
+      </div>
+    </div>
+  </body>
+</html>
+```
+
+#### 2. 鸿蒙侧
+
+```ts
+import { webview } from '@kit.ArkWeb';
+
+export interface IParamsCallback {
+  name: string;
+  key: string;
+  success: (data?: string) => void;
+  fail: (data?: string) => void;
+}
+
+@Entry
+@Component
+export struct MyWeb {
+  webController: WebviewController = new webview.WebviewController();
+  webUrl: string | Resource = "";
+
+  build() {
+    Column() {
+      Web({ src: this.webUrl, controller: this.webController })
+        .javaScriptProxy({
+          object: {
+            nativeMethod: (channelName: string, paramsCallback: IParamsCallback) => {
+              if (!channelName || !paramsCallback) {
+                return;
+              }
+              switch (channelName) {
+                case "openNativePage":
+                  paramsCallback.success();
+                  console.log("luvi > h5调用 openNativePage 方法，携带参数" + paramsCallback.name);
+                  break;
+                case "getCity":
+                  paramsCallback.success();
+                  console.log("luvi > h5调用 getCity 方法，携带参数" + paramsCallback.name);
+                  break;
+                default:
+                  break;
+              }
+            },
+          },
+          name: 'JSBridge',
+          methodList: ['nativeMethod'],
+          controller: this.webController,
+        })
+        .fileAccess(true)
+        .domStorageAccess(true)
+        .zoomAccess(false)
+        .width("100%")
+        .height("100%")
+    }
+  }
+}
+```
+
