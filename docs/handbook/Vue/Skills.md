@@ -632,3 +632,31 @@ Vue.directive('throttle', {
 1. 不清晰的数据来源：当使用了多个 mixin 时，实例上的数据属性来自哪个 mixin 变得不清晰，这使追溯实现和理解组件行为变得困难。
 2. 命名空间冲突：多个来自不同作者的 mixin 可能会注册相同的属性名，造成命名冲突。
 3. 隐式的跨 mixin 交流：多个 mixin 需要依赖共享的属性名来进行相互作用，这使得它们隐性地耦合在一起。
+
+
+## Element-Plus用法
+
+### ElDatePicker设置周一为每周第一天
+
+本质上是配合dayjs来实现的。设置组件`type="week"`。
+
+- 局部
+```js
+import { dayjs } from 'element-plus';
+dayjs.en.weekStart = 1;
+```
+
+- 全局本地化
+```js
+// main.js
+import { createApp } from 'vue'
+import App from './App.vue'
+import ElementPlus from 'element-plus'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import 'dayjs/locale/zh-cn'
+const app = createApp(App)
+app.use(ElementPlus, {
+ locale: zhCn,
+})
+app.mount('#app')
+```
