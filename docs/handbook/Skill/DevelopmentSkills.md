@@ -941,3 +941,9 @@ function register(cb) {
 
 initEvent();
 ```
+
+## 前端处理超长数字
+
+1. 使用bigint进行运算等，或者其他开源库比如math、bigNumber？等
+2. 使用字符串，主打展示，通过接口传给后端时必须使用字符串，不然在axios或者fetch使用JSON.stringify进行序列化时，精度会丢失，哪怕你没有进行任何运算等操作，这是js底层浮点数的设计导致的。
+
