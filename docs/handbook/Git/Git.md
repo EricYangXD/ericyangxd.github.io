@@ -4,7 +4,7 @@ author: EricYangXD
 date: "2022-01-13"
 meta:
   - name: keywords
-    content: Git,git,rebase,merge,revert,stash,cherry-pick,fetch,,tag
+    content: Git,git,rebase,merge,revert,stash,cherry-pick,fetch,review,tag
 ---
 
 ## Git 命令
@@ -534,7 +534,9 @@ Git: warning: Pulling without specifying how to reconcile divergent branches is
 5. 解决代码冲突并 commit
 6. `git push origin mainYours`: 把你的最新（主）分支推送到远程仓库。over。
 
-设置为 rebase：`git config pull.rebase false`
+设置为 rebase：`git config pull.rebase false`。
+
+git pull --rebase前，如果有修改的文件未提交，需要git stash push存储到暂存区，在git review --yes后使用git stash pop还原工作区。
 
 ## GitHub Actions
 
