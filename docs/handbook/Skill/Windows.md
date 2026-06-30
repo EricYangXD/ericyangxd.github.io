@@ -13,7 +13,7 @@ date: "2022-05-21"
 我说的是没有手写板或者你觉得用鼠标写的很难看的时候。
 
 1. 拿张纸先写个好看的签名
-2. 用县级拍下来，最好裁剪一下，传输并保存到电脑上，**保存成 jpg 格式**
+2. 用相机拍下来，最好裁剪一下，传输并保存到电脑上，**保存成 jpg 格式**
 3. 用`Adobe Acrobat Reader DC`打开要增加签名的文件
 4. 在工具栏找到「钢笔」这个图标并点击，然后点击「自行签名」=>「添加签名」
 5. 然后点击「图像」，选择刚才保存的 jpg 签名图片并点击「应用」
@@ -103,6 +103,18 @@ set /p=!line!<nul
 )
 goto line
 ```
+30. 在 PowerShell 里删除当前目录 node_modules：
+```sh
+Remove-Item -Recurse -Force .\node_modules
+rm -r -fo .\node_modules
+Remove-Item -Force .\package-lock.json
+```
+31. winget查找安装升级软件：`winget upgrade --id Microsoft.PowerShell -e --source winget`、`winget install --id Microsoft.Edge --exact --source winget`、`winget search python`
+32. 查看端口占用：`netstat -ano | findstr :8888`
+33. 查找端口对应的进程：`tasklist | findstr 12345`
+34. 根据进程PID杀死进程：`taskkill /PID <PID> /F`
+35. 删除多余的桌面：`win+ctrl+F4`
+36. 
 
 ## 手机投屏
 
@@ -112,4 +124,40 @@ goto line
 
 ## 好用的软件
 
-1. PowerToys：映射Mac键盘
+1. PowerToys：映射Mac键盘，一定要通过正常手段卸载，否则会无法卸载也无法更新，贼拉傻叉！
+2. Snipaste：截图工具
+
+## whistle
+
+一个 HTTP/HTTPS/Socks 调试代理工具，功能类似 Charles/Fiddler，但更轻便且可脚本化。通过在Rules中配置规则，来抓到相应的http请求并替换成本地的请求路径，再结合ZeroOmega等浏览器插件创建相应的情景模式来代理在whistle中抓到的请求，实现本地直接通过线上接口的数据进行开发，不用单独mock。
+
+```sh
+# 安装whistle
+npm install -g whistle
+
+# 3种命令等效：whistle === w2 === wproxy
+
+# 查看版本(确认安装成功)
+w2 --version # w2 -V
+
+# 启动whistle(指定端口)
+w2 start -p 8888
+
+# 重启
+w2 restart
+
+# 停止
+w2 stop
+
+# 设置代理
+w2 proxy
+
+# 设置指定 IP 或端口
+w2 proxy "10.x.x.x:8888"
+
+# 关闭代理
+w2 proxy 0
+```
+- 配置 host 规则：`^https://ohmygod.test.com/cart-*/service/** http://localhost:8793/$2`
+- 还需要安装 https 证书并启动 https 监听：参考：[whistle 使用实践（配置与基础篇）](https://juejin.cn/post/6930415221185970189#heading-10)。
+- 配置浏览器代理，Chrome：使用 [SwitchOmega 插件](https://chromewebstore.google.com/detail/proxy-switchyomega-3-zero/pfnededegaaopdmhkdmcofjmoldfiped)。新建一个`情景模式`，选择`代理服务器`>`代理协议类型`>`HTTP`。配置`代理服务器`: `127.0.0.1`，`代理端口`与启动的代理服务器 whistle 端口(`8888`)一致。
