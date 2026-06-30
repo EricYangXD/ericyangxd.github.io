@@ -2,6 +2,9 @@
 title: Node.js
 author: EricYangXD
 date: "2022-02-23"
+meta:
+  - name: keywords
+    content: nodejs,npm,pnpm,npx
 ---
 
 ## 记录 nodejs 知识
@@ -529,6 +532,135 @@ Lodash、Axios、Axios-retry、Superagent、dayjs、date-fns、rxjs、jest、ram
 1. 用 npm 全局装：`npm install -g pnpm`
 2. 用 corepack（Node 自带，从 16.13+ 开始）：`corepack enable`, `corepack prepare pnpm@latest --activate`
 3. 用 npx 临时调用：`npx pnpm install`
+4. 常用命令：
+```shell
+# 安装全部依赖（会读取/生成 pnpm-lock.yaml）
+pnpm install
+# 或
+pnpm i
+
+# 只生成/更新 lock 文件，不下载依赖
+pnpm install --lockfile-only
+
+# 严格按 lock 文件安装（CI 常用）
+pnpm install --frozen-lockfile
+
+# 忽略 lock 文件安装（不推荐在 CI 用）
+pnpm install --no-frozen-lockfile
+
+# 添加依赖
+# 添加生产依赖
+pnpm add axios
+
+# 添加开发依赖
+pnpm add -D typescript
+
+# 添加可选依赖
+pnpm add -O fsevents
+
+# 指定版本
+pnpm add lodash@4.17.21
+
+# 安装到工作区根目录（monorepo）
+pnpm add -w eslint -D
+
+# 删除依赖
+pnpm remove axios
+# 或
+pnpm rm axios
+
+# 更新依赖
+# 更新指定包到符合 package.json 范围内的最新版本
+pnpm update axios
+# 或
+pnpm up axios
+
+# 更新所有依赖
+pnpm up
+
+# 交互式更新
+pnpm up -i
+
+# 更新到最新大版本（会突破 semver 范围）
+pnpm up --latest
+
+# 查看是否使用了某个依赖
+pnpm list js-cookie
+
+# 查看为什么安装了某包（依赖来源链路-间接依赖）
+pnpm why js-cookie
+
+# 查看全局安装包
+pnpm list -g --depth 0
+
+# 执行脚本
+# 运行 package.json scripts
+pnpm run dev
+pnpm run build
+pnpm run test
+
+# 可简写（当脚本名不冲突时）
+pnpm dev
+pnpm build
+
+# 运行本地二进制命令（不进 scripts）
+pnpm exec eslint .
+pnpm exec vite --version
+
+# 依赖清理与排查
+# 删除未被引用的包（清理 store）
+pnpm store prune
+
+# 检查过期依赖
+pnpm outdated
+
+# 审计安全漏洞
+pnpm audit
+
+# 缓存与 store
+# 查看 store 路径
+pnpm store path
+
+# 手动设置 store 路径
+pnpm config set store-dir D:\pnpm-store
+
+# 工作区（monorepo）常用
+# 递归执行所有子包安装
+pnpm -r install
+
+# 在所有子包执行某脚本
+pnpm -r run build
+
+# 只在某个包执行（按包名过滤）
+pnpm --filter @my-scope/pkg-a run dev
+
+# 在某个目录包执行（按路径过滤）
+pnpm --filter ./packages/pkg-a run test
+
+# 锁文件
+# pnpm-lock.yaml 生成/更新时机：
+pnpm install
+pnpm add xxx
+pnpm remove xxx
+pnpm update xxx
+pnpm install --lockfile-only
+
+# CI 推荐：
+pnpm install --frozen-lockfile
+
+# 更新自身
+pnpm add -g pnpm
+```
+5. 安装：`iwr https://get.pnpm.io/install.ps1 -useb | iex`
+6. 使用指定版本安装依赖/更新lock文件：`npx pnpm@8.13.1 install --lockfile-only`
+7. 安装依赖但不生成pnpm-lock.yaml文件：`npx -y pnpm@8.13.1 install --no-frozen-lockfile`
+8. 安装依赖，生成pnpm-lock.yaml文件：`pnpm install --no-frozen-lockfile --config.lockfile=true`
+9. 查询项目是否使用了某个依赖：`pnpm list js-cookie  # 直接依赖`、`pnpm why js-cookie # 间接依赖`
+10. 只根据 lock 文件安装，不允许改动 lock：`pnpm install --frozen-lockfile`
+
+## winget
+
+1. winget 安装指定版本指定源的 Python：`winget source update`、`winget install --id Python.Python.3.12 --version 3.12.10 --source winget`
 
 ## 处理转换csv和json文件
 
