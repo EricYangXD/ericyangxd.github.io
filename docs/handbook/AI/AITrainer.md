@@ -13,9 +13,9 @@ meta:
 
 ### 考试内容
 
-### 业务分析
+### 1.业务分析-2抽1
 
-#### 实操题套路
+#### 1.1业务流程设计-实操题套路
 
 0. 引入外部库：pandas、numpy、matplotlib等
 1. 加载数据：`pd.read_csv()`/`pd.read_excel()`
@@ -34,4 +34,49 @@ meta:
 14. 计算平均值：`data['Income'].mean()`，标准差：`data['Income'].std()`
 15. 数据标准化：`data['ReviewScore'] = (data['ReviewScore'] - data['ReviewScore'].mean()) / data['ReviewScore'].std()`
 16. 统计并排序：`age_group_counts = data['AgeGroup'].value_counts().sort_index()`
-17. 
+17. 合并处理后得数据：`X = data[selected_features]; y = data['低碳行为积极性']; cleaned_data = pd.concat([X, y], axis=1)`
+18. 保存数据：`cleaned_data.to_csv('2.1.2_cleaned_data.csv', index=False) #保存中不用额外创建索引`
+
+### 1.2业务模块效果优化
+
+根据题目内容，在答题卡上写流程和优化建议啥的，基本围绕题目来
+
+### 2.智能训练-2题必考
+
+#### 2.1数据处理规范制定-实操题套路
+
+有代码和题目，根据每一小问进行代码补全或回答问题等操作。
+
+1. 常规套路：导入外部库、加载数据集、查看数据集信息`data.head()`/`data.info() #查看表的综合结构信息`/`data.dtypes #查看每列的数据类型`/`data["Value"].dtype #查看某列的数据类型`、清除缺失值`data.dropna()`、统计数据量`data.isnull().sum()`、数据类型转换`pd.to_numeric(data['horsepower'], errors='coerce')`、清除异常值NaN`data.dropna(subset=['horsepower'])`
+
+
+
+### 3.智能系统设计-2题必考
+
+#### 3.1智能系统监控与优化
+
+根据题目，处理操作Excel数据，通过数据透视表统计分析数据回答问题，再回答几个流程优化等问题
+
+#### 3.2人机交互流程设计
+
+### 4.培训与指导-2抽1
+
+#### 4.1培训
+
+#### 4.2指导
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
