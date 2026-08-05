@@ -13,7 +13,7 @@ meta:
 
 ### 考试内容
 
-### 1.业务分析-2抽1
+### 1.业务分析-2抽1-25分
 
 #### 1.1业务流程设计-实操题套路
 
@@ -43,21 +43,43 @@ meta:
 
 根据题目内容，在答题卡上写流程和优化建议啥的，基本围绕题目来
 
-### 2.智能训练-2题必考
+### 2.智能训练-2题必考-15分+20分
 
 #### 2.1数据处理规范制定-实操题套路
 
 有代码和题目，根据每一小问进行代码补全或回答问题等操作。
 
 1. 常规套路：导入外部库、加载数据集、查看数据集信息`data.head()`/`data.info() #查看表的综合结构信息`/`data.dtypes #查看每列的数据类型`/`data["Value"].dtype #查看某列的数据类型`、清除缺失值`data.dropna()`、统计数据量`data.isnull().sum()`、数据类型转换`pd.to_numeric(data['horsepower'], errors='coerce')`、清除异常值NaN`data.dropna(subset=['horsepower'])`、`data[data['SensorType'].isin(['Temperature', 'Humidity'])].groupby(['Location', 'SensorType'])['Value'].mean().unstack() #先筛选再分组最后求每组的平均值`、清除重复值`data.drop_duplicates()`
-2. 处理数据：标准化数据：`data[numerical_features] = scaler.fit_transform(data[numerical_features])`
+2. 处理数据：标准化数据：`data[numerical_features] = scaler.fit_transform(data[numerical_features])`，选择数值列用于箱线图：`numeric_cols = data.select_dtypes(include=['float64', 'int64']).columns`，使用IQR处理异常值：`Q1 = data[numeric_cols].quantile(0.25) #四分位数`，
 3. 选择特征、自变量和目标变量：根据题目要求设置特征X、目标变量y
 4. 划分数据集为训练集和测试集：`X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.2, random_state=42)`，只传 X 不传 y： 完全正常。返回 (X_train, X_test) 两个数组，按指定比例随机划分特征数据。只是不能用 stratify 参数（因为需要 y 来做分层采样）。
 5. 训练（此处不涉及）
 6. 保存数据：cleaned_data.to_csv('2.1.1_cleaned_data.csv', index=False)，`index=False`不保存生成的序号
 
+回答问题时根据上面代码中的步骤来回答即可，区分数据清洗和数据标注部分。`StandardScaler()`：标准化，将数据转换为均值为0，标准差为1的分布。`MinMaxScaler()`：归一化，将数据缩放到指定的范围（如 `[0，1]`）。`LabelEncoder()`：标签编码，将类别变量转换为整数形式。
 
-### 3.智能系统设计-2题必考
+#### 2.2算法测试
+
+主要使用：
+
+1. 导入库（不考）
+2. 加载数据
+3. 展示数据
+4. 处理数据
+5. 设置自变量X和因变量y
+6. 分割训练集和测试集
+7. 训练模型
+8. 保存模型
+9. 预测并保存结果
+10. 生成测试报告
+11. 分析测试结果
+12. 处理数据不平衡
+13. 重新训练模型
+14. 重新预测并保存结果
+15. 重新生成测试报告
+16. 重新分析测试结果
+
+### 3.智能系统设计-2题必考-15分+20分
 
 #### 3.1智能系统监控与优化
 
@@ -65,7 +87,7 @@ meta:
 
 #### 3.2人机交互流程设计
 
-### 4.培训与指导-2抽1
+### 4.培训与指导-2抽1-5分
 
 #### 4.1培训
 
