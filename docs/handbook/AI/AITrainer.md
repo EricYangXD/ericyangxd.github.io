@@ -63,11 +63,11 @@ meta:
 主要使用：
 
 1. 导入库（不考）
-2. 加载数据
-3. 展示数据
+2. 加载数据：``
+3. 展示数据：``
 4. 处理数据：`X = pd.get_dummies(X)  # 将分类变量转为数值变量`
-5. 设置自变量X和因变量y
-6. 分割训练集和测试集
+5. 设置自变量X和因变量y：``
+6. 分割训练集和测试集：``
 7. 训练模型：
    - `model = DecisionTreeRegressor(random_state=42) # 创建并训练决策树回归模型`
    - `rf_model = RandomForestRegressor(n_estimators=100, random_state=42) # 创建随机森林回归模型（创建的决策树的数量为100）`
@@ -80,10 +80,10 @@ meta:
 10. 生成测试报告：`report = classification_report(y_test, y_pred, zero_division=1)`
 11. 分析测试结果：`accuracy = (y_test==y_pred).mean()`
 12. 处理数据不平衡：`# 处理数据不平衡，重采样: smote = SMOTE(random_state=42); X_resampled, y_resampled = smote.fit_resample(X_train, y_train)`
-13. 重新训练模型
-14. 重新预测并保存结果
-15. 重新生成测试报告
-16. 重新分析测试结果
+13. 重新训练模型：``
+14. 重新预测并保存结果：``
+15. 重新生成测试报告：``
+16. 重新分析测试结果：``
 17. 涉及的几个特殊值计算：`均方误差: {mean_squared_error(y_test, y_pred)}`/`平均绝对误差: {mean_absolute_error(y_test, y_pred)}`/`决定系数: {r2_score(y_test, y_pred)}`/`XGBoost训练集得分: {xgb_model.score(X_train, y_train)}`/`XGBoost测试集得分: {xgb_model.score(X_test, y_test)}`
 
 分析题答题套路：
@@ -106,12 +106,18 @@ meta:
 
 代码补全，基本流程：
 
-1. 加载模型：``
-2. 加载类别标签：``
-3. 加载本地测试图片：``
-4. 预处理图像：``
-5. 使用模型识别图片：``
-6. 输出识别结果：``
+1. 加载模型：`session = ort.InferenceSession('resnet.onnx')`
+2. 加载类别标签：`with open(labels_path) as f: labels = [line.strip() for line in f.readlines()]`、`class_names = [name.strip() for name in open('voc-model-labels.txt').readlines()] # 从标签文件中读取每一行，并去除行首尾的空白字符，得到类别名称列表`
+3. 获取模型输入和输出的名称：`session.get_inputs()[0].name`/`session.get_outputs()[0].name`
+4. 加载本地测试图片：`image = Image.open('img_test.jpg').convert('RGB')`/`image = Image.open('img_test.png').convert('L')  # 转为灰度图`
+5. 预处理图像：`processed_image = preprocess_image(image)`、`processed_image = processed_image.astype(np.float32)`、`image = image.resize((28, 28))  # 调整大小为MNIST模型的输入尺寸`、`image_array = np.array(image, dtype=np.float32)  # 转为numpy数组`、`image_array = np.expand_dims(image_array, axis=0)  # 添加batch维度`、`img = img.resize((64, 64), Image.Resampling.LANCZOS)    # 调整图像大小到模型输入所需的尺寸  # 新版本代码`
+6. 返回模型输入列表：`ort_inputs = {ort_session.get_inputs()[0].name: image_array}  # 模型和输入绑定`
+7. 使用模型识别图片：`output = session.run([output_name], {input_name: processed_image})[0]`
+8. 应用 softmax 函数获取概率：`probabilities = scipy.special.softmax(output, axis=-1)`
+9. 获取预测结果：`top5_idx = np.argsort(probabilities[0])[-5:][::-1] # 先排序再取索引`、`top5_prob = probabilities[0][top5_idx]  # 根据索引获取top5`、`predicted_class = np.argmax(ort_outs[0])  # 获取最大值`、`predicted_emotion = list(emotion_table)[predicted_label] # 通过list()把dict转成list`、`predicted_idx =  np.argmax(accuracy) # 获取预测的类别索引`、`prob_percentage =  accuracy[0, predicted_idx] * 100 # 获取预测的准确值（转换为百分比）`
+10. 输出识别结果：``
+11. 目录操作：`if not os.path.exists(result_path): os.makedirs(result_path) # 如果保存结果的目录不存在，则创建该目录`、`listdir = os.listdir(path) # 获取指定目录下的所有文件和文件夹名称列表`
+12. OpenCV操作：`orig_image = cv2.imread(img_path) # 使用 OpenCV 读取图像文件`、`image = cv2.resize(image, (320, 240))`、`image_mean = np.array([127, 127, 127])`、`image = np.transpose(image, [2, 0, 1])`、`image = np.expand_dims(image, axis=0)`、`image = image.astype(np.float32)`、`boxes, labels, probs = predict(orig_image.shape[1], orig_image.shape[0], confidences, boxes, threshold)`、`cv2.rectangle(orig_image, (box[0], box[1]), (box[2], box[3]), (255, 255, 0), 4)`、`cv2.imwrite(os.path.join(result_path, file_path), orig_image)`
 
 问答题套路：
 
