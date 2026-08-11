@@ -91,7 +91,7 @@ module.exports = {
       },
       {
         title: "AI",
-        path: "/handbook/AI/AITrainer"
+        children: [{ title: "AI Trainer", path: "/handbook/AI/AITrainer" }],
       },
       {
         title: "Android",
