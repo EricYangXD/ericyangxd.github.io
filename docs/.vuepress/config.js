@@ -51,7 +51,7 @@ module.exports = {
       {
         name: "keywords",
         content:
-          "前端面试,React,Vue,JavaScript,CSS,HTML,HTTP,TCP,Webpack,算法,数据结构,LeetCode,小程序,油猴,计算机网络,NodeJs,Vite,Antdesign,EricYangXD,Eric,Chrome,Android,V8,Mac,git,网络安全,开发技巧,路由,router,话费,充值,诗歌,金句,源码,面试,docker",
+          "前端面试,React,Vue,JavaScript,CSS,HTML,HTTP,TCP,Webpack,算法,数据结构,LeetCode,小程序,油猴,计算机网络,NodeJs,Vite,Antdesign,EricYangXD,Eric,Chrome,Android,V8,Mac,git,网络安全,开发技巧,路由,router,话费,充值,诗歌,金句,源码,面试,docker,AI",
       },
     ],
     // SEO - JS 重定向
@@ -88,6 +88,10 @@ module.exports = {
         title: "About",
         path: "/",
         children: [{ title: "About me", path: "/" }],
+      },
+      {
+        title: "AI",
+        path: "/handbook/AI/AITrainer"
       },
       {
         title: "Android",

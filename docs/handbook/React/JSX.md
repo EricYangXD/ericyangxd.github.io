@@ -19,9 +19,26 @@ date: '2022-01-12'
 // logger.ts
 import {Logger} from '@aws-lambda-powertools/logger';
 
+<<<<<<< Updated upstream
 export const logger = new Logger({
   serviceName: process.env.SST_APP,
   logLevel: process.env.SST_STAGE === `prod` ? `INFO` : `DEBUG`,
+=======
+```js
+// node
+const fs = require('fs');
+const babel = require('@babel/core');
+
+/* 第一步：模拟读取文件内容。 */
+fs.readFile('./element.js', (e, data) => {
+  const code = data.toString('utf-8');
+  /* 第二步：转换 jsx 文件 */
+  const result = babel.transformSync(code, {
+    plugins: ['@babel/plugin-transform-react-jsx'],
+  });
+  /* 第三步：模拟重新写入内容。 */
+  fs.writeFile('./element.js', result.code, function () {});
+>>>>>>> Stashed changes
 });
 
 // DbHelper.ts
@@ -409,6 +426,7 @@ VScode插件市场中搜索AWS相关插件并安装，AWS-Toolkit，等。
 4. 根据配置创建DB，可以配置数据库详细信息
 
 ```js
+<<<<<<< Updated upstream
 // DbStack.ts
 import {StackContext, Table} from 'sst/constructs';
 
@@ -625,6 +643,15 @@ const api = new Api(stack, 'TestApi', {
   accessLog: true,
 });
 // ...
+=======
+React.createElement(
+  'div',
+  {
+    className: 'wrapper',
+  },
+  'hello'
+);
+>>>>>>> Stashed changes
 ```
 
 2. 动态获取方式：
@@ -634,6 +661,7 @@ const api = new Api(stack, 'TestApi', {
 - 代价：增加约 100ms 的 SSM API 调用延迟。
 
 ```js
+<<<<<<< Updated upstream
 // 1. 移除环境变量中的 \{\{resolve:ssm:...\}\} 定义
 // 2. 在代码中动态获取（示例）
 import {SSM} from 'aws-sdk';
@@ -647,6 +675,9 @@ export async function handler() {
   const MY_CODE_LIST = Parameter?.Value;
   console.log(MY_CODE_LIST); // 每次执行获取最新值
 }
+=======
+React.createElement('div', null, 'hello', React.createElement('span', null, 'world'));
+>>>>>>> Stashed changes
 ```
 
 3. 使用`Config.Parameter + fetch()` ，仅注入参数名，每次执行动态获取最新值。
@@ -656,12 +687,16 @@ export async function handler() {
 5. demo 配置
 
 ```js
+<<<<<<< Updated upstream
 // 不加上:2版本号则默认使用最新版本，但是仍需要重新部署
 {
   environment:{
     XXX:\{\{resolve:ssm:/sst/${app.name}/${currentStage}/Parameter/MY_CODE_LIST/value:2\}\}
   }
 }
+=======
+ReactDOM.render(<App />, document.getElementById('root'));
+>>>>>>> Stashed changes
 ```
 
 6. `fs.writeFileSync(outputCsvPath, '\uFEFF' + csvString, 'utf8'); // 输出加BOM防止Excel乱码`，导出 CSV 给非技术用户直接用 Excel 打开时，会在开头加个 BOM，以确保即便是在 Windows 系统默认环境下，也能正常显示语言字符。在没有手动指定编码时，自动识别为 UTF‑8 编码。
@@ -721,6 +756,7 @@ steps:
         key: block_prod
         branches: 'main'
 
+<<<<<<< Updated upstream
       - label: ':cloudformation: Deploy MidPlatformProd'
         depends_on: block_prod
         branches: 'main'
@@ -731,3 +767,48 @@ steps:
         env:
           TARGET: 'prod'
 ```
+=======
+### ReactDOM.render
+
+- `ReactDOM.render` 把接收到的 VDOM 变成真实元素插入到对应的根节点上。
+
+- 明确一个思想: `ReactDOM.render()`方法仅仅支持传入一个 VDOM 对象和 el。他的作用就是将 VDOM 生成真实 DOM 挂载在 el 上。此时如果 VDOM 存在一些 children，那么 ReactDOM.render 会递归他的 children，将 children 生成的 DOM 节点挂载在 parentDom 上。一层一层去挂载。
+- 在 React 中 class 组件因为继承自 React.component，所以 class 组件的原型上会存在一个 isReactComponent 属性。这个属性仅有类组件独有，函数组件是没有的，这就可以区分 class 组件和函数式组件。
+
+1. 对于 class 组件：
+   - 经过 babel 之后得到的 vdom 的形式和函数组件类似，但是可以通过 type.prototype.isReactComponent 区分出来；
+   - 然后将他的 render 方法返回的 Vdom 对象通过 createDom 方法转化为真实 Dom 节点来进行挂载。
+   - `createDom(new type(props).render());`
+2. 对于函数组件 FC：
+   - 进入 ReactDOM.render 方法创建真实 DOM 时，在 createDom 时会判断传入的 vDom 的 type，发现是 FC 类型；
+   - 那么会传入自身 props 调用自身，运行这个函数组件后，得到 jsx，经过 babel 转化成对 React.createElement(FunctionCompoent,props,children)的调用，返回虚拟 DOM 对象；
+   - 拿到 vDom 对象后，通过之前的 createDom 方法将 vDom 转化成真实节点返回；
+   - 此时 render 方法就可以拿到对应生成的真实 DOM 对象，从而挂载在 DOM 元素上。
+   - `createDom(type(props));`
+3. 对于文本节点：直接`dom = document.createTextNode(props.content);`；
+4. 对于原生 DOM 节点：直接`dom = document.createElement(type);`。
+5. 无论是 FC 还是 CC 这两种组件，内部本质上还是基于普通 DOM 节点的封装，所以我们只需要递归调用他们直接返回基本的 DOM 节点之后进行挂载就 OK.
+
+> 本质上还是通过递归调用 createDOM 进行判断，如果是函数那么就运行函数得到返回的 vDOM，然后再通过 createDom 将 vDom 转化为对应的真实 DOM 挂载。
+
+> 从这里也可以看出为什么 React 中返回的 jsx 必须要求最外层元素需要一个包裹元素。
+
+### 相对于普通 dom 节点。纯函数组件的不同点:
+
+1. `$$typeof` 为 `Symbol(react.element)`表示这个元素节点的类型是一个纯函数组件。
+2. 经过 babel 编译后的 VDOM，在原生 dom 节点中，type 类型为对应的标签类型字符串。而当为纯函数组件时。type 类型为函数自身。
+
+### 核心思想总结
+
+1. createDom 如果传入的是一个普通节点，那么就直接根据对应 type 创建标签。
+2. createDom 如果传入的是一个函数组件，那么就调用这个函数组件得到它返回的 vDom 节点，然后在通过 createDom 将 vDom 渲染成为真实节点。
+3. createDom 如果传入的是一个 class 组件，那么就 `new Class(props).render()`得到返回的 vDom 对象，然后在将返回的 vDom 渲染成为真实 Dom。
+
+### 自定义组件必须大写的原因:
+
+babel 在编译的过程中会判断 JSX 组件的首字母，如果是小写，则为原生 DOM 标签，就编译成字符串。如果是大写，则认为是自定义组件，编译成对象。
+
+### 在项目中使用 babel
+
+[参考](https://mp.weixin.qq.com/s/qCJXhfd5ZBkpqV4bs_nY6w)
+>>>>>>> Stashed changes
