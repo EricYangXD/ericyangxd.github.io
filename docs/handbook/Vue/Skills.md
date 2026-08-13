@@ -660,3 +660,113 @@ app.use(ElementPlus, {
 })
 app.mount('#app')
 ```
+
+## 使用`<pre>`标签展示JSON数据
+
+## 使用MarkdownIt展示markdown文件
+
+### 技术方案
+
+使用 `markdown-it` 解析 + `vue-dompurify-html` 安全渲染的组合方案。
+
+### 核心依赖
+
+```js
+import MarkdownIt from 'markdown-it';
+// vue-dompurify-html 可在项目中全局注册，直接使用 v-dompurify-html 指令
+```
+
+### 实现要点
+
+1. MarkdownIt 初始化（单例复用）
+
+```js
+const md = new MarkdownIt({
+  linkify: true,    // 自动识别纯文本中的 URL
+  typographer: true, // 智能引号等排版优化
+  html: true,        // 允许内联 HTML 标签
+});
+```
+md 实例在模块级只创建一次，避免重复初始化开销。
+
+2. 链接新窗口打开（双保险机制）
+第一层：renderer 规则拦截 — 处理 Markdown 语法生成的链接：
+```js
+const defaultLinkOpen = md.renderer.rules.link_open || function (tokens, index, options, env, self) {
+  return self.renderToken(tokens, index, options);
+};
+
+md.renderer.rules.link_open = function (tokens, index, options, env, self) {
+  tokens[index].attrSet('target', '_blank');
+  tokens[index].attrSet('rel', 'noopener noreferrer');
+  return defaultLinkOpen(tokens, index, options, env, self);
+};
+```
+
+第二层：DOM 事件代理兜底 — 处理后端直接返回的 `<a href="...">` 原始 HTML 链接：
+
+```js
+function handleMarkdownClick(event) {
+  const link = event.target.closest('a[href]');
+  if (!link) return;
+
+  link.setAttribute('target', '_blank');
+  link.setAttribute('rel', 'noopener noreferrer');
+
+  if (link.target === '_blank') return;
+
+  event.preventDefault();
+  window.open(link.href, '_blank', 'noopener,noreferrer');
+}
+```
+
+3. Markdown 内容清洗
+
+后端返回的内容可能存在代码块包裹或转义字符：
+
+```js
+function normalizeMarkdown(content) {
+  return String(content)
+    .replace(/^```(?:markdown|md)?\s*/i, '')   // 去除开头的 ```markdown
+    .replace(/\s*```$/i, '')                     // 去除末尾的 ```
+    .replace(/\\r\\n/g, '\n')                    // 转义换行 → 真实换行
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\r')
+    .trim();
+}
+```
+
+4. 竞态请求处理
+
+使用请求序列号防止旧请求覆盖新请求的结果：
+
+```js
+let requestSequence = 0;
+
+async function getAIReportList() {
+  const current = ++requestSequence;
+  // ...请求完成后判断
+  if (current !== requestSequence) return; // 丢弃旧结果
+}
+```
+
+5. 模板渲染
+
+```vue
+<div v-dompurify-html="renderedMarkdown" class="content-section" @click="handleMarkdownClick" />
+```
+
+	- `v-dompurify-html`：XSS 安全过滤后渲染 HTML
+	- `@click="handleMarkdownClick"`：兜底链接新窗口打开逻辑
+
+6. 样式处理（`:deep()`）
+
+通过 :deep(.content-section) 对渲染后的 Markdown HTML 元素进行样式定制，覆盖标题、段落、列表、表格、代码块等元素的样式，保持与项目整体风格一致。
+
+
+
+
+
+
+
+
