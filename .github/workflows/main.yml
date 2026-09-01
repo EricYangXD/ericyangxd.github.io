@@ -88,8 +88,8 @@ jobs:
           static_list: "ericyangxd.github.io"
           force_update: true
           debug: true
-          timeout: '2m'
-          lfs: true
+          # timeout: '2m'
+          # lfs: true
 
       # 发布到云服务器上
       # - name: Deploy to Oracle Cloud Server
