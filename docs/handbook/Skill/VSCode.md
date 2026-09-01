@@ -38,3 +38,25 @@ eg. 1.73.1。[see here](https://code.visualstudio.com/docs/supporting/faq#_previ
 | macOS Universal     | https://update.code.visualstudio.com/{version}/darwin-universal/stable |
 | macOS Intel chip    | https://update.code.visualstudio.com/{version}/darwin/stable           |
 | macOS Apple silicon | https://update.code.visualstudio.com/{version}/darwin-arm64/stable     |
+
+## Office Viewer
+
+在vscode中直接查看office文件！
+
+## Markdown PDF
+
+转换markdown文件为多种其他格式！
+
+## Markdown All in One
+
+在`settings.json`中配置格式化：
+
+```json
+{
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  }
+}
+```
