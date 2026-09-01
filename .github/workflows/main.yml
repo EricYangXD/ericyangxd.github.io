@@ -73,8 +73,12 @@ jobs:
 
       # 把代码同步到Gitee
       - name: Sync to Gitee
-        uses: Yikun/hub-mirror-action@v1.4
+        # 20260901 ok
+        # uses: Yikun/hub-mirror-action@v1.4
+        # 20260901 no ok
         # uses: Yikun/hub-mirror-action@master
+        # 仓库名不同时同步
+        uses: Yikun/hub-mirror-action@mappings
         with:
           src: "github/EricYangXD"
           dst: "gitee/EricYangXD"
@@ -84,6 +88,8 @@ jobs:
           static_list: "ericyangxd.github.io"
           force_update: true
           debug: true
+          timeout: '2m'
+          lfs: true
 
       # 发布到云服务器上
       # - name: Deploy to Oracle Cloud Server
