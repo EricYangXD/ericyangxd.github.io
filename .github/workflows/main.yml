@@ -74,11 +74,11 @@ jobs:
       # 把代码同步到Gitee
       - name: Sync to Gitee
         # 20260901 ok
-        # uses: Yikun/hub-mirror-action@v1.4
+        uses: Yikun/hub-mirror-action@v1.4
         # 20260901 no ok
         # uses: Yikun/hub-mirror-action@master
-        # 仓库名不同时同步
-        uses: Yikun/hub-mirror-action@mappings
+        # 仓库名不同时同步20260901 no ok
+        # uses: Yikun/hub-mirror-action@mappings
         with:
           src: "github/EricYangXD"
           dst: "gitee/EricYangXD"
