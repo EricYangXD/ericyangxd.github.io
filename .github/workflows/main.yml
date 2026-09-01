@@ -73,7 +73,8 @@ jobs:
 
       # 把代码同步到Gitee
       - name: Sync to Gitee
-        uses: Yikun/hub-mirror-action@master
+        uses: Yikun/hub-mirror-action@v1.4
+        # uses: Yikun/hub-mirror-action@master
         with:
           src: "github/EricYangXD"
           dst: "gitee/EricYangXD"
